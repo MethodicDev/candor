@@ -1,48 +1,41 @@
 ---
 name: candor-ui
-description: Build agent product UIs with Candor UI, a shadcn/ui registry of React components for agents that do real work - chat, tool calls, plans, approvals, diffs, run logs, traces, evals, admin and the app shell around them. Use when building or changing a React or Next.js interface for an AI agent, when the project's components.json lists the @candor registry, or when the user mentions Candor. Covers installing components, choosing the right one, wiring the Vercel AI SDK or Claude Agent SDK adapter, and the honesty rules every Candor screen follows.
+description: Build agent product UIs with Candor UI, a shadcn/ui registry of React components for agents that do real work - chat, tool calls, plans, approvals, diffs, run logs, traces, evals, admin and the app shell around them. Use when building or changing a React or Next.js interface for an AI agent, when the project's components.json lists the @candor registry, or when the user mentions Candor. Covers installing components, choosing the right one, wiring the Vercel AI SDK, Claude Agent SDK or AG-UI adapter, and the honesty rules every Candor screen follows.
 ---
 
 # Candor UI
 
 Candor UI is a shadcn/ui registry: components are copied into the project with the shadcn CLI and then belong to
-it. Every component takes plain, typed data, so it works with any model or backend; adapters map the Vercel AI SDK
-and the Claude Agent SDK onto that data.
+it. Every component takes plain, typed data, so it works with any model or backend; adapters map the Vercel AI SDK,
+the Claude Agent SDK and AG-UI onto that data.
 
-## Set up the registry
+## Set up and install
 
-Add the registry to `components.json` once. Free items need nothing more:
-
-```json
-{ "registries": { "@candor": "https://candor.themethodic.com/r/{name}.json" } }
-```
-
-Pro and Premium items need the buyer's licence key. Put it in `.env.local` as `CANDOR_LICENSE_KEY` (never in a
-committed file) and send it as a header. The shadcn CLI stops with an error if a variable it names is missing, so
-only add the header when the key is set:
-
-```json
-{
-  "registries": {
-    "@candor": {
-      "url": "https://candor.themethodic.com/r/{name}.json",
-      "headers": { "Authorization": "Bearer ${CANDOR_LICENSE_KEY}" }
-    }
-  }
-}
-```
-
-To let a coding agent browse and install Candor items itself, run `npx shadcn@latest mcp init --client claude` (or
-`cursor`, `vscode`, `codex`): shadcn's MCP server serves every registry in `components.json`.
-
-Then install the theme first, and the components you need; their dependencies come with them:
+Use the `candor-ui` CLI; it wraps the shadcn CLI and keeps a lockfile so updates can merge.
 
 ```bash
-npx shadcn@latest add @candor/theme @candor/thread @candor/message @candor/composer
+npx candor-ui@latest init --yes        # registry in components.json, the theme, its import; sets up shadcn if missing
+npx candor-ui add thread message composer
 ```
 
-Import the theme after Tailwind in the global CSS: `@import "./styles/candor.css";`. Themes switch with
-`data-theme="light" | "dark" | "hc"` on `<html>`.
+- **Where files land:** `ui` primitives in `@/components/ui/…`, libraries and types in `@/lib/…` (for example
+  `@/lib/chat`), everything else in `@/components/…` (for example `@/components/thread`). Import from those paths;
+  the `@/registry/…` paths in Candor's own repo don't exist in an app.
+- **Client components:** anything with state or handlers needs `"use client"` at the top in the Next.js App Router.
+- **Pro and Premium items** need the buyer's licence key. The person runs `npx candor-ui key <key>` themselves (it
+  goes in `.env.local`, which must stay out of git); never ask for the key in chat or put it in a file you write. In
+  CI, `CANDOR_LICENSE_KEY` is a secret.
+- **Updates:** `npx candor-ui update` brings installed items to the latest release and keeps local changes with a
+  three-way merge; commit `candor-lock.json`.
+- **When something looks wrong:** `npx candor-ui doctor` checks the registry, the key, the theme import, dark mode,
+  React and Tailwind, and says how to fix each.
+
+Without the CLI, add `"@candor": "https://candor.themethodic.com/r/{name}.json"` to `components.json` and run
+`npx shadcn@latest add @candor/<name>` (for paid items the registry entry needs
+`"headers": { "Authorization": "Bearer ${CANDOR_LICENSE_KEY}" }`). `npx shadcn@latest mcp init --client claude` lets a
+coding agent browse the registry.
+
+Themes switch with `data-theme="light" | "dark" | "hc"` on `<html>`.
 
 ## Choose components
 
@@ -62,6 +55,9 @@ Install only what the screen needs. Check an item's props in its source after in
 ## Wire an agent
 
 **Vercel AI SDK 7:** `useCandorChat(useChat(...), { agent })` returns `{ messages, composer, approvals, respond }`.
+
+**AG-UI:** `useAgUi({ url: "/api/agent", agent })` returns the same `{ messages, composer, approvals, respond }`; a
+run that ends on an interrupt shows it in `approvals`, and `respond` resumes it.
 
 **Claude Agent SDK:** on the server, `streamClaudeAgent(({ canUseTool, abortController }) => query({ prompt,
 options: { canUseTool, abortController, resume: sessionId, includePartialMessages: true } }), { signal:

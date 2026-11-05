@@ -92,7 +92,7 @@
     {
       "name": "claude-agent-server",
       "type": "registry:component",
-      "description": "Send a typed card to the browser, e.g. from a tool handler: `emit({ type: \"candor_card\", card: \"diff\", props, summary })`.",
+      "description": "The server half of the Claude Agent SDK adapter: stream a run to useClaudeAgent, and answer its permission requests.",
       "dependencies": [
         "@anthropic-ai/claude-agent-sdk@^0.3.318"
       ],
@@ -433,7 +433,7 @@
     {
       "name": "citation",
       "type": "registry:component",
-      "description": "An inline [n].",
+      "description": "An inline [n] that opens its source in a popover, so evidence is one step away without leaving the thread.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -456,7 +456,7 @@
     {
       "name": "composer",
       "type": "registry:component",
-      "description": "Where a person asks.",
+      "description": "Where a person writes to the agent: @ mentions attach things as references, / starts a known action, and the scope says where the ask runs.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -501,7 +501,7 @@
     {
       "name": "entity-chip",
       "type": "registry:component",
-      "description": "The kinds of thing your app's entities can be: an icon and a noun each.",
+      "description": "A thing in the user's system (a table, a record, a flow) as a chip with its kind's icon, that can open it.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -568,7 +568,7 @@
     {
       "name": "message-content",
       "type": "registry:component",
-      "description": "Inline nodes.",
+      "description": "A message's typed blocks (paragraphs, lists, code, tool calls, cards), rendered as text, never as markdown or HTML.",
       "registryDependencies": [
         "@candor/attachment-preview",
         "@candor/card-registry",

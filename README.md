@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 49 free items (version 1.1.0), the skill for coding agents and a
+This repo is the source of Candor UI's 49 free items (version 1.1.1), the skill for coding agents and a
 starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -42,7 +42,7 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage.
 - `ai-sdk`: Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards.
 - `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals and usage.
-- `claude-agent-server`: Send a typed card to the browser, e.g. from a tool handler: `emit({ type: "candor_card", card: "diff", props, summary })`.
+- `claude-agent-server`: The server half of the Claude Agent SDK adapter: stream a run to useClaudeAgent, and answer its permission requests.
 - `use-ag-ui`: Wires an AG-UI agent to Candor: messages for <Thread>/<Message>, props for <Composer>, and the interrupts waiting on a person.
 - `use-candor-chat`: Wires a `useChat()` result to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
 - `use-claude-agent`: Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
@@ -59,13 +59,13 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `agent-avatar`: An agent's glyph and hue by role, so people can tell agents apart at a glance.
 - `attachment-preview`: A file waiting to be sent, as a chip in the composer: its name, then upload progress, an error, or its size, and a remove button.
 - `card-registry`: A card an agent's reply can carry.
-- `citation`: An inline [n].
-- `composer`: Where a person asks.
+- `citation`: An inline [n] that opens its source in a popover, so evidence is one step away without leaving the thread.
+- `composer`: Where a person writes to the agent: @ mentions attach things as references, / starts a known action, and the scope says where the ask runs.
 - `context-meter`: What fills the model's context budget, as a ring in the composer that opens to a breakdown: system, instructions, Know, the thread, tools, files.
-- `entity-chip`: The kinds of thing your app's entities can be: an icon and a noun each.
+- `entity-chip`: A thing in the user's system (a table, a record, a flow) as a chip with its kind's icon, that can open it.
 - `folded-turns`: A run of turns folded into one line, for long agent work a reader doesn't need to see step by step: "Drafted three versions and compared them".
 - `message-actions`: Copy, retry and rate under an agent's reply.
-- `message-content`: Inline nodes.
+- `message-content`: A message's typed blocks (paragraphs, lists, code, tool calls, cards), rendered as text, never as markdown or HTML.
 - `message`: One message in a thread.
 - `payload`: A block of code or query text from the agent: a query it ran, code it wrote, a config file.
 - `prompt-suggestions`: Prompts to start from.
@@ -100,4 +100,5 @@ applied upstream by hand, so they show up in the next release rather than being 
 
 ## Licence
 
-MIT, © Methodic LLC. See `LICENSE`.
+MIT, © Methodic LLC. See `LICENSE`. It covers this repository's free items; Candor UI's paid items are under the
+[Candor UI Commercial Licence](https://candor.themethodic.com/licence).
