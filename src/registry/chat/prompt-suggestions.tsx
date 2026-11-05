@@ -4,6 +4,12 @@ import { ArrowUpRight, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { PromptSuggestion } from "@/registry/lib/chat"
 import { Skeleton } from "@/registry/ui/skeleton"
+import { useStrings } from "@/registry/blocks/locale"
+
+/** PromptSuggestions' fixed words; override them under `promptSuggestions` in LocaleProvider's `strings`. */
+export const promptSuggestionsStrings = {
+  label: "Try asking",
+}
 
 /**
  * Prompts to start from. Choosing one puts it in the composer to edit, rather
@@ -13,7 +19,7 @@ import { Skeleton } from "@/registry/ui/skeleton"
 function PromptSuggestions({
   suggestions,
   onChoose,
-  label = "Try asking",
+  label: labelProp,
   loading = false,
   variant = "chips",
   className,
@@ -22,7 +28,7 @@ function PromptSuggestions({
   suggestions: PromptSuggestion[]
   /** Called with the chosen one; put it in the composer to edit rather than sending it. */
   onChoose: (suggestion: PromptSuggestion) => void
-  /** The heading above the suggestions. */
+  /** The heading above the suggestions; "Try asking" by default. */
   label?: string
   /** Shows placeholders while suggestions load. */
   loading?: boolean
@@ -30,6 +36,8 @@ function PromptSuggestions({
   variant?: "chips" | "cards"
   className?: string
 }) {
+  const t = useStrings("promptSuggestions", promptSuggestionsStrings)
+  const label = labelProp ?? t("label")
   if (!loading && suggestions.length === 0) return null
   return (
     <section data-slot="prompt-suggestions" aria-label={label} className={cn("flex flex-col gap-2", className)}>
@@ -47,7 +55,7 @@ function PromptSuggestions({
                   key={s.id}
                   type="button"
                   onClick={() => onChoose(s)}
-                  className="group/suggestion flex items-start justify-between gap-3 rounded-xl border bg-card p-3 text-left text-sm transition-[border-color,box-shadow,transform] duration-150 ease-standard outline-none hover:border-border-strong hover:shadow-raised active:scale-[0.99] focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                  className="group/suggestion flex items-start justify-between gap-3 rounded-xl border bg-card p-3 text-start text-sm transition-[border-color,box-shadow,transform] duration-150 ease-standard outline-none hover:border-border-strong hover:shadow-raised active:scale-[0.99] focus-visible:ring-[3px] focus-visible:ring-ring/40"
                 >
                   <span>{s.text}</span>
                   <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-faint-foreground transition-colors group-hover/suggestion:text-accent-text" />

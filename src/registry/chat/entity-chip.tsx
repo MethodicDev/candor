@@ -17,6 +17,33 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { EntityRef } from "@/registry/lib/chat"
+import { useStrings } from "@/registry/blocks/locale"
+
+/** EntityChip's fixed words; override them under `entityChip` in LocaleProvider's `strings`. */
+export const entityChipStrings = {
+  record: "Record",
+  document: "Document",
+  file: "File",
+  table: "Table",
+  field: "Field",
+  person: "Person",
+  link: "Link",
+  code: "Code",
+  workflow: "Workflow",
+  report: "Report",
+  dashboard: "Dashboard",
+  /** An unregistered kind. */
+  item: "Item",
+  title: "{noun}: {name}",
+  titleIn: "{noun}: {name} in {location}",
+  remove: "Remove {name}",
+}
+
+type BaseKind = keyof typeof baseKindNames
+const baseKindNames = {
+  record: 1, document: 1, file: 1, table: 1, field: 1, person: 1, link: 1, code: 1, workflow: 1, report: 1, dashboard: 1,
+} as const
+const isBaseKind = (kind: string): kind is BaseKind => Object.hasOwn(baseKindNames, kind)
 
 export type EntityKindInfo = { Icon: LucideIcon; noun: string }
 
@@ -60,7 +87,16 @@ function EntityKindsProvider({
 /** Look up a kind's icon and noun; unknown kinds read as "Item". */
 function useEntityKinds() {
   const kinds = React.useContext(KindsContext)
-  return React.useCallback((kind: string) => kinds[kind] ?? unknownKind, [kinds])
+  const t = useStrings("entityChip", entityChipStrings)
+  return React.useCallback(
+    (kind: string): EntityKindInfo => {
+      const info = kinds[kind]
+      if (!info) return { ...unknownKind, noun: t("item") }
+      // Built-in kinds take their noun from the strings table; an app's own kinds keep theirs.
+      return isBaseKind(kind) && info === baseKinds[kind] ? { ...info, noun: t(kind) } : info
+    },
+    [kinds, t]
+  )
 }
 
 /**
@@ -85,8 +121,11 @@ function EntityChip({
   className?: string
 }) {
   const { Icon, noun } = useEntityKinds()(entity.kind)
+  const t = useStrings("entityChip", entityChipStrings)
   const shown = entity.label ?? entity.name
-  const title = `${noun}: ${entity.name}${entity.location ? ` in ${entity.location}` : ""}`
+  const title = entity.location
+    ? t("titleIn", { noun, name: entity.name, location: entity.location })
+    : t("title", { noun, name: entity.name })
   const body = (
     <>
       <Icon aria-hidden className="size-3 shrink-0 text-muted-foreground" />
@@ -112,9 +151,9 @@ function EntityChip({
       {onRemove && (
         <button
           type="button"
-          aria-label={`Remove ${shown}`}
+          aria-label={t("remove", { name: shown })}
           onClick={() => onRemove(entity)}
-          className="-ml-px rounded-r-sm border border-l-0 bg-card px-1 py-px text-faint-foreground hover:text-foreground"
+          className="-ms-px rounded-e-sm border border-s-0 bg-card px-1 py-px text-faint-foreground hover:text-foreground"
         >
           ×
         </button>

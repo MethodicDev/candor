@@ -1,7 +1,9 @@
+"use client"
+
 import * as React from "react"
 import { Check, CircleSlash, Hand, LoaderCircle, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { statusLabel, type RunStatus } from "@/lib/status"
+import { useStatusLabel, type RunStatus } from "@/lib/status"
 
 export type Step = {
   id: string
@@ -75,6 +77,7 @@ function StepList({
   steps: Step[]
   className?: string
 }) {
+  const statusLabel = useStatusLabel()
   return (
     <ol data-slot="step-list" className={cn("flex flex-col", className)}>
       {steps.map((step, i) => {
@@ -86,7 +89,7 @@ function StepList({
               <span
                 aria-hidden
                 className={cn(
-                  "absolute top-5 bottom-0 left-[9.5px] w-px transition-colors duration-500",
+                  "absolute top-5 bottom-0 start-[9.5px] w-px transition-colors duration-500",
                   done ? "bg-success/50" : "bg-input"
                 )}
               />
@@ -102,7 +105,7 @@ function StepList({
                   )}
                 >
                   {step.title}
-                  <span className="sr-only"> — {statusLabel[step.status]}</span>
+                  <span className="sr-only"> — {statusLabel(step.status)}</span>
                 </p>
                 {step.meta && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{step.meta}</span>}
               </div>

@@ -1,5 +1,7 @@
+"use client"
+
 import { cn } from "@/lib/utils"
-import { statusLabel, type RunStatus } from "@/registry/lib/status"
+import { useStatusLabel, type RunStatus } from "@/registry/lib/status"
 
 const dotColor: Record<RunStatus, string> = {
   idle: "bg-faint-foreground/60",
@@ -32,7 +34,8 @@ function StatusDot({
   label?: string
   className?: string
 }) {
-  const text = label ?? statusLabel[status]
+  const statusLabel = useStatusLabel()
+  const text = label ?? statusLabel(status)
   const live = status === "running" || status === "waiting"
   return (
     <span

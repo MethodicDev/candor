@@ -3,6 +3,13 @@
 import * as React from "react"
 import { ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useStrings } from "@/components/locale"
+
+/** Thread's fixed words; override them under `thread` in LocaleProvider's `strings`. */
+export const threadStrings = {
+  messages: "Messages",
+  jumpToLatest: "Jump to latest",
+}
 
 /**
  * The scrolling message column. It follows new content while you're at the
@@ -26,6 +33,7 @@ function Thread({
   /** Classes for the message column. */
   contentClassName?: string
 }) {
+  const t = useStrings("thread", threadStrings)
   const scroller = React.useRef<HTMLDivElement>(null)
   const content = React.useRef<HTMLDivElement>(null)
   const pinnedRef = React.useRef(true)
@@ -71,7 +79,7 @@ function Thread({
     <div data-slot="thread" className={cn("flex min-h-0 flex-col", className)}>
       <div className="relative min-h-0 flex-1">
         <div ref={scroller} onScroll={onScroll} className="h-full overflow-y-auto overscroll-contain">
-          <div ref={content} role="log" aria-label="Messages" className={cn("mx-auto flex w-full max-w-3xl flex-col gap-7 px-4 py-6", contentClassName)}>
+          <div ref={content} role="log" aria-label={t("messages")} className={cn("mx-auto flex w-full max-w-(--cd-thread-width) flex-col gap-7 px-4 py-6", contentClassName)}>
             {hasMessages ? children : empty}
           </div>
         </div>
@@ -85,12 +93,12 @@ function Thread({
             }}
             className="absolute bottom-3 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border bg-popover px-3 py-1.5 text-xs font-medium shadow-float animate-in fade-in-0 slide-in-from-bottom-1"
           >
-            <ArrowDown className="size-3" /> Jump to latest
+            <ArrowDown aria-hidden className="size-3" /> {t("jumpToLatest")}
           </button>
         )}
         <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent" />
       </div>
-      {footer && <div className="mx-auto w-full max-w-3xl px-4 pb-4">{footer}</div>}
+      {footer && <div className="mx-auto w-full max-w-(--cd-thread-width) px-4 pb-4">{footer}</div>}
     </div>
   )
 }

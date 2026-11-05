@@ -5,6 +5,17 @@ import { Check, Copy, RotateCw, ThumbsDown, ThumbsUp, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCopy } from "@/lib/use-copy"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useStrings } from "@/components/locale"
+
+/** MessageActions' fixed words; override them under `messageActions` in LocaleProvider's `strings`. */
+export const messageActionsStrings = {
+  copy: "Copy",
+  copied: "Copied",
+  copyFailed: "Couldn’t copy",
+  retry: "Retry",
+  good: "Good answer",
+  bad: "Bad answer",
+}
 
 export type Rating = "up" | "down" | null
 
@@ -53,29 +64,30 @@ function MessageActions({
   className?: string
 }) {
   const { state, copy } = useCopy()
+  const t = useStrings("messageActions", messageActionsStrings)
   return (
     <div data-slot="message-actions" className={cn("flex items-center gap-0.5", className)}>
       {text !== undefined && (
-        <ActionButton label={state === "copied" ? "Copied" : state === "failed" ? "Couldn’t copy" : "Copy"} onClick={() => copy(text)}>
+        <ActionButton label={state === "copied" ? t("copied") : state === "failed" ? t("copyFailed") : t("copy")} onClick={() => copy(text)}>
           {state === "copied" ? <Check className="text-success-text" /> : state === "failed" ? <X className="text-destructive-text" /> : <Copy />}
         </ActionButton>
       )}
       {onRetry && (
-        <ActionButton label="Retry" onClick={onRetry}>
+        <ActionButton label={t("retry")} onClick={onRetry}>
           <RotateCw />
         </ActionButton>
       )}
       {onRate && (
         <>
-          <ActionButton label="Good answer" pressed={rating === "up"} onClick={() => onRate(rating === "up" ? null : "up")}>
+          <ActionButton label={t("good")} pressed={rating === "up"} onClick={() => onRate(rating === "up" ? null : "up")}>
             <ThumbsUp className={cn(rating === "up" && "fill-current")} />
           </ActionButton>
-          <ActionButton label="Bad answer" pressed={rating === "down"} onClick={() => onRate(rating === "down" ? null : "down")}>
+          <ActionButton label={t("bad")} pressed={rating === "down"} onClick={() => onRate(rating === "down" ? null : "down")}>
             <ThumbsDown className={cn(rating === "down" && "fill-current")} />
           </ActionButton>
         </>
       )}
-      {meta && <span className="ml-1.5 truncate text-xs text-faint-foreground">{meta}</span>}
+      {meta && <span className="ms-1.5 truncate text-xs text-faint-foreground">{meta}</span>}
     </div>
   )
 }

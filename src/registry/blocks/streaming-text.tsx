@@ -26,7 +26,7 @@ function StreamingText({
       {streaming && (
         <span
           aria-hidden
-          className="ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary animate-caret"
+          className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary animate-caret"
         />
       )}
     </div>

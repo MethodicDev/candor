@@ -4,6 +4,15 @@ import * as React from "react"
 import { ChevronRight, LayoutTemplate } from "lucide-react"
 import { DegradedPanel } from "@/registry/blocks/degraded-panel"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
+import { useStrings } from "@/registry/blocks/locale"
+
+/** CardRegistry's fixed words; override them under `cardRegistry` in LocaleProvider's `strings`. */
+export const cardRegistryStrings = {
+  showAsText: "Show it as text",
+  unknown: "This reply includes a “{name}” card this app can’t show.",
+  invalid: "The {label} couldn’t be shown: {problem}",
+  failed: "The {label} failed while drawing.",
+}
 
 /**
  * A card an agent's reply can carry. `check` decides whether the props are
@@ -56,10 +65,11 @@ function Summary({
 }: {
   text: string
 }) {
+  const t = useStrings("cardRegistry", cardRegistryStrings)
   return (
     <Collapsible className="group/summary">
       <CollapsibleTrigger className="inline-flex items-center gap-1 text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40 rounded-sm">
-        <ChevronRight aria-hidden className="size-3 transition-transform group-data-[state=open]/summary:rotate-90" /> Show it as text
+        <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3 transition-transform group-data-[state=open]/summary:[transform:rotate(90deg)]" /> {t("showAsText")}
       </CollapsibleTrigger>
       <CollapsibleContent>
         <p className="mt-1.5 rounded-md bg-sunken px-3 py-2 text-sm whitespace-pre-wrap">{text}</p>
@@ -85,13 +95,14 @@ function Card({
   /** The plain-text version, shown when the card can't be. */
   summary: string
 }) {
+  const t = useStrings("cardRegistry", cardRegistryStrings)
   const cards = React.useContext(Registry)
   const def = cards[name]
   if (!def) {
     return (
       <div data-slot="card" data-card={name} data-state="unknown" className="flex flex-col gap-1.5 rounded-lg border border-dashed px-3 py-2.5">
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <LayoutTemplate aria-hidden className="size-3.5" /> This reply includes a “{name}” card this app can’t show.
+          <LayoutTemplate aria-hidden className="size-3.5" /> {t("unknown", { name })}
         </p>
         <Summary text={summary} />
       </div>
@@ -101,7 +112,7 @@ function Card({
   if (problem) {
     return (
       <div data-slot="card" data-card={name} data-state="invalid" className="flex flex-col gap-1.5">
-        <DegradedPanel reason={`The ${def.label.toLowerCase()} couldn’t be shown: ${problem}`} />
+        <DegradedPanel reason={t("invalid", { label: def.label.toLowerCase(), problem })} />
         <Summary text={summary} />
       </div>
     )
@@ -111,7 +122,7 @@ function Card({
       <CardBoundary
         fallback={
           <div className="flex flex-col gap-1.5">
-            <DegradedPanel reason={`The ${def.label.toLowerCase()} failed while drawing.`} />
+            <DegradedPanel reason={t("failed", { label: def.label.toLowerCase() })} />
             <Summary text={summary} />
           </div>
         }

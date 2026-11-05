@@ -1,3 +1,11 @@
+import { useStrings } from "@/components/locale"
+
+/**
+ * The status vocabulary every Candor agent component shares. Components take
+ * plain data in these shapes rather than an SDK's message objects, so they work
+ * with your own LLM drivers, the Vercel AI SDK or anything else; adapters
+ * map an SDK's parts onto them.
+ */
 export type RunStatus =
   | "idle" // not started
   | "queued" // accepted, waiting for a worker
@@ -9,7 +17,8 @@ export type RunStatus =
   | "cancelled"
   | "skipped"
 
-export const statusLabel: Record<RunStatus, string> = {
+/** Status words; override them under `status` in LocaleProvider's `strings`. */
+export const statusStrings = {
   idle: "Not started",
   queued: "Queued",
   running: "Running",
@@ -19,6 +28,15 @@ export const statusLabel: Record<RunStatus, string> = {
   failed: "Failed",
   cancelled: "Cancelled",
   skipped: "Skipped",
+} satisfies Record<RunStatus, string>
+
+/** English status labels. Kept for compatibility; components use `useStatusLabel()` so they follow the locale. */
+export const statusLabel: Record<RunStatus, string> = statusStrings
+
+/** A status's label in the current locale: `const label = useStatusLabel(); label("running")`. */
+export function useStatusLabel(): (status: RunStatus) => string {
+  const t = useStrings("status", statusStrings)
+  return t
 }
 
 /** The Badge variant that carries each status. */

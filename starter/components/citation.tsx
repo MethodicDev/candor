@@ -1,7 +1,26 @@
+"use client"
+
 import { BookOpen, Braces, Database, FileText, Globe, Table2, Waypoints, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { MessageSource, SourceKind } from "@/lib/chat"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useStrings, type Translate } from "@/components/locale"
+
+/** Citation's fixed words; override them under `citation` in LocaleProvider's `strings`. */
+export const citationStrings = {
+  document: "Document",
+  web: "Web page",
+  query: "Query",
+  data: "Data",
+  code: "Code",
+  workflow: "Workflow",
+  knowledge: "Knowledge",
+  /** A kind not listed above. */
+  source: "Source",
+  notVerified: "The agent cites this but hasn’t verified it.",
+  sourceLabel: "Source {marker}: {label}",
+  sources: "Sources",
+}
 
 /** Kinds of evidence most apps cite. Others read as "Source". */
 export const sourceKinds: Record<string, { Icon: LucideIcon; noun: string }> = {
@@ -14,7 +33,15 @@ export const sourceKinds: Record<string, { Icon: LucideIcon; noun: string }> = {
   knowledge: { Icon: BookOpen, noun: "Knowledge" },
 }
 
-const kindOf = (kind: SourceKind) => sourceKinds[kind] ?? { Icon: FileText, noun: "Source" }
+const builtInKinds = ["document", "web", "query", "data", "code", "workflow", "knowledge"] as const
+type BuiltInKind = (typeof builtInKinds)[number]
+const isBuiltIn = (kind: string): kind is BuiltInKind => (builtInKinds as readonly string[]).includes(kind)
+
+const kindOf = (kind: SourceKind, t: Translate<typeof citationStrings>) => {
+  const info = sourceKinds[kind]
+  if (!info) return { Icon: FileText, noun: t("source") }
+  return isBuiltIn(kind) ? { ...info, noun: t(kind) } : info
+}
 
 function SourceDetail({
   source,
@@ -22,7 +49,8 @@ function SourceDetail({
   /** The source this marker points to; without it the marker says it's unknown. */
   source: MessageSource
 }) {
-  const { Icon, noun } = kindOf(source.kind)
+  const t = useStrings("citation", citationStrings)
+  const { Icon, noun } = kindOf(source.kind, t)
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-start gap-2">
@@ -40,7 +68,7 @@ function SourceDetail({
         </blockquote>
       )}
       {source.provisional && (
-        <p className="text-xs text-provisional">The agent cites this but hasn’t verified it.</p>
+        <p className="text-xs text-provisional">{t("notVerified")}</p>
       )}
     </div>
   )
@@ -60,12 +88,13 @@ function Citation({
   /** The number to show when there's no source. */
   marker?: number
 }) {
+  const t = useStrings("citation", citationStrings)
   if (!source) {
     return <sup className="text-faint-foreground">[{marker ?? "?"}]</sup>
   }
   return (
     <Popover>
-      <PopoverTrigger render={<button type="button" aria-label={`Source ${source.marker}: ${source.label}`} className={cn(
+      <PopoverTrigger render={<button type="button" aria-label={t("sourceLabel", { marker: source.marker, label: source.label })} className={cn(
                       "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums transition-colors duration-150 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
                       source.provisional
                         ? "border border-dashed border-provisional/60 text-provisional hover:bg-muted"
@@ -87,18 +116,19 @@ function SourceList({
   sources: MessageSource[]
   className?: string
 }) {
+  const t = useStrings("citation", citationStrings)
   if (sources.length === 0) return null
   return (
     <div data-slot="source-list" className={cn("flex flex-wrap items-center gap-1.5", className)}>
-      <span className="mr-0.5 text-xs text-faint-foreground">Sources</span>
+      <span className="me-0.5 text-xs text-faint-foreground">{t("sources")}</span>
       {[...sources]
         .sort((a, b) => a.marker - b.marker)
         .map((s) => {
-          const { Icon } = kindOf(s.kind)
+          const { Icon } = kindOf(s.kind, t)
           return (
             <Popover key={s.id}>
               <PopoverTrigger render={<button type="button" className={cn(
-                                      "inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pr-2 pl-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40",
+                                      "inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40",
                                       s.provisional && "border-dashed"
                                     )} />}><span className="flex h-4 min-w-4 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span><Icon aria-hidden className="size-3 shrink-0" /><span className="truncate">{s.label}</span></PopoverTrigger>
               <PopoverContent align="start" className="w-80 p-3">

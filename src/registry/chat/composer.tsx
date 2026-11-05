@@ -1,11 +1,31 @@
 "use client"
 
 import * as React from "react"
-import { ArrowUp, LoaderCircle, Paperclip, Square, TriangleAlert, X } from "lucide-react"
+import { ArrowUp, LoaderCircle, Paperclip, Square, TriangleAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Attachment, ComposerScope, EntityRef, MentionOption, SlashCommand } from "@/registry/lib/chat"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 import { EntityChip, useEntityKinds } from "@/registry/chat/entity-chip"
+import { AttachmentChip } from "@/registry/chat/attachment-preview"
+import { useStrings } from "@/registry/blocks/locale"
+
+/** Composer's fixed words; override them under `composer` in LocaleProvider's `strings`. */
+export const composerStrings = {
+  placeholder: "Ask a question, or describe a change",
+  label: "Message",
+  commands: "Commands",
+  mentions: "Mentions",
+  attachFiles: "Attach files",
+  production: "Production",
+  nonProduction: "Non-production",
+  offline: "You’re offline. Your message will wait here.",
+  hintSend: "send",
+  hintNewLine: "new line",
+  hintMention: "mention",
+  stop: "Stop",
+  send: "Send",
+  dropFiles: "Drop files to attach",
+}
 
 export type ComposerState =
   | "ready"
@@ -31,14 +51,10 @@ function findTrigger(value: string, caret: number): Trigger | null {
   return { char, start, query: m[3]! }
 }
 
-const groupOf = (item: MenuItem) => (item.type === "command" ? "Commands" : item.option.group)
+const groupOf = (item: MenuItem, commandsLabel = "Commands") => (item.type === "command" ? commandsLabel : item.option.group)
 
-function formatSize(bytes?: number) {
-  if (bytes === undefined) return null
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-}
+/** Whether a drag carries files (not text or a link being dragged around the page). */
+const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes("Files")
 
 /**
  * Where a person asks. Mentions (@) attach things in the user's system as chips the agent
@@ -47,7 +63,8 @@ function formatSize(bytes?: number) {
  * against, and turns to a warning when that is production.
  *
  * Enter sends, Shift+Enter breaks a line. While an agent replies the send button
- * becomes Stop. A locked composer says why; an offline one says so.
+ * becomes Stop. A locked composer says why; an offline one says so. With
+ * `onAttach`, files can also be pasted or dropped onto it.
  */
 function Composer({
   value,
@@ -63,9 +80,10 @@ function Composer({
   onReferencesChange,
   attachments = [],
   onAttach,
+  accept,
   onRemoveAttachment,
-  placeholder = "Ask a question, or describe a change",
-  label = "Message",
+  placeholder: placeholderProp,
+  label: labelProp,
   className,
 }: {
   /** The text in the box. */
@@ -94,22 +112,33 @@ function Composer({
   attachments?: Attachment[]
   /** Shows an attach button; called with the chosen files. */
   onAttach?: (files: File[]) => void
+  /**
+   * Which files the attach button's picker offers, as for `<input accept>` (e.g. "image/*,.pdf"). Files pasted or
+   * dropped arrive as they are, so check types where you upload.
+   */
+  accept?: string
   /** Called when a file is removed. */
   onRemoveAttachment?: (id: string) => void
-  /** Shown in the empty box. */
+  /** Shown in the empty box; "Ask a question, or describe a change" by default. */
   placeholder?: string
-  /** The accessible name of the text box. */
+  /** The accessible name of the text box; "Message" by default. */
   label?: string
   className?: string
 }) {
   const kindOf = useEntityKinds()
+  const t = useStrings("composer", composerStrings)
+  const placeholder = placeholderProp ?? t("placeholder")
+  const label = labelProp ?? t("label")
   const id = React.useId()
   const textarea = React.useRef<HTMLTextAreaElement>(null)
+  // Files dragged over the composer: a count of enter/leave pairs, since child elements fire their own.
+  const [dragDepth, setDragDepth] = React.useState(0)
   const fileInput = React.useRef<HTMLInputElement>(null)
   const [trigger, setTrigger] = React.useState<Trigger | null>(null)
   const [active, setActive] = React.useState(0)
 
   const locked = typeof state === "object" ? state : null
+  const canAttach = Boolean(onAttach) && !locked
   const busy = state === "sending" || state === "streaming"
   const canSend = !locked && !busy && (value.trim().length > 0 || references.length > 0)
 
@@ -214,18 +243,47 @@ function Composer({
   const optionId = (i: number) => `${id}-opt-${i}`
 
   return (
-    <div data-slot="composer" className={cn("@container relative", className)}>
+    <div
+      data-slot="composer"
+      data-dragging={dragDepth > 0 || undefined}
+      className={cn("@container relative", className)}
+      onDragEnter={(e) => {
+        if (!canAttach || !hasFiles(e)) return
+        e.preventDefault()
+        setDragDepth((d) => d + 1)
+      }}
+      onDragOver={(e) => {
+        if (!hasFiles(e)) return
+        // Always claim a file drag, so a drop that can't attach doesn't open the file in place of the app.
+        e.preventDefault()
+        e.dataTransfer.dropEffect = canAttach ? "copy" : "none"
+      }}
+      onDragLeave={() => setDragDepth((d) => Math.max(0, d - 1))}
+      onDrop={(e) => {
+        if (!hasFiles(e)) return
+        e.preventDefault()
+        setDragDepth(0)
+        if (!canAttach) return
+        const files = Array.from(e.dataTransfer.files)
+        if (files.length) onAttach!(files)
+      }}
+    >
+      {dragDepth > 0 && (
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-2xl border-2 border-dashed border-primary bg-card/90 text-sm font-medium text-accent-text">
+          {t("dropFiles")}
+        </div>
+      )}
       {menuOpen && (
         <div
           id={listId}
           role="listbox"
-          aria-label={trigger?.char === "/" ? "Commands" : "Mentions"}
+          aria-label={trigger?.char === "/" ? t("commands") : t("mentions")}
           className="absolute inset-x-0 bottom-full z-20 mb-2 max-h-72 overflow-y-auto rounded-xl border bg-popover p-1 shadow-float animate-in fade-in-0 slide-in-from-bottom-1"
         >
           {items.map((item, i) => {
-            const group = groupOf(item)
+            const group = groupOf(item, t("commands"))
             const prev = items[i - 1]
-            const header = !prev || groupOf(prev) !== group ? group : null
+            const header = !prev || groupOf(prev, t("commands")) !== group ? group : null
             const Icon = item.type === "mention" && item.option.entity ? kindOf(item.option.entity.kind).Icon : null
             return (
               <React.Fragment key={item.type === "command" ? item.command.id : item.option.id}>
@@ -246,7 +304,7 @@ function Composer({
                     <>
                       <span className="font-mono text-xs text-accent-text">/{item.command.name}</span>
                       {item.command.args && <span className="font-mono text-xs text-faint-foreground">{item.command.args}</span>}
-                      <span className="ml-auto truncate text-xs text-muted-foreground">{item.command.description}</span>
+                      <span className="ms-auto truncate text-xs text-muted-foreground">{item.command.description}</span>
                     </>
                   ) : (
                     <>
@@ -282,27 +340,7 @@ function Composer({
               <EntityChip key={`${r.kind}:${r.name}`} entity={r} onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))} />
             ))}
             {attachments.map((a) => (
-              <span
-                key={a.id}
-                className={cn(
-                  "relative inline-flex max-w-56 items-center gap-1.5 overflow-hidden rounded-md border bg-card py-1 pr-1 pl-2 text-xs",
-                  a.error && "border-destructive/50"
-                )}
-              >
-                <Paperclip aria-hidden className="size-3 shrink-0 text-muted-foreground" />
-                <span className="truncate">{a.name}</span>
-                <span className={cn("shrink-0 tabular-nums", a.error ? "text-destructive-text" : "text-faint-foreground")}>
-                  {a.error ? a.error : a.progress !== undefined ? `${Math.round(a.progress * 100)}%` : formatSize(a.size)}
-                </span>
-                {onRemoveAttachment && (
-                  <button type="button" aria-label={`Remove ${a.name}`} onClick={() => onRemoveAttachment(a.id)} className="rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
-                    <X className="size-3" />
-                  </button>
-                )}
-                {a.progress !== undefined && !a.error && (
-                  <span aria-hidden className="absolute bottom-0 left-0 h-0.5 bg-primary transition-[width] duration-300" style={{ width: `${a.progress * 100}%` }} />
-                )}
-              </span>
+              <AttachmentChip key={a.id} attachment={a} onRemove={onRemoveAttachment} />
             ))}
           </div>
         )}
@@ -327,18 +365,25 @@ function Composer({
           }}
           onClick={syncTrigger}
           onBlur={() => setTrigger(null)}
+          onPaste={(e) => {
+            // Pasted files (a screenshot, files copied in Finder) attach; pasted text is typed as usual.
+            const files = Array.from(e.clipboardData?.files ?? [])
+            if (!files.length || !canAttach) return
+            onAttach!(files)
+            if (!e.clipboardData.getData("text/plain")) e.preventDefault()
+          }}
           aria-controls={menuOpen ? listId : undefined}
           aria-activedescendant={menuOpen ? optionId(active) : undefined}
           aria-autocomplete="list"
           aria-describedby={locked ? `${id}-locked` : undefined}
           className={cn(
-            "block max-h-60 min-h-12 w-full resize-none bg-transparent px-4 pt-3 pb-1 text-base leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground disabled:cursor-not-allowed",
+            "block max-h-60 min-h-12 w-full resize-none bg-transparent px-4 pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground disabled:cursor-not-allowed",
             locked && !value && "min-h-0 h-3 pt-3 pb-0"
           )}
         />
         {locked && (
           <p id={`${id}-locked`} className="flex items-center gap-1.5 px-4 pb-1 text-sm text-muted-foreground">
-            {locked.kind === "offline" ? locked.reason ?? "You’re offline. Your message will wait here." : locked.reason}
+            {locked.kind === "offline" ? locked.reason ?? t("offline") : locked.reason}
           </p>
         )}
 
@@ -349,8 +394,9 @@ function Composer({
                 ref={fileInput}
                 type="file"
                 multiple
+                accept={accept}
                 tabIndex={-1}
-                aria-label="Attach files"
+                aria-label={t("attachFiles")}
                 className="hidden"
                 onChange={(e) => {
                   const files = Array.from(e.target.files ?? [])
@@ -362,7 +408,7 @@ function Composer({
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    aria-label="Attach files"
+                    aria-label={t("attachFiles")}
                     disabled={Boolean(locked)}
                     onClick={() => fileInput.current?.click()}
                     className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground disabled:opacity-40"
@@ -370,7 +416,7 @@ function Composer({
                     <Paperclip className="size-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>Attach files</TooltipContent>
+                <TooltipContent>{t("attachFiles")}</TooltipContent>
               </Tooltip>
             </>
           )}
@@ -387,32 +433,32 @@ function Composer({
             >
               {production ? <TriangleAlert aria-hidden className="size-3 shrink-0" /> : <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-success" />}
               <span className="truncate">
-                {scope.environment} · {production ? "Production" : (scope.detail ?? "Non-production")}
+                {scope.environment} · {production ? t("production") : (scope.detail ?? t("nonProduction"))}
               </span>
             </button>
           )}
 
-          <span className="ml-auto hidden text-2xs text-faint-foreground @lg:inline">
-            <kbd className="font-sans">↵</kbd> send · <kbd className="font-sans">⇧↵</kbd> new line · <kbd className="font-sans">@</kbd> mention
+          <span className="ms-auto hidden text-2xs text-faint-foreground @lg:inline">
+            <kbd className="font-sans">↵</kbd> {t("hintSend")} · <kbd className="font-sans">⇧↵</kbd> {t("hintNewLine")} · <kbd className="font-sans">@</kbd> {t("hintMention")}
           </span>
 
           {state === "streaming" && onStop ? (
             <button
               type="button"
-              aria-label="Stop"
+              aria-label={t("stop")}
               onClick={onStop}
-              className="ml-auto flex size-8 items-center justify-center rounded-lg bg-foreground text-background transition-transform duration-150 active:scale-95 @lg:ml-1"
+              className="ms-auto flex size-8 items-center justify-center rounded-lg bg-foreground text-background transition-transform duration-150 active:scale-95 @lg:ms-1"
             >
               <Square className="size-3 fill-current" />
             </button>
           ) : (
             <button
               type="button"
-              aria-label="Send"
+              aria-label={t("send")}
               onClick={submit}
               disabled={!canSend}
               aria-busy={state === "sending"}
-              className="ml-auto flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-[background-color,opacity,transform] duration-150 enabled:hover:bg-primary-hover active:scale-95 disabled:opacity-30 @lg:ml-1"
+              className="ms-auto flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-[background-color,opacity,transform] duration-150 enabled:hover:bg-primary-hover active:scale-95 disabled:opacity-30 @lg:ms-1"
             >
               {state === "sending" ? <LoaderCircle className="size-4 animate-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
             </button>

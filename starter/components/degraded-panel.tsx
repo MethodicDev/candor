@@ -3,6 +3,14 @@
 import { CircleAlert, RotateCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useStrings } from "@/components/locale"
+
+/** DegradedPanel's fixed words; override them under `degradedPanel` in LocaleProvider's `strings`. */
+export const degradedPanelStrings = {
+  missing: "Missing:",
+  retry: "Retry",
+  retrying: "Retrying",
+}
 
 /**
  * Something couldn't be done. Says what went wrong, what is missing because of
@@ -29,6 +37,7 @@ function DegradedPanel({
   variant?: "block" | "inline"
   className?: string
 }) {
+  const t = useStrings("degradedPanel", degradedPanelStrings)
   return (
     <div
       data-slot="degraded-panel"
@@ -42,11 +51,11 @@ function DegradedPanel({
       <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-warning-text" />
       <div className="min-w-0 flex-1">
         <p className="text-foreground">{reason}</p>
-        {missing && <p className="mt-0.5 text-xs text-muted-foreground">Missing: {missing}</p>}
+        {missing && <p className="mt-0.5 text-xs text-muted-foreground">{t("missing")} {missing}</p>}
       </div>
       {onRetry && (
         <Button size="xs" variant="outline" onClick={onRetry} disabled={retrying} aria-busy={retrying} className="shrink-0">
-          <RotateCw className={cn(retrying && "animate-spin")} /> {retrying ? "Retrying" : "Retry"}
+          <RotateCw className={cn(retrying && "animate-spin")} /> {retrying ? t("retrying") : t("retry")}
         </Button>
       )}
     </div>

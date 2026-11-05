@@ -4,6 +4,25 @@ import * as React from "react"
 import { Bot, ClipboardList, CodeXml, Compass, FlaskConical, PenTool, ScanSearch, SearchCheck, Workflow, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AgentIdentity } from "@/registry/lib/chat"
+import { useStrings } from "@/registry/blocks/locale"
+
+/** AgentAvatar's fixed words; override them under `agentAvatar` in LocaleProvider's `strings`. */
+export const agentAvatarStrings = {
+  assistant: "Assistant",
+  orchestrator: "Orchestrator",
+  planner: "Planner",
+  researcher: "Researcher",
+  analyst: "Analyst",
+  designer: "Designer",
+  coder: "Coder",
+  reviewer: "Reviewer",
+  tester: "Tester",
+  /** Screen-reader text after the agent's name. */
+  roleAgent: ", {noun} agent",
+}
+
+type BaseRole = Exclude<keyof typeof agentAvatarStrings, "roleAgent">
+const isBaseRole = (role: string): role is BaseRole => role !== "roleAgent" && Object.hasOwn(agentAvatarStrings, role)
 
 export type AgentRoleInfo = { Icon: LucideIcon; noun: string; hue: string }
 
@@ -42,7 +61,16 @@ function AgentRolesProvider({
 /** Look up a role's glyph, noun and hue; unknown roles read as "Assistant". */
 function useAgentRoles() {
   const roles = React.useContext(RolesContext)
-  return React.useCallback((role: string) => roles[role] ?? unknownRole, [roles])
+  const t = useStrings("agentAvatar", agentAvatarStrings)
+  return React.useCallback(
+    (role: string): AgentRoleInfo => {
+      const info = roles[role]
+      if (!info) return { ...unknownRole, noun: t("assistant") }
+      // Built-in roles take their noun from the strings table; an app's own roles keep theirs.
+      return isBaseRole(role) && info === baseAgentRoles[role] ? { ...info, noun: t(role) } : info
+    },
+    [roles, t]
+  )
 }
 
 /** An agent's mark: its role glyph on a tile tinted with the role's hue. */
@@ -87,11 +115,12 @@ function AgentBadge({
   className?: string
 }) {
   const { noun } = useAgentRoles()(agent.role)
+  const t = useStrings("agentAvatar", agentAvatarStrings)
   return (
     <span data-slot="agent-badge" className={cn("inline-flex min-w-0 items-center gap-2", className)}>
       <AgentAvatar agent={agent} size={size} />
       <span className={cn("truncate font-medium", size === "sm" ? "text-xs" : "text-sm")}>{agent.name}</span>
-      <span className="sr-only">, {noun} agent</span>
+      <span className="sr-only">{t("roleAgent", { noun })}</span>
     </span>
   )
 }

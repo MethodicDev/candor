@@ -4,18 +4,29 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useTerms } from "@/components/terms"
 import { DegradedPanel } from "@/components/degraded-panel"
-import type { EntityRef, InlineNode, MessageBlock, MessageSource } from "@/lib/chat"
+import type { Attachment, EntityRef, InlineNode, MessageBlock, MessageSource } from "@/lib/chat"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Citation } from "@/components/citation"
 import { EntityChip } from "@/components/entity-chip"
 import { Card } from "@/components/card-registry"
 import { Payload } from "@/components/payload"
+import { AttachmentList } from "@/components/attachment-preview"
 import { ToolCallGroup } from "@/components/tool-call"
+import { useStrings } from "@/components/locale"
+
+/** MessageContent's fixed words; override them under `messageContent` in LocaleProvider's `strings`. */
+export const messageContentStrings = {
+  measured: "From the {environment}",
+  measuredFrom: "From the {environment}: {source}",
+  notVerified: " (not verified)",
+  provisional: "The agent hasn’t verified this against the {environment}.",
+}
 
 type Ctx = {
   sources: Map<string, MessageSource>
   onOpenEntity?: (entity: EntityRef) => void
   onNavigate?: (to: string) => void
+  onOpenAttachment?: (attachment: Attachment) => void
 }
 
 const ContentContext = React.createContext<Ctx>({ sources: new Map() })
@@ -31,6 +42,7 @@ function Inline({
   nodes: InlineNode[]
 }) {
   const terms = useTerms()
+  const t = useStrings("messageContent", messageContentStrings)
   const ctx = React.useContext(ContentContext)
   return (
     <>
@@ -51,15 +63,15 @@ function Inline({
           case "measured":
           case "orgData":
             return (
-              <span key={i} title={n.source ? `From the ${terms.environment}: ${n.source}` : `From the ${terms.environment}`} className="font-medium tabular-nums text-foreground">
+              <span key={i} title={n.source ? t("measuredFrom", { environment: terms.environment, source: n.source }) : t("measured", { environment: terms.environment })} className="font-medium tabular-nums text-foreground">
                 {n.text}
               </span>
             )
           case "provisional":
             return (
               <Tooltip key={i}>
-                <TooltipTrigger render={<button type="button" data-provisional className="inline rounded-xs text-left text-provisional underline decoration-provisional/50 decoration-dotted underline-offset-[3px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40" />}><Inline nodes={n.nodes} /><span className="sr-only"> (not verified)</span></TooltipTrigger>
-                <TooltipContent>{n.reason ?? `The agent hasn’t verified this against the ${terms.environment}.`}</TooltipContent>
+                <TooltipTrigger render={<button type="button" data-provisional className="inline rounded-xs text-start text-provisional underline decoration-provisional/50 decoration-dotted underline-offset-[3px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40" />}><Inline nodes={n.nodes} /><span className="sr-only">{t("notVerified")}</span></TooltipTrigger>
+                <TooltipContent>{n.reason ?? t("provisional", { environment: terms.environment })}</TooltipContent>
               </Tooltip>
             )
           case "citation":
@@ -86,6 +98,11 @@ function Inline({
       })}
     </>
   )
+}
+
+function AttachmentBlock({ files }: { files: Attachment[] }) {
+  const ctx = React.useContext(ContentContext)
+  return <AttachmentList attachments={files} onOpen={ctx.onOpenAttachment} />
 }
 
 function Block({
@@ -116,9 +133,9 @@ function Block({
     case "list": {
       const List = block.ordered ? "ol" : "ul"
       return (
-        <List className={cn("flex flex-col gap-1 pl-5", block.ordered ? "list-decimal" : "list-disc marker:text-faint-foreground")}>
+        <List className={cn("flex flex-col gap-1 ps-5", block.ordered ? "list-decimal" : "list-disc marker:text-faint-foreground")}>
           {block.items.map((item, i) => (
-            <li key={i} className="pl-0.5">
+            <li key={i} className="ps-0.5">
               <Inline nodes={item} />
             </li>
           ))}
@@ -133,6 +150,8 @@ function Block({
       return <DegradedPanel reason={block.reason} missing={block.missing} />
     case "card":
       return <Card name={block.card} props={block.props} summary={block.summary} />
+    case "attachments":
+      return <AttachmentBlock files={block.files} />
   }
 }
 
@@ -142,9 +161,10 @@ function MessageContent({
   sources = [],
   onOpenEntity,
   onNavigate,
+  onOpenAttachment,
   className,
 }: {
-  /** The reply as typed blocks: paragraphs, lists, payloads, tool calls, cards. */
+  /** The reply as typed blocks: paragraphs, lists, payloads, tool calls, cards, attachments. */
   blocks: MessageBlock[]
   /** Sources the blocks cite by marker. */
   sources?: MessageSource[]
@@ -152,15 +172,17 @@ function MessageContent({
   onOpenEntity?: (entity: EntityRef) => void
   /** Follows in-app links; links from a model are never rendered. */
   onNavigate?: (to: string) => void
+  /** Makes attachment tiles buttons that open their file. */
+  onOpenAttachment?: (attachment: Attachment) => void
   className?: string
 }) {
   const ctx = React.useMemo(
-    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate }),
-    [sources, onOpenEntity, onNavigate]
+    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment }),
+    [sources, onOpenEntity, onNavigate, onOpenAttachment]
   )
   return (
     <ContentContext.Provider value={ctx}>
-      <div data-slot="message-content" className={cn("flex flex-col gap-3 text-base leading-relaxed", className)}>
+      <div data-slot="message-content" className={cn("flex flex-col gap-3 text-prose leading-relaxed", className)}>
         {blocks.map((b, i) => (
           <Block key={i} block={b} />
         ))}
@@ -203,6 +225,8 @@ export function blocksToText(blocks: MessageBlock[], sources: MessageSource[] = 
           return b.reason
         case "card":
           return b.summary
+        case "attachments":
+          return b.files.map((f) => f.name).join("\n")
         case "tools":
           return ""
       }

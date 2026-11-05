@@ -1,6 +1,12 @@
 "use client"
 
 import * as React from "react"
+import { useFormat, useStrings, type DateStyle } from "@/components/locale"
+
+/** RelativeTime's fixed words; override them under `relativeTime` in LocaleProvider's `strings`. */
+export const relativeTimeStrings = {
+  justNow: "just now",
+}
 
 const units: [Intl.RelativeTimeFormatUnit, number][] = [
   ["year", 31_536_000],
@@ -12,13 +18,24 @@ const units: [Intl.RelativeTimeFormatUnit, number][] = [
   ["second", 1],
 ]
 
-const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" })
-
-export function formatRelative(date: Date, now = new Date()) {
+/**
+ * "5 minutes ago", "in 6 days", in the locale (the runtime's own when left out). `bare` drops the direction for tight
+ * spaces: "5 minutes".
+ */
+export function formatRelative(
+  date: Date,
+  now = new Date(),
+  { locale, justNow = relativeTimeStrings.justNow, bare = false }: { locale?: string; justNow?: string; bare?: boolean } = {}
+) {
   const seconds = Math.round((date.getTime() - now.getTime()) / 1000)
-  if (Math.abs(seconds) < 10) return "just now"
+  if (Math.abs(seconds) < 10) return justNow
   for (const [unit, size] of units) {
-    if (Math.abs(seconds) >= size || unit === "second") return rtf.format(Math.round(seconds / size), unit)
+    if (Math.abs(seconds) >= size || unit === "second") {
+      const n = Math.round(seconds / size)
+      return bare
+        ? new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "long" }).format(Math.abs(n))
+        : new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(n, unit)
+    }
   }
   return ""
 }
@@ -59,24 +76,36 @@ export function useNow(): number | null {
   )
 }
 
-/** "3 minutes ago" / "in 6 days", kept fresh, with the exact time on hover. Shows the date until the clock is known. */
+/**
+ * "3 minutes ago" / "in 6 days", kept fresh, with the exact time on hover. Shows the date until the clock is known.
+ * `format` shows an absolute time instead ("5 Nov 2026, 14:03"), in the locale, with the same server-safe gate.
+ */
 function RelativeTime({
   date,
   bare = false,
+  format = "relative",
   className,
 }: {
   /** When it happened. Shown as "5 minutes ago", with the exact time on hover. */
   date: Date | string
   /** Drop "ago" and "in", for tight spaces: "5 minutes". */
   bare?: boolean
+  /** "relative" (the default), or an absolute "date", "datetime" or "time" in the locale. */
+  format?: "relative" | DateStyle
   className?: string
 }) {
   const d = typeof date === "string" ? new Date(date) : date
   const current = useNow()
-  let text = current === null ? d.toISOString().slice(0, 10) : formatRelative(d, new Date(current))
-  if (bare) text = text.replace(/ ago$/, "").replace(/^in /, "")
+  const fmt = useFormat()
+  const t = useStrings("relativeTime", relativeTimeStrings)
+  const text =
+    format !== "relative"
+      ? fmt.date(d, format)
+      : current === null
+        ? d.toISOString().slice(0, 10)
+        : formatRelative(d, new Date(current), { locale: fmt.tag, justNow: t("justNow"), bare })
   return (
-    <time dateTime={d.toISOString()} title={current === null ? undefined : d.toLocaleString()} className={className}>
+    <time dateTime={d.toISOString()} title={current === null ? undefined : fmt.date(d, "datetime")} className={className}>
       {text}
     </time>
   )

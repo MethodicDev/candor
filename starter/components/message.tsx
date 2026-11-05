@@ -1,15 +1,31 @@
 "use client"
 
-import { CircleStop, Info, UserCheck, UserRound } from "lucide-react"
+import type * as React from "react"
+import { CircleStop, UserCheck, UserRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DegradedPanel } from "@/components/degraded-panel"
 import { RelativeTime } from "@/components/relative-time"
-import type { EntityRef, Message as MessageData } from "@/lib/chat"
+import type { Attachment, EntityRef, Message as MessageData } from "@/lib/chat"
 import { AgentAvatar, useAgentRoles } from "@/components/agent-avatar"
 import { SourceList } from "@/components/citation"
 import { blocksToText, MessageContent } from "@/components/message-content"
 import { MessageActions, type Rating } from "@/components/message-actions"
 import { Reasoning } from "@/components/reasoning"
+import { ThreadEvent } from "@/components/thread-event"
+import { useStrings } from "@/components/locale"
+
+/** Message's fixed words; override them under `message` in LocaleProvider's `strings`. */
+export const messageStrings = {
+  you: "You",
+  personLabel: "{name}, {team}",
+  agentLabel: "{name}, {noun} agent",
+  interrupted: "Stopped before it finished. What arrived is kept.",
+  continue: "Continue",
+  failed: "The agent couldn’t finish this reply.",
+  failedMissing: "The rest of the answer",
+  checkedBy: "Checked by {name} before sending",
+  editedBy: "Edited by {name} before sending",
+}
 
 /**
  * One message in a thread.
@@ -28,11 +44,13 @@ function Message({
   message,
   onOpenEntity,
   onNavigate,
+  onOpenAttachment,
   onRetry,
   onContinue,
   rating,
   onRate,
   reviewedBy,
+  actions,
   className,
 }: {
   /** The message: author, status, blocks, and optional reasoning, sources and attribution. */
@@ -41,6 +59,8 @@ function Message({
   onOpenEntity?: (entity: EntityRef) => void
   /** Follows in-app links. */
   onNavigate?: (to: string) => void
+  /** Makes attachment tiles buttons that open their file. */
+  onOpenAttachment?: (attachment: Attachment) => void
   /** Shows Retry on a failed or finished reply. */
   onRetry?: () => void
   /** Shows Continue on an interrupted reply. */
@@ -51,29 +71,35 @@ function Message({
   onRate?: (rating: Rating) => void
   /** A person who checked this agent reply before it was sent: "Checked by Sam", or "Edited by Sam" when they changed it. */
   reviewedBy?: { name: string; at?: string; edited?: boolean }
+  /**
+   * The row under an agent reply (copy, retry, rating). `false` hides it; a node replaces it, e.g. your own buttons.
+   * Model and cost still show, on their own line. To rebuild a message, use MessageHeader, MessageBody and
+   * MessageFooter.
+   */
+  actions?: false | React.ReactNode
   className?: string
 }) {
   const { author } = message
   const roleOf = useAgentRoles()
+  const t = useStrings("message", messageStrings)
 
   if (author.role === "system") {
     return (
-      <div data-slot="message" data-role="system" className={cn("flex items-center justify-center gap-1.5 py-1 text-xs text-faint-foreground", className)}>
-        <Info aria-hidden className="size-3" />
+      <ThreadEvent data-slot="message" data-role="system" className={className}>
         <MessageContent blocks={message.blocks} className="text-xs leading-normal" />
-      </div>
+      </ThreadEvent>
     )
   }
 
   if (author.role === "user") {
     return (
-      <div data-slot="message" data-role="user" className={cn("flex justify-end pl-10 sm:pl-24 animate-rise-in", className)}>
+      <div data-slot="message" data-role="user" className={cn("flex justify-end ps-10 sm:ps-24 animate-rise-in", className)}>
         <div className="flex max-w-full flex-col items-end gap-1">
-          <div className="rounded-xl rounded-br-sm bg-surface-user px-3.5 py-2.5">
-            <MessageContent blocks={message.blocks} onOpenEntity={onOpenEntity} onNavigate={onNavigate} className="gap-2" />
+          <div className="rounded-xl rounded-ee-sm bg-surface-user px-3.5 py-2.5">
+            <MessageContent blocks={message.blocks} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} className="gap-2" />
           </div>
           <span className="px-1 text-2xs text-faint-foreground">
-            {author.name ?? "You"}
+            {author.name ?? t("you")}
             {message.createdAt && (
               <>
                 {" · "}
@@ -91,23 +117,15 @@ function Message({
       <article
         data-slot="message"
         data-role="person"
-        aria-label={author.team ? `${author.name}, ${author.team}` : author.name}
+        aria-label={author.team ? t("personLabel", { name: author.name, team: author.team }) : author.name}
         className={cn("flex gap-3 animate-rise-in", className)}
       >
         <span aria-hidden className="mt-px flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <UserRound className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <header className="flex h-7 items-center gap-2">
-            <span className="text-sm font-semibold">{author.name}</span>
-            {author.team && <span className="truncate text-xs text-muted-foreground">{author.team}</span>}
-            {message.createdAt && (
-              <span className="text-xs text-faint-foreground">
-                <RelativeTime date={message.createdAt} />
-              </span>
-            )}
-          </header>
-          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} className="mt-1" />
+          <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} />
+          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} className="mt-1" />
         </div>
       </article>
     )
@@ -115,9 +133,6 @@ function Message({
 
   const { agent } = author
   const streaming = message.status === "streaming"
-  const thinking = streaming && message.blocks.length === 0
-  const text = blocksToText(message.blocks, message.sources)
-  const meta = [message.attribution?.model, message.attribution?.cost].filter(Boolean).join(" · ")
 
   return (
     <article
@@ -125,80 +140,192 @@ function Message({
       data-role="agent"
       data-status={message.status}
       aria-busy={streaming}
-      aria-label={`${agent.name}, ${roleOf(agent.role).noun} agent`}
+      aria-label={t("agentLabel", { name: agent.name, noun: roleOf(agent.role).noun })}
       className={cn("group/message flex gap-3 animate-rise-in", className)}
     >
       <AgentAvatar agent={agent} className="mt-px" />
       <div className="min-w-0 flex-1">
-        <header className="flex h-7 items-center gap-2">
-          <span className="text-sm font-semibold">{agent.name}</span>
-          {agent.specialty && <span className="truncate text-xs text-muted-foreground">{agent.specialty}</span>}
-          {message.createdAt && (
-            <span className="text-xs text-faint-foreground">
-              <RelativeTime date={message.createdAt} />
-            </span>
-          )}
-        </header>
-
+        <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} />
         <div className="mt-1 flex flex-col gap-3">
-          {message.reasoning && message.reasoning.length > 0 && (
-            <Reasoning entries={message.reasoning} thinking={thinking} thoughtFor={message.thoughtFor} />
-          )}
-
-          {message.blocks.length > 0 && (
-            <div className="relative">
-              <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} />
-              {streaming && (
-                <span aria-hidden className="ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary animate-caret" />
-              )}
-            </div>
-          )}
-
-          {message.status === "interrupted" && (
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <CircleStop aria-hidden className="size-3.5" />
-              Stopped before it finished. What arrived is kept.
-              {onContinue && (
-                <button type="button" onClick={onContinue} className="font-medium text-accent-text hover:underline">
-                  Continue
-                </button>
-              )}
-            </div>
-          )}
-
-          {message.status === "failed" && (
-            <DegradedPanel reason="The agent couldn’t finish this reply." missing="The rest of the answer" onRetry={onRetry} />
-          )}
-
-          {!streaming && message.sources && message.sources.length > 0 && <SourceList sources={message.sources} />}
-
-          {reviewedBy && (
-            <p data-slot="message-reviewed" className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <UserCheck aria-hidden className="size-3.5" />
-              {reviewedBy.edited ? "Edited" : "Checked"} by {reviewedBy.name} before sending
-              {reviewedBy.at && (
-                <>
-                  {" · "}
-                  <RelativeTime date={reviewedBy.at} />
-                </>
-              )}
-            </p>
-          )}
-
-          {!streaming && message.status !== "failed" && (
-            <MessageActions
-              text={text}
-              onRetry={onRetry}
-              rating={rating}
-              onRate={onRate}
-              meta={meta || undefined}
-              className="-ml-1.5 opacity-100 transition-opacity duration-150 sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100"
-            />
-          )}
+          <MessageBody message={message} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} />
+          <MessageFooter
+            message={message}
+            onRetry={onRetry}
+            onContinue={onContinue}
+            rating={rating}
+            onRate={onRate}
+            reviewedBy={reviewedBy}
+            actions={actions}
+          />
         </div>
       </div>
     </article>
   )
 }
 
-export { Message }
+/** The row above a reply: who sent it, a detail (their specialty or team), and when. */
+function MessageHeader({
+  name,
+  detail,
+  createdAt,
+  children,
+  className,
+}: {
+  /** The sender's displayed name. */
+  name: string
+  /** A quieter detail after the name: an agent's specialty, a person's team. */
+  detail?: string
+  /** When it was sent; shown as a relative time. */
+  createdAt?: string
+  /** Anything else for the row, after the time (a badge, a menu). */
+  children?: React.ReactNode
+  className?: string
+}) {
+  return (
+    <header data-slot="message-header" className={cn("flex h-7 items-center gap-2", className)}>
+      <span className="text-sm font-semibold">{name}</span>
+      {detail && <span className="truncate text-xs text-muted-foreground">{detail}</span>}
+      {createdAt && (
+        <span className="text-xs text-faint-foreground">
+          <RelativeTime date={createdAt} />
+        </span>
+      )}
+      {children}
+    </header>
+  )
+}
+
+/** A reply's content: its reasoning, then its blocks, with a caret after the last one while it streams. */
+function MessageBody({
+  message,
+  onOpenEntity,
+  onNavigate,
+  onOpenAttachment,
+  className,
+}: {
+  /** The message whose reasoning and blocks to show. */
+  message: MessageData
+  /** Makes entity chips open their thing. */
+  onOpenEntity?: (entity: EntityRef) => void
+  /** Follows in-app links. */
+  onNavigate?: (to: string) => void
+  /** Makes attachment tiles buttons that open their file. */
+  onOpenAttachment?: (attachment: Attachment) => void
+  className?: string
+}) {
+  const streaming = message.status === "streaming"
+  const thinking = streaming && message.blocks.length === 0
+  return (
+    <div data-slot="message-body" className={cn("flex flex-col gap-3", className)}>
+      {message.reasoning && message.reasoning.length > 0 && <Reasoning entries={message.reasoning} thinking={thinking} thoughtFor={message.thoughtFor} />}
+      {message.blocks.length > 0 && (
+        <div className="relative">
+          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} />
+          {streaming && <span aria-hidden className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary animate-caret" />}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Model and cost, on a line of their own: what the actions row shows, for when it's hidden or replaced. */
+function MessageAttribution({
+  attribution,
+  className,
+}: {
+  /** The service's measured values; nothing shows when both are absent. */
+  attribution?: MessageData["attribution"]
+  className?: string
+}) {
+  const meta = [attribution?.model, attribution?.cost].filter(Boolean).join(" · ")
+  if (!meta) return null
+  return (
+    <p data-slot="message-attribution" className={cn("text-xs text-faint-foreground", className)}>
+      {meta}
+    </p>
+  )
+}
+
+/**
+ * What sits under a reply: that it stopped or failed, its sources, who checked it, then the actions row with model
+ * and cost. `actions={false}` hides the row and a node replaces it; either way the model and cost stay, on their own
+ * line, because a reader should always see what produced the answer.
+ */
+function MessageFooter({
+  message,
+  onRetry,
+  onContinue,
+  rating,
+  onRate,
+  reviewedBy,
+  actions,
+  className,
+}: {
+  /** The message the footer belongs to. */
+  message: MessageData
+  /** Shows Retry on a failed or finished reply. */
+  onRetry?: () => void
+  /** Shows Continue on an interrupted reply. */
+  onContinue?: () => void
+  /** The current rating. */
+  rating?: Rating
+  /** Shows thumbs up and down. */
+  onRate?: (rating: Rating) => void
+  /** A person who checked the reply before it was sent. */
+  reviewedBy?: { name: string; at?: string; edited?: boolean }
+  /** `false` hides the actions row, a node replaces it; model and cost still show. */
+  actions?: false | React.ReactNode
+  className?: string
+}) {
+  const t = useStrings("message", messageStrings)
+  const streaming = message.status === "streaming"
+  const settled = !streaming && message.status !== "failed"
+  const meta = [message.attribution?.model, message.attribution?.cost].filter(Boolean).join(" · ")
+  return (
+    <div data-slot="message-footer" className={cn("flex flex-col gap-3 empty:hidden", className)}>
+      {message.status === "interrupted" && (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <CircleStop aria-hidden className="size-3.5" />
+          {t("interrupted")}
+          {onContinue && (
+            <button type="button" onClick={onContinue} className="font-medium text-accent-text hover:underline">
+              {t("continue")}
+            </button>
+          )}
+        </div>
+      )}
+
+      {message.status === "failed" && <DegradedPanel reason={t("failed")} missing={t("failedMissing")} onRetry={onRetry} />}
+
+      {!streaming && message.sources && message.sources.length > 0 && <SourceList sources={message.sources} />}
+
+      {reviewedBy && (
+        <p data-slot="message-reviewed" className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <UserCheck aria-hidden className="size-3.5" />
+          {t(reviewedBy.edited ? "editedBy" : "checkedBy", { name: reviewedBy.name })}
+          {reviewedBy.at && (
+            <>
+              {" · "}
+              <RelativeTime date={reviewedBy.at} />
+            </>
+          )}
+        </p>
+      )}
+
+      {settled && actions === undefined && (
+        <MessageActions
+          text={blocksToText(message.blocks, message.sources)}
+          onRetry={onRetry}
+          rating={rating}
+          onRate={onRate}
+          meta={meta || undefined}
+          className="-ms-1.5 opacity-100 transition-opacity duration-150 sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100"
+        />
+      )}
+      {settled && actions !== undefined && actions !== false && actions}
+      {settled && actions !== undefined && <MessageAttribution attribution={message.attribution} />}
+    </div>
+  )
+}
+
+export { Message, MessageHeader, MessageBody, MessageFooter, MessageAttribution }

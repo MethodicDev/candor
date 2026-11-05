@@ -7,11 +7,20 @@ import { ShimmerLabel } from "@/components/streaming-text"
 import type { ReasoningEntry } from "@/lib/chat"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
-const basisLabel = {
+import { useStrings } from "@/components/locale"
+
+/** Reasoning's fixed words; override them under `reasoning` in LocaleProvider's `strings`. */
+export const reasoningStrings = {
   verified: "Verified",
   believed: "Believed",
   assumed: "Assumed",
-} as const
+  reasoning: "Reasoning",
+  steps: { one: "{count} step", other: "{count} steps" },
+  assumedCount: "{count} assumed",
+  thinking: "Thinking",
+  evidence: "Evidence:",
+  assumption: "Assumption:",
+}
 
 const basisTone = {
   verified: "bg-success-weak text-success-text",
@@ -39,36 +48,37 @@ function Reasoning({
   thoughtFor?: string
   className?: string
 }) {
+  const t = useStrings("reasoning", reasoningStrings)
   const [open, setOpen] = React.useState(thinking)
   React.useEffect(() => setOpen(thinking), [thinking])
 
   const assumed = entries.filter((e) => e.basis === "assumed").length
   const summary = thinking ? null : (
     <>
-      Reasoning{thoughtFor && <> · {thoughtFor}</>} · {entries.length} {entries.length === 1 ? "step" : "steps"}
-      {assumed > 0 && <span className="text-warning-text"> · {assumed} assumed</span>}
+      {t("reasoning")}{thoughtFor && <> · {thoughtFor}</>} · {t("steps", { count: entries.length })}
+      {assumed > 0 && <span className="text-warning-text"> · {t("assumedCount", { count: assumed })}</span>}
     </>
   )
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="reasoning" className={cn("group/reasoning", className)}>
-      <CollapsibleTrigger className="inline-flex items-center gap-1.5 rounded-md py-0.5 pr-1.5 text-xs text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40">
+      <CollapsibleTrigger className="inline-flex items-center gap-1.5 rounded-md py-0.5 pe-1.5 text-xs text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40">
         <Brain aria-hidden className={cn("size-3.5", thinking && "text-accent-text")} />
-        {thinking ? <ShimmerLabel className="text-xs">Thinking</ShimmerLabel> : summary}
-        <ChevronRight aria-hidden className="size-3 transition-transform duration-200 ease-standard group-data-[state=open]/reasoning:rotate-90" />
+        {thinking ? <ShimmerLabel className="text-xs">{t("thinking")}</ShimmerLabel> : summary}
+        <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3 transition-transform duration-200 ease-standard group-data-[state=open]/reasoning:[transform:rotate(90deg)]" />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <ol className="mt-2 ml-1.5 flex flex-col gap-3 border-l pl-4">
+        <ol className="mt-2 ms-1.5 flex flex-col gap-3 border-s ps-4">
           {entries.map((e) => (
             <li key={e.id} className="relative animate-rise-in">
-              <span aria-hidden className="absolute top-1.5 -left-[1.2rem] size-1.5 rounded-full bg-border-strong" />
+              <span aria-hidden className="absolute top-1.5 -start-[1.2rem] size-1.5 rounded-full bg-border-strong" />
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <p className="text-sm font-medium">{e.title}</p>
-                <span className={cn("rounded-xs px-1 text-2xs font-medium", basisTone[e.basis])}>{basisLabel[e.basis]}</span>
+                <span className={cn("rounded-xs px-1 text-2xs font-medium", basisTone[e.basis])}>{t(e.basis)}</span>
               </div>
               {e.body && <p className="mt-0.5 text-sm text-muted-foreground">{e.body}</p>}
               <p className="mt-1 text-xs text-faint-foreground">
-                {e.basis === "verified" ? <>Evidence: {e.evidence}</> : <>Assumption: {e.assumption}</>}
+                {e.basis === "verified" ? <>{t("evidence")} {e.evidence}</> : <>{t("assumption")} {e.assumption}</>}
               </p>
             </li>
           ))}

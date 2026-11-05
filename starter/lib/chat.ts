@@ -32,7 +32,7 @@ export type EntityKind = string
 
 export type EntityRef = {
   kind: EntityKind
-  /** The identifier, e.g. "Account.Region__c" or "orders.status". */
+  /** The identifier, e.g. "orders.status" or "billing.invoice.due_date". */
   name: string
   /** A friendlier label when there is one, e.g. "Region". */
   label?: string
@@ -133,6 +133,8 @@ export type MessageBlock =
    * and whenever the card can't be shown.
    */
   | { kind: "card"; card: string; props: unknown; summary: string }
+  /** Files sent with the message, shown as tiles. New in 1.1: a `switch` over kinds needs a `default` branch. */
+  | { kind: "attachments"; files: Attachment[] }
 
 /* ---------------------------------------------------------------- message */
 
@@ -178,7 +180,12 @@ export type SlashCommand = {
 export type Attachment = {
   id: string
   name: string
+  /** In bytes. */
   size?: number
+  /** e.g. "image/png", "application/pdf": picks the icon, and allows an image preview. */
+  mediaType?: string
+  /** A thumbnail your app serves (or a blob: URL), shown for images. Never a URL from model output. */
+  previewUrl?: string
   /** 0–1 while uploading; absent when done. */
   progress?: number
   error?: string

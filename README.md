@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 43 free items (version 1.0.1), the skill for coding agents and a
+This repo is the source of Candor UI's 49 free items (version 1.1.0), the skill for coding agents and a
 starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -48,6 +48,7 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `use-claude-agent`: Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
 - `copy-field`: A value a person copies somewhere else (a callback URL, a scope list).
 - `degraded-panel`: Something couldn't be done.
+- `locale`: The interface's words, language and direction.
 - `locked`: The honest-state rule: a control that cannot be used says why.
 - `relative-time`: A time as people say it ("5 minutes ago"), with the exact time on hover, safe to render on the server.
 - `status-dot`: A small status mark.
@@ -56,20 +57,25 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `surface`: Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.
 - `terms`: The app's words for its own concepts, so components read like the product: one app says "org", another "project" or "workspace".
 - `agent-avatar`: An agent's glyph and hue by role, so people can tell agents apart at a glance.
+- `attachment-preview`: A file waiting to be sent, as a chip in the composer: its name, then upload progress, an error, or its size, and a remove button.
 - `card-registry`: A card an agent's reply can carry.
 - `citation`: An inline [n].
 - `composer`: Where a person asks.
 - `context-meter`: What fills the model's context budget, as a ring in the composer that opens to a breakdown: system, instructions, Know, the thread, tools, files.
 - `entity-chip`: The kinds of thing your app's entities can be: an icon and a noun each.
+- `folded-turns`: A run of turns folded into one line, for long agent work a reader doesn't need to see step by step: "Drafted three versions and compared them".
 - `message-actions`: Copy, retry and rate under an agent's reply.
 - `message-content`: Inline nodes.
 - `message`: One message in a thread.
 - `payload`: A block of code or query text from the agent: a query it ran, code it wrote, a config file.
 - `prompt-suggestions`: Prompts to start from.
 - `reasoning`: The agent's stated reasoning above its answer.
+- `thread-divider`: A rule across the thread with a label in the middle: a day ("Today", "Yesterday", "5 Nov 2026") or a chapter of the conversation ("Drafting", "Review").
+- `thread-event`: A quiet, centred line in a thread for something that happened rather than something said: "Sam joined", "Switched to the staging environment", "Run stopped by a guardrail".
 - `thread`: The scrolling message column.
 - `tool-call`: One tool call as a compact row: what it did in plain words, its status, and how long it took.
 - `chat`: The data a Candor thread renders.
+- `highlight`: A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span.
 - `know`: The data behind the agents' knowledge base and agent settings.
 - `render-prop`: Lets Candor's Radix-based primitives also take Base UI's `render` prop.
 - `safe-markdown`: Reads model text as safe markdown: paragraphs, lists and fenced code.
