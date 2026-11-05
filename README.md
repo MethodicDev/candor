@@ -11,11 +11,13 @@ starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ```bash
 npx candor-ui init
-npx shadcn@latest add @candor/thread @candor/message @candor/composer
+npx candor-ui add thread message composer
 ```
 
-`candor-ui init` adds the `@candor` registry to `components.json` and the theme to your CSS. Or add the registry by
-hand: `"@candor": "https://candor.themethodic.com/r/{name}.json"`.
+`candor-ui init` adds the `@candor` registry to `components.json` and the theme to your CSS; in a project without
+shadcn yet it runs shadcn's setup first (`--yes` sets it up with Radix and shadcn's nova preset, no questions). Or add the registry by
+hand: `"@candor": "https://candor.themethodic.com/r/{name}.json"`. If shadcn asks to overwrite a primitive such as
+`ui/button.tsx`, answer yes: Candor's button styles locked actions; without a terminal, pass `--overwrite`.
 
 ## For coding agents
 
@@ -38,22 +40,22 @@ npx degit MethodicDev/candor/starter my-agent-app
 
 - `theme`: Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind.
 - `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage.
-- `ai-sdk`
+- `ai-sdk`: Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards.
 - `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals and usage.
-- `claude-agent-server`: Send a typed card to the browser, e.g.
+- `claude-agent-server`: Send a typed card to the browser, e.g. from a tool handler: `emit({ type: "candor_card", card: "diff", props, summary })`.
 - `use-ag-ui`: Wires an AG-UI agent to Candor: messages for <Thread>/<Message>, props for <Composer>, and the interrupts waiting on a person.
 - `use-candor-chat`: Wires a `useChat()` result to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
 - `use-claude-agent`: Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
 - `copy-field`: A value a person copies somewhere else (a callback URL, a scope list).
 - `degraded-panel`: Something couldn't be done.
 - `locked`: The honest-state rule: a control that cannot be used says why.
-- `relative-time`
+- `relative-time`: A time as people say it ("5 minutes ago"), with the exact time on hover, safe to render on the server.
 - `status-dot`: A small status mark.
 - `step-list`: An ordered list of steps joined by a rail: an agent's plan, its reasoning, a run's stages.
 - `streaming-text`: Text that is still arriving.
-- `surface`
+- `surface`: Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.
 - `terms`: The app's words for its own concepts, so components read like the product: one app says "org", another "project" or "workspace".
-- `agent-avatar`
+- `agent-avatar`: An agent's glyph and hue by role, so people can tell agents apart at a glance.
 - `card-registry`: A card an agent's reply can carry.
 - `citation`: An inline [n].
 - `composer`: Where a person asks.
@@ -74,11 +76,11 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `status`: The status vocabulary every Candor agent component shares.
 - `use-copy`: Copy text and report what actually happened.
 - `use-shortcut`: The keys of a combo as they should be printed: "mod+k" → ["⌘", "K"] on a Mac and ["Ctrl", "K"] elsewhere.
-- `button`
-- `collapsible`
-- `popover`
-- `skeleton`
-- `tooltip`
+- `button`: shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why).
+- `collapsible`: shadcn's collapsible (Radix) in Candor's theme.
+- `popover`: shadcn's popover (Radix) in Candor's theme.
+- `skeleton`: A loading placeholder in the shape of what's coming.
+- `tooltip`: shadcn's tooltip (Radix) in Candor's theme.
 
 ## Pro and Premium
 

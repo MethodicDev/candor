@@ -9,7 +9,7 @@
 A conversation with an agent: messages, the composer, tool calls, reasoning, citations.
 
 - **a2ui-surface** (Pro): Applies one A2UI v0.9 server message to a state and returns the new state; the old one is never changed. Exports `A2uiSurface`, `parsePointer`, `joinPath`, `getAtPath`, `setAtPath`, `emptyA2uiState`, `applyA2uiMessage`, `applyA2uiMessages`, `setA2uiData`, `createA2uiStore`, `resolveA2uiValue`, `createA2uiCard`.
-- **agent-avatar** (free): Exports AgentAvatar, AgentBadge, AgentRolesProvider, useAgentRoles.
+- **agent-avatar** (free): An agent's glyph and hue by role, so people can tell agents apart at a glance. Exports `AgentAvatar`, `AgentBadge`, `AgentRolesProvider`, `useAgentRoles`.
 - **card-registry** (free): A card an agent's reply can carry. Exports `Card`, `CardRegistryProvider`, `defineCard`.
 - **citation** (free): An inline [n]. Exports `Citation`, `SourceList`, `SourceDetail`.
 - **composer** (free): Where a person asks. Exports `Composer`.
@@ -89,9 +89,9 @@ Working features to start from: a page, its agent routes and a store, each for t
 Map an agent SDK's messages onto Candor's data: the Vercel AI SDK and the Claude Agent SDK.
 
 - **ag-ui** (free): Turns AG-UI events into Candor messages, waiting approvals and usage. Exports `fromAgUiEvents`.
-- **ai-sdk** (free): Exports fromAiSdkMessages, fromAiSdkMessage.
+- **ai-sdk** (free): Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards. Exports `fromAiSdkMessages`, `fromAiSdkMessage`.
 - **claude-agent-sdk** (free): Turns Claude Agent SDK events into Candor messages, waiting approvals and usage. Exports `fromClaudeAgentEvents`.
-- **claude-agent-server** (free): Send a typed card to the browser, e.g. Exports `streamClaudeAgent`, `answerClaudeAgentApproval`.
+- **claude-agent-server** (free): Send a typed card to the browser, e.g. from a tool handler: `emit({ type: "candor_card", card: "diff", props, summary })`. Exports `streamClaudeAgent`, `answerClaudeAgentApproval`.
 - **use-ag-ui** (free): Wires an AG-UI agent to Candor: messages for <Thread>/<Message>, props for <Composer>, and the interrupts waiting on a person. Exports `useAgUi`.
 - **use-candor-chat** (free): Wires a `useChat()` result to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person. Exports `useCandorChat`.
 - **use-claude-agent** (free): Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person. Exports `useClaudeAgent`.
@@ -154,7 +154,7 @@ What the agent knows: documents, diagrams, freshness.
 - **memory-manager** (Pro): What agents remember about this account, one line each, with who taught it and when. Exports `MemoryManager`.
 - **prose-diff** (Pro): An agent's rewrite of a document (a Know page, a process description), shown word by word against the original. Exports `ProseDiff`.
 - **provenance-trace** (Pro): Live provenance (Candor's ProvenanceOverlay). Exports `ProvenanceTrace`.
-- **raci-chip** (Pro): Exports RaciChips.
+- **raci-chip** (Pro): Who's responsible, accountable, consulted or informed, as a compact chip. Exports `RaciChips`.
 - **retrieval-inspector** (Pro): The passages behind an answer, in the order the retriever ranked them. Exports `RetrievalInspector`.
 - **source-ingest** (Pro): Add knowledge: drop files, paste a link, or paste text (meeting notes, a process description). Exports `SourceIngest`.
 - **version-history** (Pro): Live, draft and past versions of something editable (an agent's settings, a Know page), newest first, with who changed it and why. Exports `VersionHistory`.
@@ -218,7 +218,7 @@ Tables and records.
 - **column-mapper** (Pro): Match file columns to the object's fields. Exports `ColumnMapper`.
 - **data-import** (Pro): Drop a spreadsheet, then see exactly what was read: rows, columns with sample values, and any rows that couldn't be read and why. Exports `DataImport`.
 - **data-table** (Pro): Rows of records: search, sort, filter chips, column settings, selection and pages. Exports `DataTable`.
-- **filter-chips** (Pro): Exports FilterChips.
+- **filter-chips** (Pro): Active filters as removable chips, with a clear-all. Exports `FilterChips`.
 - **import-review** (Pro): Check rows before they land: how many are ready, which need fixing and why, grouped by kind of problem. Exports `ImportReview`.
 - **tree** (Pro): A hierarchy (objects → fields, a flow's elements, Know's sections) with the keyboard behaviour of a tree: ↑↓ move, → opens or steps in, ← closes or steps out, Home/End jump, Enter selects. Exports `Tree`.
 
@@ -232,7 +232,7 @@ Charts with accessible colours.
 - **donut-chart** (Pro): Parts of a whole. Exports `DonutChart`.
 - **heatmap** (Pro): Intensity over a grid (field fill rate by object, runs by hour and day). Exports `Heatmap`.
 - **line-chart** (Pro): Change over time. Exports `LineChart`.
-- **scale** (Pro): Exports niceTicks, linear, compact, formatValue, seriesColor.
+- **scale** (Pro): Chart scales and tick helpers shared by Candor's charts. Exports `niceTicks`, `linear`, `compact`, `formatValue`, `seriesColor`.
 - **sparkline** (Pro): A word-sized trend. Exports `Sparkline`.
 
 ## Reports
@@ -253,38 +253,38 @@ Small pieces every screen uses: locked controls, status dots, step lists, relati
 - **copy-field** (free): A value a person copies somewhere else (a callback URL, a scope list). Exports `CopyField`.
 - **degraded-panel** (free): Something couldn't be done. Exports `DegradedPanel`.
 - **locked** (free): The honest-state rule: a control that cannot be used says why. Exports `Locked`.
-- **relative-time** (free): Exports RelativeTime, formatRelative, useNow.
+- **relative-time** (free): A time as people say it ("5 minutes ago"), with the exact time on hover, safe to render on the server. Exports `RelativeTime`, `formatRelative`, `useNow`.
 - **status-dot** (free): A small status mark. Exports `StatusDot`.
 - **step-list** (free): An ordered list of steps joined by a rail: an agent's plan, its reasoning, a run's stages. Exports `StepList`, `StepMark`.
 - **streaming-text** (free): Text that is still arriving. Exports `StreamingText`, `ShimmerLabel`.
-- **surface** (free): Exports Surface.
+- **surface** (free): Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own. Exports `Surface`.
 - **terms** (free): The app's words for its own concepts, so components read like the product: one app says "org", another "project" or "workspace". Exports `TermsProvider`, `useTerms`.
 
 ## Primitives
 
 The shadcn/ui primitives Candor's components are built on.
 
-- **avatar** (Pro): Exports Avatar, AvatarImage, AvatarFallback, AvatarBadge, AvatarGroup, AvatarGroupCount.
-- **badge** (Pro): Exports Badge.
-- **button** (free): Exports Button.
-- **card** (Pro): Exports Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent.
-- **collapsible** (free): Exports Collapsible, CollapsibleTrigger, CollapsibleContent.
-- **command** (Pro): Exports Command, CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut, CommandSeparator.
-- **dialog** (Pro): Exports Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger.
-- **dropdown-menu** (Pro): Exports DropdownMenu, DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent.
-- **hover-card** (Pro): Exports HoverCard, HoverCardTrigger, HoverCardContent.
-- **input** (Pro): Exports Input.
-- **kbd** (Pro): Exports Kbd, KbdGroup.
-- **popover** (free): Exports Popover, PopoverTrigger, PopoverContent, PopoverAnchor, PopoverHeader, PopoverTitle, PopoverDescription.
+- **avatar** (Pro): shadcn's avatar in Candor's theme. Exports `Avatar`, `AvatarImage`, `AvatarFallback`, `AvatarBadge`, `AvatarGroup`, `AvatarGroupCount`.
+- **badge** (Pro): shadcn's badge in Candor's theme. Exports `Badge`.
+- **button** (free): shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why). Exports `Button`.
+- **card** (Pro): shadcn's card in Candor's theme. Exports `Card`, `CardHeader`, `CardFooter`, `CardTitle`, `CardAction`, `CardDescription`, `CardContent`.
+- **collapsible** (free): shadcn's collapsible (Radix) in Candor's theme. Exports `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`.
+- **command** (Pro): shadcn's command menu (cmdk) in Candor's theme. Exports `Command`, `CommandDialog`, `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandShortcut`, `CommandSeparator`.
+- **dialog** (Pro): shadcn's dialog (Radix) in Candor's theme. Exports `Dialog`, `DialogClose`, `DialogContent`, `DialogDescription`, `DialogFooter`, `DialogHeader`, `DialogOverlay`, `DialogPortal`, `DialogTitle`, `DialogTrigger`.
+- **dropdown-menu** (Pro): shadcn's dropdown menu (Radix) in Candor's theme. Exports `DropdownMenu`, `DropdownMenuPortal`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuItem`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioGroup`, `DropdownMenuRadioItem`, `DropdownMenuSeparator`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`.
+- **hover-card** (Pro): shadcn's hover card (Radix) in Candor's theme. Exports `HoverCard`, `HoverCardTrigger`, `HoverCardContent`.
+- **input** (Pro): shadcn's input in Candor's theme. Exports `Input`.
+- **kbd** (Pro): Keyboard keys, single or grouped, as shown in menus and shortcuts. Exports `Kbd`, `KbdGroup`.
+- **popover** (free): shadcn's popover (Radix) in Candor's theme. Exports `Popover`, `PopoverTrigger`, `PopoverContent`, `PopoverAnchor`, `PopoverHeader`, `PopoverTitle`, `PopoverDescription`.
 - **radio-group** (Pro): A set of choices where one can be picked. Exports `RadioGroup`, `RadioGroupItem`.
-- **scroll-area** (Pro): Exports ScrollArea, ScrollBar.
-- **select** (Pro): Exports Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue.
-- **separator** (Pro): Exports Separator.
-- **sheet** (Pro): Exports Sheet, SheetTrigger, SheetClose, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription.
-- **skeleton** (free): Exports Skeleton.
-- **tabs** (Pro): Exports Tabs, TabsList, TabsTrigger, TabsContent.
-- **textarea** (Pro): Exports Textarea.
-- **tooltip** (free): Exports Tooltip, TooltipTrigger, TooltipContent, TooltipProvider.
+- **scroll-area** (Pro): shadcn's scroll area (Radix) in Candor's theme. Exports `ScrollArea`, `ScrollBar`.
+- **select** (Pro): shadcn's select (Radix) in Candor's theme. Exports `Select`, `SelectContent`, `SelectGroup`, `SelectItem`, `SelectLabel`, `SelectScrollDownButton`, `SelectScrollUpButton`, `SelectSeparator`, `SelectTrigger`, `SelectValue`.
+- **separator** (Pro): shadcn's separator (Radix) in Candor's theme. Exports `Separator`.
+- **sheet** (Pro): shadcn's sheet (Radix dialog from an edge) in Candor's theme. Exports `Sheet`, `SheetTrigger`, `SheetClose`, `SheetContent`, `SheetHeader`, `SheetFooter`, `SheetTitle`, `SheetDescription`.
+- **skeleton** (free): A loading placeholder in the shape of what's coming. Exports `Skeleton`.
+- **tabs** (Pro): shadcn's tabs (Radix) in Candor's theme. Exports `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`.
+- **textarea** (Pro): shadcn's textarea in Candor's theme. Exports `Textarea`.
+- **tooltip** (free): shadcn's tooltip (Radix) in Candor's theme. Exports `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider`.
 
 ## Shared types and helpers
 
