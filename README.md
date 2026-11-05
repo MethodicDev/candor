@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 49 free items (version 1.1.1), the skill for coding agents and a
+This repo is the source of Candor UI's 50 free items (version 1.2.0), the skill for coding agents and a
 starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -82,6 +82,7 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `status`: The status vocabulary every Candor agent component shares.
 - `use-copy`: Copy text and report what actually happened.
 - `use-shortcut`: The keys of a combo as they should be printed: "mod+k" → ["⌘", "K"] on a Mac and ["Ctrl", "K"] elsewhere.
+- `use-virtual-list`: Render only the items of a long list that are in or near view, for Thread's and SessionList's `virtualize`.
 - `button`: shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why).
 - `collapsible`: shadcn's collapsible (Radix) in Candor's theme.
 - `popover`: shadcn's popover (Radix) in Candor's theme.

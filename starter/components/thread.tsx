@@ -4,6 +4,7 @@ import * as React from "react"
 import { ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useStrings } from "@/components/locale"
+import { useVirtualList } from "@/lib/use-virtual-list"
 
 /** Thread's fixed words; override them under `thread` in LocaleProvider's `strings`. */
 export const threadStrings = {
@@ -16,6 +17,10 @@ export const threadStrings = {
  * bottom and stops following the moment you scroll up to read, offering a
  * "Jump to latest" button instead. Pass `empty` for the first-run state and
  * the composer as `footer`.
+ *
+ * For long histories, `virtualize` renders only the messages in or near view
+ * (each child is one item, keyed by its `key`). The column stays a `log`, the
+ * message holding focus stays rendered, and Jump to latest works the same.
  */
 function Thread({
   children,
@@ -23,6 +28,7 @@ function Thread({
   footer,
   className,
   contentClassName,
+  virtualize = false,
 }: {
   children?: React.ReactNode
   /** Shown before the first message. */
@@ -32,6 +38,8 @@ function Thread({
   className?: string
   /** Classes for the message column. */
   contentClassName?: string
+  /** Render only the messages in or near view, for histories of hundreds of messages. Give each child a `key`. Defaults to false. */
+  virtualize?: boolean
 }) {
   const t = useStrings("thread", threadStrings)
   const scroller = React.useRef<HTMLDivElement>(null)
@@ -74,13 +82,58 @@ function Thread({
   }
 
   const hasMessages = React.Children.count(children) > 0
+  const items = virtualize ? React.Children.toArray(children) : []
+  const keyOf = (i: number) => (React.isValidElement(items[i]) ? (items[i].key ?? i) : i)
+  // The message holding focus stays rendered, so focus isn't lost when it scrolls out of view.
+  const [focused, setFocused] = React.useState<string | null>(null)
+  const list = useVirtualList({
+    enabled: virtualize,
+    count: items.length,
+    keyOf,
+    scroller,
+    pin: focused,
+    gap: () => (content.current ? Number.parseFloat(getComputedStyle(content.current).rowGap) || 0 : 0),
+  })
 
   return (
     <div data-slot="thread" className={cn("flex min-h-0 flex-col", className)}>
       <div className="relative min-h-0 flex-1">
-        <div ref={scroller} onScroll={onScroll} className="h-full overflow-y-auto overscroll-contain">
-          <div ref={content} role="log" aria-label={t("messages")} className={cn("mx-auto flex w-full max-w-(--cd-thread-width) flex-col gap-7 px-4 py-6", contentClassName)}>
-            {hasMessages ? children : empty}
+        <div
+          ref={scroller}
+          onScroll={onScroll}
+          onFocus={
+            virtualize
+              ? (e) => {
+                  setFocused((e.target as HTMLElement).closest("[data-virtual-key]")?.getAttribute("data-virtual-key") ?? null)
+                }
+              : undefined
+          }
+          onBlur={virtualize ? (e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && setFocused(null) : undefined}
+          className="h-full overflow-y-auto overscroll-contain"
+        >
+          <div
+            ref={content}
+            role="log"
+            aria-label={t("messages")}
+            className={cn("mx-auto flex w-full max-w-(--cd-thread-width) flex-col gap-7 px-4 py-6", contentClassName)}
+          >
+            {!hasMessages ? (
+              empty
+            ) : virtualize ? (
+              <>
+                {list.rows.map((row) =>
+                  "spacer" in row ? (
+                    <div key={row.key} aria-hidden style={{ height: row.spacer }} />
+                  ) : (
+                    <div key={keyOf(row.index)} ref={list.measure} data-virtual-key={String(keyOf(row.index))} className="flex flex-col">
+                      {items[row.index]}
+                    </div>
+                  )
+                )}
+              </>
+            ) : (
+              children
+            )}
           </div>
         </div>
         {!pinned && hasMessages && (

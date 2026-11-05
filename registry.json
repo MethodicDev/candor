@@ -743,6 +743,7 @@
       ],
       "registryDependencies": [
         "@candor/locale",
+        "@candor/use-virtual-list",
         "utils"
       ],
       "files": [
@@ -904,6 +905,21 @@
       "files": [
         {
           "path": "src/registry/lib/use-shortcut.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": [
+        "lib"
+      ]
+    },
+    {
+      "name": "use-virtual-list",
+      "type": "registry:lib",
+      "description": "Render only the items of a long list that are in or near view, for Thread's and SessionList's `virtualize`.",
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/lib/use-virtual-list.ts",
           "type": "registry:lib"
         }
       ],
