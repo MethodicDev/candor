@@ -1,0 +1,81 @@
+"use client"
+
+import * as React from "react"
+import { Brain, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { ShimmerLabel } from "@/registry/blocks/streaming-text"
+import type { ReasoningEntry } from "@/registry/lib/chat"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
+
+const basisLabel = {
+  verified: "Verified",
+  believed: "Believed",
+  assumed: "Assumed",
+} as const
+
+const basisTone = {
+  verified: "bg-success-weak text-success-text",
+  believed: "bg-muted text-muted-foreground",
+  assumed: "bg-warning-weak text-warning-text",
+} as const
+
+/**
+ * The agent's stated reasoning above its answer. Each step says what it rests
+ * on: verified against evidence, believed, or assumed (with the assumption
+ * spelled out). Open while the agent is thinking; folds to a one-line summary
+ * when it answers.
+ */
+function Reasoning({
+  entries,
+  thinking = false,
+  thoughtFor,
+  className,
+}: {
+  /** The steps, each verified (with evidence), believed or assumed. */
+  entries: ReasoningEntry[]
+  /** The agent is still thinking; opens the panel and shows progress. */
+  thinking?: boolean
+  /** How long it thought, once known, e.g. "6s". */
+  thoughtFor?: string
+  className?: string
+}) {
+  const [open, setOpen] = React.useState(thinking)
+  React.useEffect(() => setOpen(thinking), [thinking])
+
+  const assumed = entries.filter((e) => e.basis === "assumed").length
+  const summary = thinking ? null : (
+    <>
+      Reasoning{thoughtFor && <> · {thoughtFor}</>} · {entries.length} {entries.length === 1 ? "step" : "steps"}
+      {assumed > 0 && <span className="text-warning-text"> · {assumed} assumed</span>}
+    </>
+  )
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} data-slot="reasoning" className={cn("group/reasoning", className)}>
+      <CollapsibleTrigger className="inline-flex items-center gap-1.5 rounded-md py-0.5 pr-1.5 text-xs text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40">
+        <Brain aria-hidden className={cn("size-3.5", thinking && "text-accent-text")} />
+        {thinking ? <ShimmerLabel className="text-xs">Thinking</ShimmerLabel> : summary}
+        <ChevronRight aria-hidden className="size-3 transition-transform duration-200 ease-standard group-data-[state=open]/reasoning:rotate-90" />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <ol className="mt-2 ml-1.5 flex flex-col gap-3 border-l pl-4">
+          {entries.map((e) => (
+            <li key={e.id} className="relative animate-rise-in">
+              <span aria-hidden className="absolute top-1.5 -left-[1.2rem] size-1.5 rounded-full bg-border-strong" />
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <p className="text-sm font-medium">{e.title}</p>
+                <span className={cn("rounded-xs px-1 text-2xs font-medium", basisTone[e.basis])}>{basisLabel[e.basis]}</span>
+              </div>
+              {e.body && <p className="mt-0.5 text-sm text-muted-foreground">{e.body}</p>}
+              <p className="mt-1 text-xs text-faint-foreground">
+                {e.basis === "verified" ? <>Evidence: {e.evidence}</> : <>Assumption: {e.assumption}</>}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+export { Reasoning }

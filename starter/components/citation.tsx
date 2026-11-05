@@ -1,0 +1,114 @@
+import { BookOpen, Braces, Database, FileText, Globe, Table2, Waypoints, type LucideIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
+import type { MessageSource, SourceKind } from "@/lib/chat"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+
+/** Kinds of evidence most apps cite. Others read as "Source". */
+export const sourceKinds: Record<string, { Icon: LucideIcon; noun: string }> = {
+  document: { Icon: FileText, noun: "Document" },
+  web: { Icon: Globe, noun: "Web page" },
+  query: { Icon: Database, noun: "Query" },
+  data: { Icon: Table2, noun: "Data" },
+  code: { Icon: Braces, noun: "Code" },
+  workflow: { Icon: Waypoints, noun: "Workflow" },
+  knowledge: { Icon: BookOpen, noun: "Knowledge" },
+}
+
+const kindOf = (kind: SourceKind) => sourceKinds[kind] ?? { Icon: FileText, noun: "Source" }
+
+function SourceDetail({
+  source,
+}: {
+  /** The source this marker points to; without it the marker says it's unknown. */
+  source: MessageSource
+}) {
+  const { Icon, noun } = kindOf(source.kind)
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-start gap-2">
+        <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm bg-muted text-muted-foreground">
+          <Icon className="size-3" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-medium leading-snug">{source.label}</p>
+          <p className="text-xs text-muted-foreground">{source.origin ?? noun}</p>
+        </div>
+      </div>
+      {source.snippet && (
+        <blockquote className="max-h-40 overflow-auto rounded-md bg-sunken px-2.5 py-2 text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
+          {source.snippet}
+        </blockquote>
+      )}
+      {source.provisional && (
+        <p className="text-xs text-provisional">The agent cites this but hasn’t verified it.</p>
+      )}
+    </div>
+  )
+}
+
+/**
+ * An inline [n]. Opens the source in a popover on click or Enter, so evidence is
+ * one step away without leaving the thread. A source the message doesn't list
+ * renders as a plain bracket rather than a guess.
+ */
+function Citation({
+  source,
+  marker,
+}: {
+  /** The source this marker points to; without it the marker says it's unknown. */
+  source?: MessageSource
+  /** The number to show when there's no source. */
+  marker?: number
+}) {
+  if (!source) {
+    return <sup className="text-faint-foreground">[{marker ?? "?"}]</sup>
+  }
+  return (
+    <Popover>
+      <PopoverTrigger render={<button type="button" aria-label={`Source ${source.marker}: ${source.label}`} className={cn(
+                      "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums transition-colors duration-150 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
+                      source.provisional
+                        ? "border border-dashed border-provisional/60 text-provisional hover:bg-muted"
+                        : "bg-accent-weak text-accent-text hover:bg-primary hover:text-primary-foreground"
+                    )} />}>{source.marker}</PopoverTrigger>
+      <PopoverContent align="start" className="w-80 p-3">
+        <SourceDetail source={source} />
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+/** The sources under a reply, as chips that open the same detail. */
+function SourceList({
+  sources,
+  className,
+}: {
+  /** Every source the reply used, in marker order. */
+  sources: MessageSource[]
+  className?: string
+}) {
+  if (sources.length === 0) return null
+  return (
+    <div data-slot="source-list" className={cn("flex flex-wrap items-center gap-1.5", className)}>
+      <span className="mr-0.5 text-xs text-faint-foreground">Sources</span>
+      {[...sources]
+        .sort((a, b) => a.marker - b.marker)
+        .map((s) => {
+          const { Icon } = kindOf(s.kind)
+          return (
+            <Popover key={s.id}>
+              <PopoverTrigger render={<button type="button" className={cn(
+                                      "inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pr-2 pl-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40",
+                                      s.provisional && "border-dashed"
+                                    )} />}><span className="flex h-4 min-w-4 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span><Icon aria-hidden className="size-3 shrink-0" /><span className="truncate">{s.label}</span></PopoverTrigger>
+              <PopoverContent align="start" className="w-80 p-3">
+                <SourceDetail source={s} />
+              </PopoverContent>
+            </Popover>
+          )
+        })}
+    </div>
+  )
+}
+
+export { Citation, SourceList, SourceDetail }
