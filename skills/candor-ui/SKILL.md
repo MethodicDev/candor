@@ -35,7 +35,9 @@ Without the CLI, add `"@candor": "https://candor.themethodic.com/r/{name}.json"`
 `"headers": { "Authorization": "Bearer ${CANDOR_LICENSE_KEY}" }`). `npx shadcn@latest mcp init --client claude` lets a
 coding agent browse the registry.
 
-Themes switch with `data-theme="light" | "dark" | "hc"` on `<html>`.
+Themes switch with `data-theme="light" | "dark" | "hc"` on `<html>`. With none set, the system's light or dark setting
+applies; `"light"` turns that off. `"dark"` and `"hc"` also work on an inner element (a dark panel in a light page),
+but `"light"` doesn't switch back inside a dark one: light is the `:root` default, not a theme of its own.
 
 ## Choose components
 
