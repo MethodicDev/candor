@@ -153,7 +153,7 @@ function EntityChip({
           type="button"
           aria-label={t("remove", { name: shown })}
           onClick={() => onRemove(entity)}
-          className="-ms-px rounded-e-sm border border-s-0 bg-card px-1 py-px text-faint-foreground hover:text-foreground"
+          className="relative after:absolute after:-inset-1 -ms-px rounded-e-sm border border-s-0 bg-card px-1 py-px text-faint-foreground hover:text-foreground"
         >
           ×
         </button>

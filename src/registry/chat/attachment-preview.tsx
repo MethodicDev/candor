@@ -76,7 +76,7 @@ function AttachmentChip({
         {a.error ? a.error : a.progress !== undefined ? fmt.number(Math.round(a.progress * 100) / 100, { style: "percent" }) : formatFileSize(a.size, fmt.number, t)}
       </span>
       {onRemove && (
-        <button type="button" aria-label={t("remove", { name: a.name })} onClick={() => onRemove(a.id)} className="rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
+        <button type="button" aria-label={t("remove", { name: a.name })} onClick={() => onRemove(a.id)} className="relative after:absolute after:-inset-1 rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
           <X className="size-3" />
         </button>
       )}

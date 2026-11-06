@@ -63,7 +63,8 @@ function SourceDetail({
         </div>
       </div>
       {source.snippet && (
-        <blockquote className="max-h-40 overflow-auto rounded-md bg-sunken px-2.5 py-2 text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        <blockquote tabIndex={0} className="max-h-40 overflow-auto rounded-md bg-sunken outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 focus-visible:ring-inset px-2.5 py-2 text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
           {source.snippet}
         </blockquote>
       )}
@@ -100,7 +101,7 @@ function Citation({
                         ? "border border-dashed border-provisional/60 text-provisional hover:bg-muted"
                         : "bg-accent-weak text-accent-text hover:bg-primary hover:text-primary-foreground"
                     )} />}>{source.marker}</PopoverTrigger>
-      <PopoverContent align="start" className="w-80 p-3">
+      <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] p-3">
         <SourceDetail source={source} />
       </PopoverContent>
     </Popover>
@@ -128,10 +129,10 @@ function SourceList({
           return (
             <Popover key={s.id}>
               <PopoverTrigger render={<button type="button" className={cn(
-                                      "inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40",
+                                      "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40",
                                       s.provisional && "border-dashed"
                                     )} />}><span className="flex h-4 min-w-4 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span><Icon aria-hidden className="size-3 shrink-0" /><span className="truncate">{s.label}</span></PopoverTrigger>
-              <PopoverContent align="start" className="w-80 p-3">
+              <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] p-3">
                 <SourceDetail source={s} />
               </PopoverContent>
             </Popover>

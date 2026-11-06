@@ -28,13 +28,14 @@
     {
       "name": "ag-ui",
       "type": "registry:component",
-      "description": "Turns AG-UI events into Candor messages, waiting approvals and usage.",
+      "description": "Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.",
       "dependencies": [
         "@ag-ui/core@^1.0.3"
       ],
       "registryDependencies": [
         "@candor/chat",
-        "@candor/safe-markdown"
+        "@candor/safe-markdown",
+        "@candor/status"
       ],
       "files": [
         {
@@ -71,7 +72,7 @@
     {
       "name": "claude-agent-sdk",
       "type": "registry:component",
-      "description": "Turns Claude Agent SDK events into Candor messages, waiting approvals and usage.",
+      "description": "Turns Claude Agent SDK events into Candor messages, waiting approvals (and the agent's questions), usage and sources, and a person's answer back into the SDK's result.",
       "dependencies": [
         "@anthropic-ai/claude-agent-sdk@^0.3.318"
       ],
@@ -92,11 +93,12 @@
     {
       "name": "claude-agent-server",
       "type": "registry:component",
-      "description": "The server half of the Claude Agent SDK adapter: stream a run to useClaudeAgent, and answer its permission requests.",
+      "description": "The server half of the Claude Agent SDK adapter: stream a run to useClaudeAgent, keep its permission requests in a store your own route can answer, and let a browser re-attach to a run after a reload.",
       "dependencies": [
         "@anthropic-ai/claude-agent-sdk@^0.3.318"
       ],
       "registryDependencies": [
+        "@candor/chat",
         "@candor/claude-agent-sdk"
       ],
       "files": [
@@ -157,7 +159,7 @@
     {
       "name": "use-claude-agent",
       "type": "registry:component",
-      "description": "Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.",
+      "description": "Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person, re-attaching to a run after a reload.",
       "registryDependencies": [
         "@candor/chat",
         "@candor/claude-agent-sdk",
@@ -379,6 +381,30 @@
       "files": [
         {
           "path": "src/registry/chat/agent-avatar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "categories": [
+        "chat"
+      ]
+    },
+    {
+      "name": "ai-disclosure",
+      "type": "registry:component",
+      "description": "A plain notice that the person is interacting with an AI system: a first line in the thread (`variant=\"line\"`) or a compact \"AI\" badge for a thread header (`variant=\"badge\"`) that opens to the app's own explanation.",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/button",
+        "@candor/chat",
+        "@candor/locale",
+        "@candor/popover",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/chat/ai-disclosure.tsx",
           "type": "registry:component"
         }
       ],
@@ -640,6 +666,29 @@
       "files": [
         {
           "path": "src/registry/chat/payload.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "categories": [
+        "chat"
+      ]
+    },
+    {
+      "name": "permission-prompt",
+      "type": "registry:component",
+      "description": "A tool call waiting for a person's go-ahead: what it will do, why it reached them, and the permission mode the run is in.",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/button",
+        "@candor/locale",
+        "@candor/payload",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/chat/permission-prompt.tsx",
           "type": "registry:component"
         }
       ],

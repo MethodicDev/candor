@@ -22,11 +22,11 @@ export type PendingApproval = { id: string; toolCallId: string; tool: string; in
 export function useCandorChat(chat: UseChatHelpers<UIMessage>, options: Omit<FromAiSdkOptions, "chatStatus">) {
   const [value, setValue] = React.useState("")
   const [references, setReferences] = React.useState<EntityRef[]>([])
-  const { agent, createdAt, toolTitle, summarize } = options
+  const { agent, createdAt, toolTitle, summarize, sourcesFrom } = options
 
   const messages: Message[] = React.useMemo(
-    () => fromAiSdkMessages(chat.messages, { agent, createdAt, toolTitle, summarize, chatStatus: chat.status }),
-    [chat.messages, chat.status, agent, createdAt, toolTitle, summarize]
+    () => fromAiSdkMessages(chat.messages, { agent, createdAt, toolTitle, summarize, sourcesFrom, chatStatus: chat.status }),
+    [chat.messages, chat.status, agent, createdAt, toolTitle, summarize, sourcesFrom]
   )
 
   const state: ComposerState = chat.status === "submitted" ? "sending" : chat.status === "streaming" ? "streaming" : "ready"

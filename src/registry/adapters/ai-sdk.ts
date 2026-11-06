@@ -1,5 +1,5 @@
 import type { UIMessage } from "ai"
-import type { AgentIdentity, Message, MessageBlock, MessageSource, MessageStatus, ReasoningEntry, ToolCall } from "@/registry/lib/chat"
+import type { AgentIdentity, Message, MessageBlock, MessageSource, MessageStatus, ReasoningEntry, ToolCall, ToolSource } from "@/registry/lib/chat"
 import type { RunStatus } from "@/registry/lib/status"
 import { inline, markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
 
@@ -17,6 +17,11 @@ export { inline, markdownBlocks, plainBlocks }
  * Model reasoning is shown as believed, not verified, because nothing checked
  * it. Tool durations are left empty: the SDK doesn't measure them, and Candor
  * never estimates. `data-*` parts become cards for the app's card registry.
+ *
+ * Durable runs (AI SDK 7's WorkflowAgent) stream the same UI messages: a tool
+ * that needs approval waits as `approval-requested` for as long as the workflow
+ * does, an approval made automatically is marked as one, and a reload re-attaches
+ * through the app's transport (WorkflowChatTransport), not through this adapter.
  */
 
 export type FromAiSdkOptions = {
@@ -30,6 +35,11 @@ export type FromAiSdkOptions = {
   toolTitle?: (tool: string, input: unknown) => string | undefined
   /** The text version of a data part, used when its card can't be shown. */
   summarize?: (name: string, data: unknown) => string
+  /**
+   * The sources a tool's result supports, added to the reply's sources after the SDK's own source parts:
+   * `(tool, input, output) => [{ kind: "document", label: "Refund policy v2" }]`. Read only from the tool's output.
+   */
+  sourcesFrom?: (tool: string, input: unknown, output: unknown) => ToolSource[] | undefined
 }
 
 /** Convert a whole useChat message list. */
@@ -43,6 +53,8 @@ export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions &
   const blocks: MessageBlock[] = []
   const reasoning: ReasoningEntry[] = []
   const sources: MessageSource[] = []
+  const toolSources: Omit<ToolSource, "key">[] = []
+  const toolSourceKeys = new Set<string>()
   let tools: ToolCall[] | null = null
   const flushTools = () => {
     if (tools?.length) blocks.push({ kind: "tools", calls: tools })
@@ -52,7 +64,17 @@ export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions &
   for (const part of message.parts) {
     if (part.type === "dynamic-tool" || part.type.startsWith("tool-")) {
       tools ??= []
-      tools.push(toolCall(part as ToolPart, options))
+      const call = toolCall(part as ToolPart, options)
+      tools.push(call)
+      const p = part as ToolPart
+      if (call.status === "succeeded" && options.sourcesFrom) {
+        for (const { key, ...found } of options.sourcesFrom(call.tool, p.input, p.output) ?? []) {
+          const k = key ?? `${found.kind}:${found.label}`
+          if (toolSourceKeys.has(k)) continue
+          toolSourceKeys.add(k)
+          toolSources.push(found)
+        }
+      }
       continue
     }
     flushTools()
@@ -86,6 +108,7 @@ export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions &
     }
   }
   flushTools()
+  for (const [i, found] of toolSources.entries()) sources.push({ ...found, id: `${message.id}-tool-s${i + 1}`, marker: sources.length + 1 })
 
   const author: Message["author"] = message.role === "assistant" ? { role: "agent", agent: options.agent } : message.role === "user" ? { role: "user" } : { role: "system" }
 
@@ -119,7 +142,7 @@ type ToolPart = {
   output?: unknown
   errorText?: string
   preliminary?: boolean
-  approval?: { approved?: boolean; reason?: string }
+  approval?: { approved?: boolean; reason?: string; requestReason?: string; isAutomatic?: boolean }
 }
 
 const toolStatus = (p: ToolPart): RunStatus => {
@@ -152,6 +175,8 @@ function toolCall(p: ToolPart, options: FromAiSdkOptions): ToolCall {
     output: p.output === undefined ? undefined : json(p.output),
     outputLanguage: p.output === undefined || typeof p.output === "string" ? "text" : "json",
     error: status === "failed" ? (p.errorText ?? "The tool failed and didn’t say why.") : status === "cancelled" && p.approval?.reason ? `Denied: ${p.approval.reason}` : undefined,
+    // Only a decided approval says who decided; one still waiting is the person's to make.
+    approval: p.approval?.approved === true ? { by: p.approval.isAutomatic ? "automatic" : "person", note: p.approval.reason || undefined } : undefined,
   }
 }
 

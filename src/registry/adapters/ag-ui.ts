@@ -1,5 +1,6 @@
-import { EventType, type ContentPart, type Event, type Interrupt, type Message as AgUiMessage, type TokenUsage } from "@ag-ui/core"
+import { EventType, type ContentPart, type Event, type Interrupt, type JsonPatch, type Message as AgUiMessage, type TokenUsage } from "@ag-ui/core"
 import type { AgentIdentity, EntityRef, Message, MessageBlock, ReasoningEntry, ToolCall } from "@/registry/lib/chat"
+import type { RunStatus } from "@/registry/lib/status"
 import { markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
 
 /*
@@ -17,6 +18,11 @@ import { markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
  * the protocol doesn't report them; token counts are only what the runs
  * reported, and AG-UI reports no cost. Subagent traffic stays out of the main
  * thread: the tool call that started a subagent reports for it.
+ *
+ * Agent state (STATE_SNAPSHOT, STATE_DELTA) and activities (ACTIVITY_SNAPSHOT,
+ * ACTIVITY_DELTA) are kept as the agent sent them, as data. A patch that
+ * doesn't apply changes nothing: the last good value stays, marked out of
+ * date with the reason, until the next snapshot.
  */
 
 /** Events of Candor's own, mixed into the AG-UI stream by useAgUi. */
@@ -64,6 +70,52 @@ export type FromAgUiOptions = {
   toolTitle?: (tool: string, input: unknown) => string | undefined
   /** The time to judge interrupt expiry by. Defaults to now. */
   now?: Date
+  /** The state the first run started with; the first STATE_DELTA patches it. Defaults to `{}`, as AG-UI clients send. */
+  initialState?: unknown
+  /** Other agents the app knows, by id. An activity naming an agent id not here (or `agent`) isn't mapped to an agent entry. */
+  agents?: AgentIdentity[]
+}
+
+/**
+ * A plan step read from an activity whose content has `steps: [{ title, status }]`.
+ * The same shape as PlanStep, so it can go straight to a plan view.
+ */
+export type AgUiPlanStep = {
+  id: string
+  title: string
+  status: RunStatus
+  /** The step's own summary, when it sent one as text. */
+  summary?: string
+  /** Why it failed: the agent's words, or a plain sentence saying it didn't say. Set only when status is "failed". */
+  failure?: string
+}
+
+/**
+ * What an agent is doing, read from an activity whose content has `status`
+ * (and optionally `doing`, `since`, `agentId`). The same shape as AgentActivityEntry.
+ */
+export type AgUiAgentActivityEntry = {
+  /** The app's own identity for the agent, never one taken from the content. */
+  agent: AgentIdentity
+  doing?: string
+  status: RunStatus
+  since?: string
+}
+
+/** An activity the agent reported: structured progress that isn't part of a reply. */
+export type AgUiActivity = {
+  /** The activity message's id. */
+  id: string
+  /** The agent's own kind for it, e.g. "plan" or "search". An open string. */
+  type: string
+  /** Its content as the agent sent it, after any patches. Data, never markup. */
+  content: Record<string, unknown>
+  /** Set when an update to it couldn't be applied: the content is the last good one, and may be behind. */
+  outOfDate?: string
+  /** Its `steps` as plan steps, when every step has a title and a status Candor knows. */
+  plan?: AgUiPlanStep[]
+  /** Its `status`/`doing` as an agent entry, when the status is one Candor knows and the agent is one the app named. */
+  agentActivity?: AgUiAgentActivityEntry
 }
 
 export type AgUiState = {
@@ -75,6 +127,12 @@ export type AgUiState = {
   usage?: AgUiUsage
   /** Something the person should know that isn't part of a reply, such as an expired request. */
   notice?: string
+  /** The agent's shared state from STATE_SNAPSHOT and STATE_DELTA; undefined until the agent sends one. */
+  state?: unknown
+  /** Set when a state update couldn't be applied: `state` is the last good value and may be behind. Cleared by the next snapshot. */
+  stateOutOfDate?: string
+  /** The activities the agent reported, in the order they first arrived. */
+  activities: AgUiActivity[]
 }
 
 type Part = { kind: "text"; id: string } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
@@ -115,6 +173,10 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
   const subParents = new Map<string, string>()
   /** Text messages from roles Candor doesn't show as the agent's (an echoed user, system or developer message). */
   const skipped = new Set<string>()
+  let state: unknown
+  let stateKnown = false
+  let stateOutOfDate: string | undefined
+  const activities = new Map<string, { type: string; content: Record<string, unknown>; outOfDate?: string }>()
 
   const current = (id: string): Reply => {
     let turn = turns.at(-1)
@@ -257,14 +319,55 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
       }
       case EventType.MESSAGES_SNAPSHOT:
         turns = applySnapshot(turns, e.messages)
+        // Activities are part of the agent's record too; a snapshot's version of one replaces ours.
+        for (const m of e.messages) {
+          if (m.role === "activity" && !m.subagentRunId && isRecord(m.content)) activities.set(m.id, { type: m.activityType, content: m.content })
+        }
         break
+      case EventType.STATE_SNAPSHOT:
+        state = e.snapshot
+        stateKnown = true
+        stateOutOfDate = undefined
+        break
+      case EventType.STATE_DELTA: {
+        // After a patch that failed, later ones would patch the wrong base; wait for a snapshot.
+        if (stateOutOfDate) break
+        const patched = applyJsonPatch(stateKnown ? state : (options.initialState ?? {}), e.delta)
+        if (patched.ok) {
+          state = patched.value
+          stateKnown = true
+        } else stateOutOfDate = `An update to the agent’s state couldn’t be applied (${patched.reason}), so it may be out of date.`
+        break
+      }
+      case EventType.ACTIVITY_SNAPSHOT: {
+        const existing = activities.get(e.messageId)
+        // `replace: false` asks to keep what's there; it isn't a merge.
+        if (existing && e.replace === false) break
+        if (isRecord(e.content)) activities.set(e.messageId, { type: e.activityType, content: e.content })
+        break
+      }
+      case EventType.ACTIVITY_DELTA: {
+        const existing = activities.get(e.messageId)
+        if (!existing) {
+          activities.set(e.messageId, { type: e.activityType, content: {}, outOfDate: "An update arrived for an activity the agent never described." })
+          break
+        }
+        if (existing.outOfDate) break
+        const patched = applyJsonPatch(existing.content, e.patch)
+        if (patched.ok && isRecord(patched.value)) activities.set(e.messageId, { ...existing, content: patched.value })
+        else {
+          const reason = patched.ok ? "the content stopped being an object" : patched.reason
+          activities.set(e.messageId, { ...existing, outOfDate: `An update to this activity couldn’t be applied (${reason}), so it may be out of date.` })
+        }
+        break
+      }
       case EventType.CUSTOM: {
         if (e.name !== "candor_card") break
         const card = cardValue(e.value)
         if (card) current(`card-${turns.length}`).parts.push({ kind: "card", ...card })
         break
       }
-      // Steps, state, activity, raw events and encrypted reasoning are the app's or the agent's own business; nothing to show.
+      // Steps, raw events and encrypted reasoning are the app's or the agent's own business; nothing to show.
       default:
         break
     }
@@ -288,6 +391,9 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
     notice: lapsed.length
       ? `${lapsed.length === 1 ? "A request" : `${lapsed.length} requests`} for your answer expired before anyone answered. Send a message to carry on; the agent will be told ${lapsed.length === 1 ? "it was" : "they were"} cancelled.`
       : undefined,
+    state,
+    stateOutOfDate,
+    activities: [...activities].map(([id, a]) => activity(id, a, options)),
   }
 }
 
@@ -465,6 +571,239 @@ function approval(i: Interrupt, findCall: (id: string) => Call | undefined, o: F
     responseSchema: i.responseSchema,
   }
 }
+
+/* ---------------------------------------------------------------- activities */
+
+function activity(id: string, a: { type: string; content: Record<string, unknown>; outOfDate?: string }, o: FromAgUiOptions): AgUiActivity {
+  const out: AgUiActivity = { id, type: a.type, content: a.content }
+  if (a.outOfDate) out.outOfDate = a.outOfDate
+  const plan = planSteps(id, a.content)
+  if (plan) out.plan = plan
+  const entry = agentEntry(a.content, o)
+  if (entry) out.agentActivity = entry
+  return out
+}
+
+/** Status words agents commonly send, as Candor's. Anything else is unknown and isn't mapped. */
+const statusWords: Record<string, RunStatus> = {
+  idle: "idle",
+  queued: "queued",
+  running: "running",
+  waiting: "waiting",
+  blocked: "blocked",
+  succeeded: "succeeded",
+  failed: "failed",
+  cancelled: "cancelled",
+  skipped: "skipped",
+  pending: "idle",
+  in_progress: "running",
+  "in-progress": "running",
+  completed: "succeeded",
+  complete: "succeeded",
+  done: "succeeded",
+  error: "failed",
+  canceled: "cancelled",
+}
+
+const runStatus = (v: unknown): RunStatus | undefined =>
+  typeof v === "string" && Object.prototype.hasOwnProperty.call(statusWords, v.trim().toLowerCase()) ? statusWords[v.trim().toLowerCase()] : undefined
+
+const textOf = (v: unknown) => (typeof v === "string" && v.trim() ? v : undefined)
+
+/** Plan steps, only when every step has a title and a known status: a plan with a step dropped would mislead. */
+function planSteps(id: string, content: Record<string, unknown>): AgUiPlanStep[] | undefined {
+  const steps = content.steps
+  if (!Array.isArray(steps) || !steps.length) return undefined
+  const out: AgUiPlanStep[] = []
+  for (const [i, s] of steps.entries()) {
+    if (!isRecord(s)) return undefined
+    const title = textOf(s.title)
+    const status = runStatus(s.status)
+    if (!title || !status) return undefined
+    const step: AgUiPlanStep = { id: textOf(s.id) ?? `${id}-${i}`, title, status }
+    const summary = textOf(s.summary)
+    if (summary) step.summary = summary
+    if (status === "failed") step.failure = textOf(s.failure) ?? textOf(s.error) ?? "The agent didn’t say why this step failed."
+    out.push(step)
+  }
+  return out
+}
+
+/** An agent entry, only for a known status and an agent the app named. */
+function agentEntry(content: Record<string, unknown>, o: FromAgUiOptions): AgUiAgentActivityEntry | undefined {
+  if (Array.isArray(content.steps)) return undefined
+  const status = runStatus(content.status)
+  if (!status) return undefined
+  let agent: AgentIdentity | undefined = o.agent
+  if (content.agentId !== undefined) {
+    agent = typeof content.agentId === "string" ? [o.agent, ...(o.agents ?? [])].find((a) => a.id === content.agentId) : undefined
+    if (!agent) return undefined
+  }
+  const entry: AgUiAgentActivityEntry = { agent, status }
+  const doing = textOf(content.doing)
+  if (doing) entry.doing = doing
+  const since = textOf(content.since)
+  if (since && !Number.isNaN(Date.parse(since))) entry.since = since
+  return entry
+}
+
+/* ---------------------------------------------------------------- JSON Patch */
+
+/** What applying a JSON Patch gave: the new document, or why it didn't apply (and then nothing changed). */
+export type JsonPatchResult = { ok: true; value: unknown } | { ok: false; reason: string }
+
+type Container = Record<string, unknown> | unknown[]
+
+class PatchError extends Error {}
+
+/**
+ * Applies an RFC 6902 JSON Patch to a JSON document, all or nothing. Pure: the
+ * document passed in is never changed, and the result shares nothing with the
+ * patch's values. A patch that fails (a path that doesn't resolve, a failed
+ * `test`, a malformed operation) returns `ok: false` with a plain reason.
+ */
+export function applyJsonPatch(document: unknown, patch: JsonPatch | unknown): JsonPatchResult {
+  if (!Array.isArray(patch)) return { ok: false, reason: "the patch isn’t a list of operations" }
+  let doc: unknown
+  try {
+    doc = clone(document)
+    for (const [i, op] of patch.entries()) doc = applyOp(doc, op, i)
+  } catch (err) {
+    if (err instanceof PatchError) return { ok: false, reason: err.message }
+    // A document or value nested too deep to copy: refused like any other patch that can't apply.
+    if (err instanceof RangeError) return { ok: false, reason: "the document is nested too deeply to patch" }
+    throw err
+  }
+  return { ok: true, value: doc }
+}
+
+function applyOp(doc: unknown, op: unknown, i: number): unknown {
+  const fail = (why: string): never => {
+    throw new PatchError(`operation ${i + 1}: ${why}`)
+  }
+  if (!isRecord(op) || typeof op.op !== "string" || typeof op.path !== "string") return fail("not an operation")
+  const path = pointer(op.path, fail)
+  const needsValue = op.op === "add" || op.op === "replace" || op.op === "test"
+  if (needsValue && !("value" in op)) return fail(`${op.op} has no value`)
+  switch (op.op) {
+    case "add":
+      return add(doc, path, clone(op.value), fail)
+    case "remove":
+      return remove(doc, path, fail).doc
+    case "replace":
+      return replace(doc, path, clone(op.value), fail)
+    case "test":
+      if (!equal(get(doc, path, fail), op.value)) fail(`test failed at "${op.path}"`)
+      return doc
+    case "move":
+    case "copy": {
+      if (typeof op.from !== "string") return fail(`${op.op} has no from`)
+      const from = pointer(op.from, fail)
+      if (op.op === "move") {
+        if (op.from === op.path) {
+          get(doc, from, fail)
+          return doc
+        }
+        if (op.path.startsWith(`${op.from}/`)) fail("can’t move a value into itself")
+        const taken = remove(doc, from, fail)
+        return add(taken.doc, path, taken.value, fail)
+      }
+      return add(doc, path, clone(get(doc, from, fail)), fail)
+    }
+    default:
+      return fail(`unknown op "${op.op}"`)
+  }
+}
+
+/** RFC 6901: "" is the whole document; otherwise slash-separated tokens with ~1 for "/" and ~0 for "~". */
+function pointer(p: string, fail: (why: string) => never): string[] {
+  if (p === "") return []
+  if (!p.startsWith("/")) fail(`"${p}" isn’t a JSON Pointer`)
+  return p
+    .slice(1)
+    .split("/")
+    .map((t) => {
+      if (/~[^01]|~$/.test(t)) fail(`"${p}" has a bad escape`)
+      return t.replace(/~1/g, "/").replace(/~0/g, "~")
+    })
+}
+
+const own = (o: object, k: string) => Object.prototype.hasOwnProperty.call(o, k)
+
+/** Sets an own property even for keys like "__proto__", so a patch can't reach a prototype. */
+const put = (o: Record<string, unknown>, k: string, v: unknown) => Object.defineProperty(o, k, { value: v, writable: true, enumerable: true, configurable: true })
+
+function arrayIndex(a: unknown[], token: string, adding: boolean, fail: (why: string) => never): number {
+  if (adding && token === "-") return a.length
+  if (!/^(0|[1-9]\d*)$/.test(token)) fail(`"${token}" isn’t an array index`)
+  const n = Number(token)
+  if (n > a.length || (!adding && n === a.length)) fail(`index ${n} is past the end of the list`)
+  return n
+}
+
+/** The container holding the last token, and that token. */
+function parentOf(doc: unknown, path: string[], fail: (why: string) => never): { container: Container; key: string } {
+  const container = get(doc, path.slice(0, -1), fail)
+  if (!isRecord(container) && !Array.isArray(container)) fail(`"/${path.slice(0, -1).join("/")}" isn’t an object or a list`)
+  return { container: container as Container, key: path.at(-1)! }
+}
+
+function get(doc: unknown, path: string[], fail: (why: string) => never): unknown {
+  let at = doc
+  for (const token of path) {
+    if (Array.isArray(at)) at = at[arrayIndex(at, token, false, fail)]
+    else if (isRecord(at) && own(at, token)) at = at[token]
+    else fail(`nothing at "/${path.join("/")}"`)
+  }
+  return at
+}
+
+function add(doc: unknown, path: string[], value: unknown, fail: (why: string) => never): unknown {
+  if (!path.length) return value
+  const { container, key } = parentOf(doc, path, fail)
+  if (Array.isArray(container)) container.splice(arrayIndex(container, key, true, fail), 0, value)
+  else put(container, key, value)
+  return doc
+}
+
+function replace(doc: unknown, path: string[], value: unknown, fail: (why: string) => never): unknown {
+  if (!path.length) return value
+  get(doc, path, fail)
+  const { container, key } = parentOf(doc, path, fail)
+  if (Array.isArray(container)) container[arrayIndex(container, key, false, fail)] = value
+  else put(container, key, value)
+  return doc
+}
+
+function remove(doc: unknown, path: string[], fail: (why: string) => never): { doc: unknown; value: unknown } {
+  if (!path.length) return fail("can’t remove the whole document")
+  const { container, key } = parentOf(doc, path, fail)
+  if (Array.isArray(container)) return { doc, value: container.splice(arrayIndex(container, key, false, fail), 1)[0] }
+  if (!own(container, key)) fail(`nothing at "/${path.join("/")}"`)
+  const value = container[key]
+  delete container[key]
+  return { doc, value }
+}
+
+function clone(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(clone)
+  if (isRecord(v)) {
+    const out: Record<string, unknown> = {}
+    for (const k of Object.keys(v)) put(out, k, clone(v[k]))
+    return out
+  }
+  return v
+}
+
+function equal(a: unknown, b: unknown): boolean {
+  if (a === b) return true
+  if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((x, i) => equal(x, b[i]))
+  if (!isRecord(a) || !isRecord(b)) return false
+  const keys = Object.keys(a)
+  return keys.length === Object.keys(b).length && keys.every((k) => own(b, k) && equal(a[k], b[k]))
+}
+
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v)
 
 /* ---------------------------------------------------------------- helpers */
 

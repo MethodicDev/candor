@@ -288,7 +288,7 @@ function MessageFooter({
           <CircleStop aria-hidden className="size-3.5" />
           {t("interrupted")}
           {onContinue && (
-            <button type="button" onClick={onContinue} className="font-medium text-accent-text hover:underline">
+            <button type="button" onClick={onContinue} className="relative after:absolute after:inset-x-0 after:-inset-y-1 font-medium text-accent-text hover:underline">
               {t("continue")}
             </button>
           )}

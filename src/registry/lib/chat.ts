@@ -87,6 +87,12 @@ export type MessageSource = {
   provisional?: boolean
 }
 
+/** A source a tool's result supports, without the id and [n] an adapter assigns. */
+export type ToolSource = Omit<MessageSource, "id" | "marker"> & {
+  /** Makes two results naming the same thing one source; defaults to `kind` and `label`. */
+  key?: string
+}
+
 /* ---------------------------------------------------------------- reasoning */
 
 type ReasoningBase = {
@@ -117,6 +123,16 @@ export type ToolCall = {
   duration?: string
   /** Required when status is "failed": what went wrong, in a sentence. */
   error?: string
+  /**
+   * Who let it run, when it needed a go-ahead: a person, or something automatic (a policy, a classifier, a rule).
+   * `note` is why, in the source's words. Left out when it needed none or the source doesn't say.
+   */
+  approval?: {
+    by: "person" | "automatic"
+    note?: string
+    /** The input as the agent proposed it, when a person edited it before it ran; `input` is then what ran. */
+    originalInput?: string
+  }
 }
 
 /* ---------------------------------------------------------------- blocks */

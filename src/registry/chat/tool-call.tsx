@@ -19,6 +19,11 @@ export const toolCallStrings = {
   done: "{count} done",
   failed: "{count} failed",
   working: "working",
+  approvedAutomatically: "Approved automatically",
+  approvedByPerson: "Approved by a person",
+  editedBeforeRun: "Edited before it ran",
+  editedNote: "A person changed the input before allowing it. Input is what ran.",
+  proposed: "As the agent proposed it",
 }
 
 /**
@@ -38,7 +43,7 @@ function ToolCall({
   const statusLabel = useStatusLabel()
   const failed = call.status === "failed"
   const [open, setOpen] = React.useState(failed)
-  const hasDetail = Boolean(call.input || call.output || call.error)
+  const hasDetail = Boolean(call.input || call.output || call.error || call.approval?.note || call.approval?.originalInput)
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call" data-status={call.status} className={cn("group/tool", className)}>
@@ -51,6 +56,16 @@ function ToolCall({
           {call.status === "running" ? <ShimmerLabel className="font-normal">{call.title}</ShimmerLabel> : call.title}
           <span className="sr-only"> — {statusLabel(call.status)}</span>
         </span>
+        {call.approval?.originalInput !== undefined && (
+          <span data-slot="tool-call-edited" className="shrink-0 rounded-xs bg-warning-weak px-1 text-2xs text-warning-text">
+            {t("editedBeforeRun")}
+          </span>
+        )}
+        {call.approval?.by === "automatic" && (
+          <span data-slot="tool-call-approval" className="shrink-0 rounded-xs bg-muted px-1 text-2xs text-muted-foreground">
+            {t("approvedAutomatically")}
+          </span>
+        )}
         <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline">{call.tool}</code>
         {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{call.duration}</span>}
         {hasDetail && (
@@ -65,7 +80,14 @@ function ToolCall({
           {call.error && (
             <p className="rounded-md bg-destructive-weak px-2.5 py-1.5 text-xs text-destructive-text">{call.error}</p>
           )}
+          {call.approval?.note && (
+            <p className="text-xs text-muted-foreground">
+              {call.approval.by === "automatic" ? t("approvedAutomatically") : t("approvedByPerson")}: {call.approval.note}
+            </p>
+          )}
+          {call.approval?.originalInput !== undefined && <p className="text-xs text-muted-foreground">{t("editedNote")}</p>}
           {call.input && <Payload language="json" title={t("input")} text={call.input} />}
+          {call.approval?.originalInput !== undefined && <Payload language="json" title={t("proposed")} text={call.approval.originalInput} />}
           {call.output && <Payload language={call.outputLanguage ?? "text"} title={t("output")} text={call.output} />}
         </div>
       </CollapsibleContent>

@@ -109,7 +109,7 @@ function Thread({
               : undefined
           }
           onBlur={virtualize ? (e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && setFocused(null) : undefined}
-          className="h-full overflow-y-auto overscroll-contain"
+          className="h-full scroll-pb-14 overflow-y-auto overscroll-contain"
         >
           <div
             ref={content}

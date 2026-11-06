@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 50 free items (version 1.4.0), the skill for coding agents and a
+This repo is the source of Candor UI's 52 free items (version 1.5.0), the skill for coding agents and a
 starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -39,13 +39,13 @@ npx degit MethodicDev/candor/starter my-agent-app
 ## What's here
 
 - `theme`: Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind.
-- `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage.
+- `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.
 - `ai-sdk`: Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards.
-- `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals and usage.
-- `claude-agent-server`: The server half of the Claude Agent SDK adapter: stream a run to useClaudeAgent, and answer its permission requests.
+- `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals (and the agent's questions), usage and sources, and a person's answer back into the SDK's result.
+- `claude-agent-server`: The server half of the Claude Agent SDK adapter: stream a run to useClaudeAgent, keep its permission requests in a store your own route can answer, and let a browser re-attach to a run after a reload.
 - `use-ag-ui`: Wires an AG-UI agent to Candor: messages for <Thread>/<Message>, props for <Composer>, and the interrupts waiting on a person.
 - `use-candor-chat`: Wires a `useChat()` result to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
-- `use-claude-agent`: Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
+- `use-claude-agent`: Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person, re-attaching to a run after a reload.
 - `copy-field`: A value a person copies somewhere else (a callback URL, a scope list).
 - `degraded-panel`: Something couldn't be done.
 - `locale`: The interface's words, language and direction.
@@ -57,6 +57,7 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `surface`: Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.
 - `terms`: The app's words for its own concepts, so components read like the product: one app says "org", another "project" or "workspace".
 - `agent-avatar`: An agent's glyph and hue by role, so people can tell agents apart at a glance.
+- `ai-disclosure`: A plain notice that the person is interacting with an AI system: a first line in the thread (`variant="line"`) or a compact "AI" badge for a thread header (`variant="badge"`) that opens to the app's own explanation.
 - `attachment-preview`: A file waiting to be sent, as a chip in the composer: its name, then upload progress, an error, or its size, and a remove button.
 - `card-registry`: A card an agent's reply can carry.
 - `citation`: An inline [n] that opens its source in a popover, so evidence is one step away without leaving the thread.
@@ -68,6 +69,7 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `message-content`: A message's typed blocks (paragraphs, lists, code, tool calls, cards), rendered as text, never as markdown or HTML.
 - `message`: One message in a thread.
 - `payload`: A block of code or query text from the agent: a query it ran, code it wrote, a config file.
+- `permission-prompt`: A tool call waiting for a person's go-ahead: what it will do, why it reached them, and the permission mode the run is in.
 - `prompt-suggestions`: Prompts to start from.
 - `reasoning`: The agent's stated reasoning above its answer.
 - `thread-divider`: A rule across the thread with a label in the middle: a day ("Today", "Yesterday", "5 Nov 2026") or a chapter of the conversation ("Drafting", "Review").

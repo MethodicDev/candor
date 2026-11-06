@@ -34,7 +34,7 @@ export type UseAgUiOptions = Omit<FromAgUiOptions, "running" | "now"> & {
  * Mentions are sent as structured `forwardedProps.references`, not pasted into the text.
  */
 export function useAgUi(options: UseAgUiOptions) {
-  const { url, headers, agent, toolTitle, fetch: fetcher, threadId, forwardedProps, tools, context } = options
+  const { url, headers, agent, agents, toolTitle, fetch: fetcher, threadId, forwardedProps, tools, context, initialState } = options
   const [events, setEvents] = React.useState<AgUiEvent[]>([])
   const [running, setRunning] = React.useState(false)
   const [error, setError] = React.useState<string>()
@@ -46,7 +46,10 @@ export function useAgUi(options: UseAgUiOptions) {
   const client = React.useRef<HttpAgent | null>(null)
   const answers = React.useRef(new Map<string, { approved: boolean; reason?: string }>())
 
-  const state = React.useMemo(() => fromAgUiEvents(events, { agent, toolTitle, running, now: new Date(now) }), [events, agent, toolTitle, running, now])
+  const state = React.useMemo(
+    () => fromAgUiEvents(events, { agent, agents, toolTitle, running, now: new Date(now), initialState }),
+    [events, agent, agents, toolTitle, running, now, initialState]
+  )
 
   const nextExpiry = state.approvals.reduce<number | undefined>((soonest, a) => {
     const at = a.expiresAt ? Date.parse(a.expiresAt) : NaN
@@ -62,14 +65,14 @@ export function useAgUi(options: UseAgUiOptions) {
   React.useEffect(() => () => run.current?.abort(), [])
 
   const getClient = React.useCallback(() => {
-    if (!client.current) client.current = new HttpAgent({ url, headers, fetch: fetcher, threadId })
+    if (!client.current) client.current = new HttpAgent({ url, headers, fetch: fetcher, threadId, initialState })
     const http = client.current
     // The latest options win, without losing the thread.
     http.url = url
     http.headers = { ...headers }
     if (fetcher) http.fetch = fetcher
     return http
-  }, [url, headers, fetcher, threadId])
+  }, [url, headers, fetcher, threadId, initialState])
 
   const start = React.useCallback(
     async (http: HttpAgent, params: { resume?: ResumeEntry[]; references?: EntityRef[] }, before: CandorAgUiEvent[]) => {
@@ -166,6 +169,12 @@ export function useAgUi(options: UseAgUiOptions) {
     /** The request failed; say so, and let the person send again. */
     error,
     threadId: state.threadId,
+    /** The agent's shared state (STATE_SNAPSHOT/STATE_DELTA); undefined until it sends one. */
+    state: state.state,
+    /** Set, with the reason, when a state update couldn't be applied and `state` may be behind. */
+    stateOutOfDate: state.stateOutOfDate,
+    /** The activities the agent reported, in order, with plan steps and agent entries where they map. */
+    activities: state.activities,
     /** Forget the conversation and start a new thread. */
     reset: () => {
       run.current?.abort()

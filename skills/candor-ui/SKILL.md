@@ -62,10 +62,12 @@ Read `references/components.md` for every item, grouped by job, with its tier an
 the screen does, not by name similarity:
 
 - **A conversation with an agent:** `thread`, `message`, `composer`, `tool-call`, `reasoning`, `citation`,
-  `prompt-suggestions`.
+  `prompt-suggestions`, `permission-prompt` (a tool call waiting on the person), `ai-disclosure` (says it's an AI).
 - **Work the agent proposes or does:** plans, approvals, diffs, run logs and run receipts are under *work*.
 - **Trust and control:** `locked` for controls a person can't use (it says why), `approval-request` and
-  `approval-queue` for decisions, `blast-radius` for what a change touches, `audit-log`.
+  `approval-queue` for decisions, `blast-radius` for what a change touches, `audit-log`, `type-to-confirm`,
+  `permission-mode`, `checkpoint-list` and `restore-dialog` (a restore that says what it didn't undo),
+  `ai-content-label`.
 - **Operating agents:** *ops*, *evals*, *admin* and *billing* hold traces, scorecards, permissions and usage.
 - **The app around it:** *shell* (layout, sidebar, command menu, session list) and *team*.
 
@@ -81,9 +83,11 @@ run that ends on an interrupt shows it in `approvals`, and `respond` resumes it.
 
 **Claude Agent SDK:** on the server, `streamClaudeAgent(({ canUseTool, abortController }) => query({ prompt,
 options: { canUseTool, abortController, resume: sessionId, includePartialMessages: true } }), { signal:
-request.signal, owner: userId })`; a second route calls `answerClaudeAgentApproval(id, approved, reason, userId)`. In
-the browser, `useClaudeAgent({ api, approveApi, agent })` returns the same shape plus `usage`. The agent must run on
-one long-running Node process (approvals wait in its memory), not spread over serverless instances.
+request.signal, owner: userId })`; a second route calls `answerClaudeApproval(approvals, id, answer, { owner: userId
+})`. In the browser, `useClaudeAgent({ api, approveApi, agent })` returns the same shape plus `usage` and
+`permissionMode`. Approvals wait in an `ApprovalStore` (memory by default; pass your own so any instance can answer,
+or answer from your own route with `onRespond`). For runs that survive a reload, pass a `ClaudeRunStore` and
+`detach`, and re-attach with `attachClaudeAgentRun` and the hook's `attachUrl` and `runId`.
 
 Both render the same way:
 
@@ -93,8 +97,8 @@ Both render the same way:
 </Thread>
 ```
 
-Show `approvals` with Allow and Deny buttons and call `respond(id, approved, reason?)`. Never approve on the user's
-behalf.
+Show `approvals` with `PermissionPrompt` (or your own Allow and Deny buttons) and call `respond(id, approved, reason?,
+{ updatedInput, answers, alwaysAllow })`. Never approve on the user's behalf, and never tick "always allow" for them.
 
 ## The honesty rules
 

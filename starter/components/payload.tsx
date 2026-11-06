@@ -64,7 +64,9 @@ function Payload({
   const code = <Code text={text} language={language} />
   if (bare) {
     return (
-      <pre data-slot="payload" data-bare="" data-language={language} data-syntax={syntax} className={cn("max-h-80 overflow-auto rounded-md bg-sunken px-3 py-2.5 font-mono text-xs leading-relaxed text-foreground", className)}>
+      // It scrolls on its own, so it takes focus: keyboard users can scroll long output.
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      <pre data-slot="payload" data-bare="" data-language={language} data-syntax={syntax} tabIndex={0} className={cn("max-h-80 overflow-auto rounded-md bg-sunken outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 focus-visible:ring-inset px-3 py-2.5 font-mono text-xs leading-relaxed text-foreground", className)}>
         {code}
       </pre>
     )
@@ -80,7 +82,7 @@ function Payload({
           type="button"
           onClick={() => copy(text)}
           aria-live="polite"
-          className="inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40"
+          className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40"
         >
           {state === "copied" ? (
             <>
@@ -97,7 +99,9 @@ function Payload({
           )}
         </button>
       </figcaption>
-      <pre className="max-h-80 overflow-auto px-3 py-2.5 font-mono text-xs leading-relaxed text-foreground">{code}</pre>
+      {/* It scrolls on its own, so it takes focus: keyboard users can scroll long output. */}
+      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+      <pre tabIndex={0} className="max-h-80 overflow-auto px-3 py-2.5 font-mono text-xs leading-relaxed text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 focus-visible:ring-inset">{code}</pre>
     </figure>
   )
 }
