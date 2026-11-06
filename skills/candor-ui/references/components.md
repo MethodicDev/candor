@@ -145,7 +145,7 @@ The app around the agent: layout, sidebar, command menu, sessions, notices.
 - **settings-layout** (Pro): Settings: grouped sections down the side and the open one beside them. Exports `SettingsLayout`, `SettingsSection`.
 - **shortcuts-dialog** (Pro): Every keyboard shortcut, grouped by where it works, printed for this platform (⌘ on a Mac, Ctrl elsewhere). Exports `ShortcutsDialog`.
 - **side-panel** (Pro): The panel beside the thread: one tab per open item (a diff, an approval, a document), each closable. Exports `SidePanel`.
-- **toast** (Pro): Short notices in the corner: polite for successes, assertive for errors, which stay until dismissed. Exports `Toaster`, `dismissToast`, `toast`.
+- **toast** (Pro): Short notices in the corner: polite for successes, assertive for errors, which stay until dismissed. Exports `Toaster`, `dismissToast`, `capToasts`, `toast`.
 
 ## Team
 
