@@ -43,10 +43,10 @@ function Reasoning({
   /** The steps, each verified (with evidence), believed or assumed. */
   entries: ReasoningEntry[]
   /** The agent is still thinking; opens the panel and shows progress. */
-  thinking?: boolean
+  thinking?: boolean | undefined
   /** How long it thought, once known, e.g. "6s". */
-  thoughtFor?: string
-  className?: string
+  thoughtFor?: string | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("reasoning", reasoningStrings)
   const [open, setOpen] = React.useState(thinking)
@@ -62,7 +62,7 @@ function Reasoning({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="reasoning" className={cn("group/reasoning", className)}>
-      <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1.5 rounded-md py-0.5 pe-1.5 text-xs text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40">
+      <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1.5 rounded-md py-0.5 pe-1.5 text-xs text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80">
         <Brain aria-hidden className={cn("size-3.5", thinking && "text-accent-text")} />
         {thinking ? <ShimmerLabel className="text-xs">{t("thinking")}</ShimmerLabel> : summary}
         <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3 transition-transform duration-200 ease-standard group-data-[state=open]/reasoning:[transform:rotate(90deg)]" />

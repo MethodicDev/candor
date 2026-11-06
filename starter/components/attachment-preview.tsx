@@ -59,8 +59,8 @@ function AttachmentChip({
   /** The file, with progress (0–1) while uploading or an error if it failed. */
   attachment: Attachment
   /** Shows a remove button. */
-  onRemove?: (id: string) => void
-  className?: string
+  onRemove?: ((id: string) => void) | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("attachmentPreview", attachmentPreviewStrings)
   const fmt = useFormat()
@@ -98,8 +98,8 @@ function AttachmentPreview({
   /** The file. `previewUrl` must be one your app serves (a thumbnail, a blob: URL); it's shown only for images. */
   attachment: Attachment
   /** Makes the tile a button that opens the file. */
-  onOpen?: (attachment: Attachment) => void
-  className?: string
+  onOpen?: ((attachment: Attachment) => void) | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("attachmentPreview", attachmentPreviewStrings)
   const fmt = useFormat()
@@ -127,7 +127,7 @@ function AttachmentPreview({
       data-slot="attachment-preview"
       aria-label={t("open", { name: a.name })}
       onClick={() => onOpen(a)}
-      className={cn(frame, "outline-none transition-colors duration-150 hover:border-border-strong focus-visible:ring-[3px] focus-visible:ring-ring/40")}
+      className={cn(frame, "outline-none transition-colors duration-150 hover:border-border-strong focus-visible:ring-[3px] focus-visible:ring-ring/80")}
     >
       {body}
     </button>
@@ -147,8 +147,8 @@ function AttachmentList({
   /** The files. */
   attachments: Attachment[]
   /** Makes each tile a button that opens its file. */
-  onOpen?: (attachment: Attachment) => void
-  className?: string
+  onOpen?: ((attachment: Attachment) => void) | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("attachmentPreview", attachmentPreviewStrings)
   return (

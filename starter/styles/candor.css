@@ -9,8 +9,14 @@
  * To restyle, override the roles after this file: colours by their shadcn names
  * (--primary, --background…), everything else by its --cd-* name. A brand theme
  * is just such a file.
+ *
+ * Font: Inter when the font-inter item is installed (styles/candor-font-inter.css),
+ * else the system's sans-serif. Point --cd-font at your own font to use it instead.
+ *
+ * Density: data-density="compact" on <html> (or any container) tightens type for
+ * dense apps: 14px conversation text and 13px body and label text, with a narrower
+ * thread and sidebar.
  */
-@import "@fontsource-variable/inter/opsz.css";
 @import "./candor-theme.css";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -31,6 +37,8 @@
   --cd-text-3xl: 1.75rem;
   --cd-text-4xl: 2rem;
   --cd-text-5xl: 2.5rem;
+  /* Conversation text: messages and the composer. */
+  --cd-text-prose: var(--cd-text-md);
   --cd-tracking-body: -0.011em;
   --cd-weight-heading: 620;
 
@@ -53,6 +61,10 @@
   --cd-ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
   --cd-ease-spring: linear(0, 0.4 15%, 0.7 30%, 1 50%, 0.95 65%, 1.02 80%, 1 100%);
 
+  /* The message column's width, and the app sidebar's. (Not --sidebar-width: shadcn's SidebarProvider sets that.) */
+  --cd-thread-width: 48rem;
+  --cd-sidebar-width: 16rem;
+
   --radius: var(--cd-radius-lg);
 
   --sidebar: var(--chrome);
@@ -73,6 +85,14 @@
 [data-theme="dark"] {
   --cd-shadow: oklch(0 0 0 / 0.35);
 }
+
+/* The compact preset. Prose is pinned, since by default it follows --cd-text-md, which this shrinks. */
+[data-density="compact"] {
+  --cd-text-prose: 0.875rem;
+  --cd-text-md: 0.8125rem;
+  --cd-thread-width: 44rem;
+  --cd-sidebar-width: 14rem;
+}
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --cd-shadow: oklch(0 0 0 / 0.35);
@@ -92,6 +112,8 @@
   --text-sm--line-height: 1.25rem;
   --text-base: var(--cd-text-md);
   --text-base--line-height: 1.375rem;
+  --text-prose: var(--cd-text-prose);
+  --text-prose--line-height: 1.375rem;
   --text-lg: var(--cd-text-lg);
   --text-lg--line-height: 1.5rem;
   --text-xl: var(--cd-text-xl);
@@ -201,6 +223,25 @@
   to { visibility: hidden; }
 }
 
+/*
+ * Syntax colours for Payload's tokens: on under data-syntax="highlight" (on <html> for the whole app, or a Payload's
+ * own `highlight`), off again under data-syntax="off". Only text roles that pass contrast on the sunken well are used.
+ */
+[data-syntax="highlight"] [data-token="keyword"] { color: var(--accent-text); }
+[data-syntax="highlight"] [data-token="function"] { color: var(--accent-text); font-weight: 500; }
+[data-syntax="highlight"] [data-token="string"] { color: var(--success-text); }
+[data-syntax="highlight"] [data-token="comment"] { color: var(--muted-foreground); font-style: italic; }
+[data-syntax="highlight"] :is([data-token="number"], [data-token="variable"]) { color: var(--attention-text); }
+[data-syntax="highlight"] :is([data-token="property"], [data-token="tag"], [data-token="type"]) { color: var(--warning-text); }
+[data-syntax="off"] [data-token] { color: inherit; font-style: inherit; font-weight: inherit; }
+/* A Payload's own `highlight` wins over an "off" around it. */
+[data-slot="payload"][data-syntax="highlight"] [data-token="keyword"] { color: var(--accent-text); }
+[data-slot="payload"][data-syntax="highlight"] [data-token="function"] { color: var(--accent-text); font-weight: 500; }
+[data-slot="payload"][data-syntax="highlight"] [data-token="string"] { color: var(--success-text); }
+[data-slot="payload"][data-syntax="highlight"] [data-token="comment"] { color: var(--muted-foreground); font-style: italic; }
+[data-slot="payload"][data-syntax="highlight"] :is([data-token="number"], [data-token="variable"]) { color: var(--attention-text); }
+[data-slot="payload"][data-syntax="highlight"] :is([data-token="property"], [data-token="tag"], [data-token="type"]) { color: var(--warning-text); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
@@ -212,7 +253,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/80;
   }
   body {
     @apply bg-background text-foreground font-sans text-sm;

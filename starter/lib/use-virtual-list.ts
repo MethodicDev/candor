@@ -38,15 +38,15 @@ export function useVirtualList({
   count: number
   keyOf: (index: number) => React.Key
   scroller: React.RefObject<HTMLElement | null>
-  estimate?: number
-  overscan?: number
-  initial?: number
+  estimate?: number | undefined
+  overscan?: number | undefined
+  initial?: number | undefined
   /** Which end to show before the scroller is measured: "end" for a thread (newest last), "start" for a list. Defaults to "end". */
-  anchor?: "start" | "end"
+  anchor?: "start" | "end" | undefined
   /** The gap between items, in pixels, read once the scroller is measured (e.g. from the list's computed `row-gap`). */
-  gap?: () => number
+  gap?: (() => number) | undefined
   /** The key of an item to keep rendered, such as the one holding focus. */
-  pin?: string | null
+  pin?: string | null | undefined
 }): VirtualList {
   const [heights, setHeights] = React.useState<ReadonlyMap<string, number>>(() => new Map())
   const [viewport, setViewport] = React.useState<{ top: number; height: number; gap: number } | null>(null)

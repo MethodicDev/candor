@@ -60,17 +60,17 @@ export type PermissionSuggestion = {
   /** What it covers, as the source writes it: `Bash(npm test:*)`, a mode's name, directories. Shown as code. */
   what: string
   /** Where it's kept: "session", "local" (this project, this computer), "project" (shared), "user", or the source's own word. */
-  scope?: string
+  scope?: string | undefined
 }
 
 /** A question the agent asks through the prompt: pick one or more labels, or answer in its own words. */
 export type PermissionQuestion = {
   id: string
   prompt: string
-  tag?: string
-  options: { id: string; label: string; detail?: string }[]
+  tag?: string | undefined
+  options: { id: string; label: string; detail?: string | undefined }[]
   multiple: boolean
-  other?: boolean
+  other?: boolean | undefined
 }
 
 /** A tool call waiting on a person, in the shape the adapters give (ClaudeApproval fits it). */
@@ -79,29 +79,29 @@ export type PermissionRequest = {
   tool: string
   input: unknown
   /** The source's own sentence for the request: "Claude wants to run npm test". */
-  title?: string
-  description?: string
+  title?: string | undefined
+  description?: string | undefined
   /** Why it reached a person (no rule allowed it, a safety check, a path outside the project). */
-  reason?: string
-  blockedPath?: string
+  reason?: string | undefined
+  blockedPath?: string | undefined
   /** Put the focus on Deny: the request grants more than it looks. */
-  defaultToNo?: boolean
+  defaultToNo?: boolean | undefined
   /** Set when a subagent asked. */
-  agentId?: string
-  mcpServer?: { name: string; source: string }
+  agentId?: string | undefined
+  mcpServer?: { name: string; source: string } | undefined
   /** The questions, when the request is the agent asking rather than a tool to allow. */
-  questions?: PermissionQuestion[]
+  questions?: PermissionQuestion[] | undefined
   /** False when the server won't accept an edited input for this call: no Edit is offered, whatever `editable` says. */
-  editable?: boolean
+  editable?: boolean | undefined
 }
 
 export type PermissionAnswer = {
   /** The input as edited, when the person changed it. */
-  updatedInput?: Record<string, unknown>
+  updatedInput?: Record<string, unknown> | undefined
   /** The suggestions the person ticked, by index. */
-  alwaysAllow?: number[]
+  alwaysAllow?: number[] | undefined
   /** Answers to `questions`. */
-  answers?: { questionId: string; choice?: string[]; text?: string }[]
+  answers?: { questionId: string; choice?: string[] | undefined; text?: string | undefined }[] | undefined
 }
 
 const modeKeys: Record<string, keyof typeof permissionPromptStrings> = {
@@ -145,18 +145,18 @@ function PermissionPrompt({
   /** The waiting request. */
   request: PermissionRequest
   /** The run's permission mode, as the SDK names it ("default", "acceptEdits", "plan", "auto"…). Left out, it isn't shown. */
-  mode?: string
+  mode?: string | undefined
   /** "Don't ask again" rules to offer. None is ticked. */
-  suggestions?: PermissionSuggestion[]
+  suggestions?: PermissionSuggestion[] | undefined
   /** Let the person edit the input as JSON before allowing it. */
-  editable?: boolean
+  editable?: boolean | undefined
   /** Called with the edited input, the ticked rules or the answers. */
   onAllow: (answer: PermissionAnswer) => void
   /** Called when the person denies it (or won't answer the questions). */
   onDeny: () => void
   /** The answer is being sent: both buttons wait. */
-  busy?: boolean
-  className?: string
+  busy?: boolean | undefined
+  className?: string | undefined
 }) {
   // Keyed by the request, so an edit, a ticked rule or an answer never carries over to the next request.
   return <PromptBody key={request.id} {...{ request, mode, suggestions, editable: editable && request.editable !== false, onAllow, onDeny, busy, className }} />
@@ -173,13 +173,13 @@ function PromptBody({
   className,
 }: {
   request: PermissionRequest
-  mode?: string
-  suggestions?: PermissionSuggestion[]
+  mode?: string | undefined
+  suggestions?: PermissionSuggestion[] | undefined
   editable: boolean
   onAllow: (answer: PermissionAnswer) => void
   onDeny: () => void
   busy: boolean
-  className?: string
+  className?: string | undefined
 }) {
   const t = useStrings("permissionPrompt", permissionPromptStrings)
   const id = React.useId()

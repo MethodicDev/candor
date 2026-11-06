@@ -26,13 +26,13 @@ function ActionButton({
   children,
 }: {
   label: string
-  onClick?: () => void
-  pressed?: boolean
+  onClick?: (() => void) | undefined
+  pressed?: boolean | undefined
   children: React.ReactNode
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger render={<button type="button" aria-label={label} aria-pressed={pressed} onClick={onClick} className="flex size-7 items-center justify-center rounded-md text-faint-foreground transition-colors duration-150 outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40 aria-pressed:text-accent-text [&_svg]:size-3.5" />}>{children}</TooltipTrigger>
+      <TooltipTrigger render={<button type="button" aria-label={label} aria-pressed={pressed} onClick={onClick} className="flex size-7 items-center justify-center rounded-md text-faint-foreground transition-colors duration-150 outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 aria-pressed:text-accent-text [&_svg]:size-3.5" />}>{children}</TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
   )
@@ -52,16 +52,16 @@ function MessageActions({
   className,
 }: {
   /** What Copy copies; without it there's no Copy. */
-  text?: string
+  text?: string | undefined
   /** Shows Retry. */
-  onRetry?: () => void
+  onRetry?: (() => void) | undefined
   /** The current rating: up, down or none. */
-  rating?: Rating
+  rating?: Rating | undefined
   /** Shows thumbs up and down. */
-  onRate?: (rating: Rating) => void
+  onRate?: ((rating: Rating) => void) | undefined
   /** Facts after the actions, e.g. the model and cost. */
-  meta?: React.ReactNode
-  className?: string
+  meta?: React.ReactNode | undefined
+  className?: string | undefined
 }) {
   const { state, copy } = useCopy()
   const t = useStrings("messageActions", messageActionsStrings)

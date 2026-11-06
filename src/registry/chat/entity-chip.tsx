@@ -115,10 +115,10 @@ function EntityChip({
   /** The thing to show: its kind, identifier and optional label. */
   entity: EntityRef
   /** Makes the chip a button that opens the thing. */
-  onOpen?: (entity: EntityRef) => void
+  onOpen?: ((entity: EntityRef) => void) | undefined
   /** Adds a remove button, e.g. in the composer. */
-  onRemove?: (entity: EntityRef) => void
-  className?: string
+  onRemove?: ((entity: EntityRef) => void) | undefined
+  className?: string | undefined
 }) {
   const { Icon, noun } = useEntityKinds()(entity.kind)
   const t = useStrings("entityChip", entityChipStrings)
@@ -141,7 +141,7 @@ function EntityChip({
         <button
           type="button"
           onClick={() => onOpen(entity)}
-          className={cn(base, "cursor-pointer transition-colors duration-150 hover:border-border-strong hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/40 outline-none")}
+          className={cn(base, "cursor-pointer transition-colors duration-150 hover:border-border-strong hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80 outline-none")}
         >
           {body}
         </button>

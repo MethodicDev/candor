@@ -18,17 +18,17 @@ export type KnowSource = {
   door: KnowDoor
   label: string
   /** Who added it, for files, links and answers. */
-  addedBy?: string
-  addedAt?: string
+  addedBy?: string | undefined
+  addedAt?: string | undefined
   /** When it was last read; null if never. */
   readAt: string | null
   /** How often it should be re-read, in hours, when it has a schedule. */
-  everyHours?: number
+  everyHours?: number | undefined
   status: RunStatus
   /** "214 objects", "38 pages" — only when counted. */
-  extent?: string
+  extent?: string | undefined
   /** Required when status is "failed". */
-  error?: string
+  error?: string | undefined
 }
 
 export type Confidence = "high" | "medium" | "low" | "unknown"
@@ -49,7 +49,7 @@ export type RetrievedPassage = {
   /** Whether the answer actually cites it. */
   cited: boolean
   /** Why it ranked where it did, when the retriever says. */
-  why?: string
+  why?: string | undefined
   readAt: string | null
 }
 
@@ -65,7 +65,7 @@ export type ModelOption = {
   vendor: ModelVendor
   name: string
   /** One line on what it's good for. */
-  note?: string
+  note?: string | undefined
   /** Relative cost, 1 (cheapest) to 4. */
   cost: 1 | 2 | 3 | 4
   /** The vendor's zero-retention contract has been attested by an operator. */
@@ -80,7 +80,7 @@ export type ModelSettingsValue = {
   /** Most tool-calling steps per run before it stops and asks. */
   stepLimit: number
   /** Used when the primary is unavailable; must also be attested. */
-  fallback?: string
+  fallback?: string | undefined
 }
 
 /* ---------------------------------------------------------------- tools */
@@ -95,7 +95,7 @@ export type ToolSetting = {
   effect: "read" | "write" | "deploy" | "outside"
   permission: ToolPermission
   /** Permissions this tool can't take, with why. */
-  locked?: Partial<Record<ToolPermission, string>>
+  locked?: Partial<Record<ToolPermission, string | undefined>> | undefined
 }
 
 /* ---------------------------------------------------------------- agents */
@@ -107,7 +107,7 @@ export type AgentConfig = {
   model: string
   /** Runs per day for the last 14 days, oldest first. */
   runs: { ok: number; failed: number }[]
-  lastFailure?: string
+  lastFailure?: string | undefined
 }
 
 export type Memory = {
@@ -117,7 +117,7 @@ export type Memory = {
   from: { person: string } | { agent: AgentIdentity }
   createdAt: string
   scope: "account" | "environment"
-  environmentId?: string
+  environmentId?: string | undefined
 }
 
 export type Version = {
@@ -126,7 +126,7 @@ export type Version = {
   state: "live" | "draft" | "past"
   at: string
   by: string
-  note?: string
+  note?: string | undefined
 }
 
 /* ---------------------------------------------------------------- context */

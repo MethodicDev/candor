@@ -37,7 +37,7 @@ function ToolCall({
 }: {
   /** The call: tool name, plain-words title, status, input, output, duration or error. */
   call: ToolCallData
-  className?: string
+  className?: string | undefined
 }) {
   const t = useStrings("toolCall", toolCallStrings)
   const statusLabel = useStatusLabel()
@@ -49,7 +49,7 @@ function ToolCall({
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call" data-status={call.status} className={cn("group/tool", className)}>
       <CollapsibleTrigger
         disabled={!hasDetail}
-        className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-1 text-start outline-none transition-colors duration-150 enabled:hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/40"
+        className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-1 text-start outline-none transition-colors duration-150 enabled:hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80"
       >
         <StepMark status={call.status} />
         <span className="min-w-0 flex-1 truncate text-sm">
@@ -102,7 +102,7 @@ function ToolCallGroup({
 }: {
   /** Several calls, summarised as a group. */
   calls: ToolCallData[]
-  className?: string
+  className?: string | undefined
 }) {
   const t = useStrings("toolCall", toolCallStrings)
   const done = calls.filter((c) => c.status === "succeeded").length
@@ -122,7 +122,7 @@ function ToolCallGroup({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call-group" className={cn("group/tools rounded-lg border bg-card", className)}>
-      <CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2 text-start text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40 rounded-lg">
+      <CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2 text-start text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 rounded-lg">
         <Wrench aria-hidden className="size-3.5" />
         <span className="flex-1">
           {t("calls", { count: calls.length })}

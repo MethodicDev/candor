@@ -40,14 +40,14 @@ function AiDisclosure({
   className,
 }: {
   /** The agent, named by the app: an AgentIdentity or a plain name. Left out, the notice says "an AI system". Never model text. */
-  agent?: AgentIdentity | string
+  agent?: AgentIdentity | string | undefined
   /** "line" (the default) for a first line in the thread; "badge" for a compact mark in a header, e.g. ThreadHeader's. Place each where it fits. */
-  variant?: "line" | "badge"
+  variant?: "line" | "badge" | undefined
   /** The app's own plain text about the system: who operates it, what data it uses, how to reach a person. Shown under the line, or in the badge's explanation. */
-  details?: string
+  details?: string | undefined
   /** Opens the app's own page or dialog about its AI use. A callback, never a URL from the model. Shows a "Learn more" button. */
-  onLearnMore?: () => void
-  className?: string
+  onLearnMore?: (() => void) | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("aiDisclosure", aiDisclosureStrings)
   const name = typeof agent === "string" ? agent : agent?.name
@@ -76,7 +76,7 @@ function AiDisclosure({
       )
     return (
       <Popover>
-        <PopoverTrigger data-slot="ai-disclosure" data-variant="badge" aria-label={label} className={cn(badgeClass, "outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/40", className)}>
+        <PopoverTrigger data-slot="ai-disclosure" data-variant="badge" aria-label={label} className={cn(badgeClass, "outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80", className)}>
           {mark}
         </PopoverTrigger>
         <PopoverContent align="start" className="flex w-72 flex-col gap-1.5 p-3 text-xs">

@@ -51,11 +51,11 @@ function CardRegistryProvider({
 }
 
 class CardBoundary extends React.Component<{ fallback: React.ReactNode; children: React.ReactNode }, { failed: boolean }> {
-  state = { failed: false }
+  override state = { failed: false }
   static getDerivedStateFromError() {
     return { failed: true }
   }
-  render() {
+  override render() {
     return this.state.failed ? this.props.fallback : this.props.children
   }
 }
@@ -68,7 +68,7 @@ function Summary({
   const t = useStrings("cardRegistry", cardRegistryStrings)
   return (
     <Collapsible className="group/summary">
-      <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-1 inline-flex items-center gap-1 text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40 rounded-sm">
+      <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-1 inline-flex items-center gap-1 text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 rounded-sm">
         <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3 transition-transform group-data-[state=open]/summary:[transform:rotate(90deg)]" /> {t("showAsText")}
       </CollapsibleTrigger>
       <CollapsibleContent>

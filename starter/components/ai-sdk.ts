@@ -28,18 +28,18 @@ export type FromAiSdkOptions = {
   /** Who the assistant is. Candor always names the agent. */
   agent: AgentIdentity
   /** The chat's status from useChat, so the last reply can show as streaming or failed. */
-  chatStatus?: "submitted" | "streaming" | "ready" | "error"
+  chatStatus?: "submitted" | "streaming" | "ready" | "error" | undefined
   /** When a message was sent, if your metadata says. Without it, no time is shown. */
-  createdAt?: (message: UIMessage) => string | undefined
+  createdAt?: ((message: UIMessage) => string | undefined) | undefined
   /** A plain-words title for a tool call: "Searched the docs for “region”". */
-  toolTitle?: (tool: string, input: unknown) => string | undefined
+  toolTitle?: ((tool: string, input: unknown) => string | undefined) | undefined
   /** The text version of a data part, used when its card can't be shown. */
-  summarize?: (name: string, data: unknown) => string
+  summarize?: ((name: string, data: unknown) => string) | undefined
   /**
    * The sources a tool's result supports, added to the reply's sources after the SDK's own source parts:
    * `(tool, input, output) => [{ kind: "document", label: "Refund policy v2" }]`. Read only from the tool's output.
    */
-  sourcesFrom?: (tool: string, input: unknown, output: unknown) => ToolSource[] | undefined
+  sourcesFrom?: ((tool: string, input: unknown, output: unknown) => ToolSource[] | undefined) | undefined
 }
 
 /** Convert a whole useChat message list. */
@@ -49,7 +49,7 @@ export function fromAiSdkMessages(messages: UIMessage[], options: FromAiSdkOptio
 }
 
 /** Convert one message. `last` marks the reply the chat status applies to. */
-export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions & { last?: boolean }): Message {
+export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions & { last?: boolean | undefined }): Message {
   const blocks: MessageBlock[] = []
   const reasoning: ReasoningEntry[] = []
   const sources: MessageSource[] = []
@@ -123,7 +123,7 @@ export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions &
   }
 }
 
-function statusOf({ last, chatStatus }: { last?: boolean; chatStatus?: FromAiSdkOptions["chatStatus"] }): MessageStatus {
+function statusOf({ last, chatStatus }: { last?: boolean | undefined; chatStatus?: FromAiSdkOptions["chatStatus"] | undefined }): MessageStatus {
   if (!last) return "complete"
   if (chatStatus === "submitted" || chatStatus === "streaming") return "streaming"
   if (chatStatus === "error") return "failed"
@@ -134,15 +134,15 @@ function statusOf({ last, chatStatus }: { last?: boolean; chatStatus?: FromAiSdk
 
 type ToolPart = {
   type: string
-  toolName?: string
+  toolName?: string | undefined
   toolCallId: string
-  title?: string
+  title?: string | undefined
   state: "input-streaming" | "input-available" | "approval-requested" | "approval-responded" | "output-available" | "output-error" | "output-denied"
   input?: unknown
   output?: unknown
-  errorText?: string
-  preliminary?: boolean
-  approval?: { approved?: boolean; reason?: string; requestReason?: string; isAutomatic?: boolean }
+  errorText?: string | undefined
+  preliminary?: boolean | undefined
+  approval?: { approved?: boolean | undefined; reason?: string | undefined; requestReason?: string | undefined; isAutomatic?: boolean | undefined } | undefined
 }
 
 const toolStatus = (p: ToolPart): RunStatus => {

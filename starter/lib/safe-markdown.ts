@@ -14,7 +14,7 @@ const fenceLanguage = (lang: string): PayloadLanguage => (lang === "json" ? "jso
  * Reads model text as safe markdown: paragraphs, lists and fenced code. Never HTML. `#` lines are bold paragraphs
  * unless `headings` is set, when `#`, `##` and `###` (and deeper, as level 3) become heading blocks.
  */
-export function markdownBlocks(text: string, { headings = false }: { headings?: boolean } = {}): MessageBlock[] {
+export function markdownBlocks(text: string, { headings = false }: { headings?: boolean | undefined } = {}): MessageBlock[] {
   const blocks: MessageBlock[] = []
   const lines = text.replace(/\r\n/g, "\n").split("\n")
   let para: string[] = []

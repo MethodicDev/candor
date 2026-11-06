@@ -82,8 +82,8 @@ function AgentAvatar({
   /** Who the agent is: id, display name and role. */
   agent: AgentIdentity
   /** md for message headers, sm for lists and chips. */
-  size?: "sm" | "md"
-  className?: string
+  size?: "sm" | "md" | undefined
+  className?: string | undefined
 }) {
   const { Icon, hue } = useAgentRoles()(agent.role)
   return (
@@ -111,8 +111,8 @@ function AgentBadge({
   /** Who the agent is: id, display name and role. */
   agent: AgentIdentity
   /** md for message headers, sm for lists and chips. */
-  size?: "sm" | "md"
-  className?: string
+  size?: "sm" | "md" | undefined
+  className?: string | undefined
 }) {
   const { noun } = useAgentRoles()(agent.role)
   const t = useStrings("agentAvatar", agentAvatarStrings)

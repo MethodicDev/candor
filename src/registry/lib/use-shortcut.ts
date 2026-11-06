@@ -33,7 +33,7 @@ function typing(target: EventTarget | null) {
  * "mod+shift+o", "?", "escape". A combo without mod or alt is ignored while
  * the person is typing in a field, so "?" still types a question mark.
  */
-export function useShortcut(combo: string, handler: (e: KeyboardEvent) => void, { enabled = true }: { enabled?: boolean } = {}) {
+export function useShortcut(combo: string, handler: (e: KeyboardEvent) => void, { enabled = true }: { enabled?: boolean | undefined } = {}) {
   const latest = React.useRef(handler)
   React.useEffect(() => {
     latest.current = handler

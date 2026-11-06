@@ -44,7 +44,7 @@ function ContextMeter({
   segments: ContextSegment[]
   /** The model's context window, in tokens. */
   limit: number
-  className?: string
+  className?: string | undefined
 }) {
   const t = useStrings("contextMeter", contextMeterStrings)
   const fmt = useFormat()
@@ -58,7 +58,7 @@ function ContextMeter({
     <Popover>
       <PopoverTrigger
         aria-label={t("label", { used: tokens(used), limit: tokens(limit) })}
-        className={cn("inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-2xs tabular-nums outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/40", warn ? "text-warning-text" : "text-muted-foreground", className)}
+        className={cn("inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-2xs tabular-nums outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80", warn ? "text-warning-text" : "text-muted-foreground", className)}
       >
         <svg viewBox="0 0 18 18" className="size-4 -rotate-90" aria-hidden>
           <circle cx="9" cy="9" r={r} fill="none" stroke="var(--muted)" strokeWidth="2.5" />

@@ -32,7 +32,7 @@ export type ComposerState =
   | "sending"
   | "streaming"
   | { kind: "locked"; reason: string }
-  | { kind: "offline"; reason?: string }
+  | { kind: "offline"; reason?: string | undefined }
 
 type Trigger = { char: "@" | "/"; start: number; query: string }
 
@@ -95,39 +95,39 @@ function Composer({
   /** Called on send with the text and the entities mentioned. */
   onSubmit: (value: string, references: EntityRef[]) => void
   /** Shown as Stop while a reply is streaming. */
-  onStop?: () => void
+  onStop?: (() => void) | undefined
   /** ready, sending, streaming, locked (with a reason) or offline. */
-  state?: ComposerState
+  state?: ComposerState | undefined
   /** Where the next message's work lands; production turns the pill to a warning. */
-  scope?: ComposerScope
+  scope?: ComposerScope | undefined
   /** Makes the scope pill a button, e.g. to change environment. */
-  onScopeClick?: () => void
+  onScopeClick?: (() => void) | undefined
   /** What @ can insert, grouped under their headings. */
-  mentions?: MentionOption[]
+  mentions?: MentionOption[] | undefined
   /** What / can run, only at the start of a message. */
-  commands?: SlashCommand[]
+  commands?: SlashCommand[] | undefined
   /** Entities already attached, shown as chips. */
-  references?: EntityRef[]
+  references?: EntityRef[] | undefined
   /** Called when a chip is added or removed. */
-  onReferencesChange?: (references: EntityRef[]) => void
+  onReferencesChange?: ((references: EntityRef[]) => void) | undefined
   /** Files attached, with upload progress or an error. */
-  attachments?: Attachment[]
+  attachments?: Attachment[] | undefined
   /** Shows an attach button; called with the chosen files. */
-  onAttach?: (files: File[]) => void
+  onAttach?: ((files: File[]) => void) | undefined
   /**
    * Which files the attach button's picker offers, as for `<input accept>` (e.g. "image/*,.pdf"). Files pasted or
    * dropped arrive as they are, so check types where you upload.
    */
-  accept?: string
+  accept?: string | undefined
   /** Called when a file is removed. */
-  onRemoveAttachment?: (id: string) => void
+  onRemoveAttachment?: ((id: string) => void) | undefined
   /** Shown in the empty box; "Ask a question, or describe a change" by default. */
-  placeholder?: string
+  placeholder?: string | undefined
   /** The accessible name of the text box; "Message" by default. */
-  label?: string
+  label?: string | undefined
   /** Your own controls in the toolbar, after the attach button: a dictation button, a model picker. */
-  tools?: React.ReactNode
-  className?: string
+  tools?: React.ReactNode | undefined
+  className?: string | undefined
 }) {
   const kindOf = useEntityKinds()
   const t = useStrings("composer", composerStrings)

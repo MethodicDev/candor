@@ -29,10 +29,10 @@ function StatusDot({
   /** Which status to show; running and waiting pulse. */
   status: RunStatus
   /** Print the status name next to the dot. */
-  showLabel?: boolean
+  showLabel?: boolean | undefined
   /** Words to use instead of the status name. */
-  label?: string
-  className?: string
+  label?: string | undefined
+  className?: string | undefined
 }) {
   const statusLabel = useStatusLabel()
   const text = label ?? statusLabel(status)

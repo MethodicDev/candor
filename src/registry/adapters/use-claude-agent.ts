@@ -10,30 +10,30 @@ export type UseClaudeAgentOptions = Omit<FromClaudeAgentOptions, "running"> & {
    * Your route that records an answer (answerClaudeApproval). It receives `{ id, approved, reason, updatedInput,
    * answers, alwaysAllow }` and returns `{ ok }`. Not needed with `onRespond`.
    */
-  approveApi?: string
+  approveApi?: string | undefined
   /**
    * Answer through your own route instead, e.g. one that signals the workflow running the agent. Resolve true once
    * the answer is recorded, false if it wasn't (the request had ended).
    */
-  onRespond?: (approvalId: string, answer: ClaudeApprovalAnswer) => Promise<boolean>
+  onRespond?: ((approvalId: string, answer: ClaudeApprovalAnswer) => Promise<boolean>) | undefined
   /** Events you kept from earlier (onEvent, a run store): the conversation is folded from them, as it was. */
-  initialEvents?: AgentEvent[]
+  initialEvents?: AgentEvent[] | undefined
   /**
    * Where to re-attach to a run after a reload: `(runId, from) => \`/api/agent/${runId}?from=${from}\``, a route that
    * returns attachClaudeAgentRun. With `runId`, the hook re-attaches when it mounts.
    */
-  attachUrl?: (runId: string, from: number) => string
+  attachUrl?: ((runId: string, from: number) => string) | undefined
   /** A run to re-attach to when the hook mounts, e.g. the one you saved from `runId` before the reload. */
-  runId?: string
+  runId?: string | undefined
   /** Your route that calls stopClaudeAgentRun with `{ runId }`. Needed to stop a run that keeps going without the browser (`detach`). */
-  stopApi?: string
+  stopApi?: string | undefined
   /** Your route that calls setClaudeAgentPermissionMode with `{ runId, mode }`. Enables `setPermissionMode`. */
-  modeApi?: string
+  modeApi?: string | undefined
   /** Extra fields for every request, e.g. which project the agent works on. */
-  body?: Record<string, unknown>
-  headers?: Record<string, string>
+  body?: Record<string, unknown> | undefined
+  headers?: Record<string, string> | undefined
   /** Replaces the global fetch, e.g. to add auth or to play a script in tests and demos. */
-  fetch?: typeof fetch
+  fetch?: typeof fetch | undefined
 }
 
 /**
@@ -141,7 +141,7 @@ export function useClaudeAgent(options: UseClaudeAgentOptions) {
     (id: string, from = 0) => {
       if (!attachUrl) return Promise.resolve()
       setRunId(id)
-      return stream((signal) => (fetcher ?? fetch)(attachUrl(id, from), { headers, signal }), undefined, from === 0)
+      return stream((signal) => (fetcher ?? fetch)(attachUrl(id, from), { ...(headers && { headers }), signal }), undefined, from === 0)
     },
     [attachUrl, fetcher, headers, stream]
   )
@@ -157,7 +157,7 @@ export function useClaudeAgent(options: UseClaudeAgentOptions) {
   const post = React.useCallback(
     async (url: string, payload: unknown) => {
       const res = await (fetcher ?? fetch)(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(payload) })
-      return res.ok && !!((await res.json()) as { ok?: boolean }).ok
+      return res.ok && !!((await res.json()) as { ok?: boolean | undefined }).ok
     },
     [fetcher, headers]
   )

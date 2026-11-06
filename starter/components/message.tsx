@@ -5,6 +5,7 @@ import { CircleStop, UserCheck, UserRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DegradedPanel } from "@/components/degraded-panel"
 import { RelativeTime } from "@/components/relative-time"
+import type { DateStyle } from "@/components/locale"
 import type { Attachment, EntityRef, Message as MessageData } from "@/lib/chat"
 import { AgentAvatar, useAgentRoles } from "@/components/agent-avatar"
 import { SourceList } from "@/components/citation"
@@ -30,7 +31,8 @@ export const messageStrings = {
 /**
  * One message in a thread.
  *
- * - A person's message sits right, on the user surface.
+ * - A person's message sits right, on the user surface, with their name and
+ *   time under it (`meta` hides or replaces that line).
  * - An agent's sits left, under its avatar, name and role, with reasoning above
  *   the answer, sources and actions below. While streaming, a caret follows the
  *   last block; an interrupted reply keeps what arrived and says it stopped.
@@ -39,6 +41,11 @@ export const messageStrings = {
  * - A system line is centred and quiet.
  * - A reply a person checked (or edited) before it went out can say so in a
  *   caption under it, so a reader knows a person stood behind it.
+ * - Times are relative ("5 minutes ago") unless `timeFormat` asks for an
+ *   absolute "time", "date" or "datetime" in the locale.
+ *
+ * Build `blocks` with `plainBlocks(text)` for a person's words and
+ * `markdownBlocks(text)` for an agent's, from `safe-markdown`.
  */
 function Message({
   message,
@@ -51,33 +58,39 @@ function Message({
   onRate,
   reviewedBy,
   actions,
+  meta,
+  timeFormat,
   className,
 }: {
   /** The message: author, status, blocks, and optional reasoning, sources and attribution. */
   message: MessageData
   /** Makes entity chips open their thing. */
-  onOpenEntity?: (entity: EntityRef) => void
+  onOpenEntity?: ((entity: EntityRef) => void) | undefined
   /** Follows in-app links. */
-  onNavigate?: (to: string) => void
+  onNavigate?: ((to: string) => void) | undefined
   /** Makes attachment tiles buttons that open their file. */
-  onOpenAttachment?: (attachment: Attachment) => void
+  onOpenAttachment?: ((attachment: Attachment) => void) | undefined
   /** Shows Retry on a failed or finished reply. */
-  onRetry?: () => void
+  onRetry?: (() => void) | undefined
   /** Shows Continue on an interrupted reply. */
-  onContinue?: () => void
+  onContinue?: (() => void) | undefined
   /** The current rating of an agent reply. */
-  rating?: Rating
+  rating?: Rating | undefined
   /** Shows thumbs up and down under agent replies. */
-  onRate?: (rating: Rating) => void
+  onRate?: ((rating: Rating) => void) | undefined
   /** A person who checked this agent reply before it was sent: "Checked by Sam", or "Edited by Sam" when they changed it. */
-  reviewedBy?: { name: string; at?: string; edited?: boolean }
+  reviewedBy?: { name: string; at?: string | undefined; edited?: boolean | undefined } | undefined
   /**
    * The row under an agent reply (copy, retry, rating). `false` hides it; a node replaces it, e.g. your own buttons.
    * Model and cost still show, on their own line. To rebuild a message, use MessageHeader, MessageBody and
    * MessageFooter.
    */
-  actions?: false | React.ReactNode
-  className?: string
+  actions?: false | React.ReactNode | undefined
+  /** The line under a person's own message: their name and when they sent it. `false` hides it; a node replaces it. */
+  meta?: false | React.ReactNode | undefined
+  /** How times show: "relative" (the default, "5 minutes ago") or an absolute "time", "date" or "datetime" in the locale. */
+  timeFormat?: "relative" | DateStyle | undefined
+  className?: string | undefined
 }) {
   const { author } = message
   const roleOf = useAgentRoles()
@@ -98,15 +111,19 @@ function Message({
           <div className="rounded-xl rounded-ee-sm bg-surface-user px-3.5 py-2.5">
             <MessageContent blocks={message.blocks} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} className="gap-2" />
           </div>
-          <span className="px-1 text-2xs text-faint-foreground">
-            {author.name ?? t("you")}
-            {message.createdAt && (
-              <>
-                {" · "}
-                <RelativeTime date={message.createdAt} />
-              </>
-            )}
-          </span>
+          {meta === undefined ? (
+            <span data-slot="message-meta" className="px-1 text-2xs text-faint-foreground">
+              {author.name ?? t("you")}
+              {message.createdAt && (
+                <>
+                  {" · "}
+                  <RelativeTime date={message.createdAt} format={timeFormat} />
+                </>
+              )}
+            </span>
+          ) : (
+            meta
+          )}
         </div>
       </div>
     )
@@ -124,7 +141,7 @@ function Message({
           <UserRound className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} />
+          <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} timeFormat={timeFormat} />
           <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} className="mt-1" />
         </div>
       </article>
@@ -145,7 +162,7 @@ function Message({
     >
       <AgentAvatar agent={agent} className="mt-px" />
       <div className="min-w-0 flex-1">
-        <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} />
+        <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} timeFormat={timeFormat} />
         <div className="mt-1 flex flex-col gap-3">
           <MessageBody message={message} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} />
           <MessageFooter
@@ -156,6 +173,7 @@ function Message({
             onRate={onRate}
             reviewedBy={reviewedBy}
             actions={actions}
+            timeFormat={timeFormat}
           />
         </div>
       </div>
@@ -168,18 +186,21 @@ function MessageHeader({
   name,
   detail,
   createdAt,
+  timeFormat,
   children,
   className,
 }: {
   /** The sender's displayed name. */
   name: string
   /** A quieter detail after the name: an agent's specialty, a person's team. */
-  detail?: string
-  /** When it was sent; shown as a relative time. */
-  createdAt?: string
+  detail?: string | undefined
+  /** When it was sent; shown as a relative time unless `timeFormat` says otherwise. */
+  createdAt?: string | undefined
+  /** "relative" (the default) or an absolute "time", "date" or "datetime" in the locale. */
+  timeFormat?: "relative" | DateStyle | undefined
   /** Anything else for the row, after the time (a badge, a menu). */
-  children?: React.ReactNode
-  className?: string
+  children?: React.ReactNode | undefined
+  className?: string | undefined
 }) {
   return (
     <header data-slot="message-header" className={cn("flex h-7 items-center gap-2", className)}>
@@ -187,7 +208,7 @@ function MessageHeader({
       {detail && <span className="truncate text-xs text-muted-foreground">{detail}</span>}
       {createdAt && (
         <span className="text-xs text-faint-foreground">
-          <RelativeTime date={createdAt} />
+          <RelativeTime date={createdAt} format={timeFormat} />
         </span>
       )}
       {children}
@@ -206,12 +227,12 @@ function MessageBody({
   /** The message whose reasoning and blocks to show. */
   message: MessageData
   /** Makes entity chips open their thing. */
-  onOpenEntity?: (entity: EntityRef) => void
+  onOpenEntity?: ((entity: EntityRef) => void) | undefined
   /** Follows in-app links. */
-  onNavigate?: (to: string) => void
+  onNavigate?: ((to: string) => void) | undefined
   /** Makes attachment tiles buttons that open their file. */
-  onOpenAttachment?: (attachment: Attachment) => void
-  className?: string
+  onOpenAttachment?: ((attachment: Attachment) => void) | undefined
+  className?: string | undefined
 }) {
   const streaming = message.status === "streaming"
   const thinking = streaming && message.blocks.length === 0
@@ -234,8 +255,8 @@ function MessageAttribution({
   className,
 }: {
   /** The service's measured values; nothing shows when both are absent. */
-  attribution?: MessageData["attribution"]
-  className?: string
+  attribution?: MessageData["attribution"] | undefined
+  className?: string | undefined
 }) {
   const meta = [attribution?.model, attribution?.cost].filter(Boolean).join(" · ")
   if (!meta) return null
@@ -259,23 +280,26 @@ function MessageFooter({
   onRate,
   reviewedBy,
   actions,
+  timeFormat,
   className,
 }: {
   /** The message the footer belongs to. */
   message: MessageData
   /** Shows Retry on a failed or finished reply. */
-  onRetry?: () => void
+  onRetry?: (() => void) | undefined
   /** Shows Continue on an interrupted reply. */
-  onContinue?: () => void
+  onContinue?: (() => void) | undefined
   /** The current rating. */
-  rating?: Rating
+  rating?: Rating | undefined
   /** Shows thumbs up and down. */
-  onRate?: (rating: Rating) => void
+  onRate?: ((rating: Rating) => void) | undefined
   /** A person who checked the reply before it was sent. */
-  reviewedBy?: { name: string; at?: string; edited?: boolean }
+  reviewedBy?: { name: string; at?: string | undefined; edited?: boolean | undefined } | undefined
   /** `false` hides the actions row, a node replaces it; model and cost still show. */
-  actions?: false | React.ReactNode
-  className?: string
+  actions?: false | React.ReactNode | undefined
+  /** How the reviewer's time shows: "relative" (the default) or an absolute "time", "date" or "datetime". */
+  timeFormat?: "relative" | DateStyle | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("message", messageStrings)
   const streaming = message.status === "streaming"
@@ -306,7 +330,7 @@ function MessageFooter({
           {reviewedBy.at && (
             <>
               {" · "}
-              <RelativeTime date={reviewedBy.at} />
+              <RelativeTime date={reviewedBy.at} format={timeFormat} />
             </>
           )}
         </p>

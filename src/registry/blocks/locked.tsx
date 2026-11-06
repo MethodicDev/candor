@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 
 type Lockable = React.ReactElement<{
-  "aria-disabled"?: boolean | "true" | "false"
-  "aria-describedby"?: string
-  onClick?: React.MouseEventHandler
-  onKeyDown?: React.KeyboardEventHandler
-  "data-locked"?: string
+  "aria-disabled"?: boolean | "true" | "false" | undefined
+  "aria-describedby"?: string | undefined
+  onClick?: React.MouseEventHandler | undefined
+  onKeyDown?: React.KeyboardEventHandler | undefined
+  "data-locked"?: string | undefined
 }>
 
 /**
@@ -29,11 +29,11 @@ function Locked({
   className,
 }: {
   /** Why the control can't be used. Without one, the control renders as normal. */
-  reason?: string | null
+  reason?: string | null | undefined
   /** Print the reason under the control instead of in a tooltip. */
-  inline?: boolean
+  inline?: boolean | undefined
   children: Lockable
-  className?: string
+  className?: string | undefined
 }) {
   const id = React.useId()
   if (!reason) return children

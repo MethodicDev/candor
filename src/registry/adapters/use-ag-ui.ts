@@ -7,16 +7,16 @@ import { fromAgUiEvents, type AgUiEvent, type CandorAgUiEvent, type FromAgUiOpti
 export type UseAgUiOptions = Omit<FromAgUiOptions, "running" | "now"> & {
   /** Your AG-UI endpoint (LangGraph, Mastra, CrewAI, Google ADK, Pydantic AI…). It receives a RunAgentInput and streams events back. */
   url: string
-  headers?: Record<string, string>
+  headers?: Record<string, string> | undefined
   /** Replaces the global fetch, e.g. to add auth or to play a script in tests and demos. */
-  fetch?: typeof fetch
+  fetch?: typeof fetch | undefined
   /** Continue an existing thread instead of starting a new one. */
-  threadId?: string
+  threadId?: string | undefined
   /** Sent with every run as `forwardedProps`, next to the `references` the person mentioned. */
-  forwardedProps?: Record<string, unknown>
+  forwardedProps?: Record<string, unknown> | undefined
   /** Tools and context for every run, as AG-UI defines them. Candor doesn't run frontend tools for you. */
-  tools?: RunAgentParameters["tools"]
-  context?: RunAgentParameters["context"]
+  tools?: RunAgentParameters["tools"] | undefined
+  context?: RunAgentParameters["context"] | undefined
 }
 
 /**
@@ -44,7 +44,7 @@ export function useAgUi(options: UseAgUiOptions) {
   const [now, setNow] = React.useState(() => Date.now())
   const run = React.useRef<AbortController | null>(null)
   const client = React.useRef<HttpAgent | null>(null)
-  const answers = React.useRef(new Map<string, { approved: boolean; reason?: string }>())
+  const answers = React.useRef(new Map<string, { approved: boolean; reason?: string | undefined }>())
 
   const state = React.useMemo(
     () => fromAgUiEvents(events, { agent, agents, toolTitle, running, now: new Date(now), initialState }),
@@ -65,7 +65,13 @@ export function useAgUi(options: UseAgUiOptions) {
   React.useEffect(() => () => run.current?.abort(), [])
 
   const getClient = React.useCallback(() => {
-    if (!client.current) client.current = new HttpAgent({ url, headers, fetch: fetcher, threadId, initialState })
+    if (!client.current) client.current = new HttpAgent({
+        url,
+        ...(headers && { headers }),
+        ...(fetcher && { fetch: fetcher }),
+        ...(threadId !== undefined && { threadId }),
+        ...(initialState !== undefined && { initialState }),
+      })
     const http = client.current
     // The latest options win, without losing the thread.
     http.url = url
@@ -75,7 +81,7 @@ export function useAgUi(options: UseAgUiOptions) {
   }, [url, headers, fetcher, threadId, initialState])
 
   const start = React.useCallback(
-    async (http: HttpAgent, params: { resume?: ResumeEntry[]; references?: EntityRef[] }, before: CandorAgUiEvent[]) => {
+    async (http: HttpAgent, params: { resume?: ResumeEntry[] | undefined; references?: EntityRef[] | undefined }, before: CandorAgUiEvent[]) => {
       const controller = new AbortController()
       run.current = controller
       setError(undefined)
@@ -90,7 +96,13 @@ export function useAgUi(options: UseAgUiOptions) {
       }
       try {
         await http.runAgent(
-          { resume: params.resume, tools, context, forwardedProps: { ...forwardedProps, references: params.references ?? [] }, abortController: controller },
+          {
+            ...(params.resume && { resume: params.resume }),
+            ...(tools && { tools }),
+            ...(context && { context }),
+            forwardedProps: { ...forwardedProps, references: params.references ?? [] },
+            abortController: controller,
+          },
           {
             onEvent: ({ event }) => {
               pending.events.push(event as AgUiEvent)
@@ -201,7 +213,7 @@ export function useAgUi(options: UseAgUiOptions) {
 }
 
 /** An expired interrupt can only be cancelled; the client refuses anything else. */
-function resumeEntry(i: Interrupt, answer: { approved: boolean; reason?: string } | undefined): ResumeEntry {
+function resumeEntry(i: Interrupt, answer: { approved: boolean; reason?: string | undefined } | undefined): ResumeEntry {
   if (answer?.approved && !isInterruptExpired(i)) return { interruptId: i.id, status: "resolved", payload: { approved: true } }
   const reason = answer ? answer.reason : "Nobody answered before it expired."
   return { interruptId: i.id, status: "cancelled", payload: { approved: false, ...(reason ? { reason } : {}) } }

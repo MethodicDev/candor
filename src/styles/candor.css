@@ -10,11 +10,13 @@
  * (--primary, --background…), everything else by its --cd-* name. A brand theme
  * is just such a file.
  *
+ * Font: Inter when the font-inter item is installed (styles/candor-font-inter.css),
+ * else the system's sans-serif. Point --cd-font at your own font to use it instead.
+ *
  * Density: data-density="compact" on <html> (or any container) tightens type for
  * dense apps: 14px conversation text and 13px body and label text, with a narrower
  * thread and sidebar.
  */
-@import "@fontsource-variable/inter/opsz.css";
 @import "./candor-theme.css";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -251,7 +253,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/80;
   }
   body {
     @apply bg-background text-foreground font-sans text-sm;

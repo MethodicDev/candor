@@ -7,12 +7,12 @@ import * as React from "react"
  */
 export type RenderProp = {
   /** Base UI's way to render as another element; the same as `asChild` with that element as the child. */
-  render?: React.ReactElement
+  render?: React.ReactElement | undefined
   /** Base UI's flag for a button rendered as another element; shadcn adds it with `render`. Radix doesn't need it. */
-  nativeButton?: boolean
+  nativeButton?: boolean | undefined
 }
 
-export function withRender<P extends { asChild?: boolean; children?: React.ReactNode }>({ render, nativeButton: _nativeButton, ...props }: P & RenderProp): P {
+export function withRender<P extends { asChild?: boolean | undefined; children?: React.ReactNode | undefined }>({ render, nativeButton: _nativeButton, ...props }: P & RenderProp): P {
   if (!render) return props as unknown as P
   const children = props.children === undefined ? render : React.cloneElement(render, undefined, props.children)
   return { ...props, asChild: true, children } as unknown as P

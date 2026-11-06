@@ -28,9 +28,9 @@ import { markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
 /** Events of Candor's own, mixed into the AG-UI stream by useAgUi. */
 export type CandorAgUiEvent =
   /** What the user sent. Added in the browser, with the same id as the AG-UI user message. */
-  | { type: "candor_user"; id: string; text: string; references?: EntityRef[] }
+  | { type: "candor_user"; id: string; text: string; references?: EntityRef[] | undefined }
   /** A person answered an interrupt; the next run resumes with it. */
-  | { type: "candor_answer"; interruptId: string; approved: boolean; reason?: string }
+  | { type: "candor_answer"; interruptId: string; approved: boolean; reason?: string | undefined }
   /** The run failed outside the protocol's own events (the request, the stream). */
   | { type: "candor_error"; message: string }
 
@@ -43,37 +43,37 @@ export type AgUiApproval = {
   /** The agent's machine-readable reason, e.g. "tool_approval". */
   reason: string
   /** The agent's own sentence for the request, when it sent one. */
-  message?: string
+  message?: string | undefined
   /** A sentence to show: the agent's message, or a plain one naming the tool. */
   title: string
   /** Set when the interrupt asks to run a tool call. */
-  toolCallId?: string
+  toolCallId?: string | undefined
   /** The tool's name, when the tool call is in the thread. */
-  tool?: string
+  tool?: string | undefined
   /** The tool call's arguments, when they arrived and parse. */
   input?: unknown
   /** When the agent stops waiting (ISO 8601). */
-  expiresAt?: string
+  expiresAt?: string | undefined
   /** The shape the agent expects an answer in, when it says. */
-  responseSchema?: Record<string, unknown>
+  responseSchema?: Record<string, unknown> | undefined
 }
 
 /** Tokens the runs reported, summed. A count no run reported stays unknown. AG-UI reports no cost. */
-export type AgUiUsage = { inputTokens?: number; outputTokens?: number }
+export type AgUiUsage = { inputTokens?: number | undefined; outputTokens?: number | undefined }
 
 export type FromAgUiOptions = {
   /** Who the agent is. Candor always names the agent. */
   agent: AgentIdentity
   /** A run is open now: the last reply is still streaming, and no interrupt can be answered yet. */
-  running?: boolean
+  running?: boolean | undefined
   /** A plain-words title for a tool call: "Read notes.md". `input` is undefined until the arguments arrive. */
-  toolTitle?: (tool: string, input: unknown) => string | undefined
+  toolTitle?: ((tool: string, input: unknown) => string | undefined) | undefined
   /** The time to judge interrupt expiry by. Defaults to now. */
-  now?: Date
+  now?: Date | undefined
   /** The state the first run started with; the first STATE_DELTA patches it. Defaults to `{}`, as AG-UI clients send. */
   initialState?: unknown
   /** Other agents the app knows, by id. An activity naming an agent id not here (or `agent`) isn't mapped to an agent entry. */
-  agents?: AgentIdentity[]
+  agents?: AgentIdentity[] | undefined
 }
 
 /**
@@ -85,9 +85,9 @@ export type AgUiPlanStep = {
   title: string
   status: RunStatus
   /** The step's own summary, when it sent one as text. */
-  summary?: string
+  summary?: string | undefined
   /** Why it failed: the agent's words, or a plain sentence saying it didn't say. Set only when status is "failed". */
-  failure?: string
+  failure?: string | undefined
 }
 
 /**
@@ -97,9 +97,9 @@ export type AgUiPlanStep = {
 export type AgUiAgentActivityEntry = {
   /** The app's own identity for the agent, never one taken from the content. */
   agent: AgentIdentity
-  doing?: string
+  doing?: string | undefined
   status: RunStatus
-  since?: string
+  since?: string | undefined
 }
 
 /** An activity the agent reported: structured progress that isn't part of a reply. */
@@ -111,11 +111,11 @@ export type AgUiActivity = {
   /** Its content as the agent sent it, after any patches. Data, never markup. */
   content: Record<string, unknown>
   /** Set when an update to it couldn't be applied: the content is the last good one, and may be behind. */
-  outOfDate?: string
+  outOfDate?: string | undefined
   /** Its `steps` as plan steps, when every step has a title and a status Candor knows. */
-  plan?: AgUiPlanStep[]
+  plan?: AgUiPlanStep[] | undefined
   /** Its `status`/`doing` as an agent entry, when the status is one Candor knows and the agent is one the app named. */
-  agentActivity?: AgUiAgentActivityEntry
+  agentActivity?: AgUiAgentActivityEntry | undefined
 }
 
 export type AgUiState = {
@@ -123,21 +123,21 @@ export type AgUiState = {
   /** Interrupts waiting on a person, oldest first. Empty while a run is open; expired ones are left out. */
   approvals: AgUiApproval[]
   /** The thread the runs belong to. Send it back to continue the conversation. */
-  threadId?: string
-  usage?: AgUiUsage
+  threadId?: string | undefined
+  usage?: AgUiUsage | undefined
   /** Something the person should know that isn't part of a reply, such as an expired request. */
-  notice?: string
+  notice?: string | undefined
   /** The agent's shared state from STATE_SNAPSHOT and STATE_DELTA; undefined until the agent sends one. */
   state?: unknown
   /** Set when a state update couldn't be applied: `state` is the last good value and may be behind. Cleared by the next snapshot. */
-  stateOutOfDate?: string
+  stateOutOfDate?: string | undefined
   /** The activities the agent reported, in the order they first arrived. */
   activities: AgUiActivity[]
 }
 
 type Part = { kind: "text"; id: string } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
 
-type Call = { id: string; tool: string; args: string; status: ToolCall["status"]; output?: string; error?: string; interruptId?: string }
+type Call = { id: string; tool: string; args: string; status: ToolCall["status"]; output?: string | undefined; error?: string | undefined; interruptId?: string | undefined }
 
 type Reply = {
   id: string
@@ -147,13 +147,13 @@ type Reply = {
   reasoning: Map<string, string>
   tools: Map<string, Call>
   /** How the latest run on this reply ended; absent while it runs or if it never said. */
-  outcome?: "success" | "interrupt" | "cancelled"
-  model?: string
-  failure?: string
-  aborted?: boolean
+  outcome?: "success" | "interrupt" | "cancelled" | undefined
+  model?: string | undefined
+  failure?: string | undefined
+  aborted?: boolean | undefined
 }
 
-type Turn = { user?: Message; reply?: Reply }
+type Turn = { user?: Message | undefined; reply?: Reply | undefined }
 
 /**
  * Turns AG-UI events into Candor messages, waiting approvals and usage.
@@ -166,7 +166,7 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
   let usage: AgUiUsage | undefined
   /** Interrupts from the latest run that ended on one, until the next run starts. */
   let open: Interrupt[] = []
-  const answers = new Map<string, { approved: boolean; reason?: string }>()
+  const answers = new Map<string, { approved: boolean; reason?: string | undefined }>()
   // Subagent traffic, by what it opened. Continuations may omit the tag, so ownership is remembered.
   const subMessages = new Set<string>()
   const subTools = new Set<string>()
@@ -176,7 +176,7 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
   let state: unknown
   let stateKnown = false
   let stateOutOfDate: string | undefined
-  const activities = new Map<string, { type: string; content: Record<string, unknown>; outOfDate?: string }>()
+  const activities = new Map<string, { type: string; content: Record<string, unknown>; outOfDate?: string | undefined }>()
 
   const current = (id: string): Reply => {
     let turn = turns.at(-1)
@@ -574,7 +574,7 @@ function approval(i: Interrupt, findCall: (id: string) => Call | undefined, o: F
 
 /* ---------------------------------------------------------------- activities */
 
-function activity(id: string, a: { type: string; content: Record<string, unknown>; outOfDate?: string }, o: FromAgUiOptions): AgUiActivity {
+function activity(id: string, a: { type: string; content: Record<string, unknown>; outOfDate?: string | undefined }, o: FromAgUiOptions): AgUiActivity {
   const out: AgUiActivity = { id, type: a.type, content: a.content }
   if (a.outOfDate) out.outOfDate = a.outOfDate
   const plan = planSteps(id, a.content)

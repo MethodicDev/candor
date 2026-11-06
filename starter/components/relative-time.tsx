@@ -25,7 +25,7 @@ const units: [Intl.RelativeTimeFormatUnit, number][] = [
 export function formatRelative(
   date: Date,
   now = new Date(),
-  { locale, justNow = relativeTimeStrings.justNow, bare = false }: { locale?: string; justNow?: string; bare?: boolean } = {}
+  { locale, justNow = relativeTimeStrings.justNow, bare = false }: { locale?: string | undefined; justNow?: string | undefined; bare?: boolean | undefined } = {}
 ) {
   const seconds = Math.round((date.getTime() - now.getTime()) / 1000)
   if (Math.abs(seconds) < 10) return justNow
@@ -89,10 +89,10 @@ function RelativeTime({
   /** When it happened. Shown as "5 minutes ago", with the exact time on hover. */
   date: Date | string
   /** Drop "ago" and "in", for tight spaces: "5 minutes". */
-  bare?: boolean
+  bare?: boolean | undefined
   /** "relative" (the default), or an absolute "date", "datetime" or "time" in the locale. */
-  format?: "relative" | DateStyle
-  className?: string
+  format?: "relative" | DateStyle | undefined
+  className?: string | undefined
 }) {
   const d = typeof date === "string" ? new Date(date) : date
   const current = useNow()

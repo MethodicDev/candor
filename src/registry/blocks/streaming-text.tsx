@@ -12,8 +12,8 @@ function StreamingText({
   /** The text so far. */
   text: string
   /** Show a caret while more is arriving; announced once when it stops. */
-  streaming?: boolean
-  className?: string
+  streaming?: boolean | undefined
+  className?: string | undefined
 }) {
   return (
     <div
@@ -39,7 +39,7 @@ function ShimmerLabel({
   className,
 }: {
   children: React.ReactNode
-  className?: string
+  className?: string | undefined
 }) {
   return <span className={cn("shimmer-text text-sm font-medium", className)}>{children}</span>
 }

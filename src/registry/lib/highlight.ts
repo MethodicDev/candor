@@ -10,18 +10,18 @@ export type TokenType = "keyword" | "string" | "number" | "comment" | "function"
 export type Token = { type: TokenType; text: string }
 
 type Grammar = {
-  line?: string[]
-  block?: [string, string][]
+  line?: string[] | undefined
+  block?: [string, string][] | undefined
   strings: string[]
   keywords: Set<string>
   /** SQL: keywords match in any case. */
-  caseless?: boolean
+  caseless?: boolean | undefined
   /** "key": in JSON, key: in YAML. */
-  properties?: "json" | "yaml"
+  properties?: "json" | "yaml" | undefined
   /** $NAME and ${NAME} in shell. */
-  variables?: boolean
+  variables?: boolean | undefined
   /** <tag attr="…"> in HTML and XML. */
-  markup?: boolean
+  markup?: boolean | undefined
 }
 
 const words = (s: string) => new Set(s.split(" "))

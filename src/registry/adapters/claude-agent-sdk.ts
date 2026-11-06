@@ -34,33 +34,33 @@ export type ClaudeQuestion = {
   kind: "choice"
   prompt: string
   /** The SDK's short header ("Library", "Approach"). */
-  tag?: string
-  options: { id: string; label: string; detail?: string }[]
+  tag?: string | undefined
+  options: { id: string; label: string; detail?: string | undefined }[]
   multiple: boolean
   /** The SDK always lets the person answer in their own words. */
   other: true
 }
 
 /** A person's answer to one ClaudeQuestion: the chosen labels, their own words, or both. Same shape as ClarifyingAnswer. */
-export type ClaudeQuestionAnswer = { questionId: string; choice?: string[]; text?: string }
+export type ClaudeQuestionAnswer = { questionId: string; choice?: string[] | undefined; text?: string | undefined }
 
 /** How a person answered a permission request. */
 export type ClaudeApprovalAnswer = {
   approved: boolean
   /** Why it was denied, sent to the agent. */
-  reason?: string
+  reason?: string | undefined
   /** The tool's input as the person edited it before allowing it. The tool runs with exactly this. */
-  updatedInput?: Record<string, unknown>
+  updatedInput?: Record<string, unknown> | undefined
   /** Answers to the agent's questions, when the request is one (`questions`). */
-  answers?: ClaudeQuestionAnswer[]
+  answers?: ClaudeQuestionAnswer[] | undefined
   /** Which of the request's `suggestions` the person chose to keep ("always allow"), by index. None unless they choose. */
-  alwaysAllow?: number[]
+  alwaysAllow?: number[] | undefined
 }
 
 /** Events of Candor's own, mixed into the SDK's stream. */
 export type CandorAgentEvent =
   /** What the user sent. Added in the browser; the SDK doesn't echo a plain prompt back. */
-  | { type: "candor_user"; id: string; text: string; references?: EntityRef[] }
+  | { type: "candor_user"; id: string; text: string; references?: EntityRef[] | undefined }
   /** A tool call is waiting for a person to allow or deny it. */
   | {
       type: "candor_approval"
@@ -69,47 +69,47 @@ export type CandorAgentEvent =
       tool: string
       input: unknown
       /** The SDK's own sentence for the request, e.g. "Claude wants to edit notes.md". */
-      title?: string
-      description?: string
+      title?: string | undefined
+      description?: string | undefined
       /** Why the SDK asked, when it says. */
-      reason?: string
-      blockedPath?: string
+      reason?: string | undefined
+      blockedPath?: string | undefined
       /** Open on "Deny" and offer no one-key approve: the request grants more than it looks. */
-      defaultToNo?: boolean
+      defaultToNo?: boolean | undefined
       /** A short name for the action: "Edit file". */
-      displayName?: string
+      displayName?: string | undefined
       /**
        * Rules the SDK suggests so this isn't asked again ("always allow"), as the SDK sends them. Offer them as a
        * choice the person makes; never keep one unless they pick it.
        */
-      suggestions?: PermissionUpdate[]
+      suggestions?: PermissionUpdate[] | undefined
       /** Offer no "always allow" for this request: its rule would grant more than this one action. */
-      noAlwaysAllow?: boolean
+      noAlwaysAllow?: boolean | undefined
       /** The permission mode the run was in when it asked. */
-      mode?: ClaudePermissionMode
+      mode?: ClaudePermissionMode | undefined
       /** The agent's questions, when the tool is AskUserQuestion: answer them instead of allowing a tool. */
-      questions?: ClaudeQuestion[]
+      questions?: ClaudeQuestion[] | undefined
       /** Set when a subagent asked, with its id. */
-      agentId?: string
+      agentId?: string | undefined
       /** For an MCP tool: its server's name and where that server was configured, as the SDK reports them. */
-      mcpServer?: { name: string; source: string }
+      mcpServer?: { name: string; source: string } | undefined
       /** Whether the server lets a person edit this call's input before allowing it. False means no; left out means yes (1.5.0). */
-      editable?: boolean
+      editable?: boolean | undefined
     }
   /** The request was answered, or the run ended before anyone did. */
   | {
       type: "candor_approval_closed"
       id: string
       approved: boolean
-      reason?: string
+      reason?: string | undefined
       /** The person changed the input before allowing it. */
-      edited?: boolean
+      edited?: boolean | undefined
       /** The input the tool ran with, when the person edited it. */
       input?: unknown
       /** Nobody answered in time (the server's `approvalTimeoutMs`). */
-      expired?: boolean
+      expired?: boolean | undefined
       /** How many "always allow" rules the person kept. */
-      kept?: number
+      kept?: number | undefined
     }
   /** The run's permission mode changed, by the app (`setPermissionMode`). The SDK's own mode reports also count. */
   | { type: "candor_mode"; mode: ClaudePermissionMode }
@@ -130,15 +130,15 @@ export type FromClaudeAgentOptions = {
   /** Who the agent is. Candor always names the agent. */
   agent: AgentIdentity
   /** A request is open now: the last reply is still streaming and its approvals can be answered. */
-  running?: boolean
+  running?: boolean | undefined
   /** A plain-words title for a tool call: "Read notes.md". */
-  toolTitle?: (tool: string, input: unknown) => string | undefined
+  toolTitle?: ((tool: string, input: unknown) => string | undefined) | undefined
   /**
    * The sources a tool's result supports, for the reply's source list: `(tool, input, output) => [{ kind: "document",
    * label: "Pricing policy v3" }]`. Read only from what the tool returned, never from numbers in the agent's text.
    * Claude's own citations and web search results are read without it.
    */
-  sourcesFrom?: (tool: string, input: unknown, output: string) => ToolSource[] | undefined
+  sourcesFrom?: ((tool: string, input: unknown, output: string) => ToolSource[] | undefined) | undefined
 }
 
 export type ClaudeAgentState = {
@@ -146,15 +146,15 @@ export type ClaudeAgentState = {
   /** Tool calls waiting on a person, oldest first. Empty once the request has ended. */
   approvals: ClaudeApproval[]
   /** Send it back with the next message to continue the same session (the SDK's `resume`). */
-  sessionId?: string
-  usage?: ClaudeAgentUsage
+  sessionId?: string | undefined
+  usage?: ClaudeAgentUsage | undefined
   /** A passing problem the agent is handling itself, such as a retried API call. */
-  notice?: string
+  notice?: string | undefined
   /** The permission mode last reported, by the SDK or the app. Absent until one is. */
-  permissionMode?: ClaudePermissionMode
+  permissionMode?: ClaudePermissionMode | undefined
 }
 
-type Part = { kind: "text"; text: string; cites?: string[] } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
+type Part = { kind: "text"; text: string; cites?: string[] | undefined } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
 
 type Reply = {
   id: string
@@ -163,9 +163,9 @@ type Reply = {
   tools: Map<string, ToolCall>
   /** Text and thinking still streaming, by content block index. */
   live: Map<number, { kind: "text" | "thinking"; text: string }>
-  result?: { ok: boolean; error?: string; cost?: number }
-  failure?: string
-  aborted?: boolean
+  result?: { ok: boolean; error?: string | undefined; cost?: number | undefined } | undefined
+  failure?: string | undefined
+  aborted?: boolean | undefined
   /** Sources by key, in the order first cited or returned. */
   sources: Map<string, MessageSource>
   /** Each tool call's input as the SDK sent it, for `sourcesFrom`. */
@@ -339,7 +339,7 @@ function addSource(r: Reply, source: ToolSource): string {
   return id
 }
 
-type Citation = { type: string; cited_text?: string; url?: string; title?: string | null; document_title?: string | null; source?: string }
+type Citation = { type: string; cited_text?: string | undefined; url?: string | undefined; title?: string | null | undefined; document_title?: string | null | undefined; source?: string | undefined }
 
 /** One of Claude's citations as a source: a web page by its address, a document or search result by its title. */
 function citationSource(c: Citation): ToolSource | undefined {
@@ -379,7 +379,7 @@ function addBlock(r: Reply, block: ContentBlock, options: FromClaudeAgentOptions
       if (failed) call.error = `The tool failed: ${String((content as { error_code: unknown }).error_code)}.`
       // Web search results are sources the reply can stand on, whether or not the text cites them.
       if (!failed && block.type === "web_search_tool_result" && Array.isArray(content)) {
-        for (const item of content as { type?: string; url?: string; title?: string }[]) {
+        for (const item of content as { type?: string | undefined; url?: string | undefined; title?: string | undefined }[]) {
           if (item.type === "web_search_result" && item.url) addSource(r, { key: `web:${item.url}`, kind: "web", label: item.title || item.url, origin: host(item.url) })
         }
       }
@@ -387,7 +387,7 @@ function addBlock(r: Reply, block: ContentBlock, options: FromClaudeAgentOptions
   }
 }
 
-function render(r: Reply, o: FromClaudeAgentOptions & { model?: string; last: boolean }): Message {
+function render(r: Reply, o: FromClaudeAgentOptions & { model?: string | undefined; last: boolean }): Message {
   const open = o.last && o.running
   const parts = [...r.parts]
   const reasoning = [...r.reasoning]
@@ -453,7 +453,7 @@ function resultError(e: Extract<SDKMessage, { type: "result" }>) {
 function resultText(content: unknown): string {
   if (typeof content === "string") return content
   if (!Array.isArray(content)) return ""
-  return content.map((c: { type?: string; text?: string }) => (c.type === "text" ? (c.text ?? "") : c.type ? `[${c.type}]` : "")).join("\n")
+  return content.map((c: { type?: string | undefined; text?: string | undefined }) => (c.type === "text" ? (c.text ?? "") : c.type ? `[${c.type}]` : "")).join("\n")
 }
 
 const firstLine = (text: string) => text.trim().split("\n")[0] || undefined
@@ -490,7 +490,7 @@ function withCitations(blocks: MessageBlock[], cites: string[] | undefined): Mes
 
 /* ---------------------------------------------------------------- permissions */
 
-type AskUserQuestionInput = { questions?: { question?: string; header?: string; multiSelect?: boolean; options?: { label?: string; description?: string }[] }[] }
+type AskUserQuestionInput = { questions?: { question?: string | undefined; header?: string | undefined; multiSelect?: boolean | undefined; options?: { label?: string | undefined; description?: string | undefined }[] | undefined }[] | undefined }
 
 /**
  * The questions in an AskUserQuestion call, ready for ClarifyingQuestions; undefined when the input isn't one.
@@ -557,7 +557,7 @@ function reasoningEntry(id: string, text: string, streaming: boolean): Reasoning
 }
 
 /** A "don't ask again" rule in plain parts, for PermissionPrompt's `suggestions`. */
-export type ClaudeSuggestion = { action: "allow" | "deny" | "ask" | "remove" | "mode" | "directories" | "other"; what: string; scope?: string }
+export type ClaudeSuggestion = { action: "allow" | "deny" | "ask" | "remove" | "mode" | "directories" | "other"; what: string; scope?: string | undefined }
 
 const scopes: Record<string, string> = { session: "session", localSettings: "local", projectSettings: "project", userSettings: "user", cliArg: "session" }
 

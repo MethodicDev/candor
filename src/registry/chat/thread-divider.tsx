@@ -26,10 +26,10 @@ function ThreadDivider({
   className,
 }: {
   /** A day to mark, shown as Today, Yesterday or the date in the locale. With neither this nor `label`, a plain rule. */
-  date?: Date | string
+  date?: Date | string | undefined
   /** A chapter or any other label; wins over `date`. */
-  label?: string
-  className?: string
+  label?: string | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("threadDivider", threadDividerStrings)
   const fmt = useFormat()

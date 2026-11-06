@@ -36,15 +36,15 @@ import type { EntityRef } from "@/lib/chat"
 export type StoredApproval = {
   id: string
   /** The run it belongs to, when the run has an id. */
-  runId?: string
+  runId?: string | undefined
   /** Who may answer it; checked by answerClaudeApproval. */
-  owner?: string
+  owner?: string | undefined
   request: ClaudeApproval
   createdAt: string
   /** Set once answered. Recorded, not necessarily used: a run that stopped at the same moment still denies the tool. */
-  answer?: ClaudeApprovalAnswer & { at: string }
+  answer?: ClaudeApprovalAnswer & { at: string } | undefined
   /** Set when nobody can answer any more (the run ended or stopped), with why. */
-  closed?: { at: string; reason: string }
+  closed?: { at: string; reason: string } | undefined
 }
 
 /**
@@ -74,7 +74,7 @@ export interface ApprovalStore {
  * The default ApprovalStore: this process's memory. Answered and closed requests are forgotten after `keepMs`
  * (10 minutes), so it doesn't grow without bound.
  */
-export function memoryApprovalStore({ keepMs = 10 * 60_000 }: { keepMs?: number } = {}): ApprovalStore {
+export function memoryApprovalStore({ keepMs = 10 * 60_000 }: { keepMs?: number | undefined } = {}): ApprovalStore {
   const items = new Map<string, StoredApproval>()
   const waiters = new Map<string, Set<() => void>>()
   const wake = (id: string) => {
@@ -148,7 +148,7 @@ export function memoryApprovalStore({ keepMs = 10 * 60_000 }: { keepMs?: number 
 const synchronous = new WeakMap<ApprovalStore, { get(id: string): StoredApproval | undefined; answer(id: string, a: ClaudeApprovalAnswer): boolean }>()
 
 const stripAt = (stored: ClaudeApprovalAnswer & { at: string }): ClaudeApprovalAnswer => {
-  const answer: ClaudeApprovalAnswer & { at?: string } = { ...stored }
+  const answer: ClaudeApprovalAnswer & { at?: string | undefined } = { ...stored }
   delete answer.at
   return answer
 }
@@ -177,24 +177,24 @@ const defaultApprovals = memoryApprovalStore()
 
 export type ClaudeCanUseToolOptions = {
   /** Where requests wait. Defaults to this process's memory. */
-  approvals?: ApprovalStore
+  approvals?: ApprovalStore | undefined
   /** Sends each request, and its closing, to whoever shows it (the browser, your event log). */
   emit: (event: AgentEvent) => void
   /** Who may answer. */
-  owner?: string
+  owner?: string | undefined
   /** The run's id, kept with each request. */
-  runId?: string
+  runId?: string | undefined
   /** The run's permission mode now, recorded on each request. */
-  mode?: () => ClaudePermissionMode | undefined
+  mode?: (() => ClaudePermissionMode | undefined) | undefined
   /** Called with each request's id as it starts waiting and once it's settled, e.g. to close the rest when the run ends. */
-  track?: { add(id: string): void; delete(id: string): void }
+  track?: { add(id: string): void; delete(id: string): void } | undefined
   /**
    * Which tools' input a person may edit before allowing it (`updatedInput`). Every tool by default, as in 1.5.0;
    * an answer that edits a tool this refuses is rejected by answerClaudeApproval, whatever the browser sends.
    */
-  editable?: (tool: string, input: unknown) => boolean
+  editable?: ((tool: string, input: unknown) => boolean) | undefined
   /** Close a request nobody answered after this long, as expired: the tool is denied, never allowed. No limit by default. */
-  approvalTimeoutMs?: number
+  approvalTimeoutMs?: number | undefined
 }
 
 /**
@@ -293,8 +293,8 @@ export interface ClaudeRunStore {
  * (5,000): past that, partial-text events are no longer kept (the finished message still is), so a re-attached
  * browser sees text arrive a message at a time instead of as it streams.
  */
-export function memoryRunStore({ maxRuns = 100, maxEvents = 5000 }: { maxRuns?: number; maxEvents?: number } = {}): ClaudeRunStore {
-  const runs = new Map<string, { events: AgentEvent[]; ended: boolean; owner?: string; listeners: Set<() => void> }>()
+export function memoryRunStore({ maxRuns = 100, maxEvents = 5000 }: { maxRuns?: number | undefined; maxEvents?: number | undefined } = {}): ClaudeRunStore {
+  const runs = new Map<string, { events: AgentEvent[]; ended: boolean; owner?: string | undefined; listeners: Set<() => void> }>()
   const notify = (id: string) => runs.get(id)?.listeners.forEach((l) => l())
   const forgetFinished = () => {
     // Oldest first: Map keeps insertion order. Runs still going are skipped, so their owner is never lost.
@@ -352,7 +352,7 @@ export function memoryRunStore({ maxRuns = 100, maxEvents = 5000 }: { maxRuns?: 
 /* ---------------------------------------------------------------- streaming a run */
 
 /** Runs started by this process, so stop and the mode switch can reach them. */
-const live = new Map<string, { owner?: string; abort: AbortController; query?: Query; emit: (e: AgentEvent) => void; modes?: ModePolicy }>()
+const live = new Map<string, { owner?: string | undefined; abort: AbortController; query?: Query | undefined; emit: (e: AgentEvent) => void; modes?: ModePolicy | undefined }>()
 
 /** Which permission modes a run may be switched to: a list, or a test. */
 export type ModePolicy = readonly PermissionMode[] | ((mode: PermissionMode) => boolean)
@@ -374,43 +374,43 @@ export type RunClaudeAgent = (tools: {
 
 export type StreamClaudeAgentOptions = {
   /** The incoming request's signal (`request.signal`): the agent stops when the browser goes away, unless `detach`. */
-  signal?: AbortSignal
+  signal?: AbortSignal | undefined
   /** Who may answer this run's permission requests, e.g. the signed-in user's id. Checked when they're answered. */
-  owner?: string
+  owner?: string | undefined
   /** The sentence shown when the run fails. Defaults to a generic one, so server errors don't leak to the browser. */
-  describeError?: (error: unknown) => string
+  describeError?: ((error: unknown) => string) | undefined
   /**
    * Called with every SDK message just before it's sent to the browser, e.g. to record usage and cost from
    * `assistant` and `result` messages. To stop the run from here, abort the run's abortController: the message
    * in hand is still sent, and nothing after it.
    */
-  onMessage?: (message: SDKMessage) => void | Promise<void>
+  onMessage?: ((message: SDKMessage) => void | Promise<void>) | undefined
   /** Called with every event the browser gets, in order, e.g. to keep the whole conversation for replay. */
-  onEvent?: (event: AgentEvent) => void | Promise<void>
+  onEvent?: ((event: AgentEvent) => void | Promise<void>) | undefined
   /** Where permission requests wait. Defaults to this process's memory. */
-  approvals?: ApprovalStore
+  approvals?: ApprovalStore | undefined
   /** Keeps the run's events so a browser can re-attach (attachClaudeAgentRun). Without it, a reload loses the run. */
-  runs?: ClaudeRunStore
+  runs?: ClaudeRunStore | undefined
   /** The run's id; a new one by default. Sent back in the `x-candor-run-id` header. */
-  runId?: string
+  runId?: string | undefined
   /**
    * Keep running when the browser goes away (a reload, a closed tab), so it can re-attach. Stop it with
    * stopClaudeAgentRun. Needs a process that outlives the response: not a serverless function that's frozen when
    * the response ends.
    */
-  detach?: boolean
+  detach?: boolean | undefined
   /**
    * What the person sent, recorded as the run's first event in `runs`, so a re-attached browser shows it. Pass the
    * `promptId` useClaudeAgent sends as `id`: a browser that re-attaches with `initialEvents` then replaces the run's
    * events instead of adding them again.
    */
-  prompt?: { id: string; text: string; references?: EntityRef[] }
+  prompt?: { id: string; text: string; references?: EntityRef[] | undefined } | undefined
   /** Which tools' input a person may edit before allowing it. Every tool by default. See claudeCanUseTool. */
-  editable?: ClaudeCanUseToolOptions["editable"]
+  editable?: ClaudeCanUseToolOptions["editable"] | undefined
   /** Close a permission request nobody answered after this long, as expired (denied). No limit by default; set one with `detach`. */
-  approvalTimeoutMs?: number
+  approvalTimeoutMs?: number | undefined
   /** The permission modes setClaudeAgentPermissionMode may switch this run to. Any mode by default. */
-  modes?: ModePolicy
+  modes?: ModePolicy | undefined
 }
 
 /**
@@ -526,7 +526,7 @@ export function streamClaudeAgent(
 export async function attachClaudeAgentRun(
   runs: ClaudeRunStore,
   runId: string,
-  { from = 0, owner, signal, pollMs = 500 }: { from?: number; owner?: string; signal?: AbortSignal; pollMs?: number } = {}
+  { from = 0, owner, signal, pollMs = 500 }: { from?: number | undefined; owner?: string | undefined; signal?: AbortSignal | undefined; pollMs?: number | undefined } = {}
 ): Promise<Response> {
   const first = await runs.read(runId, 0)
   if (!first) return Response.json({ error: "No such run." }, { status: 404 })
@@ -592,7 +592,7 @@ export function stopClaudeAgentRun(runId: string, owner?: string): boolean {
  * isn't allowed, or the SDK refused. The route is where policy is enforced: a mode PermissionMode shows as locked
  * must be left out of `allowed` (or the run's `modes`) too, since anyone can post to the route directly.
  */
-export async function setClaudeAgentPermissionMode(runId: string, mode: PermissionMode, owner?: string, { allowed }: { allowed?: ModePolicy } = {}): Promise<boolean> {
+export async function setClaudeAgentPermissionMode(runId: string, mode: PermissionMode, owner?: string, { allowed }: { allowed?: ModePolicy | undefined } = {}): Promise<boolean> {
   const run = live.get(runId)
   if (!run?.query || (run.owner !== undefined && run.owner !== owner)) return false
   if (!permits(run.modes, mode) || !permits(allowed, mode)) return false
@@ -620,7 +620,7 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> => !!v && typeo
  *     return Response.json({ ok: await answerClaudeApproval(approvals, id, answer, { owner: userId }) })
  *   }
  */
-export async function answerClaudeApproval(approvals: ApprovalStore, id: string, answer: ClaudeApprovalAnswer, { owner }: { owner?: string } = {}): Promise<boolean> {
+export async function answerClaudeApproval(approvals: ApprovalStore, id: string, answer: ClaudeApprovalAnswer, { owner }: { owner?: string | undefined } = {}): Promise<boolean> {
   const clean = checkAnswer(await approvals.get(id), answer, owner)
   return clean ? approvals.answer(id, clean) : false
 }

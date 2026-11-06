@@ -28,14 +28,14 @@ function DegradedPanel({
   /** What went wrong, in a sentence. */
   reason: React.ReactNode
   /** What the person won't see because of it. */
-  missing?: React.ReactNode
+  missing?: React.ReactNode | undefined
   /** Shows a Try again button that calls this. */
-  onRetry?: () => void
+  onRetry?: (() => void) | undefined
   /** Shows the retry as in progress. */
-  retrying?: boolean
+  retrying?: boolean | undefined
   /** A boxed panel, or one line inside other content. */
-  variant?: "block" | "inline"
-  className?: string
+  variant?: "block" | "inline" | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("degradedPanel", degradedPanelStrings)
   return (

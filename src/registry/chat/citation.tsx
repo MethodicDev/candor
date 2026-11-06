@@ -64,7 +64,7 @@ function SourceDetail({
       </div>
       {source.snippet && (
         // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        <blockquote tabIndex={0} className="max-h-40 overflow-auto rounded-md bg-sunken outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 focus-visible:ring-inset px-2.5 py-2 text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
+        <blockquote tabIndex={0} className="max-h-40 overflow-auto rounded-md bg-sunken outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80 focus-visible:ring-inset px-2.5 py-2 text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
           {source.snippet}
         </blockquote>
       )}
@@ -85,9 +85,9 @@ function Citation({
   marker,
 }: {
   /** The source this marker points to; without it the marker says it's unknown. */
-  source?: MessageSource
+  source?: MessageSource | undefined
   /** The number to show when there's no source. */
-  marker?: number
+  marker?: number | undefined
 }) {
   const t = useStrings("citation", citationStrings)
   if (!source) {
@@ -100,7 +100,7 @@ function Citation({
           type="button"
           aria-label={t("sourceLabel", { marker: source.marker, label: source.label })}
           className={cn(
-            "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums transition-colors duration-150 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
+            "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums transition-colors duration-150 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80",
             source.provisional
               ? "border border-dashed border-provisional/60 text-provisional hover:bg-muted"
               : "bg-accent-weak text-accent-text hover:bg-primary hover:text-primary-foreground"
@@ -123,7 +123,7 @@ function SourceList({
 }: {
   /** Every source the reply used, in marker order. */
   sources: MessageSource[]
-  className?: string
+  className?: string | undefined
 }) {
   const t = useStrings("citation", citationStrings)
   if (sources.length === 0) return null
@@ -140,7 +140,7 @@ function SourceList({
                 <button
                   type="button"
                   className={cn(
-                    "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40",
+                    "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80",
                     s.provisional && "border-dashed"
                   )}
                 >

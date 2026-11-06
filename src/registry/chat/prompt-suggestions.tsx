@@ -29,12 +29,12 @@ function PromptSuggestions({
   /** Called with the chosen one; put it in the composer to edit rather than sending it. */
   onChoose: (suggestion: PromptSuggestion) => void
   /** The heading above the suggestions; "Try asking" by default. */
-  label?: string
+  label?: string | undefined
   /** Shows placeholders while suggestions load. */
-  loading?: boolean
+  loading?: boolean | undefined
   /** Compact chips, or larger cards for an empty thread. */
-  variant?: "chips" | "cards"
-  className?: string
+  variant?: "chips" | "cards" | undefined
+  className?: string | undefined
 }) {
   const t = useStrings("promptSuggestions", promptSuggestionsStrings)
   const label = labelProp ?? t("label")
@@ -55,7 +55,7 @@ function PromptSuggestions({
                   key={s.id}
                   type="button"
                   onClick={() => onChoose(s)}
-                  className="group/suggestion flex items-start justify-between gap-3 rounded-xl border bg-card p-3 text-start text-sm transition-[border-color,box-shadow,transform] duration-150 ease-standard outline-none hover:border-border-strong hover:shadow-raised active:scale-[0.99] focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                  className="group/suggestion flex items-start justify-between gap-3 rounded-xl border bg-card p-3 text-start text-sm transition-[border-color,box-shadow,transform] duration-150 ease-standard outline-none hover:border-border-strong hover:shadow-raised active:scale-[0.99] focus-visible:ring-[3px] focus-visible:ring-ring/80"
                 >
                   <span>{s.text}</span>
                   <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-faint-foreground transition-colors group-hover/suggestion:text-accent-text" />
@@ -65,7 +65,7 @@ function PromptSuggestions({
                   key={s.id}
                   type="button"
                   onClick={() => onChoose(s)}
-                  className="rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                  className="rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
                 >
                   {s.text}
                 </button>

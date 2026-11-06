@@ -30,16 +30,16 @@ function Thread({
   contentClassName,
   virtualize = false,
 }: {
-  children?: React.ReactNode
+  children?: React.ReactNode | undefined
   /** Shown before the first message. */
-  empty?: React.ReactNode
+  empty?: React.ReactNode | undefined
   /** Below the messages, usually the composer. */
-  footer?: React.ReactNode
-  className?: string
+  footer?: React.ReactNode | undefined
+  className?: string | undefined
   /** Classes for the message column. */
-  contentClassName?: string
+  contentClassName?: string | undefined
   /** Render only the messages in or near view, for histories of hundreds of messages. Give each child a `key`. Defaults to false. */
-  virtualize?: boolean
+  virtualize?: boolean | undefined
 }) {
   const t = useStrings("thread", threadStrings)
   const scroller = React.useRef<HTMLDivElement>(null)

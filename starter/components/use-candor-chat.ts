@@ -5,7 +5,7 @@ import type { ComposerState } from "@/components/composer"
 import type { EntityRef, Message } from "@/lib/chat"
 import { fromAiSdkMessages, type FromAiSdkOptions } from "@/components/ai-sdk"
 
-export type PendingApproval = { id: string; toolCallId: string; tool: string; input: unknown; reason?: string }
+export type PendingApproval = { id: string; toolCallId: string; tool: string; input: unknown; reason?: string | undefined }
 
 /**
  * Wires a `useChat()` result to Candor: messages for <Thread>/<Message>, props
@@ -35,14 +35,14 @@ export function useCandorChat(chat: UseChatHelpers<UIMessage>, options: Omit<Fro
     const last = chat.messages.findLast((m) => m.role === "assistant")
     if (!last) return []
     return last.parts.flatMap((p) => {
-      const t = p as { type: string; state?: string; toolCallId?: string; toolName?: string; input?: unknown; approval?: { id: string; requestReason?: string } }
+      const t = p as { type: string; state?: string | undefined; toolCallId?: string | undefined; toolName?: string | undefined; input?: unknown; approval?: { id: string; requestReason?: string | undefined } | undefined }
       if (t.state !== "approval-requested" || !t.approval || !t.toolCallId) return []
       return [{ id: t.approval.id, toolCallId: t.toolCallId, tool: t.toolName ?? t.type.replace(/^tool-/, ""), input: t.input, reason: t.approval.requestReason }]
     })
   }, [chat.messages])
 
   const { sendMessage, stop, addToolApprovalResponse } = chat
-  const respond = React.useCallback((approvalId: string, approved: boolean, reason?: string) => addToolApprovalResponse({ id: approvalId, approved, reason }), [addToolApprovalResponse])
+  const respond = React.useCallback((approvalId: string, approved: boolean, reason?: string) => addToolApprovalResponse({ id: approvalId, approved, ...(reason !== undefined && { reason }) }), [addToolApprovalResponse])
 
   return {
     messages,

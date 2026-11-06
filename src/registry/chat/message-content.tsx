@@ -24,9 +24,9 @@ export const messageContentStrings = {
 
 type Ctx = {
   sources: Map<string, MessageSource>
-  onOpenEntity?: (entity: EntityRef) => void
-  onNavigate?: (to: string) => void
-  onOpenAttachment?: (attachment: Attachment) => void
+  onOpenEntity?: ((entity: EntityRef) => void) | undefined
+  onNavigate?: ((to: string) => void) | undefined
+  onOpenAttachment?: ((attachment: Attachment) => void) | undefined
 }
 
 const ContentContext = React.createContext<Ctx>({ sources: new Map() })
@@ -74,7 +74,7 @@ function Inline({
                   <button
                     type="button"
                     data-provisional
-                    className="inline rounded-xs text-start text-provisional underline decoration-provisional/50 decoration-dotted underline-offset-[3px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                    className="inline rounded-xs text-start text-provisional underline decoration-provisional/50 decoration-dotted underline-offset-[3px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80"
                   >
                     <Inline nodes={n.nodes} />
                     <span className="sr-only">{t("notVerified")}</span>
@@ -164,7 +164,11 @@ function Block({
   }
 }
 
-/** A message's blocks, in order. */
+/**
+ * A message's blocks, in order. Build them from text with `plainBlocks(text)` for a person's words (newlines kept, no
+ * markdown) and `markdownBlocks(text)` for an agent's answer, both from `safe-markdown`, which installs with this item. Import them from there: they run on the server too. A
+ * model's links show as text, never as clickable links.
+ */
 function MessageContent({
   blocks,
   sources = [],
@@ -176,14 +180,14 @@ function MessageContent({
   /** The reply as typed blocks: paragraphs, lists, payloads, tool calls, cards, attachments. */
   blocks: MessageBlock[]
   /** Sources the blocks cite by marker. */
-  sources?: MessageSource[]
+  sources?: MessageSource[] | undefined
   /** Makes entity chips open their thing. */
-  onOpenEntity?: (entity: EntityRef) => void
+  onOpenEntity?: ((entity: EntityRef) => void) | undefined
   /** Follows in-app links; links from a model are never rendered. */
-  onNavigate?: (to: string) => void
+  onNavigate?: ((to: string) => void) | undefined
   /** Makes attachment tiles buttons that open their file. */
-  onOpenAttachment?: (attachment: Attachment) => void
-  className?: string
+  onOpenAttachment?: ((attachment: Attachment) => void) | undefined
+  className?: string | undefined
 }) {
   const ctx = React.useMemo(
     () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment }),

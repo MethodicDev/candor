@@ -31,8 +31,8 @@ export type StringOverrides = Record<string, Partial<StringTable> | undefined>
 export type TextDirection = "ltr" | "rtl"
 
 type LocaleState = {
-  locale?: string
-  timeZone?: string
+  locale?: string | undefined
+  timeZone?: string | undefined
   dir: TextDirection
   strings: StringOverrides
 }
@@ -62,13 +62,13 @@ function LocaleProvider({
   children,
 }: {
   /** A BCP 47 tag such as "en-GB", "fr" or "ar-EG", for dates, numbers and plural forms. Left out, the browser's own is used once the page has hydrated. */
-  locale?: string
+  locale?: string | undefined
   /** Text direction. Left out, it follows the locale: "rtl" for Arabic, Hebrew, Persian, Urdu and the like. Set `dir` on `<html>` too, so the page's own layout flips with Candor's. */
-  dir?: TextDirection
+  dir?: TextDirection | undefined
   /** An IANA time zone such as "Europe/Paris". With `locale`, server and browser format dates the same way, so absolute times render on the server too. */
-  timeZone?: string
+  timeZone?: string | undefined
   /** Overrides by component name, e.g. `{ thread: { jumpToLatest: "…" } }`; any left out stay English. Nested providers merge. */
-  strings?: StringOverrides
+  strings?: StringOverrides | undefined
   children: React.ReactNode
 }) {
   const parent = React.useContext(LocaleContext)
@@ -94,7 +94,7 @@ function LocaleProvider({
 }
 
 /** The locale, time zone and text direction in effect. */
-function useLocale(): { locale?: string; timeZone?: string; dir: TextDirection } {
+function useLocale(): { locale?: string | undefined; timeZone?: string | undefined; dir: TextDirection } {
   const { locale, timeZone, dir } = React.useContext(LocaleContext)
   return { locale, timeZone, dir }
 }

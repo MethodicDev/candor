@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 52 free items (version 1.5.1), the skill for coding agents and a
+This repo is the source of Candor UI's 53 free items (version 1.6.0), the skill for coding agents and a
 starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -39,6 +39,7 @@ npx degit MethodicDev/candor/starter my-agent-app
 ## What's here
 
 - `theme`: Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind.
+- `font-inter`: Inter, Candor's default typeface, self-hosted (OFL-1.1). Optional: without it the theme uses the system font. Import styles/candor-font-inter.css next to candor.css.
 - `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.
 - `ai-sdk`: Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards.
 - `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals (and the agent's questions), usage and sources, and a person's answer back into the SDK's result.

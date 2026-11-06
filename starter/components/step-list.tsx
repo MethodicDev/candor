@@ -9,8 +9,8 @@ export type Step = {
   id: string
   title: React.ReactNode
   status: RunStatus
-  detail?: React.ReactNode
-  meta?: React.ReactNode
+  detail?: React.ReactNode | undefined
+  meta?: React.ReactNode | undefined
 }
 
 function StepMark({
@@ -75,7 +75,7 @@ function StepList({
 }: {
   /** The steps in order, each with a status, and optional detail and meta. */
   steps: Step[]
-  className?: string
+  className?: string | undefined
 }) {
   const statusLabel = useStatusLabel()
   return (
