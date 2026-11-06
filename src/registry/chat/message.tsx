@@ -57,9 +57,12 @@ function Message({
   rating,
   onRate,
   reviewedBy,
+  footer,
   actions,
   meta,
   timeFormat,
+  density = "default",
+  bareCode,
   className,
 }: {
   /** The message: author, status, blocks, and optional reasoning, sources and attribution. */
@@ -80,6 +83,8 @@ function Message({
   onRate?: ((rating: Rating) => void) | undefined
   /** A person who checked this agent reply before it was sent: "Checked by Sam", or "Edited by Sam" when they changed it. */
   reviewedBy?: { name: string; at?: string | undefined; edited?: boolean | undefined } | undefined
+  /** More lines under an agent reply, after who checked it and above the actions row: e.g. MemoryUsed. */
+  footer?: React.ReactNode | undefined
   /**
    * The row under an agent reply (copy, retry, rating). `false` hides it; a node replaces it, e.g. your own buttons.
    * Model and cost still show, on their own line. To rebuild a message, use MessageHeader, MessageBody and
@@ -90,6 +95,10 @@ function Message({
   meta?: false | React.ReactNode | undefined
   /** How times show: "relative" (the default, "5 minutes ago") or an absolute "time", "date" or "datetime" in the locale. */
   timeFormat?: "relative" | DateStyle | undefined
+  /** "compact" draws the header row smaller: a 12px name in a 24px row, for dense layouts. Defaults to "default". */
+  density?: "default" | "compact" | undefined
+  /** Code and other payload blocks without their frame (Payload's `bare`). */
+  bareCode?: boolean | undefined
   className?: string | undefined
 }) {
   const { author } = message
@@ -109,7 +118,7 @@ function Message({
       <div data-slot="message" data-role="user" className={cn("flex justify-end ps-10 sm:ps-24 animate-rise-in", className)}>
         <div className="flex max-w-full flex-col items-end gap-1">
           <div className="rounded-xl rounded-ee-sm bg-surface-user px-3.5 py-2.5">
-            <MessageContent blocks={message.blocks} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} className="gap-2" />
+            <MessageContent blocks={message.blocks} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} className="gap-2" />
           </div>
           {meta === undefined ? (
             <span data-slot="message-meta" className="px-1 text-2xs text-faint-foreground">
@@ -141,8 +150,8 @@ function Message({
           <UserRound className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} timeFormat={timeFormat} />
-          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} className="mt-1" />
+          <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} timeFormat={timeFormat} density={density} />
+          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} className="mt-1" />
         </div>
       </article>
     )
@@ -162,9 +171,9 @@ function Message({
     >
       <AgentAvatar agent={agent} className="mt-px" />
       <div className="min-w-0 flex-1">
-        <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} timeFormat={timeFormat} />
+        <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} timeFormat={timeFormat} density={density} />
         <div className="mt-1 flex flex-col gap-3">
-          <MessageBody message={message} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} />
+          <MessageBody message={message} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />
           <MessageFooter
             message={message}
             onRetry={onRetry}
@@ -172,6 +181,7 @@ function Message({
             rating={rating}
             onRate={onRate}
             reviewedBy={reviewedBy}
+            footer={footer}
             actions={actions}
             timeFormat={timeFormat}
           />
@@ -187,6 +197,7 @@ function MessageHeader({
   detail,
   createdAt,
   timeFormat,
+  density = "default",
   children,
   className,
 }: {
@@ -198,16 +209,18 @@ function MessageHeader({
   createdAt?: string | undefined
   /** "relative" (the default) or an absolute "time", "date" or "datetime" in the locale. */
   timeFormat?: "relative" | DateStyle | undefined
+  /** "compact": a 12px name in a 24px row. Defaults to "default" (14px in 28px). */
+  density?: "default" | "compact" | undefined
   /** Anything else for the row, after the time (a badge, a menu). */
   children?: React.ReactNode | undefined
   className?: string | undefined
 }) {
   return (
-    <header data-slot="message-header" className={cn("flex h-7 items-center gap-2", className)}>
-      <span className="text-sm font-semibold">{name}</span>
-      {detail && <span className="truncate text-xs text-muted-foreground">{detail}</span>}
+    <header data-slot="message-header" data-density={density} className={cn("flex items-center gap-2", density === "compact" ? "h-6" : "h-7", className)}>
+      <span className={cn("font-semibold", density === "compact" ? "text-xs" : "text-sm")}>{name}</span>
+      {detail && <span className={cn("truncate text-muted-foreground", density === "compact" ? "text-2xs" : "text-xs")}>{detail}</span>}
       {createdAt && (
-        <span className="text-xs text-faint-foreground">
+        <span className={cn("text-faint-foreground", density === "compact" ? "text-2xs" : "text-xs")}>
           <RelativeTime date={createdAt} format={timeFormat} />
         </span>
       )}
@@ -222,6 +235,7 @@ function MessageBody({
   onOpenEntity,
   onNavigate,
   onOpenAttachment,
+  bareCode,
   className,
 }: {
   /** The message whose reasoning and blocks to show. */
@@ -232,6 +246,8 @@ function MessageBody({
   onNavigate?: ((to: string) => void) | undefined
   /** Makes attachment tiles buttons that open their file. */
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
+  /** Code and other payload blocks without their frame. */
+  bareCode?: boolean | undefined
   className?: string | undefined
 }) {
   const streaming = message.status === "streaming"
@@ -241,7 +257,7 @@ function MessageBody({
       {message.reasoning && message.reasoning.length > 0 && <Reasoning entries={message.reasoning} thinking={thinking} thoughtFor={message.thoughtFor} />}
       {message.blocks.length > 0 && (
         <div className="relative">
-          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} />
+          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />
           {streaming && <span aria-hidden className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary animate-caret" />}
         </div>
       )}
@@ -279,6 +295,7 @@ function MessageFooter({
   rating,
   onRate,
   reviewedBy,
+  footer,
   actions,
   timeFormat,
   className,
@@ -295,6 +312,8 @@ function MessageFooter({
   onRate?: ((rating: Rating) => void) | undefined
   /** A person who checked the reply before it was sent. */
   reviewedBy?: { name: string; at?: string | undefined; edited?: boolean | undefined } | undefined
+  /** More lines after who checked it and above the actions row: e.g. MemoryUsed. */
+  footer?: React.ReactNode | undefined
   /** `false` hides the actions row, a node replaces it; model and cost still show. */
   actions?: false | React.ReactNode | undefined
   /** How the reviewer's time shows: "relative" (the default) or an absolute "time", "date" or "datetime". */
@@ -335,6 +354,8 @@ function MessageFooter({
           )}
         </p>
       )}
+
+      {footer}
 
       {settled && actions === undefined && (
         <MessageActions

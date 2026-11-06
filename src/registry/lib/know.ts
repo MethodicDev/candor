@@ -120,6 +120,9 @@ export type Memory = {
   environmentId?: string | undefined
 }
 
+/** Whether agents use memory: on, paused (kept and not used for now), or off. */
+export type MemoryModeValue = "on" | "paused" | "off"
+
 export type Version = {
   id: string
   label: string

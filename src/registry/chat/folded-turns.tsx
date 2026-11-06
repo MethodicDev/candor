@@ -23,6 +23,7 @@ function FoldedTurns({
   defaultOpen = false,
   open,
   onOpenChange,
+  header,
   children,
   className,
 }: {
@@ -36,6 +37,11 @@ function FoldedTurns({
   open?: boolean | undefined
   /** Called when a person opens or closes it. */
   onOpenChange?: ((open: boolean) => void) | undefined
+  /**
+   * Your own folded line instead of the dashed one: a card with a title, how it ended, its cost, actions. The
+   * Show/Hide button follows it, so the turns can still be opened.
+   */
+  header?: React.ReactNode | undefined
   /** The turns, usually Messages. */
   children: React.ReactNode
   className?: string | undefined
@@ -49,9 +55,12 @@ function FoldedTurns({
   }
   return (
     <Collapsible open={isOpen} onOpenChange={set} data-slot="folded-turns" className={cn("group/folded flex flex-col gap-7", className)}>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-dashed px-3 py-2 text-sm">
-        {summary && <div className="min-w-0 flex-1 text-muted-foreground">{summary}</div>}
-        <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-accent-text outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80">
+      <div
+        data-slot="folded-turns-line"
+        className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-sm", header ? "flex-col items-stretch" : "rounded-lg border border-dashed px-3 py-2")}
+      >
+        {header ?? (summary && <div className="min-w-0 flex-1 text-muted-foreground">{summary}</div>)}
+        <CollapsibleTrigger className={cn("relative after:absolute after:inset-x-0 after:-inset-y-0.5 ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-accent-text outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80", header && "self-end")}>
           <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3.5 transition-transform duration-200 group-data-[state=open]/folded:[transform:rotate(90deg)]" />
           {t(isOpen ? "hide" : "show", { count })}
         </CollapsibleTrigger>

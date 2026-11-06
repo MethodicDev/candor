@@ -27,6 +27,7 @@ type Ctx = {
   onOpenEntity?: ((entity: EntityRef) => void) | undefined
   onNavigate?: ((to: string) => void) | undefined
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
+  bareCode?: boolean | undefined
 }
 
 const ContentContext = React.createContext<Ctx>({ sources: new Map() })
@@ -119,6 +120,7 @@ function Block({
 }: {
   block: MessageBlock
 }) {
+  const { bareCode } = React.useContext(ContentContext)
   switch (block.kind) {
     case "paragraph":
       return (
@@ -152,7 +154,7 @@ function Block({
       )
     }
     case "payload":
-      return <Payload language={block.language} text={block.text} title={block.title} />
+      return <Payload language={block.language} text={block.text} title={block.title} bare={bareCode} />
     case "tools":
       return <ToolCallGroup calls={block.calls} />
     case "degraded":
@@ -175,6 +177,7 @@ function MessageContent({
   onOpenEntity,
   onNavigate,
   onOpenAttachment,
+  bareCode,
   className,
 }: {
   /** The reply as typed blocks: paragraphs, lists, payloads, tool calls, cards, attachments. */
@@ -187,11 +190,13 @@ function MessageContent({
   onNavigate?: ((to: string) => void) | undefined
   /** Makes attachment tiles buttons that open their file. */
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
+  /** Code and other payload blocks without their frame and title bar (Payload's `bare`). */
+  bareCode?: boolean | undefined
   className?: string | undefined
 }) {
   const ctx = React.useMemo(
-    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment }),
-    [sources, onOpenEntity, onNavigate, onOpenAttachment]
+    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment, bareCode }),
+    [sources, onOpenEntity, onNavigate, onOpenAttachment, bareCode]
   )
   return (
     <ContentContext.Provider value={ctx}>

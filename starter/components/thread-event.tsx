@@ -16,6 +16,7 @@ function ThreadEvent({
   tone = "quiet",
   at,
   timeFormat,
+  align = "center",
   children,
   className,
   ...props
@@ -28,6 +29,8 @@ function ThreadEvent({
   at?: string | undefined
   /** "relative" (the default) or an absolute "time", "date" or "datetime" in the locale. */
   timeFormat?: "relative" | DateStyle | undefined
+  /** "center" (the default), or "start": a left-aligned line (right-aligned in RTL) with the time at its end. */
+  align?: "center" | "start" | undefined
   /** What happened, in a short line. */
   children: React.ReactNode
   className?: string | undefined
@@ -36,17 +39,21 @@ function ThreadEvent({
     <div
       data-slot="thread-event"
       data-tone={tone}
-      className={cn("flex items-center justify-center gap-1.5 py-1 text-center text-xs", tone === "attention" ? "text-attention-text" : "text-faint-foreground", className)}
+      data-align={align}
+      className={cn("flex items-center gap-1.5 py-1 text-xs", align === "start" ? "justify-start text-start" : "justify-center text-center", tone === "attention" ? "text-attention-text" : "text-faint-foreground", className)}
       {...props}
     >
       {Icon && <Icon aria-hidden className="size-3 shrink-0" />}
       {children}
-      {at && (
-        <>
-          <span aria-hidden>·</span>
-          <RelativeTime date={at} format={timeFormat} />
-        </>
-      )}
+      {at &&
+        (align === "start" ? (
+          <RelativeTime date={at} format={timeFormat} className="ms-auto shrink-0 tabular-nums" />
+        ) : (
+          <>
+            <span aria-hidden>·</span>
+            <RelativeTime date={at} format={timeFormat} />
+          </>
+        ))}
     </div>
   )
 }

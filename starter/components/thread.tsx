@@ -21,6 +21,10 @@ export const threadStrings = {
  * For long histories, `virtualize` renders only the messages in or near view
  * (each child is one item, keyed by its `key`). The column stays a `log`, the
  * message holding focus stays rendered, and Jump to latest works the same.
+ *
+ * It opens at the bottom, or at `anchor` (the `id` of something in it, such as
+ * a chapter divider or the card that needs the reader), and then waits for the
+ * reader instead of following.
  */
 function Thread({
   children,
@@ -29,6 +33,10 @@ function Thread({
   className,
   contentClassName,
   virtualize = false,
+  anchor,
+  scrollerRef,
+  onDrop,
+  fade = true,
 }: {
   children?: React.ReactNode | undefined
   /** Shown before the first message. */
@@ -40,17 +48,48 @@ function Thread({
   contentClassName?: string | undefined
   /** Render only the messages in or near view, for histories of hundreds of messages. Give each child a `key`. Defaults to false. */
   virtualize?: boolean | undefined
+  /**
+   * The `id` of an element in the thread to open at, instead of the bottom: a chapter divider, or the card that needs
+   * the reader. Read once, when the messages first appear; if it isn't among them, the thread opens at the bottom.
+   * Ignored with `virtualize`, where it may not be rendered yet.
+   */
+  anchor?: string | undefined
+  /** The scrolling element, for your own scroll handling. */
+  scrollerRef?: React.Ref<HTMLDivElement> | undefined
+  /** Files or other data dropped on the thread. Dragging over it is allowed only when this is given. */
+  onDrop?: ((event: React.DragEvent<HTMLDivElement>) => void) | undefined
+  /** The soft fade at the bottom of the column. Defaults to true. */
+  fade?: boolean | undefined
 }) {
   const t = useStrings("thread", threadStrings)
   const scroller = React.useRef<HTMLDivElement>(null)
   const content = React.useRef<HTMLDivElement>(null)
-  const pinnedRef = React.useRef(true)
-  const [pinned, setPinned] = React.useState(true)
+  // Opening at an anchor means not following the bottom until the reader gets there.
+  const anchoring = Boolean(anchor) && !virtualize
+  const pinnedRef = React.useRef(!anchoring)
+  const [pinned, setPinned] = React.useState(!anchoring)
+  React.useImperativeHandle(scrollerRef, () => scroller.current as HTMLDivElement, [])
 
   const toBottom = React.useCallback((behavior: ScrollBehavior = "auto") => {
     const el = scroller.current
     if (el) el.scrollTo({ top: el.scrollHeight, behavior })
   }, [])
+
+  // Open at the anchor once, when it first appears.
+  const anchored = React.useRef(false)
+  React.useLayoutEffect(() => {
+    if (!anchoring || anchored.current || !content.current?.childElementCount) return
+    anchored.current = true
+    const target = content.current.querySelector<HTMLElement>(`#${CSS.escape(anchor!)}`)
+    if (target) {
+      target.scrollIntoView?.({ block: "start" })
+      return
+    }
+    // The anchor isn't in the thread: open at the bottom and follow, as without one.
+    pinnedRef.current = true
+    setPinned(true)
+    toBottom()
+  })
 
   React.useEffect(() => {
     const el = content.current
@@ -101,6 +140,8 @@ function Thread({
         <div
           ref={scroller}
           onScroll={onScroll}
+          onDragOver={onDrop ? (e) => e.preventDefault() : undefined}
+          onDrop={onDrop}
           onFocus={
             virtualize
               ? (e) => {
@@ -149,7 +190,7 @@ function Thread({
             <ArrowDown aria-hidden className="size-3" /> {t("jumpToLatest")}
           </button>
         )}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent" />
+        {fade && <div aria-hidden data-slot="thread-fade" className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent" />}
       </div>
       {footer && <div className="mx-auto w-full max-w-(--cd-thread-width) px-4 pb-4">{footer}</div>}
     </div>

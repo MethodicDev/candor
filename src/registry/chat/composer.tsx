@@ -33,6 +33,8 @@ export type ComposerState =
   | "streaming"
   | { kind: "locked"; reason: string }
   | { kind: "offline"; reason?: string | undefined }
+  /** Typing stays open, but sending waits, and the box says why: "Your partner is still thinking". */
+  | { kind: "held"; reason: string }
 
 type Trigger = { char: "@" | "/"; start: number; query: string }
 
@@ -65,7 +67,9 @@ const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer?.types ?? [])
  * Enter sends, Shift+Enter breaks a line. While an agent replies the send button
  * becomes Stop. A locked composer says why; an offline one says so. With
  * `onAttach`, files can also be pasted or dropped onto it. `tools` adds your
- * own controls to the toolbar, such as a dictation button.
+ * own controls to the toolbar, such as a dictation button. A held composer
+ * (`{ kind: "held", reason }`) keeps typing open and says why sending waits.
+ * `textareaRef` focuses the box from outside, e.g. after a new project starts.
  */
 function Composer({
   value,
@@ -86,6 +90,8 @@ function Composer({
   placeholder: placeholderProp,
   label: labelProp,
   tools,
+  textareaRef,
+  sendShape = "square",
   className,
 }: {
   /** The text in the box. */
@@ -96,7 +102,7 @@ function Composer({
   onSubmit: (value: string, references: EntityRef[]) => void
   /** Shown as Stop while a reply is streaming. */
   onStop?: (() => void) | undefined
-  /** ready, sending, streaming, locked (with a reason) or offline. */
+  /** ready, sending, streaming, locked (with a reason), held (typing open, sending waits, with a reason) or offline. */
   state?: ComposerState | undefined
   /** Where the next message's work lands; production turns the pill to a warning. */
   scope?: ComposerScope | undefined
@@ -127,6 +133,10 @@ function Composer({
   label?: string | undefined
   /** Your own controls in the toolbar, after the attach button: a dictation button, a model picker. */
   tools?: React.ReactNode | undefined
+  /** The text box, to focus it or read its selection from outside. */
+  textareaRef?: React.Ref<HTMLTextAreaElement> | undefined
+  /** The send button's shape: "square" (the default, rounded corners) or "round". */
+  sendShape?: "square" | "round" | undefined
   className?: string | undefined
 }) {
   const kindOf = useEntityKinds()
@@ -135,16 +145,18 @@ function Composer({
   const label = labelProp ?? t("label")
   const id = React.useId()
   const textarea = React.useRef<HTMLTextAreaElement>(null)
+  React.useImperativeHandle(textareaRef, () => textarea.current as HTMLTextAreaElement, [])
   // Files dragged over the composer: a count of enter/leave pairs, since child elements fire their own.
   const [dragDepth, setDragDepth] = React.useState(0)
   const fileInput = React.useRef<HTMLInputElement>(null)
   const [trigger, setTrigger] = React.useState<Trigger | null>(null)
   const [active, setActive] = React.useState(0)
 
-  const locked = typeof state === "object" ? state : null
+  const held = typeof state === "object" && state.kind === "held" ? state : null
+  const locked = typeof state === "object" && state.kind !== "held" ? state : null
   const canAttach = Boolean(onAttach) && !locked
   const busy = state === "sending" || state === "streaming"
-  const canSend = !locked && !busy && (value.trim().length > 0 || references.length > 0)
+  const canSend = !locked && !held && !busy && (value.trim().length > 0 || references.length > 0)
 
   const items: MenuItem[] = React.useMemo(() => {
     if (!trigger) return []
@@ -379,7 +391,7 @@ function Composer({
           aria-controls={menuOpen ? listId : undefined}
           aria-activedescendant={menuOpen ? optionId(active) : undefined}
           aria-autocomplete="list"
-          aria-describedby={locked ? `${id}-locked` : undefined}
+          aria-describedby={locked ? `${id}-locked` : held ? `${id}-held` : undefined}
           className={cn(
             "block max-h-60 min-h-12 w-full resize-none bg-transparent px-4 pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground disabled:cursor-not-allowed",
             locked && !value && "min-h-0 h-3 pt-3 pb-0"
@@ -388,6 +400,11 @@ function Composer({
         {locked && (
           <p id={`${id}-locked`} className="flex items-center gap-1.5 px-4 pb-1 text-sm text-muted-foreground">
             {locked.kind === "offline" ? locked.reason ?? t("offline") : locked.reason}
+          </p>
+        )}
+        {held && (
+          <p id={`${id}-held`} data-slot="composer-held" className="px-4 pb-1 text-sm text-muted-foreground">
+            {held.reason}
           </p>
         )}
 
@@ -453,7 +470,7 @@ function Composer({
               type="button"
               aria-label={t("stop")}
               onClick={onStop}
-              className="ms-auto flex size-8 items-center justify-center rounded-lg bg-foreground text-background transition-transform duration-150 active:scale-95 @lg:ms-1"
+              className={cn("ms-auto flex size-8 items-center justify-center bg-foreground text-background transition-transform duration-150 active:scale-95 @lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
               <Square className="size-3 fill-current" />
             </button>
@@ -464,7 +481,7 @@ function Composer({
               onClick={submit}
               disabled={!canSend}
               aria-busy={state === "sending"}
-              className="ms-auto flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-[background-color,opacity,transform] duration-150 enabled:hover:bg-primary-hover active:scale-95 disabled:opacity-30 @lg:ms-1"
+              className={cn("ms-auto flex size-8 items-center justify-center bg-primary text-primary-foreground transition-[background-color,opacity,transform] duration-150 enabled:hover:bg-primary-hover active:scale-95 disabled:opacity-30 @lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
               {state === "sending" ? <LoaderCircle className="size-4 animate-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
             </button>

@@ -55,3 +55,37 @@ export const statusTone = {
 export function isTerminal(status: RunStatus) {
   return status === "succeeded" || status === "failed" || status === "cancelled" || status === "skipped"
 }
+
+/** The machine or worker a run is on, when the app can't reach it. */
+export type HostOffline = {
+  /** The host's name as the app knows it: "Build runner 3", "Priya’s laptop". Left out, it's "The host". */
+  host?: string | undefined
+  /** When the app lost contact. */
+  since?: string | undefined
+}
+
+/**
+ * Whether a run can be called alive. "live": heard from recently, or the app doesn't track it. "stale": running, but
+ * nothing heard for longer than `staleAfter`, so it may have stopped. "offline": its host can't be reached.
+ * "unchecked": there's no clock yet (rendering on the server), so freshness isn't claimed either way. "settled": it
+ * has finished, so silence is expected. Only a running run goes stale: a queued or waiting one is quiet by design.
+ */
+export type RunLiveness = "live" | "stale" | "offline" | "unchecked" | "settled"
+
+/** Two minutes: the default silence after which a running run is no longer called running. */
+export const STALE_AFTER = 120_000
+
+export function runLiveness(
+  run: { status: RunStatus; lastHeardAt?: Date | string | undefined; hostOffline?: HostOffline | undefined },
+  now: number | null,
+  staleAfter = STALE_AFTER
+): RunLiveness {
+  if (isTerminal(run.status)) return "settled"
+  if (run.hostOffline) return "offline"
+  if (run.status !== "running" || run.lastHeardAt === undefined) return "live"
+  const heard = new Date(run.lastHeardAt).getTime()
+  // An unreadable time ("", "10:42") is no evidence the run is alive.
+  if (Number.isNaN(heard)) return "stale"
+  if (now === null) return "unchecked"
+  return now - heard > staleAfter ? "stale" : "live"
+}
