@@ -39,6 +39,23 @@ Themes switch with `data-theme="light" | "dark" | "hc"` on `<html>`. With none s
 applies; `"light"` turns that off. `"dark"` and `"hc"` also work on an inner element (a dark panel in a light page),
 but `"light"` doesn't switch back inside a dark one: light is the `:root` default, not a theme of its own.
 
+## Look things up
+
+The docs MCP server is the quickest way to the right component and its exact props. It's free and read-only (no
+licence key; it serves docs, never paid source). If it isn't connected, suggest the person adds it:
+
+```bash
+claude mcp add --transport http candor https://candor.themethodic.com/mcp
+```
+
+Other clients add `https://candor.themethodic.com/mcp` as a remote (streamable HTTP) server. Its tools:
+`suggest_components` (describe the screen, get the items that fit and one install command), `search_docs`,
+`get_component_docs` (one page: props, example with app import paths, `LocaleProvider` keys), `list_components`,
+`get_pattern` and `get_started`.
+
+Without it, every docs page is Markdown at `https://candor.themethodic.com/docs/<name>.md`, indexed in
+`https://candor.themethodic.com/llms.txt`.
+
 ## Choose components
 
 Read `references/components.md` for every item, grouped by job, with its tier and what it exports. Pick by the job
@@ -52,7 +69,8 @@ the screen does, not by name similarity:
 - **Operating agents:** *ops*, *evals*, *admin* and *billing* hold traces, scorecards, permissions and usage.
 - **The app around it:** *shell* (layout, sidebar, command menu, session list) and *team*.
 
-Install only what the screen needs. Check an item's props in its source after installing; don't guess them.
+Install only what the screen needs. Check an item's props in its docs page or its source after installing; don't
+guess them.
 
 ## Wire an agent
 

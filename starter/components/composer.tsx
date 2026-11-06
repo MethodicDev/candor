@@ -64,7 +64,8 @@ const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer?.types ?? [])
  *
  * Enter sends, Shift+Enter breaks a line. While an agent replies the send button
  * becomes Stop. A locked composer says why; an offline one says so. With
- * `onAttach`, files can also be pasted or dropped onto it.
+ * `onAttach`, files can also be pasted or dropped onto it. `tools` adds your
+ * own controls to the toolbar, such as a dictation button.
  */
 function Composer({
   value,
@@ -84,6 +85,7 @@ function Composer({
   onRemoveAttachment,
   placeholder: placeholderProp,
   label: labelProp,
+  tools,
   className,
 }: {
   /** The text in the box. */
@@ -123,6 +125,8 @@ function Composer({
   placeholder?: string
   /** The accessible name of the text box; "Message" by default. */
   label?: string
+  /** Your own controls in the toolbar, after the attach button: a dictation button, a model picker. */
+  tools?: React.ReactNode
   className?: string
 }) {
   const kindOf = useEntityKinds()
@@ -410,6 +414,8 @@ function Composer({
               </Tooltip>
             </>
           )}
+
+          {tools}
 
           {scope && (
             <button
