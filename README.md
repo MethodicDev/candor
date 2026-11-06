@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 53 free items (version 1.7.0), the skill for coding agents and a
+This repo is the source of Candor UI's 54 free items (version 1.8.0), the skill for coding agents and a
 starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -80,6 +80,7 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `chat`: The data a Candor thread renders.
 - `highlight`: A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span.
 - `know`: The data behind the agents' knowledge base and agent settings.
+- `mcp-input`: MCP's "input required" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.
 - `render-prop`: Lets Candor's Radix-based primitives also take Base UI's `render` prop.
 - `safe-markdown`: Reads model text as safe markdown: paragraphs, lists and fenced code.
 - `status`: The status vocabulary every Candor agent component shares.

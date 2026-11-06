@@ -22,6 +22,7 @@ export const composerStrings = {
   hintSend: "send",
   hintNewLine: "new line",
   hintMention: "mention",
+  hintCommand: "command",
   stop: "Stop",
   send: "Send",
   dropFiles: "Drop files to attach",
@@ -92,6 +93,7 @@ function Composer({
   tools,
   textareaRef,
   sendShape = "square",
+  hints = true,
   className,
 }: {
   /** The text in the box. */
@@ -133,6 +135,11 @@ function Composer({
   label?: string | undefined
   /** Your own controls in the toolbar, after the attach button: a dictation button, a model picker. */
   tools?: React.ReactNode | undefined
+  /**
+   * The keyboard hints shown at wide widths ("↵ send · ⇧↵ new line"), naming @ and / only when `mentions` or
+   * `commands` are given. Defaults to true; false hides them.
+   */
+  hints?: boolean | undefined
   /** The text box, to focus it or read its selection from outside. */
   textareaRef?: React.Ref<HTMLTextAreaElement> | undefined
   /** The send button's shape: "square" (the default, rounded corners) or "round". */
@@ -451,16 +458,31 @@ function Composer({
             </button>
           )}
 
-          <span className="ms-auto hidden text-2xs text-faint-foreground @lg:inline">
-            <kbd className="font-sans">↵</kbd> {t("hintSend")} · <kbd className="font-sans">⇧↵</kbd> {t("hintNewLine")} · <kbd className="font-sans">@</kbd> {t("hintMention")}
-          </span>
+          {hints && (
+            // Only what this composer can do: @ and / are named only when there's something for them to offer.
+            <span className="ms-auto hidden text-2xs text-faint-foreground @lg:inline">
+              <kbd className="font-sans">↵</kbd> {t("hintSend")} · <kbd className="font-sans">⇧↵</kbd> {t("hintNewLine")}
+              {mentions.length > 0 && (
+                <>
+                  {" · "}
+                  <kbd className="font-sans">@</kbd> {t("hintMention")}
+                </>
+              )}
+              {commands.length > 0 && (
+                <>
+                  {" · "}
+                  <kbd className="font-sans">/</kbd> {t("hintCommand")}
+                </>
+              )}
+            </span>
+          )}
 
           {state === "streaming" && onStop ? (
             <button
               type="button"
               aria-label={t("stop")}
               onClick={onStop}
-              className={cn("ms-auto flex size-8 items-center justify-center bg-foreground text-background transition-transform duration-150 active:scale-95 @lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+              className={cn("ms-auto flex size-8 items-center justify-center bg-foreground text-background transition-transform duration-150 active:scale-95", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
               <Square className="size-3 fill-current" />
             </button>
@@ -471,7 +493,7 @@ function Composer({
               onClick={submit}
               disabled={!canSend}
               aria-busy={state === "sending"}
-              className={cn("ms-auto flex size-8 items-center justify-center bg-primary text-primary-foreground transition-[background-color,opacity,transform] duration-150 enabled:hover:bg-primary-hover active:scale-95 disabled:opacity-30 @lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+              className={cn("ms-auto flex size-8 items-center justify-center bg-primary text-primary-foreground transition-[background-color,opacity,transform] duration-150 enabled:hover:bg-primary-hover active:scale-95 disabled:opacity-30", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
               {state === "sending" ? <LoaderCircle className="size-4 animate-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
             </button>

@@ -139,7 +139,16 @@ export type FromClaudeAgentOptions = {
    * Claude's own citations and web search results are read without it.
    */
   sourcesFrom?: ((tool: string, input: unknown, output: string) => ToolSource[] | undefined) | undefined
+  /**
+   * The words for lines the adapter adds to the thread itself, as system messages: when the SDK summarised earlier
+   * messages to make room (`compacted`, given how it was started), and when the conversation was cleared (`cleared`).
+   * Defaults are in English; pass your own for other languages.
+   */
+  eventText?: { compacted?: ((trigger: "manual" | "auto") => string) | undefined; cleared?: string | undefined } | undefined
 }
+
+/** A memory the SDK recalled for a reply: the file (or URL) it came from, and whose memory it is. */
+export type ClaudeRecalledMemory = { path: string; scope: "personal" | "team" | "organization"; content?: string | undefined }
 
 export type ClaudeAgentState = {
   messages: Message[]
@@ -152,7 +161,15 @@ export type ClaudeAgentState = {
   notice?: string | undefined
   /** The permission mode last reported, by the SDK or the app. Absent until one is. */
   permissionMode?: ClaudePermissionMode | undefined
+  /** Memories the SDK recalled for each reply, by the reply's message id, for a `MemoryUsed` line under it. Only replies that recalled any. */
+  recalled?: Record<string, ClaudeRecalledMemory[]> | undefined
 }
+
+const compactedText = (trigger: "manual" | "auto") =>
+  trigger === "auto"
+    ? "Earlier messages were summarised to make room. The agent works from that summary now; the messages above are unchanged."
+    : "Earlier messages were summarised, as asked. The agent works from that summary now; the messages above are unchanged."
+const clearedText = "The conversation was cleared. The agent doesn’t see the messages above."
 
 type Part = { kind: "text"; text: string; cites?: string[] | undefined } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
 
@@ -170,6 +187,8 @@ type Reply = {
   sources: Map<string, MessageSource>
   /** Each tool call's input as the SDK sent it, for `sourcesFrom`. */
   inputs: Map<string, unknown>
+  /** Memories recalled for this reply. */
+  memories: ClaudeRecalledMemory[]
 }
 
 /**
@@ -187,11 +206,33 @@ export function fromClaudeAgentEvents(events: AgentEvent[], options: FromClaudeA
   let lastCost = 0
   let notice: string | undefined
   let permissionMode: ClaudePermissionMode | undefined
+  const recalled: Record<string, ClaudeRecalledMemory[]> = {}
+  // Memories recalled before the reply they're for has started.
+  let recalling: ClaudeRecalledMemory[] = []
 
-  const current = (id: string): Reply => (reply ??= { id, parts: [], reasoning: [], tools: new Map(), live: new Map(), sources: new Map(), inputs: new Map() })
+  const current = (id: string): Reply => {
+    if (!reply) {
+      reply = { id, parts: [], reasoning: [], tools: new Map(), live: new Map(), sources: new Map(), inputs: new Map(), memories: recalling }
+      recalling = []
+    }
+    return reply
+  }
+  // Lines that arrived while a reply was still going: shown after it, so one turn stays one reply.
+  let afterReply: Message[] = []
   const close = (last: boolean) => {
-    if (reply) messages.push(render(reply, { ...options, model, last }))
+    if (reply) {
+      messages.push(render(reply, { ...options, model, last }))
+      if (reply.memories.length) recalled[reply.id] = reply.memories
+    }
     reply = null
+    messages.push(...afterReply)
+    afterReply = []
+  }
+  // A line the adapter adds between replies: the app's own words, drawn like any system message.
+  const systemLine = (id: string, text: string) => {
+    const line: Message = { id, author: { role: "system" }, status: "complete", blocks: plainBlocks(text) }
+    if (reply) afterReply.push(line)
+    else messages.push(line)
   }
 
   for (const e of events) {
@@ -252,7 +293,18 @@ export function fromClaudeAgentEvents(events: AgentEvent[], options: FromClaudeA
           }
         } else if (e.subtype === "api_retry") {
           notice = `Claude’s API didn’t answer${e.error_status ? ` (${e.error_status})` : ""}; trying again, attempt ${e.attempt} of ${e.max_retries}.`
+        } else if (e.subtype === "compact_boundary") {
+          // Without this line the person can't tell the agent no longer has the earlier messages word for word.
+          const trigger = e.compact_metadata.trigger
+          systemLine(`compact-${e.uuid}`, options.eventText?.compacted?.(trigger) ?? compactedText(trigger))
+        } else if (e.subtype === "memory_recall") {
+          const found = e.memories.map((m) => ({ path: m.path, scope: m.scope, ...(m.content !== undefined && { content: m.content }) }))
+          if (reply) reply.memories.push(...found)
+          else recalling.push(...found)
         }
+        break
+      case "conversation_reset":
+        systemLine(`reset-${e.uuid}`, options.eventText?.cleared ?? clearedText)
         break
       case "stream_event": {
         const r = current(e.uuid)
@@ -323,6 +375,7 @@ export function fromClaudeAgentEvents(events: AgentEvent[], options: FromClaudeA
     usage,
     notice: options.running ? notice : undefined,
     permissionMode,
+    recalled,
   }
 }
 
