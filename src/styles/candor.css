@@ -13,9 +13,12 @@
  * Font: Inter when the font-inter item is installed (styles/candor-font-inter.css),
  * else the system's sans-serif. Point --cd-font at your own font to use it instead.
  *
- * Density: data-density="compact" on <html> (or any container) tightens type for
- * dense apps: 14px conversation text and 13px body and label text, with a narrower
- * thread and sidebar.
+ * Density: data-density="compact" | "spacious" on <html> (or any container); no
+ * attribute is the default. Compact tightens type for dense apps: 14px conversation
+ * text and 13px body and label text, with a narrower thread and sidebar. Spacious is
+ * the other way, for reading-first apps: 16px conversation
+ * text and 15px body and label text, with a wider thread and sidebar. Both set the
+ * same four tokens, so one overrides the other when nested.
  *
  * Motion: data-motion="none" | "subtle" | "expressive" on <html> (or any container).
  * Subtle is the default: a change that happened is shown settling (a collapse,
@@ -107,6 +110,13 @@
   --cd-text-md: 0.8125rem;
   --cd-thread-width: 44rem;
   --cd-sidebar-width: 14rem;
+}
+/* The spacious preset: the same four tokens as compact, set the other way. Prose is pinned here too, at 16px. */
+[data-density="spacious"] {
+  --cd-text-prose: 1rem;
+  --cd-text-md: 0.9375rem;
+  --cd-thread-width: 52rem;
+  --cd-sidebar-width: 18rem;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {

@@ -4,8 +4,8 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 54 free items (version 1.9.1), the skill and plugins for coding
-agents and a starter app. Docs and live examples: **https://candor.themethodic.com**.
+This repo is the source of Candor UI's 56 free items (version 2.0.0), the skill and plugins for coding
+agents and three starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
 
@@ -42,18 +42,28 @@ The MCP server at https://candor.themethodic.com/mcp serves docs and component s
 never paid source. `.mcp/server.json` describes it for the MCP registry. Agents can also read
 https://candor.themethodic.com/llms.txt.
 
-## Starter
+## Starters
 
-`starter/` is a Next.js app with a working agent chat built from these components:
+Three apps with a working agent chat built from these components. Each installs and builds on its own:
+
+| Folder | Stack | Agent |
+|---|---|---|
+| `starter/` | Next.js 16 | Vercel AI SDK at `/`, Claude Agent SDK at `/claude` |
+| `starter-vite-ag-ui/` | Vite and React, no server | any AG-UI agent (LangGraph, CrewAI…), or a scripted one in the page |
+| `starter-tanstack-start-claude/` | TanStack Start | Claude Agent SDK |
 
 ```bash
 npx degit MethodicDev/candor/starter my-agent-app
+npx degit MethodicDev/candor/starter-vite-ag-ui my-agent-app
+npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 ```
 
 ## What's here
 
 - `theme`: Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind.
 - `font-inter`: Inter, Candor's default typeface, self-hosted (OFL-1.1). Optional: without it the theme uses the system font. Import styles/candor-font-inter.css next to candor.css.
+- `font-source-sans`: Source Sans 3, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-source-sans.css after candor.css; it points --cd-font at it.
+- `font-ibm-plex`: IBM Plex Sans, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-ibm-plex.css after candor.css; it points --cd-font at it.
 - `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.
 - `ai-sdk`: Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards.
 - `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals (and the agent's questions), usage and sources, and a person's answer back into the SDK's result.

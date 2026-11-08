@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./styles/candor.css";
+@import "./styles/candor-font-inter.css";
+
+/*
+ * Candor's theme (styles/candor.css) defines every colour, font, radius and
+ * shadow by shadcn's names, so this file keeps none of shadcn's defaults.
+ * Themes switch with data-theme="light" | "dark" | "hc" on <html>; with no
+ * attribute they follow the system.
+ *
+ * To restyle, override the roles here, after the import above, for each mode
+ * you support. Don't redefine --font-sans (point it at var(--cd-font) if you must).
+ */

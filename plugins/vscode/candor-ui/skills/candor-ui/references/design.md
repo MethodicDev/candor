@@ -193,14 +193,14 @@ Under `prefers-reduced-motion: reduce` every animation and transition runs in 0.
 
 ## Density
 
-`data-density="compact"` on `<html>` or any container tightens the scale for dense apps. What it changes:
+`data-density="compact" | "spacious"` on `<html>` or any container changes the scale: compact tightens it for dense apps, spacious loosens it for reading. What they change:
 
-| Token | Default | Compact |
-| --- | --- | --- |
-| `--cd-text-prose` | var(--cd-text-md) | 0.875rem |
-| `--cd-text-md` | 0.875rem | 0.8125rem |
-| `--cd-thread-width` | 48rem | 44rem |
-| `--cd-sidebar-width` | 16rem | 14rem |
+| Token | Default | Compact | Spacious |
+| --- | --- | --- | --- |
+| `--cd-text-prose` | var(--cd-text-md) | 0.875rem | 1rem |
+| `--cd-text-md` | 0.875rem | 0.8125rem | 0.9375rem |
+| `--cd-thread-width` | 48rem | 44rem | 52rem |
+| `--cd-sidebar-width` | 16rem | 14rem | 18rem |
 
 ## Themes
 

@@ -41,6 +41,38 @@
       ]
     },
     {
+      "name": "font-source-sans",
+      "type": "registry:style",
+      "description": "Source Sans 3, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-source-sans.css after candor.css; it points --cd-font at it.",
+      "dependencies": [
+        "@fontsource-variable/source-sans-3@^5.3.1"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/styles/candor-font-source-sans.css",
+          "type": "registry:file",
+          "target": "styles/candor-font-source-sans.css"
+        }
+      ]
+    },
+    {
+      "name": "font-ibm-plex",
+      "type": "registry:style",
+      "description": "IBM Plex Sans, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-ibm-plex.css after candor.css; it points --cd-font at it.",
+      "dependencies": [
+        "@fontsource-variable/ibm-plex-sans@^5.3.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/styles/candor-font-ibm-plex.css",
+          "type": "registry:file",
+          "target": "styles/candor-font-ibm-plex.css"
+        }
+      ]
+    },
+    {
       "name": "ag-ui",
       "type": "registry:component",
       "description": "Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.",
