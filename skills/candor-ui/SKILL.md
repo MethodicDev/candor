@@ -116,6 +116,15 @@ Candor screens are built so a person can trust what an agent did. Keep these whe
   strings.
 - **Destructive actions confirm by typing,** and say what can and can't be undone.
 
+## After each screen
+
+Before moving on, run the review checklist in the `candor-agent-ui` skill (`skills/candor-agent-ui/references/review-checklist.md`
+in the same repo, or the docs MCP's `get_review_checklist`): one line per check, each tied to a rule above. Fix what
+fails first. For colours, type, radius, shadows, motion, density, themes and how to re-token for the brand, read
+`references/design.md` (generated from the shipped CSS, so its values are the kit's; also the MCP's `get_design`).
+`candor-agent-ui` holds the design fundamentals for screens where an agent acts, with or without Candor: approval
+ergonomics, the status vocabulary, folding turns, what to show while an agent works, AI disclosure and accessibility.
+
 ## Next.js and React Server Components
 
 Components that need the browser are marked `"use client"`; display pieces stay server components. Put providers

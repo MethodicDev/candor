@@ -115,6 +115,10 @@ const modeKeys: Record<string, keyof typeof permissionPromptStrings> = {
 
 const json = (v: unknown) => (typeof v === "string" ? v : JSON.stringify(v, null, 2))
 
+/** What a press lands on when the person is doing something else, rather than clicking around the prompt. */
+const INTERACTIVE =
+  'a[href], button, input, select, textarea, summary, [contenteditable=""], [contenteditable="true"], [role="button"], [role="link"], [role="menuitem"], [role="option"], [role="tab"], [role="checkbox"], [role="radio"], [role="switch"], [role="textbox"], [role="slider"], [tabindex]:not([tabindex="-1"])'
+
 /** Parses edited JSON into an object, or null when it isn't one. */
 function parseObject(text: string): Record<string, unknown> | null {
   try {
@@ -131,6 +135,11 @@ function parseObject(text: string): Record<string, unknown> | null {
  * input, nothing else. "Don't ask again" rules are offered as boxes nobody has ticked, and are kept only if the
  * person ticks them. When the agent is asking questions instead, it shows them as a short form. Words from the
  * request (its title, reason, input) are shown as text, never markup.
+ *
+ * It sits in the thread, with no backdrop and nothing that dismisses it: the only ways out are Allow and Deny, and
+ * nothing else is ever counted as a denial. While the decision waits, its shield pulses slowly; a press on inert
+ * space outside it (the gesture that would dismiss a dialog) nudges it instead, so the person sees it is still
+ * waiting. Both stop once the answer is being sent.
  */
 function PermissionPrompt({
   request,
@@ -154,7 +163,7 @@ function PermissionPrompt({
   onAllow: (answer: PermissionAnswer) => void
   /** Called when the person denies it (or won't answer the questions). */
   onDeny: () => void
-  /** The answer is being sent: both buttons wait. */
+  /** The answer is being sent: both buttons wait, and the waiting pulse stops. */
   busy?: boolean | undefined
   className?: string | undefined
 }) {
@@ -201,6 +210,26 @@ function PromptBody({
     if (request.defaultToNo) denyRef.current?.focus()
   }, [request.id, request.defaultToNo])
 
+  // A press on inert space outside the prompt, while it waits, nudges it rather than dismissing anything.
+  const section = React.useRef<HTMLElement>(null)
+  const [nudged, setNudged] = React.useState(false)
+  React.useEffect(() => {
+    if (busy) return
+    const onPress = (e: PointerEvent) => {
+      const target = e.target as Element | null
+      if (!target || section.current?.contains(target)) return
+      if (target.closest(INTERACTIVE)) return
+      setNudged(true)
+    }
+    document.addEventListener("pointerdown", onPress)
+    return () => document.removeEventListener("pointerdown", onPress)
+  }, [busy])
+  React.useEffect(() => {
+    if (!nudged) return
+    const timer = window.setTimeout(() => setNudged(false), 1000)
+    return () => window.clearTimeout(timer)
+  }, [nudged])
+
   const word = (s: PermissionSuggestion) => {
     const key = { allow: "ruleAllow", deny: "ruleDeny", ask: "ruleAsk", remove: "ruleRemove", mode: "setMode", directories: "directories", other: "other" }[s.action] as keyof typeof permissionPromptStrings
     const scope = s.scope && ({ session: "scopeSession", local: "scopeLocal", project: "scopeProject", user: "scopeUser" } as Record<string, keyof typeof permissionPromptStrings>)[s.scope]
@@ -237,12 +266,17 @@ function PromptBody({
 
   return (
     <section
+      ref={section}
       data-slot="permission-prompt"
+      data-waiting={busy ? undefined : ""}
+      data-nudged={nudged ? "" : undefined}
       aria-label={t("label", { title: questions ? t("questions") : title })}
-      className={cn("overflow-hidden rounded-xl border border-warning/50 bg-card text-sm shadow-xs", className)}
+      className={cn("overflow-hidden rounded-xl border border-warning/50 bg-card text-sm shadow-xs [--cd-attention-color:var(--warning)]", nudged && "animate-nudge", className)}
     >
       <header className="flex items-start gap-2.5 bg-warning-weak/50 px-3.5 py-2.5">
-        <ShieldQuestion aria-hidden className="mt-0.5 size-4 shrink-0 text-warning-text" />
+        <span aria-hidden className={cn("mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full text-warning-text", !busy && "animate-attention-wait")}>
+          <ShieldQuestion className="size-4" />
+        </span>
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold leading-snug">{questions ? t("questions") : title}</h3>
           {request.description && <p className="mt-0.5 text-muted-foreground">{request.description}</p>}

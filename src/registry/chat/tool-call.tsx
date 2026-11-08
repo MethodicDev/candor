@@ -29,7 +29,8 @@ export const toolCallStrings = {
 /**
  * One tool call as a compact row: what it did in plain words, its status, and
  * how long it took. Expands to the input and output. A failed call opens by
- * default and leads with its error.
+ * default and leads with its error. A call that finishes while on screen draws
+ * its tick or cross; one that arrives finished is drawn still.
  */
 function ToolCall({
   call,
@@ -75,7 +76,7 @@ function ToolCall({
           />
         )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="data-[state=open]:animate-in data-[state=open]:fade-in-0">
+      <CollapsibleContent>
         <div className="mt-1 mb-2 ms-[1.375rem] flex flex-col gap-2 border-s ps-3.5">
           {call.error && (
             <p className="rounded-md bg-destructive-weak px-2.5 py-1.5 text-xs text-destructive-text">{call.error}</p>

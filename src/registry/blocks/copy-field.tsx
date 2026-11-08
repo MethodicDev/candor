@@ -15,7 +15,8 @@ export const copyFieldStrings = {
 /**
  * A value a person copies somewhere else (a callback URL, a scope list). The
  * whole field is the copy target; it says "Copied" only once the clipboard
- * took the value.
+ * took the value, and its tick (or the cross of a refused write) appears then,
+ * never while the write is still pending.
  */
 function CopyField({
   label,
@@ -39,14 +40,14 @@ function CopyField({
         className="group/copy flex w-full items-center gap-2 rounded-lg border bg-sunken px-3 py-2 text-start outline-none transition-colors duration-150 hover:border-border-strong focus-visible:ring-[3px] focus-visible:ring-ring/80"
       >
         <code className="min-w-0 flex-1 truncate font-mono text-xs">{value}</code>
-        <span aria-live="polite" className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground group-hover/copy:text-foreground">
+        <span aria-live="polite" data-copy={state} className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground group-hover/copy:text-foreground">
           {state === "copied" ? (
             <>
-              <Check className="size-3 text-success-text" /> {t("copied")}
+              <Check className="size-3 text-success-text animate-pop-in" /> {t("copied")}
             </>
           ) : state === "failed" ? (
             <>
-              <X className="size-3 text-destructive-text" /> {t("failed")}
+              <X className="size-3 text-destructive-text animate-pop-in" /> {t("failed")}
             </>
           ) : (
             <>

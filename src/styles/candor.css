@@ -16,6 +16,13 @@
  * Density: data-density="compact" on <html> (or any container) tightens type for
  * dense apps: 14px conversation text and 13px body and label text, with a narrower
  * thread and sidebar.
+ *
+ * Motion: data-motion="none" | "subtle" | "expressive" on <html> (or any container).
+ * Subtle is the default: a change that happened is shown settling (a collapse,
+ * a drawn tick, a fade). None turns every animation and transition off, with or
+ * without the OS setting. Expressive adds scale to pops and a shake to a locked
+ * control that was pressed. Motion reports a state change and never invents one;
+ * the OS's reduced-motion setting wins over all three.
  */
 @import "./candor-theme.css";
 
@@ -61,6 +68,14 @@
   --cd-ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
   --cd-ease-spring: linear(0, 0.4 15%, 0.7 30%, 1 50%, 0.95 65%, 1.02 80%, 1 100%);
 
+  /* How long a state change takes to settle: a colour or a pop, a collapse, a drawn mark or a filled rail. */
+  --cd-dur-quick: 120ms;
+  --cd-dur-base: 200ms;
+  --cd-dur-slow: 360ms;
+  /* What data-motion="expressive" turns on. Subtle pops only fade (a scale of 1) and never shakes. */
+  --cd-pop-from: 1;
+  --cd-motion-shake: none;
+
   /* The message column's width, and the app sidebar's. (Not --sidebar-width: shadcn's SidebarProvider sets that.) */
   --cd-thread-width: 48rem;
   --cd-sidebar-width: 16rem;
@@ -97,6 +112,12 @@
   :root:not([data-theme]) {
     --cd-shadow: oklch(0 0 0 / 0.35);
   }
+}
+
+/* The motion presets. Subtle needs no attribute; expressive adds scale and a shake; none is below, after the keyframes. */
+[data-motion="expressive"] {
+  --cd-pop-from: 0.85;
+  --cd-motion-shake: shake var(--cd-dur-slow) var(--cd-ease) both;
 }
 
 @theme inline {
@@ -205,6 +226,24 @@
   --animate-pulse-dot: pulse-dot 1.6s var(--cd-ease) infinite;
   --animate-rise-in: rise-in 240ms var(--cd-ease) both;
   --animate-caret: caret 1s steps(2, start) infinite;
+
+  /*
+   * Motion that reports a change. Tailwind has no --duration-* namespace, so use the tokens directly:
+   * duration-(--cd-dur-base). A collapse follows Radix's measured height; a pop is a fade (and a scale under
+   * expressive); tick-draw draws a mark whose path has pathLength="1"; fill grows a bar from --cd-fill-from; shake is
+   * none unless expressive; attention is one ring pulse, attention-wait three slow ones (then still: WCAG 2.2.2 wants moving content to stop).
+   */
+  --animate-collapse-down: collapse-down var(--cd-dur-base) var(--cd-ease);
+  --animate-collapse-up: collapse-up var(--cd-dur-base) var(--cd-ease);
+  --animate-pop-in: pop-in var(--cd-dur-base) var(--cd-ease) both;
+  --animate-pop-out: pop-out var(--cd-dur-quick) var(--cd-ease) both;
+  --animate-tick-draw: tick-draw var(--cd-dur-slow) var(--cd-ease) both;
+  --animate-fill: fill var(--cd-dur-slow) var(--cd-ease) both;
+  --animate-shake: var(--cd-motion-shake);
+  --animate-attention: attention 900ms var(--cd-ease) 1;
+  --animate-attention-wait: attention 2.4s var(--cd-ease) 3;
+  /* A prompt that was clicked around instead of answered: one attention ring, and a shake when expressive. */
+  --animate-nudge: var(--cd-motion-shake), attention 900ms var(--cd-ease) 1;
 }
 
 @keyframes shimmer {
@@ -221,6 +260,48 @@
 }
 @keyframes caret {
   to { visibility: hidden; }
+}
+/* Collapsible content, to and from the height Radix measured. Overflow is hidden only while it moves. */
+@keyframes collapse-down {
+  from { height: 0; overflow: hidden; }
+  to { height: var(--radix-collapsible-content-height); overflow: hidden; }
+}
+@keyframes collapse-up {
+  from { height: var(--radix-collapsible-content-height); overflow: hidden; }
+  to { height: 0; overflow: hidden; }
+}
+/* Something added or removed: a fade, and a scale from --cd-pop-from (1 unless expressive). */
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(var(--cd-pop-from)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pop-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: scale(var(--cd-pop-from)); }
+}
+/* A tick or cross drawn along its path; the path has pathLength="1" and stroke-dasharray 1. */
+@keyframes tick-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+/* A bar that fills to a measured point: along its width by default, or set --cd-fill-from to "1 0" for height. */
+@keyframes fill {
+  from { scale: var(--cd-fill-from, 0 1); }
+  to { scale: 1; }
+}
+/* A pressed control that can't be used: a small horizontal shake, expressive only. */
+@keyframes shake {
+  0%, 100% { transform: none; }
+  20%, 60% { transform: translateX(-3px); }
+  40%, 80% { transform: translateX(3px); }
+}
+/*
+ * A ring that grows and fades, in --cd-attention-color (the text colour unless set): once for something that arrived
+ * or a press that asked for attention, repeating while a decision waits.
+ */
+@keyframes attention {
+  0%, 100% { outline: 0 solid color-mix(in oklab, var(--cd-attention-color, currentColor) 45%, transparent); }
+  60% { outline: 6px solid transparent; }
 }
 
 /*
@@ -241,6 +322,19 @@
 [data-slot="payload"][data-syntax="highlight"] [data-token="comment"] { color: var(--muted-foreground); font-style: italic; }
 [data-slot="payload"][data-syntax="highlight"] :is([data-token="number"], [data-token="variable"]) { color: var(--attention-text); }
 [data-slot="payload"][data-syntax="highlight"] :is([data-token="property"], [data-token="tag"], [data-token="type"]) { color: var(--warning-text); }
+
+/*
+ * data-motion="none": nothing moves, with or without the OS setting. An element leaving with a pop-out (data-leaving)
+ * is simply gone. The reduced-motion block below comes last and stays authoritative for every preset.
+ */
+[data-motion="none"], [data-motion="none"] *, [data-motion="none"] *::before, [data-motion="none"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+[data-motion="none"] [data-leaving] {
+  display: none !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

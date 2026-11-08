@@ -25,6 +25,10 @@ export const threadStrings = {
  * It opens at the bottom, or at `anchor` (the `id` of something in it, such as
  * a chapter divider or the card that needs the reader), and then waits for the
  * reader instead of following.
+ *
+ * While the reader is scrolled up, "Jump to latest" pulses once each time a
+ * new message arrives, then stays still; the jump itself scrolls smoothly
+ * unless the OS asks for reduced motion or data-motion is "none".
  */
 function Thread({
   children,
@@ -72,8 +76,26 @@ function Thread({
 
   const toBottom = React.useCallback((behavior: ScrollBehavior = "auto") => {
     const el = scroller.current
-    if (el) el.scrollTo({ top: el.scrollHeight, behavior })
+    if (!el) return
+    // A smooth jump only when nothing asks for stillness: the OS setting, or data-motion="none" around the thread.
+    const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || el.closest('[data-motion="none"]') !== null
+    el.scrollTo({ top: el.scrollHeight, behavior: still ? "auto" : behavior })
   }, [])
+
+  // New messages that arrive while the reader is scrolled up: the Jump to latest control pulses once for each.
+  const count = React.Children.count(children)
+  const lastCount = React.useRef(count)
+  const [arrived, setArrived] = React.useState(false)
+  React.useEffect(() => {
+    const grew = count > lastCount.current
+    lastCount.current = count
+    if (grew && !pinnedRef.current) setArrived(true)
+  }, [count])
+  React.useEffect(() => {
+    if (!arrived) return
+    const timer = window.setTimeout(() => setArrived(false), 1000)
+    return () => window.clearTimeout(timer)
+  }, [arrived])
 
   // Open at the anchor once, when it first appears.
   const anchored = React.useRef(false)
@@ -178,17 +200,25 @@ function Thread({
           </div>
         </div>
         {!pinned && hasMessages && (
-          <button
-            type="button"
-            onClick={() => {
-              pinnedRef.current = true
-              setPinned(true)
-              toBottom("smooth")
-            }}
-            className="absolute bottom-3 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border bg-popover px-3 py-1.5 text-xs font-medium shadow-float animate-in fade-in-0 slide-in-from-bottom-1"
-          >
-            <ArrowDown aria-hidden className="size-3" /> {t("jumpToLatest")}
-          </button>
+          // The entrance is the wrapper's, so the pulse on the button never replays it.
+          <span className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 animate-in fade-in-0 slide-in-from-bottom-1">
+            <button
+              type="button"
+              data-slot="thread-jump"
+              data-arrived={arrived ? "" : undefined}
+              onClick={() => {
+                pinnedRef.current = true
+                setPinned(true)
+                toBottom("smooth")
+              }}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border bg-popover px-3 py-1.5 text-xs font-medium shadow-float [--cd-attention-color:var(--primary)]",
+                arrived && "animate-attention"
+              )}
+            >
+              <ArrowDown aria-hidden className="size-3" /> {t("jumpToLatest")}
+            </button>
+          </span>
         )}
         {fade && <div aria-hidden data-slot="thread-fade" className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent" />}
       </div>

@@ -4,8 +4,8 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 54 free items (version 1.8.1), the skill for coding agents and a
-starter app. Docs and live examples: **https://candor.themethodic.com**.
+This repo is the source of Candor UI's 54 free items (version 1.9.0), the skill and plugins for coding
+agents and a starter app. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
 
@@ -21,12 +21,26 @@ hand: `"@candor": "https://candor.themethodic.com/r/{name}.json"`. If shadcn ask
 
 ## For coding agents
 
+`llms-install.md` tells an agent how to set Candor up in a project by itself: the CLI, the docs MCP server, the skill
+and the honesty rules to keep. The skill alone:
+
 ```bash
 npx skills add MethodicDev/candor
 ```
 
-installs `skills/candor-ui`: which component fits which job, the adapters, and the rules the components keep. Agents
-can also read https://candor.themethodic.com/llms.txt.
+installs two skills: `skills/candor-ui` (which component fits which job, the adapters, and the rules the components
+keep, with a design-system reference read from the shipped CSS) and `skills/candor-agent-ui` (design fundamentals for
+screens where an AI agent acts, with a review checklist to run after each screen; it works with or without Candor).
+
+The plugins install the skill and the docs MCP server together. Claude Code: `claude plugin marketplace add
+MethodicDev/candor`, then `claude plugin install candor-ui@candor` (or, in a session,
+`/plugin install candor-ui --marketplace MethodicDev/candor`). GitHub Copilot CLI: `copilot plugin marketplace add
+MethodicDev/candor`, then `copilot plugin install candor-ui@candor`. VS Code installs `candor-ui` from this repo's URL;
+Cursor reads `.cursor-plugin/marketplace.json`; the Codex package is `plugins/codex/candor-ui`.
+
+The MCP server at https://candor.themethodic.com/mcp serves docs and component suggestions only: read-only, no key,
+never paid source. `.mcp/server.json` describes it for the MCP registry. Agents can also read
+https://candor.themethodic.com/llms.txt.
 
 ## Starter
 
@@ -52,8 +66,8 @@ npx degit MethodicDev/candor/starter my-agent-app
 - `locale`: The interface's words, language and direction.
 - `locked`: The honest-state rule: a control that cannot be used says why.
 - `relative-time`: A time as people say it ("5 minutes ago"), with the exact time on hover, safe to render on the server.
-- `status-dot`: A small status mark.
-- `step-list`: An ordered list of steps joined by a rail: an agent's plan, its reasoning, a run's stages.
+- `status-dot`: How many times the status reached done or failed from an unfinished one while the dot was on screen; zero when it mounted finished, so nothing moves for a change the reader never saw.
+- `step-list`: How many times `status` has reached succeeded or failed from an unfinished status while this component was on screen.
 - `streaming-text`: Text that is still arriving.
 - `surface`: Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.
 - `terms`: The app's words for its own concepts, so components read like the product: one app says "org", another "project" or "workspace".

@@ -59,6 +59,55 @@ const groupOf = (item: MenuItem, commandsLabel = "Commands") => (item.type === "
 /** Whether a drag carries files (not text or a link being dragged around the page). */
 const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes("Files")
 
+const referenceKey = (r: EntityRef) => `${r.kind}:${r.name}`
+const attachmentKey = (a: Attachment) => a.id
+
+/**
+ * Which chips were added after the composer first drew (they pop in) and which were just removed (they pop out as
+ * inert ghosts, then go). Chips present at first render are drawn still: nothing moves for a state the reader
+ * already had. The ghosts are cleared by their animation's end, or after 400ms when nothing animates.
+ */
+function useChipMotion<T>(items: T[], keyOf: (item: T) => string) {
+  const [entered, setEntered] = React.useState<ReadonlySet<string>>(() => new Set())
+  const [leaving, setLeaving] = React.useState<T[]>([])
+  const previous = React.useRef<T[] | null>(null)
+  React.useLayoutEffect(() => {
+    const before = previous.current
+    previous.current = items
+    if (!before) return
+    const now = new Set(items.map(keyOf))
+    const was = new Set(before.map(keyOf))
+    const added = items.filter((item) => !was.has(keyOf(item))).map(keyOf)
+    const gone = before.filter((item) => !now.has(keyOf(item)))
+    if (added.length || gone.length) {
+      setEntered((set) => {
+        const next = new Set(set)
+        for (const item of gone) next.delete(keyOf(item))
+        for (const key of added) next.add(key)
+        return next
+      })
+    }
+    if (gone.length) setLeaving((list) => [...list.filter((item) => !now.has(keyOf(item))), ...gone])
+  }, [items, keyOf])
+  React.useEffect(() => {
+    if (leaving.length === 0) return
+    const timer = window.setTimeout(() => setLeaving([]), 400)
+    return () => window.clearTimeout(timer)
+  }, [leaving])
+  const entering = (item: T) => entered.has(keyOf(item))
+  const left = (item: T) => setLeaving((list) => list.filter((x) => x !== item))
+  return { entering, leaving, left }
+}
+
+/** A removed chip, kept for the length of its pop-out and hidden from assistive tech. */
+function LeavingChip({ onDone, children }: { onDone: () => void; children: React.ReactNode }) {
+  return (
+    <span aria-hidden data-leaving className="pointer-events-none inline-flex max-w-full animate-pop-out" onAnimationEnd={onDone}>
+      {children}
+    </span>
+  )
+}
+
 /**
  * Where a person asks. Mentions (@) attach things in the user's system as chips the agent
  * receives as references, not as text it has to parse; slash commands (/) start
@@ -114,11 +163,11 @@ function Composer({
   mentions?: MentionOption[] | undefined
   /** What / can run, only at the start of a message. */
   commands?: SlashCommand[] | undefined
-  /** Entities already attached, shown as chips. */
+  /** Entities already attached, shown as chips. A chip added after the composer drew pops in; a removed one pops out. */
   references?: EntityRef[] | undefined
   /** Called when a chip is added or removed. */
   onReferencesChange?: ((references: EntityRef[]) => void) | undefined
-  /** Files attached, with upload progress or an error. */
+  /** Files attached, with upload progress or an error, as chips that pop in when added and out when removed. */
   attachments?: Attachment[] | undefined
   /** Shows an attach button; called with the chosen files. */
   onAttach?: ((files: File[]) => void) | undefined
@@ -158,6 +207,9 @@ function Composer({
   const fileInput = React.useRef<HTMLInputElement>(null)
   const [trigger, setTrigger] = React.useState<Trigger | null>(null)
   const [active, setActive] = React.useState(0)
+
+  const referenceMotion = useChipMotion(references, referenceKey)
+  const attachmentMotion = useChipMotion(attachments, attachmentKey)
 
   const held = typeof state === "object" && state.kind === "held" ? state : null
   const locked = typeof state === "object" && state.kind !== "held" ? state : null
@@ -357,13 +409,28 @@ function Composer({
           locked && "bg-muted shadow-none"
         )}
       >
-        {(references.length > 0 || attachments.length > 0) && (
+        {(references.length > 0 || attachments.length > 0 || referenceMotion.leaving.length > 0 || attachmentMotion.leaving.length > 0) && (
           <div className="flex flex-wrap gap-1.5 px-3 pt-3">
             {references.map((r) => (
-              <EntityChip key={`${r.kind}:${r.name}`} entity={r} onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))} />
+              <EntityChip
+                key={referenceKey(r)}
+                entity={r}
+                onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))}
+                className={cn(referenceMotion.entering(r) && "animate-pop-in")}
+              />
+            ))}
+            {referenceMotion.leaving.map((r) => (
+              <LeavingChip key={`leaving:${referenceKey(r)}`} onDone={() => referenceMotion.left(r)}>
+                <EntityChip entity={r} />
+              </LeavingChip>
             ))}
             {attachments.map((a) => (
-              <AttachmentChip key={a.id} attachment={a} onRemove={onRemoveAttachment} />
+              <AttachmentChip key={a.id} attachment={a} onRemove={onRemoveAttachment} className={cn(attachmentMotion.entering(a) && "animate-pop-in")} />
+            ))}
+            {attachmentMotion.leaving.map((a) => (
+              <LeavingChip key={`leaving:${a.id}`} onDone={() => attachmentMotion.left(a)}>
+                <AttachmentChip attachment={a} />
+              </LeavingChip>
             ))}
           </div>
         )}

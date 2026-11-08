@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { cn } from "@/lib/utils"
 import type { ContextSegment } from "@/registry/lib/know"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
@@ -33,7 +34,9 @@ function k(n: number, format: (n: number, options?: Intl.NumberFormatOptions) =>
 /**
  * What fills the model's context budget, as a ring in the composer that
  * opens to a breakdown: system, instructions, Know, the thread, tools, files.
- * Counts are the service's own token counts; the ring warns past 80%.
+ * Counts are the service's own token counts; the ring warns past 80%. When a
+ * new count arrives the ring sweeps to it and changes colour at the warning
+ * line; it draws its first value in place, with no sweep from zero.
  */
 function ContextMeter({
   segments,
@@ -54,15 +57,30 @@ function ContextMeter({
   const warn = pct > 0.8
   const r = 7
   const c = 2 * Math.PI * r
+  // The sweep is a transition, so it runs only for a value that changed after the first one was drawn.
+  const [drawn, setDrawn] = React.useState(false)
+  React.useEffect(() => setDrawn(true), [])
   return (
     <Popover>
       <PopoverTrigger
         aria-label={t("label", { used: tokens(used), limit: tokens(limit) })}
+        data-warn={warn ? "" : undefined}
         className={cn("inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-2xs tabular-nums outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80", warn ? "text-warning-text" : "text-muted-foreground", className)}
       >
         <svg viewBox="0 0 18 18" className="size-4 -rotate-90" aria-hidden>
           <circle cx="9" cy="9" r={r} fill="none" stroke="var(--muted)" strokeWidth="2.5" />
-          <circle cx="9" cy="9" r={r} fill="none" stroke={warn ? "var(--warning)" : "var(--primary)"} strokeWidth="2.5" strokeDasharray={`${pct * c} ${c}`} strokeLinecap="round" />
+          <circle
+            data-slot="context-meter-ring"
+            cx="9"
+            cy="9"
+            r={r}
+            fill="none"
+            stroke={warn ? "var(--warning)" : "var(--primary)"}
+            strokeWidth="2.5"
+            strokeDasharray={`${pct * c} ${c}`}
+            strokeLinecap="round"
+            className={cn(drawn && "transition-[stroke-dasharray,stroke] duration-(--cd-dur-slow) ease-standard")}
+          />
         </svg>
         {fmt.number(Math.round(pct * 100) / 100, { style: "percent" })}
       </PopoverTrigger>

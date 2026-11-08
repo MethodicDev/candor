@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, CircleSlash, Hand, LoaderCircle, X } from "lucide-react"
+import { CircleSlash, Hand, LoaderCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useStatusLabel, type RunStatus } from "@/lib/status"
 
@@ -13,24 +13,68 @@ export type Step = {
   meta?: React.ReactNode | undefined
 }
 
+const finished = (status: RunStatus) => status === "succeeded" || status === "failed"
+const over = (status: RunStatus) => finished(status) || status === "cancelled" || status === "skipped"
+
+/**
+ * How many times `status` has reached succeeded or failed from an unfinished status while this component was on
+ * screen. Zero for something that mounted already finished, so its mark is drawn still: motion reports a change
+ * that was seen, never one that happened before the reader arrived.
+ */
+function useSettled(status: RunStatus): number {
+  const [settled, setSettled] = React.useState(0)
+  const previous = React.useRef(status)
+  React.useLayoutEffect(() => {
+    const was = previous.current
+    previous.current = status
+    if (was !== status && !over(was) && finished(status)) setSettled((n) => n + 1)
+  }, [status])
+  return settled
+}
+
+/** A tick, drawn along its path when `draw` is above zero (and again each time it changes). */
+function Tick({ draw }: { draw: number }) {
+  return (
+    <svg key={draw} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden className="size-3">
+      <path d="M20 6 9 17l-5-5" pathLength={1} className={cn(draw > 0 && "[stroke-dasharray:1] animate-tick-draw")} />
+    </svg>
+  )
+}
+
+/** A cross, its two strokes drawn one after the other when `draw` is above zero. */
+function Cross({ draw }: { draw: number }) {
+  const drawn = draw > 0 && "[stroke-dasharray:1] animate-tick-draw"
+  return (
+    <svg key={draw} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden className="size-3">
+      <path d="M18 6 6 18" pathLength={1} className={cn(drawn)} />
+      <path d="m6 6 12 12" pathLength={1} className={cn(drawn, drawn && "[animation-delay:var(--cd-dur-quick)]")} />
+    </svg>
+  )
+}
+
+/**
+ * A step's status as a mark. When the status reaches done or failed while the mark is on screen, the spinner
+ * becomes a tick or cross drawn along its path; a mark that mounts already finished is drawn still.
+ */
 function StepMark({
   status,
 }: {
   /** The step's status, which picks its mark. */
   status: RunStatus
 }) {
-  const base = "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full"
+  const settled = useSettled(status)
+  const base = "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full transition-colors duration-(--cd-dur-base) ease-standard"
   switch (status) {
     case "succeeded":
       return (
-        <span className={cn(base, "bg-success text-on-success")}>
-          <Check className="size-3" strokeWidth={3} />
+        <span className={cn(base, "bg-success text-on-success")} data-settled={settled > 0 ? "" : undefined}>
+          <Tick draw={settled} />
         </span>
       )
     case "failed":
       return (
-        <span className={cn(base, "bg-destructive text-on-destructive")}>
-          <X className="size-3" strokeWidth={3} />
+        <span className={cn(base, "bg-destructive text-on-destructive")} data-settled={settled > 0 ? "" : undefined}>
+          <Cross draw={settled} />
         </span>
       )
     case "running":
@@ -65,9 +109,57 @@ function StepMark({
   }
 }
 
+function StepRow({
+  step,
+  index,
+  last,
+}: {
+  step: Step
+  index: number
+  last: boolean
+}) {
+  const statusLabel = useStatusLabel()
+  const done = step.status === "succeeded"
+  const settled = useSettled(step.status)
+  return (
+    <li className="relative flex gap-3 pb-4 last:pb-0 animate-rise-in" style={{ animationDelay: `${index * 40}ms` }}>
+      {!last && (
+        <span aria-hidden className="absolute top-5 bottom-0 start-[9.5px] w-px bg-input">
+          {/* The rail fills from a step the moment it is done, grown into place when that was seen; never ahead of it. */}
+          {done && (
+            <span
+              key={settled}
+              data-slot="step-rail-fill"
+              className={cn("absolute inset-0 origin-top bg-success/50", settled > 0 && "animate-fill [--cd-fill-from:1_0]")}
+            />
+          )}
+        </span>
+      )}
+      <StepMark status={step.status} />
+      <div className="min-w-0 flex-1 pt-px">
+        <div className="flex items-baseline justify-between gap-3">
+          <p
+            className={cn(
+              "text-sm font-medium",
+              step.status === "idle" && "text-muted-foreground",
+              (step.status === "skipped" || step.status === "cancelled") && "text-faint-foreground line-through"
+            )}
+          >
+            {step.title}
+            <span className="sr-only"> — {statusLabel(step.status)}</span>
+          </p>
+          {step.meta && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{step.meta}</span>}
+        </div>
+        {step.detail && <div className="mt-1 text-[0.8125rem] text-muted-foreground">{step.detail}</div>}
+      </div>
+    </li>
+  )
+}
+
 /**
  * An ordered list of steps joined by a rail: an agent's plan, its reasoning,
- * a run's stages. The rail fills as steps finish.
+ * a run's stages. The rail fills to each step as it finishes, never ahead of
+ * it, and a step that finishes while on screen draws its mark.
  */
 function StepList({
   steps,
@@ -77,43 +169,11 @@ function StepList({
   steps: Step[]
   className?: string | undefined
 }) {
-  const statusLabel = useStatusLabel()
   return (
     <ol data-slot="step-list" className={cn("flex flex-col", className)}>
-      {steps.map((step, i) => {
-        const last = i === steps.length - 1
-        const done = step.status === "succeeded"
-        return (
-          <li key={step.id} className="relative flex gap-3 pb-4 last:pb-0 animate-rise-in" style={{ animationDelay: `${i * 40}ms` }}>
-            {!last && (
-              <span
-                aria-hidden
-                className={cn(
-                  "absolute top-5 bottom-0 start-[9.5px] w-px transition-colors duration-500",
-                  done ? "bg-success/50" : "bg-input"
-                )}
-              />
-            )}
-            <StepMark status={step.status} />
-            <div className="min-w-0 flex-1 pt-px">
-              <div className="flex items-baseline justify-between gap-3">
-                <p
-                  className={cn(
-                    "text-sm font-medium",
-                    step.status === "idle" && "text-muted-foreground",
-                    (step.status === "skipped" || step.status === "cancelled") && "text-faint-foreground line-through"
-                  )}
-                >
-                  {step.title}
-                  <span className="sr-only"> — {statusLabel(step.status)}</span>
-                </p>
-                {step.meta && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{step.meta}</span>}
-              </div>
-              {step.detail && <div className="mt-1 text-[0.8125rem] text-muted-foreground">{step.detail}</div>}
-            </div>
-          </li>
-        )
-      })}
+      {steps.map((step, i) => (
+        <StepRow key={step.id} step={step} index={i} last={i === steps.length - 1} />
+      ))}
     </ol>
   )
 }

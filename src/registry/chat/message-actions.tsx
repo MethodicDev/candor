@@ -50,8 +50,10 @@ function ActionButton({
 
 /**
  * Copy, retry and rate under an agent's reply. Each action appears only when
- * its handler is given. Copy reports what the clipboard did. A rating is the
- * caller's state, so it shows only what the service recorded.
+ * its handler is given. Copy reports what the clipboard did: the icon stays a
+ * copy icon until the write settles, then becomes a tick (or a cross when the
+ * clipboard refused). A rating is the caller's state, so it shows only what
+ * the service recorded.
  */
 function MessageActions({
   text,
@@ -79,7 +81,13 @@ function MessageActions({
     <div data-slot="message-actions" className={cn("flex items-center gap-0.5", className)}>
       {text !== undefined && (
         <ActionButton label={state === "copied" ? t("copied") : state === "failed" ? t("copyFailed") : t("copy")} onClick={() => copy(text)}>
-          {state === "copied" ? <Check className="text-success-text" /> : state === "failed" ? <X className="text-destructive-text" /> : <Copy />}
+          {state === "copied" ? (
+            <Check data-copy="copied" className="text-success-text animate-pop-in" />
+          ) : state === "failed" ? (
+            <X data-copy="failed" className="text-destructive-text animate-pop-in" />
+          ) : (
+            <Copy data-copy={state} />
+          )}
         </ActionButton>
       )}
       {onRetry && (

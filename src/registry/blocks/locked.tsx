@@ -20,7 +20,10 @@ type Lockable = React.ReactElement<{
  * marked `aria-disabled`, its activation is blocked (click, Enter, Space), and
  * it is described by the reason — so keyboard and screen-reader users reach
  * the explanation on the control itself. The reason shows as a tooltip, or
- * printed under the control with `inline`.
+ * printed under the control with `inline`. Pressing the control reveals the
+ * reason (the tooltip is held open, the printed reason is emphasised) and,
+ * under data-motion="expressive" only, shakes it briefly; with reduced motion
+ * or the default subtle preset, only the reason is shown.
  */
 function Locked({
   reason,
@@ -36,11 +39,30 @@ function Locked({
   className?: string | undefined
 }) {
   const id = React.useId()
+  // The tooltip as hover and focus drive it, and a press, which holds the reason open and shakes (when expressive).
+  // `press` counts presses so a second one restarts both timers.
+  const [shown, setShown] = React.useState(false)
+  const [press, setPress] = React.useState(0)
+  const [shaking, setShaking] = React.useState(false)
+  const [held, setHeld] = React.useState(false)
+  React.useEffect(() => {
+    if (press === 0) return
+    const shake = window.setTimeout(() => setShaking(false), 400)
+    const hold = window.setTimeout(() => setHeld(false), 1800)
+    return () => {
+      window.clearTimeout(shake)
+      window.clearTimeout(hold)
+    }
+  }, [press])
+
   if (!reason) return children
 
   const block = (e: React.SyntheticEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    setPress((n) => n + 1)
+    setShaking(true)
+    setHeld(true)
   }
   const control = React.cloneElement(children, {
     "aria-disabled": true,
@@ -53,16 +75,28 @@ function Locked({
   })
 
   return (
-    <span data-slot="locked" className={cn("relative inline-flex flex-col items-start gap-1.5", className)}>
+    <span
+      data-slot="locked"
+      data-pressed={held ? "" : undefined}
+      className={cn("relative inline-flex flex-col items-start gap-1.5", shaking && "animate-shake", className)}
+    >
       {inline ? (
         control
       ) : (
-        <Tooltip>
+        <Tooltip open={shown || held} onOpenChange={setShown}>
           <TooltipTrigger asChild>{control}</TooltipTrigger>
           <TooltipContent>{reason}</TooltipContent>
         </Tooltip>
       )}
-      <span id={id} className={cn("items-center gap-1 text-xs text-muted-foreground", inline ? "inline-flex" : "sr-only")}>
+      <span
+        id={id}
+        data-slot="locked-reason"
+        className={cn(
+          "items-center gap-1 text-xs text-muted-foreground transition-colors duration-(--cd-dur-base)",
+          inline ? "inline-flex" : "sr-only",
+          held && "text-foreground"
+        )}
+      >
         <LockKeyhole aria-hidden className="size-3" />
         {reason}
       </span>
