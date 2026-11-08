@@ -73,6 +73,66 @@
       ]
     },
     {
+      "name": "theme-slate",
+      "type": "registry:style",
+      "description": "Slate, a gallery theme. Cool blue-grey neutrals and a blue accent; dark is a deep navy slate. Contrast-checked like the default. Import styles/candor-theme-slate.css after candor.css.",
+      "registryDependencies": [
+        "@candor/theme"
+      ],
+      "files": [
+        {
+          "path": "src/styles/themes/candor-theme-slate.css",
+          "type": "registry:file",
+          "target": "styles/candor-theme-slate.css"
+        }
+      ]
+    },
+    {
+      "name": "theme-paper",
+      "type": "registry:style",
+      "description": "Paper, a gallery theme. Warm off-white grounds, blue-black ink and a terracotta accent; dark is a warm sepia. Contrast-checked like the default. Import styles/candor-theme-paper.css after candor.css.",
+      "registryDependencies": [
+        "@candor/theme"
+      ],
+      "files": [
+        {
+          "path": "src/styles/themes/candor-theme-paper.css",
+          "type": "registry:file",
+          "target": "styles/candor-theme-paper.css"
+        }
+      ]
+    },
+    {
+      "name": "theme-console",
+      "type": "registry:style",
+      "description": "Console, a gallery theme. Dark-first and dense: near-black grounds, a green accent and the compact density. Light is a muted light console. Contrast-checked like the default. Import styles/candor-theme-console.css after candor.css.",
+      "registryDependencies": [
+        "@candor/theme"
+      ],
+      "files": [
+        {
+          "path": "src/styles/themes/candor-theme-console.css",
+          "type": "registry:file",
+          "target": "styles/candor-theme-console.css"
+        }
+      ]
+    },
+    {
+      "name": "theme-signal",
+      "type": "registry:style",
+      "description": "Signal, a gallery theme. True greys with no tint and one high-saturation indigo for the action that matters. Contrast-checked like the default. Import styles/candor-theme-signal.css after candor.css.",
+      "registryDependencies": [
+        "@candor/theme"
+      ],
+      "files": [
+        {
+          "path": "src/styles/themes/candor-theme-signal.css",
+          "type": "registry:file",
+          "target": "styles/candor-theme-signal.css"
+        }
+      ]
+    },
+    {
       "name": "ag-ui",
       "type": "registry:component",
       "description": "Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.",

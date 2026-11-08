@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 56 free items (version 2.1.0), the skill and plugins for coding
+This repo is the source of Candor UI's 60 free items (version 2.2.0), the skill and plugins for coding
 agents and three starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -64,6 +64,10 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 - `font-inter`: Inter, Candor's default typeface, self-hosted (OFL-1.1). Optional: without it the theme uses the system font. Import styles/candor-font-inter.css next to candor.css.
 - `font-source-sans`: Source Sans 3, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-source-sans.css after candor.css; it points --cd-font at it.
 - `font-ibm-plex`: IBM Plex Sans, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-ibm-plex.css after candor.css; it points --cd-font at it.
+- `theme-slate`: Slate, a gallery theme. Cool blue-grey neutrals and a blue accent; dark is a deep navy slate. Contrast-checked like the default. Import styles/candor-theme-slate.css after candor.css.
+- `theme-paper`: Paper, a gallery theme. Warm off-white grounds, blue-black ink and a terracotta accent; dark is a warm sepia. Contrast-checked like the default. Import styles/candor-theme-paper.css after candor.css.
+- `theme-console`: Console, a gallery theme. Dark-first and dense: near-black grounds, a green accent and the compact density. Light is a muted light console. Contrast-checked like the default. Import styles/candor-theme-console.css after candor.css.
+- `theme-signal`: Signal, a gallery theme. True greys with no tint and one high-saturation indigo for the action that matters. Contrast-checked like the default. Import styles/candor-theme-signal.css after candor.css.
 - `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.
 - `ai-sdk`: Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards.
 - `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals (and the agent's questions), usage and sources, and a person's answer back into the SDK's result.
