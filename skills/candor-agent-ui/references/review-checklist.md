@@ -68,7 +68,10 @@ and is named in your report.
 
 - [ ] A success mark, a filled step or a swept meter appears only after the result settled or the value was measured, never on the press (motion follows the outcome)
 - [ ] A state that was already final when the screen drew does not animate; nothing moves on hover for decoration (motion follows the outcome)
-- [ ] Reduced motion stops every animation, and no state is carried by motion alone (motion follows the outcome)
+- [ ] Reduced motion: only opacity and colour change, each in 150 ms or less, and nothing loops; a live indicator is still and keeps its word (motion follows the outcome)
+- [ ] Every animation belongs to a family (reveal, arrive, pop, mark, fill, value, move, overlay, press, tint, refuse, attention, live, clock), not a raw duration or an effect with no change behind it (motion follows the outcome)
+- [ ] A brand file changes how a change looks, never when it plays; the moment is still the component's (motion follows the outcome)
+- [ ] No state is carried by motion alone, and the person's setting beats the app's and the brand's (motion follows the outcome)
 
 ## Accessibility
 
@@ -76,5 +79,5 @@ and is named in your report.
 - [ ] Arrivals are announced once per message, polite for progress and results, assertive for errors; errors stay until dismissed (accessibility)
 - [ ] Focus moves to a new approval prompt or question; a toast never covers or takes focus (accessibility)
 - [ ] Icon-only buttons and groups of answers have accessible names that say what they do (accessibility)
-- [ ] Text and status colours pass contrast in every theme the app supports; motion stops under reduced motion (accessibility)
+- [ ] Text and status colours pass contrast in every theme the app supports; motion goes calm under reduced motion (accessibility)
 - [ ] Targets meet the minimum size; relative times carry the exact time (accessibility)

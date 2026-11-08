@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 60 free items (version 2.2.0), the skill and plugins for coding
+This repo is the source of Candor UI's 68 free items (version 2.3.0), the skill and plugins for coding
 agents and three starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -80,8 +80,8 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 - `locale`: The interface's words, language and direction.
 - `locked`: The honest-state rule: a control that cannot be used says why.
 - `relative-time`: A time as people say it ("5 minutes ago"), with the exact time on hover, safe to render on the server.
-- `status-dot`: How many times the status reached done or failed from an unfinished one while the dot was on screen; zero when it mounted finished, so nothing moves for a change the reader never saw.
-- `step-list`: How many times `status` has reached succeeded or failed from an unfinished status while this component was on screen.
+- `status-dot`: A small status mark.
+- `step-list`: A step's status as a mark.
 - `streaming-text`: Text that is still arriving.
 - `surface`: Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.
 - `terms`: The app's words for its own concepts, so components read like the product: one app says "org", another "project" or "workspace".
@@ -109,16 +109,24 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 - `highlight`: A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span.
 - `know`: The data behind the agents' knowledge base and agent settings.
 - `mcp-input`: MCP's "input required" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.
+- `motion`: Candor's motion layer, the part that runs in components.
 - `render-prop`: Lets Candor's Radix-based primitives also take Base UI's `render` prop.
 - `safe-markdown`: Reads model text as safe markdown: paragraphs, lists and fenced code.
 - `status`: The status vocabulary every Candor agent component shares.
 - `use-copy`: Copy text and report what actually happened.
 - `use-shortcut`: The keys of a combo as they should be printed: "mod+k" → ["⌘", "K"] on a Mac and ["Ctrl", "K"] elsewhere.
 - `use-virtual-list`: Render only the items of a long list that are in or near view, for Thread's and SessionList's `virtualize`.
+- `accordion`: A stack of headings that each open to reveal more.
+- `alert`: A message about the page or the work that stays where it is until it no longer applies: a warning before a change, a note that something failed, a fact the person should know.
 - `button`: shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why).
+- `checkbox`: A box the person ticks.
 - `collapsible`: shadcn's collapsible (Radix) in Candor's theme.
+- `label`: The name of a control.
 - `popover`: shadcn's popover (Radix) in Candor's theme.
+- `progress`: A bar for work whose progress is measured: an upload, an import, an index.
 - `skeleton`: A loading placeholder in the shape of what's coming.
+- `slider`: A control for a value in a range, with one thumb or, when the value has two numbers, a range.
+- `switch`: A setting that is on or off.
 - `tooltip`: shadcn's tooltip (Radix) in Candor's theme.
 
 ## Pro and Premium

@@ -6,6 +6,10 @@ import { cn } from "@/lib/utils"
 import { useCopy } from "@/registry/lib/use-copy"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 import { useStrings } from "@/registry/blocks/locale"
+import { motion } from "@/registry/lib/motion"
+
+/** The tick or cross after the clipboard write settles. */
+const tickMotion = motion("message-actions", "tick", "pop")
 
 /** MessageActions' fixed words; override them under `messageActions` in LocaleProvider's `strings`. */
 export const messageActionsStrings = {
@@ -38,7 +42,7 @@ function ActionButton({
           aria-label={label}
           aria-pressed={pressed}
           onClick={onClick}
-          className="flex size-7 items-center justify-center rounded-md text-faint-foreground transition-colors duration-150 outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 aria-pressed:text-accent-text [&_svg]:size-3.5"
+          className="flex size-7 items-center justify-center rounded-md text-faint-foreground cd-tint outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 aria-pressed:text-accent-text [&_svg]:size-3.5"
         >
           {children}
         </button>
@@ -82,9 +86,9 @@ function MessageActions({
       {text !== undefined && (
         <ActionButton label={state === "copied" ? t("copied") : state === "failed" ? t("copyFailed") : t("copy")} onClick={() => copy(text)}>
           {state === "copied" ? (
-            <Check data-copy="copied" className="text-success-text animate-pop-in" />
+            <Check data-copy="copied" style={tickMotion} className="text-success-text cd-pop" />
           ) : state === "failed" ? (
-            <X data-copy="failed" className="text-destructive-text animate-pop-in" />
+            <X data-copy="failed" style={tickMotion} className="text-destructive-text cd-pop" />
           ) : (
             <Copy data-copy={state} />
           )}

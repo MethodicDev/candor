@@ -5,6 +5,10 @@ import { cn } from "@/lib/utils"
 import type { ContextSegment } from "@/registry/lib/know"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
 import { useFormat, useStrings } from "@/registry/blocks/locale"
+import { motion } from "@/registry/lib/motion"
+
+/** The ring moving to a new measured value, after the first one was drawn in place. */
+const fillMotion = motion("context-meter", "fill", "fill")
 
 /** ContextMeter's fixed words; override them under `contextMeter` in LocaleProvider's `strings`. */
 export const contextMeterStrings = {
@@ -79,7 +83,8 @@ function ContextMeter({
             strokeWidth="2.5"
             strokeDasharray={`${pct * c} ${c}`}
             strokeLinecap="round"
-            className={cn(drawn && "transition-[stroke-dasharray,stroke] duration-(--cd-dur-slow) ease-standard")}
+            style={fillMotion}
+            className={cn(drawn && "cd-fill")}
           />
         </svg>
         {fmt.number(Math.round(pct * 100) / 100, { style: "percent" })}

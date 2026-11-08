@@ -163,26 +163,55 @@ Hairline borders separate things at rest; shadows are for what floats. The shado
 | `--cd-dur-base` | 200ms | Something arriving or opening: a collapse, a pop, a nudge. `duration-(--cd-dur-base)`. |
 | `--cd-dur-slow` | 360ms | A mark being drawn or a rail filling after a status settled. `duration-(--cd-dur-slow)`. |
 
-Motion reports a change that happened, never one that is predicted or decorative (the ninth honesty rule). `data-motion="none" | "subtle" | "expressive"` on `<html>` or any container sets how much: `subtle` is the default (fades and measured collapses), `none` turns every animation and transition off, `expressive` adds a scale to pops (`--cd-pop-from`, `1` by default) and the shake a pressed locked control gives (`--cd-motion-shake`: `none`). A mark that was already final when the page drew does not animate.
+Motion reports a change that happened, never one that is predicted or decorative (the ninth honesty rule). Every animation belongs to one of fourteen families, one for each kind of change: `reveal` (content opening or closing to its measured size), `arrive` (something new after the first draw), `pop` (a chip or small mark added or removed), `mark` (a tick or cross drawn when a result settles), `fill` (a bar or ring moving between measured values), `value` (a number or word changing in place), `move` (a thing changing place), `overlay` (a dialog, sheet, popover or menu opening or closing), `press` (a press registered), `tint` (hover, focus, selected), `refuse` (a locked control pressed), `attention` (something new waits on the person), `live` (work being heard from) and `clock` (real time passing: a hold, a deadline). Each component moment (copy-field's tick, a dialog opening) belongs to one.
 
-The kit's animations, as Tailwind `animate-<name>` utilities:
+A family has a level (0 off, 1 subtle, 2 expressive), a duration, an easing, a size where it has one, and a closed set of variants: named ways of drawing the same change, of which a brand picks one and cannot add another. A brand file sets `--cd-motion-<family>` (the level), `-dur`, `-ease`, the family's amplitude and `-variant` for a family everywhere, or `--cd-motion-<item>-<moment>-*` for one moment of one component; `--cd-motion-speed` (0.5–1.5) scales every duration but the clock's and the attention ring's, which stays under five seconds. A brand changes how a change looks, never when it plays: the trigger stays in the component, so a brand cannot make a tick appear before the result or a bar fill ahead of the work.
+
+Who decides, from the strongest: `data-motion="none"` on `<html>` or any container (nothing moves, whatever else is set), then the person's operating system (`prefers-reduced-motion`) or `data-motion="calm"` as the same choice made in the app (the calm level), then `data-motion="subtle" | "expressive"`, then the brand file, then Candor's defaults. No attribute is the brand's levels (subtle unless it says otherwise); `subtle` caps every family at 1; `expressive` raises the families the brand didn't set. The `clock` family is the exception to turning things off: a hold's progress or an undo window's time left is the information itself, so a brand can restyle it but not remove it. A mark that was already final when the page drew does not animate. Components build a moment's chain with `motion(item, moment, family)` from `lib/motion.ts` and add the family utility (`cd-pop`, `cd-overlay`…) only at the honest moment.
+
+| Family | Reports | Duration (range) | Easing (allowed) | Amplitude (expressive) | Variants (default first) | Calm |
+| --- | --- | --- | --- | --- | --- | --- |
+| `reveal` | Content opened or closed to its measured size; a chevron turns. | 200 ms (150–300) | standard (standard, inout) | — | `cd-size`, `cd-fade` | Snaps to its measured size. |
+| `arrive` | Something new, added after the first draw. | 240 ms (150–300) | standard (standard, spring) | `-distance` 8px | `cd-rise`, `cd-fade`, `cd-pop` | Fades in, up to 150 ms. |
+| `pop` | Added, removed, or a small mark appearing. | 200 ms (100–300); out 120 ms | standard (standard, spring) | `-scale` 0.85 | `cd-scale`, `cd-fade` | Fades, up to 150 ms. |
+| `mark` | A tick or cross drawn when a result settles. | 360 ms (200–500) | standard (standard) | — | `cd-draw`, `cd-pop`, `cd-drop` | The finished mark fades in, up to 150 ms. |
+| `fill` | A bar or ring moving between measured values. | 360 ms (200–600) | standard (standard, inout) | — | `cd-grow` | Snaps to the new value; its colour may fade. |
+| `value` | A number or word changed in place. | 120 ms (80–200) | standard (standard) | `-distance` 2px | `cd-fade`, `cd-slide` | Crossfades, up to 150 ms. |
+| `move` | A thing changed place: a reorder, a tab indicator, a toast restacking, a scroll. | 200 ms (150–300) | standard (standard, spring) | — | `cd-slide` | Jumps to its new place. |
+| `overlay` | A dialog, sheet, popover, menu or tooltip opened or closed. | 150 ms (100–500); out 150 ms | standard (standard, inout, spring) | `-scale` 0.95 | `cd-scale`, `cd-slide`, `cd-fade` | Fades, up to 150 ms. |
+| `press` | A press registered. | 150 ms (80–200) | standard (standard) | `-scale` 0.96 | `cd-scale` | Doesn't scale; the colour still answers. |
+| `tint` | Hover, focus, selected, a drop target: a colour or opacity change. | 150 ms (0–200) | standard (standard, inout) | — | `cd-fade` | Colour and opacity only, up to 150 ms. |
+| `refuse` | A locked control was pressed: the reason is shown, and under expressive it shakes. | 360 ms (200–500) | standard (standard) | `-distance` 3px | `cd-shake` | No shake; the reason's colour still changes. |
+| `attention` | Something new waits on the person: a ring that grows and fades. | 900 ms (600–1600) | standard (standard) | `-count` 1 | `cd-ring` | One ring that fades without growing, up to 150 ms. |
+| `live` | Work that is being heard from: a dot's pulse, a caret, a spinner, a shimmer, a skeleton. | 1600 ms (1000–3000) | standard (standard, inout, linear) | — | `cd-pulse` | Still, with its word. |
+| `clock` | Real time passing: a hold, a deadline, a replay. Painted from the clock. | From the clock | linear (linear) | — | `cd-glide` | Steps instead of gliding; never off. |
+
+Easings are written as CSS: standard `var(--cd-ease)`, inout `var(--cd-ease-inout)`, spring `var(--cd-ease-spring)`, linear `linear`. Spring overshoots, so only families that move things in space accept it. A variant is written as its keyframe's name (`--cd-motion-mark-variant: cd-pop`); a 2.2 brand's `--cd-pop-from` and `--cd-motion-shake` still apply.
+
+The 2.2 animations, kept as Tailwind `animate-<name>` utilities for your own screens (the components use the families):
 
 | Animation | Value | For |
 | --- | --- | --- |
 | `animate-shimmer` | shimmer 2.2s linear infinite | Text that is still arriving (`StreamingText`, `ShimmerLabel`). |
-| `animate-pulse-dot` | pulse-dot 1.6s var(--cd-ease) infinite | A running status dot. |
-| `animate-rise-in` | rise-in 240ms var(--cd-ease) both | A new message, card or row arriving. |
+| `animate-pulse-dot` | pulse-dot var(--cd-motion-live-dur, 1.6s) var(--cd-ease) infinite | A running status dot. |
+| `animate-rise-in` | rise-in var(--cd-motion-arrive-dur, 240ms) var(--cd-ease) both | A new message, card or row arriving. |
 | `animate-caret` | caret 1s steps(2, start) infinite | The caret at the end of streaming text. |
-| `animate-collapse-down` | collapse-down var(--cd-dur-base) var(--cd-ease) | Collapsible content opening to its measured height (`ToolCall`, `Reasoning`, `FoldedTurns`). |
-| `animate-collapse-up` | collapse-up var(--cd-dur-base) var(--cd-ease) | The same content closing. |
-| `animate-pop-in` | pop-in var(--cd-dur-base) var(--cd-ease) both | A chip or mark that arrived after the screen first drew (a mention, an attachment, a copied tick). |
-| `animate-pop-out` | pop-out var(--cd-dur-quick) var(--cd-ease) both | A chip leaving. |
-| `animate-tick-draw` | tick-draw var(--cd-dur-slow) var(--cd-ease) both | A tick or cross drawn along its path when a status settles while on screen; a mark that mounts finished is drawn still. |
-| `animate-fill` | fill var(--cd-dur-slow) var(--cd-ease) both | A rail or bar growing to a finished step, never ahead of it. |
-| `animate-shake` | var(--cd-motion-shake) | A pressed locked control, under `data-motion="expressive"` only. |
-| `animate-attention` | attention 900ms var(--cd-ease) 1 | One pulse when something new waits on the person; `attention-wait` pulses three times when a decision arrives, then stays still (moving content stops, as WCAG 2.2.2 asks). |
+| `animate-collapse-down` | collapse-down var(--cd-motion-reveal-dur, var(--cd-dur-base)) var(--cd-ease) | Collapsible content opening to its measured height (`ToolCall`, `Reasoning`, `FoldedTurns`). |
+| `animate-collapse-up` | collapse-up var(--cd-motion-reveal-dur, var(--cd-dur-base)) var(--cd-ease) | The same content closing. |
+| `animate-pop-in` | pop-in var(--cd-motion-pop-dur, var(--cd-dur-base)) var(--cd-ease) both | A chip or mark that arrived after the screen first drew (a mention, an attachment, a copied tick). |
+| `animate-pop-out` | pop-out var(--cd-motion-pop-out-dur, var(--cd-dur-quick)) var(--cd-ease) both | A chip leaving. |
+| `animate-tick-draw` | tick-draw var(--cd-motion-mark-dur, var(--cd-dur-slow)) var(--cd-ease) both | A tick or cross drawn along its path when a status settles while on screen; a mark that mounts finished is drawn still. |
+| `animate-fill` | fill var(--cd-motion-fill-dur, var(--cd-dur-slow)) var(--cd-ease) both | A rail or bar growing to a finished step, never ahead of it. |
+| `animate-shake` | var(--cd-motion-shake, var(--cd-motion-shake-preset, none)) | A pressed locked control, under `data-motion="expressive"` only. |
+| `animate-attention` | attention var(--cd-motion-attention-dur, 900ms) var(--cd-ease) 1 | One pulse when something new waits on the person; `attention-wait` pulses three times (1.6 s each) when a decision arrives, then stays still (moving content stops, as WCAG 2.2.2 asks). |
 
-Under `prefers-reduced-motion: reduce` every animation and transition runs in 0.001ms, once, and scrolling is instant. Nothing in a Candor screen depends on motion to be understood.
+## Reduced motion
+
+Under `prefers-reduced-motion: reduce` (or `data-motion="calm"`) the kit moves to its calm level. Only opacity and colour change over time, each in 150 ms or less. Nothing loops: `live` indicators go still and keep their word, `attention` is one ring that fades, `reveal` snaps open or shut, `clock` steps rather than glides, and the rest become a fade or a colour change; each family's calm form is in the table above. `data-motion="none"` turns the remaining fades off as well, for people who want no movement without the OS setting. Anything the families do not cover, such as your own animations or a third-party widget, runs in 0.001ms, once, and scrolling is instant. Nothing in a Candor screen depends on motion to be understood.
+
+## For your own motion
+
+Take the duration, easing and size from the family that fits the change, never a raw number of milliseconds: a `duration-200`, an `animate-in` or a `transition-all` in your own component skips the brand's settings, the person's, and the calm level. Start the motion from the moment the change is true (the write resolved, the step finished, the item arrived while the page was open), not from the press or the first draw. `npx candor-ui lint` warns about the raw forms in a file that uses Candor components.
 
 ## Layout
 
@@ -210,7 +239,7 @@ Under `prefers-reduced-motion: reduce` every animation and transition runs in 0.
 
 ## Naming, and making it your own
 
-`--cd-*` is Candor's own namespace: 39 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets and widths. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
+`--cd-*` is Candor's own namespace: 37 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets and widths. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
 
 To re-token for a brand, override after the import, by role, in every theme you support:
 
@@ -295,5 +324,5 @@ From the honesty rules every Candor component keeps (https://candor.themethodic.
 
 **Motion follows the outcome.**
 
-- Do: Motion reports a change that happened and never predicts or decorates one. A success mark is drawn after the result settles, a rail fills only to the step that finished, and a state that was already final when the page drew does not animate. data-motion sets none, subtle or expressive; the OS's reduced-motion setting wins over all three.
-- Don't: Show a tick before the result arrives, animate progress nobody measured, or keep an animation running when the OS asks for reduced motion.
+- Do: Motion reports a change that happened and never predicts or decorates one: a success mark is drawn after the result settles, a rail fills only to the step that finished, and a state that was already final when the page drew does not animate. Every animation belongs to one of fourteen families (reveal, arrive, pop, mark, fill, value, move, overlay, press, tint, refuse, attention, live and clock), one for each kind of change. A brand can pick a family's variant, duration and easing, or turn it off, but never the moment it plays, because that stays in the component. When the OS asks for reduced motion, or the app offers the same choice, a calm level applies: only opacity and colour change, briefly, and nothing loops; an app's “none” turns even that off, and both outrank the brand.
+- Don't: Show a tick before the result arrives, animate progress nobody measured, keep an animation looping when the OS asks for reduced motion, or let a brand change when something moves.

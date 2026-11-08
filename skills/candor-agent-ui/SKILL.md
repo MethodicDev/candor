@@ -48,7 +48,9 @@ Each is expanded with examples in `references/honesty-rules.md`.
    for how long. After an undo or restore: what it did not undo.
 9. **Motion follows the outcome.** An animation reports a change that happened; it never predicts or decorates one. A
    success mark is drawn after the result settles, progress fills only to what was measured, a state that was already
-   final when the screen drew does not animate, and the OS's reduced-motion setting wins.
+   final when the screen drew does not animate, and the OS's reduced-motion setting wins. Give each animation a kind
+   of change (Candor names fourteen motion families, listed in `references/honesty-rules.md`) and let a theme change how
+   it looks, never when it plays.
 
 ## What to read for what
 

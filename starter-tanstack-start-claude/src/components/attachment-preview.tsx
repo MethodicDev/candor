@@ -3,6 +3,10 @@ import { File, FileArchive, FileCode, FileImage, FileSpreadsheet, FileText, Musi
 import { cn } from "@/lib/utils"
 import { useFormat, useStrings, type Formatter, type Translate } from "@/components/locale"
 import type { Attachment } from "@/lib/chat"
+import { motion } from "@/lib/motion"
+
+/** The upload bar moving between measured byte counts: 2.2's 300 ms. */
+const progressMotion = motion("attachment-preview", "progress", "fill", { dur: 300 })
 
 /** AttachmentPreview's fixed words; override them under `attachmentPreview` in LocaleProvider's `strings`. */
 export const attachmentPreviewStrings = {
@@ -78,7 +82,7 @@ function AttachmentChip({
           <X className="size-3" />
         </button>
       )}
-      {a.progress !== undefined && !a.error && <span aria-hidden className="absolute bottom-0 start-0 h-0.5 bg-primary transition-[width] duration-300" style={{ width: `${a.progress * 100}%` }} />}
+      {a.progress !== undefined && !a.error && <span aria-hidden className="absolute bottom-0 start-0 h-0.5 bg-primary cd-fill" style={{ ...progressMotion, width: `${a.progress * 100}%` }} />}
     </span>
   )
 }
@@ -125,7 +129,7 @@ function AttachmentPreview({
       data-slot="attachment-preview"
       aria-label={t("open", { name: a.name })}
       onClick={() => onOpen(a)}
-      className={cn(frame, "outline-none transition-colors duration-150 hover:border-border-strong focus-visible:ring-[3px] focus-visible:ring-ring/80")}
+      className={cn(frame, "outline-none cd-tint hover:border-border-strong focus-visible:ring-[3px] focus-visible:ring-ring/80")}
     >
       {body}
     </button>

@@ -5,6 +5,14 @@ import { ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useStrings } from "@/registry/blocks/locale"
 import { useVirtualList } from "@/registry/lib/use-virtual-list"
+import { motion, useMotionAllowed } from "@/registry/lib/motion"
+
+/** The smooth scroll to the latest message. */
+const scrollMotion = motion("thread", "scroll", "move")
+/** Jump to latest appearing while the reader is scrolled up: 2.2's 150 ms and 4 px rise. */
+const jumpMotion = motion("thread", "jump", "arrive", { dur: 150 })
+/** Its ring when a message arrives while the reader is scrolled up. */
+const arrivalMotion = motion("thread", "arrival", "attention")
 
 /** Thread's fixed words; override them under `thread` in LocaleProvider's `strings`. */
 export const threadStrings = {
@@ -74,13 +82,17 @@ function Thread({
   const [pinned, setPinned] = React.useState(!anchoring)
   React.useImperativeHandle(scrollerRef, () => scroller.current as HTMLDivElement, [])
 
-  const toBottom = React.useCallback((behavior: ScrollBehavior = "auto") => {
-    const el = scroller.current
-    if (!el) return
-    // A smooth jump only when nothing asks for stillness: the OS setting, or data-motion="none" around the thread.
-    const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || el.closest('[data-motion="none"]') !== null
-    el.scrollTo({ top: el.scrollHeight, behavior: still ? "auto" : behavior })
-  }, [])
+  // A smooth jump only when nothing asks for stillness: the OS setting (the calm level), data-motion="calm" or "none"
+  // around the thread, or a brand that turned the scroll off.
+  const smooth = useMotionAllowed(scroller, scrollMotion)
+  const toBottom = React.useCallback(
+    (behavior: ScrollBehavior = "auto") => {
+      const el = scroller.current
+      if (!el) return
+      el.scrollTo({ top: el.scrollHeight, behavior: smooth() ? behavior : "auto" })
+    },
+    [smooth]
+  )
 
   // A new message while the reader is scrolled up: the Jump to latest control pulses once for each arrival, even when
   // the messages sit inside a wrapper component or a fragment. A second arrival while it still pulses restarts it.
@@ -132,8 +144,10 @@ function Thread({
       const had = new Set(before)
       const survivors = before.filter((node) => node.isConnected)
       const added = known.filter((node) => !had.has(node))
-      const atTheEnd = added.some((node) => survivors.every((old) => old.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING))
-      if (atTheEnd) arrive()
+      const arrivals = added.filter((node) => survivors.every((old) => old.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING))
+      // A message that arrived after the thread first drew rises in (Message reads data-arrived); loaded history is still.
+      for (const node of arrivals) node.setAttribute("data-arrived", "")
+      if (arrivals.length) arrive()
     })
     observer.observe(el, { childList: true, subtree: true })
     return () => observer.disconnect()
@@ -248,7 +262,7 @@ function Thread({
         </div>
         {!pinned && hasMessages && (
           // The entrance is the wrapper's, so the pulse on the button never replays it.
-          <span className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 animate-in fade-in-0 slide-in-from-bottom-1">
+          <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive">
             <button
               type="button"
               data-slot="thread-jump"
@@ -258,9 +272,10 @@ function Thread({
                 setPinned(true)
                 toBottom("smooth")
               }}
+              style={arrivalMotion}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full border bg-popover px-3 py-1.5 text-xs font-medium shadow-float [--cd-attention-color:var(--primary)]",
-                arrived && "animate-attention"
+                arrived && "cd-attention"
               )}
             >
               <ArrowDown aria-hidden className="size-3" /> {t("jumpToLatest")}

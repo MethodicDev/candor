@@ -1,4 +1,7 @@
 import { cn } from "@/lib/utils"
+import { motion } from "@/registry/lib/motion"
+
+const caretMotion = motion("streaming-text", "caret", "live", { dur: 1000 })
 
 /**
  * Text that is still arriving. Shows a caret while `streaming`, and announces
@@ -26,7 +29,8 @@ function StreamingText({
       {streaming && (
         <span
           aria-hidden
-          className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary animate-caret"
+          style={caretMotion}
+          className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary cd-live-caret"
         />
       )}
     </div>

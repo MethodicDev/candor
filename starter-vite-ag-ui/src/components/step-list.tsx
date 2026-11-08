@@ -1,7 +1,16 @@
 import * as React from "react"
 import { CircleSlash, Hand, LoaderCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion, useArrived, useSettled } from "@/lib/motion"
 import { useStatusLabel, type RunStatus } from "@/lib/status"
+
+/** A step's tick or cross, drawn when its status settles on screen. */
+const markMotion = motion("step-list", "mark", "mark")
+/** The rail growing to a step that finished on screen. */
+const railMotion = motion("step-list", "rail", "fill")
+/** A step added after the list first drew. */
+const arriveMotion = motion("step-list", "arrive", "arrive")
+const workingMotion = motion("step-list", "working", "live", { dur: 1000 })
 
 export type Step = {
   id: string
@@ -11,41 +20,22 @@ export type Step = {
   meta?: React.ReactNode | undefined
 }
 
-const finished = (status: RunStatus) => status === "succeeded" || status === "failed"
-const over = (status: RunStatus) => finished(status) || status === "cancelled" || status === "skipped"
-
-/**
- * How many times `status` has reached succeeded or failed from an unfinished status while this component was on
- * screen. Zero for something that mounted already finished, so its mark is drawn still: motion reports a change
- * that was seen, never one that happened before the reader arrived.
- */
-function useSettled(status: RunStatus): number {
-  const [settled, setSettled] = React.useState(0)
-  const previous = React.useRef(status)
-  React.useLayoutEffect(() => {
-    const was = previous.current
-    previous.current = status
-    if (was !== status && !over(was) && finished(status)) setSettled((n) => n + 1)
-  }, [status])
-  return settled
-}
-
 /** A tick, drawn along its path when `draw` is above zero (and again each time it changes). */
 function Tick({ draw }: { draw: number }) {
   return (
     <svg key={draw} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden className="size-3">
-      <path d="M20 6 9 17l-5-5" pathLength={1} className={cn(draw > 0 && "[stroke-dasharray:1] animate-tick-draw")} />
+      <path d="M20 6 9 17l-5-5" pathLength={1} style={markMotion} className={cn(draw > 0 && "cd-mark")} />
     </svg>
   )
 }
 
 /** A cross, its two strokes drawn one after the other when `draw` is above zero. */
 function Cross({ draw }: { draw: number }) {
-  const drawn = draw > 0 && "[stroke-dasharray:1] animate-tick-draw"
+  const drawn = draw > 0 && "cd-mark"
   return (
     <svg key={draw} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden className="size-3">
-      <path d="M18 6 6 18" pathLength={1} className={cn(drawn)} />
-      <path d="m6 6 12 12" pathLength={1} className={cn(drawn, drawn && "[animation-delay:var(--cd-dur-quick)]")} />
+      <path d="M18 6 6 18" pathLength={1} style={markMotion} className={cn(drawn)} />
+      <path d="m6 6 12 12" pathLength={1} style={markMotion} className={cn(drawn, drawn && "[--cd-mark-step:1]")} />
     </svg>
   )
 }
@@ -61,7 +51,7 @@ function StepMark({
   status: RunStatus
 }) {
   const settled = useSettled(status)
-  const base = "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full transition-colors duration-(--cd-dur-base) ease-standard"
+  const base = "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full cd-tint"
   switch (status) {
     case "succeeded":
       return (
@@ -78,7 +68,7 @@ function StepMark({
     case "running":
       return (
         <span className={cn(base, "bg-accent-weak text-accent-text")}>
-          <LoaderCircle className="size-3.5 animate-spin" strokeWidth={2.5} />
+          <LoaderCircle style={workingMotion} className="size-3.5 cd-live-spin" strokeWidth={2.5} />
         </span>
       )
     case "waiting":
@@ -109,18 +99,18 @@ function StepMark({
 
 function StepRow({
   step,
-  index,
+  arrived,
   last,
 }: {
   step: Step
-  index: number
+  arrived: boolean
   last: boolean
 }) {
   const statusLabel = useStatusLabel()
   const done = step.status === "succeeded"
   const settled = useSettled(step.status)
   return (
-    <li className="relative flex gap-3 pb-4 last:pb-0 animate-rise-in" style={{ animationDelay: `${index * 40}ms` }}>
+    <li style={arriveMotion} className={cn("relative flex gap-3 pb-4 last:pb-0", arrived && "cd-arrive")}>
       {!last && (
         <span aria-hidden className="absolute top-5 bottom-0 start-[9.5px] w-px bg-input">
           {/* The rail fills from a step the moment it is done, grown into place when that was seen; never ahead of it. */}
@@ -128,7 +118,8 @@ function StepRow({
             <span
               key={settled}
               data-slot="step-rail-fill"
-              className={cn("absolute inset-0 origin-top bg-success/50", settled > 0 && "animate-fill [--cd-fill-from:1_0]")}
+              style={railMotion}
+              className={cn("absolute inset-0 origin-top bg-success/50", settled > 0 && "cd-fill-grow [--cd-fill-from:1_0]")}
             />
           )}
         </span>
@@ -157,7 +148,8 @@ function StepRow({
 /**
  * An ordered list of steps joined by a rail: an agent's plan, its reasoning,
  * a run's stages. The rail fills to each step as it finishes, never ahead of
- * it, and a step that finishes while on screen draws its mark.
+ * it, and a step that finishes while on screen draws its mark. A step added
+ * after the list first drew rises in; the steps it loaded with are still.
  */
 function StepList({
   steps,
@@ -167,10 +159,11 @@ function StepList({
   steps: Step[]
   className?: string | undefined
 }) {
+  const arrived = useArrived(React.useMemo(() => steps.map((s) => s.id), [steps]))
   return (
     <ol data-slot="step-list" className={cn("flex flex-col", className)}>
       {steps.map((step, i) => (
-        <StepRow key={step.id} step={step} index={i} last={i === steps.length - 1} />
+        <StepRow key={step.id} step={step} arrived={arrived(step.id)} last={i === steps.length - 1} />
       ))}
     </ol>
   )

@@ -1,8 +1,14 @@
 "use client"
 
-import * as React from "react"
 import { cn } from "@/lib/utils"
-import { useStatusLabel, type RunStatus } from "@/registry/lib/status"
+import { useNow } from "@/registry/blocks/relative-time"
+import { motion, useSettled } from "@/registry/lib/motion"
+import { runLiveness, STALE_AFTER, useStatusLabel, type RunStatus } from "@/registry/lib/status"
+
+/** The pulse while a run is heard from. */
+const liveMotion = motion("status-dot", "live", "live")
+/** The dot popping into its final colour when the run settles on screen. */
+const settleMotion = motion("status-dot", "settle", "pop")
 
 const dotColor: Record<RunStatus, string> = {
   idle: "bg-faint-foreground/60",
@@ -16,35 +22,24 @@ const dotColor: Record<RunStatus, string> = {
   skipped: "bg-faint-foreground/40",
 }
 
-const finished = (status: RunStatus) => status === "succeeded" || status === "failed"
-const over = (status: RunStatus) => finished(status) || status === "cancelled" || status === "skipped"
-
-/**
- * How many times the status reached done or failed from an unfinished one while the dot was on screen; zero when it
- * mounted finished, so nothing moves for a change the reader never saw.
- */
-function useSettled(status: RunStatus): number {
-  const [settled, setSettled] = React.useState(0)
-  const previous = React.useRef(status)
-  React.useLayoutEffect(() => {
-    const was = previous.current
-    previous.current = status
-    if (was !== status && !over(was) && finished(status)) setSettled((n) => n + 1)
-  }, [status])
-  return settled
-}
-
 /**
  * A small status mark. Running and waiting pulse, since they are the two
  * states a person may need to watch or act on. When one of them reaches done
  * or failed while on screen, the new dot pops into place (too small for a drawn
  * mark); a dot that mounts finished is still. The label is always available
  * to assistive tech; pass `showLabel` to print it too.
+ *
+ * Live means heard from: with `lastHeardAt`, a running dot pulses only while the
+ * run has been heard from within `staleAfter`, and is still (with its word)
+ * once it hasn't, or before the page has a clock. Without it the app isn't
+ * tracking freshness, and running pulses as before.
  */
 function StatusDot({
   status,
   showLabel = false,
   label,
+  lastHeardAt,
+  staleAfter = STALE_AFTER,
   className,
 }: {
   /** Which status to show; running and waiting pulse. */
@@ -53,23 +48,34 @@ function StatusDot({
   showLabel?: boolean | undefined
   /** Words to use instead of the status name. */
   label?: string | undefined
+  /**
+   * When the run was last heard from (an event, a heartbeat). A running dot pulses only while this is within
+   * `staleAfter`; past it, or when the time can't be read, the dot is still. Left out, the dot doesn't claim to know.
+   */
+  lastHeardAt?: Date | string | undefined
+  /** How long a running run may be silent, in milliseconds, before the dot stops pulsing. Two minutes by default. */
+  staleAfter?: number | undefined
   className?: string | undefined
 }) {
   const statusLabel = useStatusLabel()
   const text = label ?? statusLabel(status)
-  const live = status === "running" || status === "waiting"
+  const now = useNow()
+  const liveness = runLiveness({ status, lastHeardAt }, now, staleAfter)
+  const live = (status === "running" || status === "waiting") && liveness === "live"
   const settled = useSettled(status)
   return (
     <span
       data-slot="status-dot"
       data-status={status}
       data-settled={settled > 0 ? "" : undefined}
+      data-liveness={lastHeardAt === undefined ? undefined : liveness}
       className={cn("inline-flex items-center gap-1.5 text-xs text-muted-foreground", className)}
     >
       <span
         key={settled}
         aria-hidden
-        className={cn("size-2 shrink-0 rounded-full", dotColor[status], live && "animate-pulse-dot", settled > 0 && "animate-pop-in")}
+        style={live ? liveMotion : settleMotion}
+        className={cn("size-2 shrink-0 rounded-full", dotColor[status], live && "cd-live-dot", settled > 0 && "cd-pop")}
       />
       {showLabel ? <span>{text}</span> : <span className="sr-only">{text}</span>}
     </span>

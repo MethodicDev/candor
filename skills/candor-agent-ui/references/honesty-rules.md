@@ -148,14 +148,41 @@ button teaches them that motion means nothing either.
 
 **Do.** Animate a change after it happened: draw the tick when the write resolved, fill the rail to the step that
 finished, sweep a meter to the value that was measured. Leave a state that was already final when the screen drew
-still. Honour `prefers-reduced-motion` everywhere, and give people a setting (Candor's `data-motion`) to turn motion
-off or up.
+still. Keep the trigger in the component and let a theme change only how the change looks.
 
-**Don't.** A success animation on click. A progress bar that moves on a timer. Shine, bounce or shake on hover. Motion
-as the only cue for a state (the colour and the word carry it; motion only marks the moment it changed).
+Sort every animation into a kind of change. Candor has fourteen families: `reveal` (content opens to its measured
+size), `arrive` (something new after the first draw), `pop` (a chip or mark added or removed), `mark` (a tick or cross
+when a result settles), `fill` (a bar or ring between measured values), `value` (a number or word changing in place),
+`move` (a thing changing place), `overlay` (a dialog, sheet or menu), `press` (a press registered), `tint` (hover,
+focus, selected), `refuse` (a locked control pressed), `attention` (something new waits on the person), `live` (work
+being heard from) and `clock` (real time passing). If an animation fits none of them it probably decorates.
 
-**Example.** Copying a value.
+Each family comes in a closed set of variants, named ways of drawing the same change. A brand or a product can pick a
+variant, a duration and a size, or turn a family off, and that is all: it never decides when something moves. A brand
+that wants a livelier tick changes how the tick is drawn; it does not draw one earlier.
+
+Honour the person's settings in this order: `data-motion="none"` (nothing moves), then the OS's `prefers-reduced-motion`
+or the app's `data-motion="calm"` (the calm level), then `subtle` or `expressive`, then the brand. Under the calm level: only opacity and colour change, each in 150 ms
+or less, nothing loops, a live indicator goes still and keeps its word, an attention cue is one ring that fades, a
+disclosure snaps open, and a countdown or hold steps instead of gliding because the time left is the information.
+`data-motion="none"` turns even the fades off, and outranks the OS setting.
+
+**Don't.** A success animation on click. A progress bar that moves on a timer. Shine, bounce or shake on hover or on a
+button nothing is happening to. Motion as the only cue for a state (the colour and the word carry it; motion only marks
+the moment it changed). A loop that keeps going under reduced motion. A brand setting that makes a change play at a
+different moment.
+
+**Examples.**
+
+Copying a value.
 
 - Wrong: the icon turns into a tick the instant the button is pressed.
 - Right: the icon stays until `navigator.clipboard.writeText` resolves, then the tick draws; if it rejects, a cross and
   "Couldn't copy" appear instead.
+
+A style on a control.
+
+- Fine: a hover style. The button's background tints over 120 ms when the pointer arrives, which is the `tint` family
+  reporting that the pointer is on it. Under reduced motion it still changes colour.
+- Wrong: a light sweep across an idle button every few seconds. Nothing happened, so there is nothing to report; it
+  loops, and it carries a message ("look here") that the app has no evidence for.

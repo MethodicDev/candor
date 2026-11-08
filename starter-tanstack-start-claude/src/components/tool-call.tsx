@@ -8,6 +8,11 @@ import { useStatusLabel } from "@/lib/status"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Payload } from "@/components/payload"
 import { useStrings } from "@/components/locale"
+import { motion } from "@/lib/motion"
+
+/** A call's detail opening, and a group of calls. */
+const openMotion = motion("tool-call", "open", "reveal")
+const groupMotion = motion("tool-call", "group-open", "reveal")
 
 /** ToolCall's fixed words; override them under `toolCall` in LocaleProvider's `strings`. */
 export const toolCallStrings = {
@@ -48,7 +53,7 @@ function ToolCall({
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call" data-status={call.status} className={cn("group/tool", className)}>
       <CollapsibleTrigger
         disabled={!hasDetail}
-        className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-1 text-start outline-none transition-colors duration-150 enabled:hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80"
+        className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-1 text-start outline-none cd-tint enabled:hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80"
       >
         <StepMark status={call.status} />
         <span className="min-w-0 flex-1 truncate text-sm">
@@ -70,11 +75,12 @@ function ToolCall({
         {hasDetail && (
           <ChevronRight
             aria-hidden
-            className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground transition-transform duration-200 ease-standard group-data-[state=open]/tool:[transform:rotate(90deg)]"
+            style={openMotion}
+            className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground cd-reveal-turn group-data-[state=open]/tool:[transform:rotate(90deg)]"
           />
         )}
       </CollapsibleTrigger>
-      <CollapsibleContent>
+      <CollapsibleContent style={openMotion}>
         <div className="mt-1 mb-2 ms-[1.375rem] flex flex-col gap-2 border-s ps-3.5">
           {call.error && (
             <p className="rounded-md bg-destructive-weak px-2.5 py-1.5 text-xs text-destructive-text">{call.error}</p>
@@ -129,9 +135,9 @@ function ToolCallGroup({
           {failed > 0 && <span className="text-destructive-text"> · {t("failed", { count: failed })}</span>}
           {running && ` · ${t("working")}`}
         </span>
-        <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3.5 transition-transform duration-200 ease-standard group-data-[state=open]/tools:[transform:rotate(90deg)]" />
+        <ChevronRight aria-hidden style={groupMotion} className="rtl:-scale-x-100 size-3.5 cd-reveal-turn group-data-[state=open]/tools:[transform:rotate(90deg)]" />
       </CollapsibleTrigger>
-      <CollapsibleContent>
+      <CollapsibleContent style={groupMotion}>
         <div className="flex flex-col border-t px-1.5 py-1.5">
           {calls.map((c) => (
             <ToolCall key={c.id} call={c} />

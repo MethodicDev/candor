@@ -8,6 +8,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { EntityChip, useEntityKinds } from "@/components/entity-chip"
 import { AttachmentChip } from "@/components/attachment-preview"
 import { useStrings } from "@/components/locale"
+import { motion, useArrived, useLeaving } from "@/lib/motion"
+
+/** A chip added after the first draw pops in; a removed one pops out as a ghost. */
+const chipMotion = motion("composer", "chip", "pop")
+/** The mention and command menu: 2.2's fade and 4 px rise. */
+const menuMotion = motion("composer", "menu", "overlay", { variant: "slide" })
+/** Send and Stop acknowledge the press: 2.2's scale of 0.95. */
+const sendMotion = motion("composer", "send", "press", { amp: "0.9" })
+const sendingMotion = motion("composer", "sending", "live", { dur: 1000 })
 
 /** Composer's fixed words; override them under `composer` in LocaleProvider's `strings`. */
 export const composerStrings = {
@@ -62,53 +71,10 @@ const hasFiles = (e: React.DragEvent) => Array.from(e.dataTransfer?.types ?? [])
 const referenceKey = (r: EntityRef) => `${r.kind}:${r.name}`
 const attachmentKey = (a: Attachment) => a.id
 
-/**
- * Which chips were added after the composer first drew (they pop in) and which were just removed (they pop out as
- * inert ghosts, then go). Chips present at first render are drawn still: nothing moves for a state the reader
- * already had. The ghosts are cleared by their animation's end, or after 400ms when nothing animates.
- */
-function useChipMotion<T>(items: T[], keyOf: (item: T) => string) {
-  const [entered, setEntered] = React.useState<ReadonlySet<string>>(() => new Set())
-  const [leaving, setLeaving] = React.useState<T[]>([])
-  const previous = React.useRef<T[] | null>(null)
-  React.useLayoutEffect(() => {
-    const before = previous.current
-    previous.current = items
-    if (!before) return
-    const now = new Set(items.map(keyOf))
-    const was = new Set(before.map(keyOf))
-    const added = items.filter((item) => !was.has(keyOf(item))).map(keyOf)
-    const gone = before.filter((item) => !now.has(keyOf(item)))
-    if (added.length || gone.length) {
-      setEntered((set) => {
-        const next = new Set(set)
-        for (const item of gone) next.delete(keyOf(item))
-        for (const key of added) next.add(key)
-        return next
-      })
-    }
-    // A chip added again while its ghost is still leaving takes the ghost's place: the ghost goes at once.
-    if (gone.length || added.length) {
-      setLeaving((list) => {
-        const kept = list.filter((item) => !now.has(keyOf(item)))
-        return kept.length === list.length && gone.length === 0 ? list : [...kept, ...gone]
-      })
-    }
-  }, [items, keyOf])
-  React.useEffect(() => {
-    if (leaving.length === 0) return
-    const timer = window.setTimeout(() => setLeaving([]), 400)
-    return () => window.clearTimeout(timer)
-  }, [leaving])
-  const entering = (item: T) => entered.has(keyOf(item))
-  const left = (item: T) => setLeaving((list) => list.filter((x) => x !== item))
-  return { entering, leaving, left }
-}
-
 /** A removed chip, kept for the length of its pop-out and hidden from assistive tech. */
 function LeavingChip({ onDone, children }: { onDone: () => void; children: React.ReactNode }) {
   return (
-    <span aria-hidden data-leaving className="pointer-events-none inline-flex max-w-full animate-pop-out" onAnimationEnd={onDone}>
+    <span aria-hidden data-leaving style={chipMotion} className="pointer-events-none inline-flex max-w-full cd-pop-out" onAnimationEnd={onDone}>
       {children}
     </span>
   )
@@ -214,8 +180,12 @@ function Composer({
   const [trigger, setTrigger] = React.useState<Trigger | null>(null)
   const [active, setActive] = React.useState(0)
 
-  const referenceMotion = useChipMotion(references, referenceKey)
-  const attachmentMotion = useChipMotion(attachments, attachmentKey)
+  // Chips added after the composer first drew pop in; chips just removed pop out as inert ghosts, then go. Chips there
+  // at first render are drawn still: nothing moves for a state the reader already had.
+  const referenceArrived = useArrived(React.useMemo(() => references.map(referenceKey), [references]))
+  const attachmentArrived = useArrived(React.useMemo(() => attachments.map(attachmentKey), [attachments]))
+  const referenceMotion = useLeaving(references, referenceKey)
+  const attachmentMotion = useLeaving(attachments, attachmentKey)
 
   const held = typeof state === "object" && state.kind === "held" ? state : null
   const locked = typeof state === "object" && state.kind !== "held" ? state : null
@@ -359,7 +329,8 @@ function Composer({
           id={listId}
           role="listbox"
           aria-label={trigger?.char === "/" ? t("commands") : t("mentions")}
-          className="absolute inset-x-0 bottom-full z-20 mb-2 max-h-72 overflow-y-auto rounded-xl border bg-popover p-1 shadow-float animate-in fade-in-0 slide-in-from-bottom-1"
+          style={menuMotion}
+          className="absolute inset-x-0 bottom-full z-20 mb-2 max-h-72 overflow-y-auto rounded-xl border bg-popover p-1 shadow-float [--cd-overlay-distance:0.25rem] [--cd-side-y:1] cd-overlay"
         >
           {items.map((item, i) => {
             const group = groupOf(item, t("commands"))
@@ -411,19 +382,16 @@ function Composer({
 
       <div
         className={cn(
-          "rounded-2xl border bg-card shadow-raised transition-[border-color,box-shadow] duration-150 focus-within:border-border-strong focus-within:shadow-float",
+          "rounded-2xl border bg-card shadow-raised cd-tint focus-within:border-border-strong focus-within:shadow-float",
           locked && "bg-muted shadow-none"
         )}
       >
         {(references.length > 0 || attachments.length > 0 || referenceMotion.leaving.length > 0 || attachmentMotion.leaving.length > 0) && (
           <div className="flex flex-wrap gap-1.5 px-3 pt-3">
             {references.map((r) => (
-              <EntityChip
-                key={referenceKey(r)}
-                entity={r}
-                onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))}
-                className={cn(referenceMotion.entering(r) && "animate-pop-in")}
-              />
+              <span key={referenceKey(r)} data-slot="composer-chip" style={chipMotion} className={cn("inline-flex max-w-full min-w-0", referenceArrived(referenceKey(r)) && "cd-pop")}>
+                <EntityChip entity={r} onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))} />
+              </span>
             ))}
             {referenceMotion.leaving.map((r) => (
               <LeavingChip key={`leaving:${referenceKey(r)}`} onDone={() => referenceMotion.left(r)}>
@@ -431,7 +399,9 @@ function Composer({
               </LeavingChip>
             ))}
             {attachments.map((a) => (
-              <AttachmentChip key={a.id} attachment={a} onRemove={onRemoveAttachment} className={cn(attachmentMotion.entering(a) && "animate-pop-in")} />
+              <span key={a.id} data-slot="composer-chip" style={chipMotion} className={cn("inline-flex max-w-full min-w-0", attachmentArrived(a.id) && "cd-pop")}>
+                <AttachmentChip attachment={a} onRemove={onRemoveAttachment} />
+              </span>
             ))}
             {attachmentMotion.leaving.map((a) => (
               <LeavingChip key={`leaving:${a.id}`} onDone={() => attachmentMotion.left(a)}>
@@ -506,7 +476,7 @@ function Composer({
                 }}
               />
               <Tooltip>
-                <TooltipTrigger render={<button type="button" aria-label={t("attachFiles")} disabled={Boolean(locked)} onClick={() => fileInput.current?.click()} className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground disabled:opacity-40" />}><Paperclip className="size-4" /></TooltipTrigger>
+                <TooltipTrigger render={<button type="button" aria-label={t("attachFiles")} disabled={Boolean(locked)} onClick={() => fileInput.current?.click()} className="flex size-8 items-center justify-center rounded-lg text-muted-foreground cd-tint hover:bg-accent hover:text-foreground disabled:opacity-40" />}><Paperclip className="size-4" /></TooltipTrigger>
                 <TooltipContent>{t("attachFiles")}</TooltipContent>
               </Tooltip>
             </>
@@ -520,7 +490,7 @@ function Composer({
               onClick={onScopeClick}
               disabled={!onScopeClick}
               className={cn(
-                "inline-flex min-w-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs transition-colors duration-150 enabled:hover:bg-accent",
+                "inline-flex min-w-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs cd-tint enabled:hover:bg-accent",
                 production ? "bg-warning-weak text-warning-text enabled:hover:bg-warning-weak" : "text-muted-foreground"
               )}
             >
@@ -555,7 +525,8 @@ function Composer({
               type="button"
               aria-label={t("stop")}
               onClick={onStop}
-              className={cn("ms-auto flex size-8 items-center justify-center bg-foreground text-background transition-transform duration-150 active:scale-95", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+              style={sendMotion}
+              className={cn("ms-auto flex size-8 items-center justify-center bg-foreground text-background cd-press", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
               <Square className="size-3 fill-current" />
             </button>
@@ -566,9 +537,10 @@ function Composer({
               onClick={submit}
               disabled={!canSend}
               aria-busy={state === "sending"}
-              className={cn("ms-auto flex size-8 items-center justify-center bg-primary text-primary-foreground transition-[background-color,opacity,transform] duration-150 enabled:hover:bg-primary-hover active:scale-95 disabled:opacity-30", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+              style={sendMotion}
+              className={cn("ms-auto flex size-8 items-center justify-center bg-primary text-primary-foreground cd-press enabled:hover:bg-primary-hover disabled:opacity-30", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
-              {state === "sending" ? <LoaderCircle className="size-4 animate-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
+              {state === "sending" ? <LoaderCircle style={sendingMotion} className="size-4 cd-live-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
             </button>
           )}
         </div>

@@ -5,11 +5,14 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 import { withRender, type RenderProp } from "@/registry/lib/render-prop"
 import { cn } from "@/lib/utils"
+import { motion } from "@/registry/lib/motion"
+
+const pressMotion = motion("button", "press", "press")
 
 // The accent fills the one primary act, the radius is the theme's
 // --cd-radius-button, and buttons press down slightly on :active.
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-button text-sm font-medium whitespace-nowrap outline-none select-none transition-[background-color,color,border-color,box-shadow,transform,opacity] duration-150 ease-standard active:scale-[0.98] focus-visible:ring-[3px] focus-visible:ring-ring/80 disabled:pointer-events-none disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-[locked]:active:scale-100 aria-invalid:ring-destructive/25 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-button text-sm font-medium whitespace-nowrap outline-none select-none cd-press focus-visible:ring-[3px] focus-visible:ring-ring/80 disabled:pointer-events-none disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-[locked]:active:scale-100 aria-invalid:ring-destructive/25 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -45,7 +48,7 @@ function Button(
       asChild?: boolean | undefined
     } & RenderProp
 ) {
-  const { className, variant = "default", size = "default", asChild = false, ...props } = withRender(allProps)
+  const { className, style, variant = "default", size = "default", asChild = false, ...props } = withRender(allProps)
   const Comp = asChild ? Slot.Root : "button"
 
   return (
@@ -53,6 +56,7 @@ function Button(
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      style={{ ...pressMotion, ...style }}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

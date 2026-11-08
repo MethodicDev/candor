@@ -12,6 +12,11 @@ import { MessageActions, type Rating } from "@/components/message-actions"
 import { Reasoning } from "@/components/reasoning"
 import { ThreadEvent } from "@/components/thread-event"
 import { useStrings } from "@/components/locale"
+import { motion } from "@/lib/motion"
+
+/** A message that arrived after the thread first drew rises in (Thread marks it `data-arrived`); loaded history is still. */
+const arriveMotion = motion("message", "arrive", "arrive")
+const caretMotion = motion("message", "caret", "live", { dur: 1000 })
 
 /** Message's fixed words; override them under `message` in LocaleProvider's `strings`. */
 export const messageStrings = {
@@ -113,7 +118,7 @@ function Message({
 
   if (author.role === "user") {
     return (
-      <div data-slot="message" data-role="user" className={cn("flex justify-end ps-10 sm:ps-24 animate-rise-in", className)}>
+      <div data-slot="message" data-role="user" style={arriveMotion} className={cn("flex justify-end ps-10 sm:ps-24 data-[arrived]:cd-arrive", className)}>
         <div className="flex max-w-full flex-col items-end gap-1">
           <div className="rounded-xl rounded-ee-sm bg-surface-user px-3.5 py-2.5">
             <MessageContent blocks={message.blocks} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} className="gap-2" />
@@ -142,7 +147,8 @@ function Message({
         data-slot="message"
         data-role="person"
         aria-label={author.team ? t("personLabel", { name: author.name, team: author.team }) : author.name}
-        className={cn("flex gap-3 animate-rise-in", className)}
+        style={arriveMotion}
+        className={cn("flex gap-3 data-[arrived]:cd-arrive", className)}
       >
         <span aria-hidden className="mt-px flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <UserRound className="size-4" />
@@ -165,7 +171,8 @@ function Message({
       data-status={message.status}
       aria-busy={streaming}
       aria-label={t("agentLabel", { name: agent.name, noun: roleOf(agent.role).noun })}
-      className={cn("group/message flex gap-3 animate-rise-in", className)}
+      style={arriveMotion}
+      className={cn("group/message flex gap-3 data-[arrived]:cd-arrive", className)}
     >
       <AgentAvatar agent={agent} className="mt-px" />
       <div className="min-w-0 flex-1">
@@ -256,7 +263,7 @@ function MessageBody({
       {message.blocks.length > 0 && (
         <div className="relative">
           <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />
-          {streaming && <span aria-hidden className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary animate-caret" />}
+          {streaming && <span aria-hidden style={caretMotion} className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary cd-live-caret" />}
         </div>
       )}
     </div>
@@ -362,7 +369,7 @@ function MessageFooter({
           rating={rating}
           onRate={onRate}
           meta={meta || undefined}
-          className="-ms-1.5 opacity-100 transition-opacity duration-150 sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100"
+          className="-ms-1.5 opacity-100 cd-tint sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100"
         />
       )}
       {settled && actions !== undefined && actions !== false && actions}

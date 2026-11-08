@@ -4,6 +4,11 @@ import * as React from "react"
 import { LockKeyhole } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
+import { motion } from "@/registry/lib/motion"
+
+/** A press on the locked control: the reason is emphasised, and under expressive the control shakes. */
+const refuseMotion = motion("locked", "refuse", "refuse")
+const reasonMotion = motion("locked", "reason", "tint", { dur: 200 })
 
 type Lockable = React.ReactElement<{
   "aria-disabled"?: boolean | "true" | "false" | undefined
@@ -78,7 +83,8 @@ function Locked({
     <span
       data-slot="locked"
       data-pressed={held ? "" : undefined}
-      className={cn("relative inline-flex flex-col items-start gap-1.5", shaking && "animate-shake", className)}
+      style={refuseMotion}
+      className={cn("relative inline-flex flex-col items-start gap-1.5", shaking && "cd-refuse", className)}
     >
       {inline ? (
         control
@@ -91,8 +97,9 @@ function Locked({
       <span
         id={id}
         data-slot="locked-reason"
+        style={reasonMotion}
         className={cn(
-          "items-center gap-1 text-xs text-muted-foreground transition-colors duration-(--cd-dur-base)",
+          "items-center gap-1 text-xs text-muted-foreground cd-tint",
           inline ? "inline-flex" : "sr-only",
           held && "text-foreground"
         )}

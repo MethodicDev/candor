@@ -96,7 +96,7 @@ function Citation({
   return (
     <Popover>
       <PopoverTrigger render={<button type="button" aria-label={t("sourceLabel", { marker: source.marker, label: source.label })} className={cn(
-                      "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums transition-colors duration-150 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80",
+                      "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums cd-tint outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80",
                       source.provisional
                         ? "border border-dashed border-provisional/60 text-provisional hover:bg-muted"
                         : "bg-accent-weak text-accent-text hover:bg-primary hover:text-primary-foreground"
@@ -129,7 +129,7 @@ function SourceList({
           return (
             <Popover key={s.id}>
               <PopoverTrigger render={<button type="button" className={cn(
-                                      "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80",
+                                      "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80",
                                       s.provisional && "border-dashed"
                                     )} />}><span className="flex h-4 min-w-4 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span><Icon aria-hidden className="size-3 shrink-0" /><span className="truncate">{s.label}</span></PopoverTrigger>
               <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] p-3">

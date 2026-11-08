@@ -141,7 +141,7 @@ function EntityChip({
         <button
           type="button"
           onClick={() => onOpen(entity)}
-          className={cn(base, "cursor-pointer transition-colors duration-150 hover:border-border-strong hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80 outline-none")}
+          className={cn(base, "cursor-pointer cd-tint hover:border-border-strong hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80 outline-none")}
         >
           {body}
         </button>

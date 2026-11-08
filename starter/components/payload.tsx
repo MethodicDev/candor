@@ -82,7 +82,7 @@ function Payload({
           type="button"
           onClick={() => copy(text)}
           aria-live="polite"
-          className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs text-muted-foreground transition-colors duration-150 outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
+          className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs text-muted-foreground cd-tint outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
         >
           {state === "copied" ? (
             <>

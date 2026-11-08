@@ -8,6 +8,11 @@ import type { ReasoningEntry } from "@/registry/lib/chat"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
 
 import { useStrings } from "@/registry/blocks/locale"
+import { motion, useArrived } from "@/registry/lib/motion"
+
+const arriveMotion = motion("reasoning", "arrive", "arrive")
+
+const turnMotion = motion("reasoning", "open", "reveal")
 
 /** Reasoning's fixed words; override them under `reasoning` in LocaleProvider's `strings`. */
 export const reasoningStrings = {
@@ -49,6 +54,8 @@ function Reasoning({
   className?: string | undefined
 }) {
   const t = useStrings("reasoning", reasoningStrings)
+  // An entry added while the reasoning is on screen rises in; the ones it drew with are still.
+  const arrived = useArrived(React.useMemo(() => entries.map((e) => e.id), [entries]))
   const [open, setOpen] = React.useState(thinking)
   React.useEffect(() => setOpen(thinking), [thinking])
 
@@ -62,15 +69,15 @@ function Reasoning({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="reasoning" className={cn("group/reasoning", className)}>
-      <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1.5 rounded-md py-0.5 pe-1.5 text-xs text-muted-foreground outline-none transition-colors duration-150 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80">
+      <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1.5 rounded-md py-0.5 pe-1.5 text-xs text-muted-foreground outline-none cd-tint hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80">
         <Brain aria-hidden className={cn("size-3.5", thinking && "text-accent-text")} />
         {thinking ? <ShimmerLabel className="text-xs">{t("thinking")}</ShimmerLabel> : summary}
-        <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3 transition-transform duration-200 ease-standard group-data-[state=open]/reasoning:[transform:rotate(90deg)]" />
+        <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3 cd-reveal-turn group-data-[state=open]/reasoning:[transform:rotate(90deg)]" />
       </CollapsibleTrigger>
-      <CollapsibleContent>
+      <CollapsibleContent style={turnMotion}>
         <ol className="mt-2 ms-1.5 flex flex-col gap-3 border-s ps-4">
           {entries.map((e) => (
-            <li key={e.id} className="relative animate-rise-in">
+            <li key={e.id} style={arriveMotion} className={cn("relative", arrived(e.id) && "cd-arrive")}>
               <span aria-hidden className="absolute top-1.5 -start-[1.2rem] size-1.5 rounded-full bg-border-strong" />
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <p className="text-sm font-medium">{e.title}</p>

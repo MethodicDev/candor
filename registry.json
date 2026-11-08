@@ -291,6 +291,7 @@
       ],
       "registryDependencies": [
         "@candor/locale",
+        "@candor/motion",
         "@candor/use-copy",
         "utils"
       ],
@@ -314,6 +315,7 @@
       "registryDependencies": [
         "@candor/button",
         "@candor/locale",
+        "@candor/motion",
         "utils"
       ],
       "files": [
@@ -352,6 +354,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/motion",
         "@candor/tooltip",
         "utils"
       ],
@@ -385,8 +388,10 @@
     {
       "name": "status-dot",
       "type": "registry:component",
-      "description": "How many times the status reached done or failed from an unfinished one while the dot was on screen; zero when it mounted finished, so nothing moves for a change the reader never saw.",
+      "description": "A small status mark.",
       "registryDependencies": [
+        "@candor/motion",
+        "@candor/relative-time",
         "@candor/status",
         "utils"
       ],
@@ -403,11 +408,12 @@
     {
       "name": "step-list",
       "type": "registry:component",
-      "description": "How many times `status` has reached succeeded or failed from an unfinished status while this component was on screen.",
+      "description": "A step's status as a mark.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/motion",
         "@candor/status",
         "utils"
       ],
@@ -426,6 +432,7 @@
       "type": "registry:component",
       "description": "Text that is still arriving.",
       "registryDependencies": [
+        "@candor/motion",
         "utils"
       ],
       "files": [
@@ -529,6 +536,7 @@
       "registryDependencies": [
         "@candor/chat",
         "@candor/locale",
+        "@candor/motion",
         "utils"
       ],
       "files": [
@@ -551,7 +559,8 @@
       "registryDependencies": [
         "@candor/collapsible",
         "@candor/degraded-panel",
-        "@candor/locale"
+        "@candor/locale",
+        "@candor/motion"
       ],
       "files": [
         {
@@ -598,6 +607,7 @@
         "@candor/chat",
         "@candor/entity-chip",
         "@candor/locale",
+        "@candor/motion",
         "@candor/tooltip",
         "utils"
       ],
@@ -618,6 +628,7 @@
       "registryDependencies": [
         "@candor/know",
         "@candor/locale",
+        "@candor/motion",
         "@candor/popover",
         "utils"
       ],
@@ -663,6 +674,7 @@
       "registryDependencies": [
         "@candor/collapsible",
         "@candor/locale",
+        "@candor/motion",
         "utils"
       ],
       "files": [
@@ -684,6 +696,7 @@
       ],
       "registryDependencies": [
         "@candor/locale",
+        "@candor/motion",
         "@candor/tooltip",
         "@candor/use-copy",
         "utils"
@@ -742,6 +755,7 @@
         "@candor/locale",
         "@candor/message-actions",
         "@candor/message-content",
+        "@candor/motion",
         "@candor/reasoning",
         "@candor/relative-time",
         "@candor/thread-event",
@@ -791,6 +805,7 @@
       "registryDependencies": [
         "@candor/button",
         "@candor/locale",
+        "@candor/motion",
         "@candor/payload",
         "utils"
       ],
@@ -814,6 +829,7 @@
       "registryDependencies": [
         "@candor/chat",
         "@candor/locale",
+        "@candor/motion",
         "@candor/skeleton",
         "utils"
       ],
@@ -838,6 +854,7 @@
         "@candor/chat",
         "@candor/collapsible",
         "@candor/locale",
+        "@candor/motion",
         "@candor/streaming-text",
         "utils"
       ],
@@ -901,6 +918,7 @@
       ],
       "registryDependencies": [
         "@candor/locale",
+        "@candor/motion",
         "@candor/use-virtual-list",
         "utils"
       ],
@@ -925,6 +943,7 @@
         "@candor/chat",
         "@candor/collapsible",
         "@candor/locale",
+        "@candor/motion",
         "@candor/payload",
         "@candor/status",
         "@candor/step-list",
@@ -999,6 +1018,23 @@
       "files": [
         {
           "path": "src/registry/lib/mcp-input.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": [
+        "lib"
+      ]
+    },
+    {
+      "name": "motion",
+      "type": "registry:lib",
+      "description": "Candor's motion layer, the part that runs in components.",
+      "registryDependencies": [
+        "@candor/status"
+      ],
+      "files": [
+        {
+          "path": "src/registry/lib/motion.ts",
           "type": "registry:lib"
         }
       ],
@@ -1101,6 +1137,50 @@
       ]
     },
     {
+      "name": "accordion",
+      "type": "registry:ui",
+      "description": "A stack of headings that each open to reveal more.",
+      "dependencies": [
+        "lucide-react@^1.67.0",
+        "radix-ui@^1.8.1"
+      ],
+      "registryDependencies": [
+        "@candor/motion",
+        "@candor/render-prop",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/accordion.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "categories": [
+        "ui"
+      ]
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "description": "A message about the page or the work that stays where it is until it no longer applies: a warning before a change, a note that something failed, a fact the person should know.",
+      "dependencies": [
+        "class-variance-authority@^0.7.1"
+      ],
+      "registryDependencies": [
+        "@candor/motion",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/alert.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "categories": [
+        "ui"
+      ]
+    },
+    {
       "name": "button",
       "type": "registry:ui",
       "description": "shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why).",
@@ -1109,12 +1189,35 @@
         "radix-ui@^1.8.1"
       ],
       "registryDependencies": [
+        "@candor/motion",
         "@candor/render-prop",
         "utils"
       ],
       "files": [
         {
           "path": "src/registry/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "categories": [
+        "ui"
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "description": "A box the person ticks.",
+      "dependencies": [
+        "radix-ui@^1.8.1"
+      ],
+      "registryDependencies": [
+        "@candor/motion",
+        "@candor/render-prop",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/checkbox.tsx",
           "type": "registry:ui"
         }
       ],
@@ -1130,12 +1233,34 @@
         "radix-ui@^1.8.1"
       ],
       "registryDependencies": [
+        "@candor/motion",
         "@candor/render-prop",
         "utils"
       ],
       "files": [
         {
           "path": "src/registry/ui/collapsible.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "categories": [
+        "ui"
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "description": "The name of a control.",
+      "dependencies": [
+        "radix-ui@^1.8.1"
+      ],
+      "registryDependencies": [
+        "@candor/render-prop",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/label.tsx",
           "type": "registry:ui"
         }
       ],
@@ -1151,6 +1276,7 @@
         "radix-ui@^1.8.1"
       ],
       "registryDependencies": [
+        "@candor/motion",
         "@candor/render-prop",
         "utils"
       ],
@@ -1165,15 +1291,82 @@
       ]
     },
     {
+      "name": "progress",
+      "type": "registry:ui",
+      "description": "A bar for work whose progress is measured: an upload, an import, an index.",
+      "dependencies": [
+        "radix-ui@^1.8.1"
+      ],
+      "registryDependencies": [
+        "@candor/motion",
+        "@candor/render-prop",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "categories": [
+        "ui"
+      ]
+    },
+    {
       "name": "skeleton",
       "type": "registry:ui",
       "description": "A loading placeholder in the shape of what's coming.",
       "registryDependencies": [
+        "@candor/motion",
         "utils"
       ],
       "files": [
         {
           "path": "src/registry/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "categories": [
+        "ui"
+      ]
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "description": "A control for a value in a range, with one thumb or, when the value has two numbers, a range.",
+      "dependencies": [
+        "lucide-react@^1.67.0",
+        "radix-ui@^1.8.1"
+      ],
+      "registryDependencies": [
+        "@candor/render-prop",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/slider.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "categories": [
+        "ui"
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "description": "A setting that is on or off.",
+      "dependencies": [
+        "radix-ui@^1.8.1"
+      ],
+      "registryDependencies": [
+        "@candor/motion",
+        "@candor/render-prop",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/switch.tsx",
           "type": "registry:ui"
         }
       ],
@@ -1189,6 +1382,7 @@
         "radix-ui@^1.8.1"
       ],
       "registryDependencies": [
+        "@candor/motion",
         "@candor/render-prop",
         "utils"
       ],

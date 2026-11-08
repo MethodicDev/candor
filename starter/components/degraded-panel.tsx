@@ -4,6 +4,9 @@ import { CircleAlert, RotateCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useStrings } from "@/components/locale"
+import { motion } from "@/lib/motion"
+
+const spinMotion = motion("degraded-panel", "busy", "live", { dur: 1000 })
 
 /** DegradedPanel's fixed words; override them under `degradedPanel` in LocaleProvider's `strings`. */
 export const degradedPanelStrings = {
@@ -55,7 +58,7 @@ function DegradedPanel({
       </div>
       {onRetry && (
         <Button size="xs" variant="outline" onClick={onRetry} disabled={retrying} aria-busy={retrying} className="shrink-0">
-          <RotateCw className={cn(retrying && "animate-spin")} /> {retrying ? t("retrying") : t("retry")}
+          <RotateCw style={spinMotion} className={cn(retrying && "cd-live-spin")} /> {retrying ? t("retrying") : t("retry")}
         </Button>
       )}
     </div>

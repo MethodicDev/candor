@@ -5,6 +5,10 @@ import { cn } from "@/lib/utils"
 import type { PromptSuggestion } from "@/lib/chat"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useStrings } from "@/components/locale"
+import { motion } from "@/lib/motion"
+
+/** A suggestion pressed: 2.2's slight scale of 0.99. */
+const pressMotion = motion("prompt-suggestions", "press", "press", { amp: "0.98" })
 
 /** PromptSuggestions' fixed words; override them under `promptSuggestions` in LocaleProvider's `strings`. */
 export const promptSuggestionsStrings = {
@@ -55,17 +59,18 @@ function PromptSuggestions({
                   key={s.id}
                   type="button"
                   onClick={() => onChoose(s)}
-                  className="group/suggestion flex items-start justify-between gap-3 rounded-xl border bg-card p-3 text-start text-sm transition-[border-color,box-shadow,transform] duration-150 ease-standard outline-none hover:border-border-strong hover:shadow-raised active:scale-[0.99] focus-visible:ring-[3px] focus-visible:ring-ring/80"
+                  style={pressMotion}
+                  className="group/suggestion flex items-start justify-between gap-3 rounded-xl border bg-card p-3 text-start text-sm cd-press outline-none hover:border-border-strong hover:shadow-raised focus-visible:ring-[3px] focus-visible:ring-ring/80"
                 >
                   <span>{s.text}</span>
-                  <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-faint-foreground transition-colors group-hover/suggestion:text-accent-text" />
+                  <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-faint-foreground cd-tint group-hover/suggestion:text-accent-text" />
                 </button>
               ) : (
                 <button
                   key={s.id}
                   type="button"
                   onClick={() => onChoose(s)}
-                  className="rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-150 outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
+                  className="rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
                 >
                   {s.text}
                 </button>

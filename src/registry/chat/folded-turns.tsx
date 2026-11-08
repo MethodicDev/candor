@@ -5,6 +5,9 @@ import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useStrings } from "@/registry/blocks/locale"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
+import { motion } from "@/registry/lib/motion"
+
+const turnMotion = motion("folded-turns", "open", "reveal")
 
 /** FoldedTurns' fixed words; override them under `foldedTurns` in LocaleProvider's `strings`. */
 export const foldedTurnsStrings = {
@@ -61,11 +64,11 @@ function FoldedTurns({
       >
         {header ?? (summary && <div className="min-w-0 flex-1 text-muted-foreground">{summary}</div>)}
         <CollapsibleTrigger className={cn("relative after:absolute after:inset-x-0 after:-inset-y-0.5 ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-accent-text outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80", header && "self-end")}>
-          <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3.5 transition-transform duration-200 group-data-[state=open]/folded:[transform:rotate(90deg)]" />
+          <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3.5 cd-reveal-turn group-data-[state=open]/folded:[transform:rotate(90deg)]" />
           {t(isOpen ? "hide" : "show", { count })}
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className="flex flex-col gap-7">{children}</CollapsibleContent>
+      <CollapsibleContent style={turnMotion} className="flex flex-col gap-7">{children}</CollapsibleContent>
     </Collapsible>
   )
 }

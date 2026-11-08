@@ -6,6 +6,12 @@ import { cn } from "@/lib/utils"
 import { useStrings } from "@/registry/blocks/locale"
 import { Payload } from "@/registry/chat/payload"
 import { Button } from "@/registry/ui/button"
+import { motion } from "@/registry/lib/motion"
+
+/** Three pulses of 1.6 s while the decision waits (4.8 s, then still), shortened from 2.2's 7.2 s. */
+const waitingMotion = motion("permission-prompt", "waiting", "attention", { dur: 1600, amp: "3" })
+/** A press around the prompt instead of on it: one ring, and the refuse shake under expressive. */
+const nudgeMotion = { ...motion("permission-prompt", "nudge", "refuse"), ...motion("permission-prompt", "nudge", "attention") }
 
 /** PermissionPrompt's fixed words; override them under `permissionPrompt` in LocaleProvider's `strings`. */
 export const permissionPromptStrings = {
@@ -273,10 +279,11 @@ function PromptBody({
       data-waiting={busy ? undefined : ""}
       data-nudged={nudged ? "" : undefined}
       aria-label={t("label", { title: questions ? t("questions") : title })}
-      className={cn("overflow-hidden rounded-xl border border-warning/50 bg-card text-sm shadow-xs [--cd-attention-color:var(--warning)]", nudged && "animate-nudge", className)}
+      style={nudgeMotion}
+      className={cn("overflow-hidden rounded-xl border border-warning/50 bg-card text-sm shadow-xs [--cd-attention-color:var(--warning)]", nudged && "cd-nudge", className)}
     >
       <header className="flex items-start gap-2.5 bg-warning-weak/50 px-3.5 py-2.5">
-        <span aria-hidden className={cn("mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full text-warning-text", !busy && "animate-attention-wait")}>
+        <span aria-hidden style={waitingMotion} className={cn("mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full text-warning-text", !busy && "cd-attention")}>
           <ShieldQuestion className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
