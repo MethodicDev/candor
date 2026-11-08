@@ -4,7 +4,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
 
-This repo is the source of Candor UI's 68 free items (version 2.3.0), the skill and plugins for coding
+This repo is the source of Candor UI's 69 free items (version 2.4.0), the skill and plugins for coding
 agents and three starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 ## Install
@@ -112,6 +112,7 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 - `motion`: Candor's motion layer, the part that runs in components.
 - `render-prop`: Lets Candor's Radix-based primitives also take Base UI's `render` prop.
 - `safe-markdown`: Reads model text as safe markdown: paragraphs, lists and fenced code.
+- `sound`: The names and the reading half of Candor's sound layer.
 - `status`: The status vocabulary every Candor agent component shares.
 - `use-copy`: Copy text and report what actually happened.
 - `use-shortcut`: The keys of a combo as they should be printed: "mod+k" → ["⌘", "K"] on a Mac and ["Ctrl", "K"] elsewhere.

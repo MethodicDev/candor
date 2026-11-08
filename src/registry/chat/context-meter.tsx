@@ -5,10 +5,14 @@ import { cn } from "@/lib/utils"
 import type { ContextSegment } from "@/registry/lib/know"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
 import { useFormat, useStrings } from "@/registry/blocks/locale"
-import { motion } from "@/registry/lib/motion"
+import { motion, useSettled, type SettledTest } from "@/registry/lib/motion"
 
 /** The ring moving to a new measured value, after the first one was drawn in place. */
 const fillMotion = motion("context-meter", "fill", "fill")
+/** The percentage changing in place. */
+const valueMotion = motion("context-meter", "value", "value")
+/** Every new figure counts as a change worth showing. */
+const changed: SettledTest<string> = { settled: () => true, over: () => false }
 
 /** ContextMeter's fixed words; override them under `contextMeter` in LocaleProvider's `strings`. */
 export const contextMeterStrings = {
@@ -41,6 +45,11 @@ function k(n: number, format: (n: number, options?: Intl.NumberFormatOptions) =>
  * Counts are the service's own token counts; the ring warns past 80%. When a
  * new count arrives the ring sweeps to it and changes colour at the warning
  * line; it draws its first value in place, with no sweep from zero.
+ *
+ * @motion fill:fill The ring moves from the old measured value to the new one when the count changes while the meter is
+ * on screen, and changes colour at the warning line. The first value is drawn in place, never swept from empty.
+ * @motion value:value The percentage beside the ring crossfades to the new figure in the quick duration when the count
+ * changes while the meter is on screen; it never counts through values that were not measured.
  */
 function ContextMeter({
   segments,
@@ -64,9 +73,12 @@ function ContextMeter({
   // The sweep is a transition, so it runs only for a value that changed after the first one was drawn.
   const [drawn, setDrawn] = React.useState(false)
   React.useEffect(() => setDrawn(true), [])
+  const percent = fmt.number(Math.round(pct * 100) / 100, { style: "percent" })
+  const percentChanges = useSettled(percent, changed)
   return (
     <Popover>
       <PopoverTrigger
+        data-slot="context-meter"
         aria-label={t("label", { used: tokens(used), limit: tokens(limit) })}
         data-warn={warn ? "" : undefined}
         className={cn("inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-2xs tabular-nums outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80", warn ? "text-warning-text" : "text-muted-foreground", className)}
@@ -87,7 +99,13 @@ function ContextMeter({
             className={cn(drawn && "cd-fill")}
           />
         </svg>
-        {fmt.number(Math.round(pct * 100) / 100, { style: "percent" })}
+        {percentChanges > 0 ? (
+          <span key={percentChanges} style={valueMotion} className="cd-value">
+            {percent}
+          </span>
+        ) : (
+          percent
+        )}
       </PopoverTrigger>
       <PopoverContent align="start" className="w-72 p-3">
         <p className="flex items-baseline justify-between text-sm font-medium">

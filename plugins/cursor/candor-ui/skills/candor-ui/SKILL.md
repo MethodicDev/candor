@@ -124,6 +124,10 @@ fails first. For colours, type, radius, shadows, motion, density, themes and how
 `references/design.md` (generated from the shipped CSS, so its values are the kit's; also the MCP's `get_design`).
 Your own animation takes its timing from one of the fourteen motion families described there (reveal, arrive, pop, mark,
 fill, value, move, overlay, press, tint, refuse, attention, live, clock), never a raw duration.
+The manifest `motion.json` (served at `/r/v/<version>/motion-manifest.json`, and in each item's docs page under Motion) lists every
+item's moments, each with its family, defaults and the sentence that says when it plays; read it before you tune or
+add motion, instead of guessing which moments a component has. Sound has five events and its own rules, in the same
+reference.
 `candor-agent-ui` holds the design fundamentals for screens where an agent acts, with or without Candor: approval
 ergonomics, the status vocabulary, folding turns, what to show while an agent works, AI disclosure and accessibility.
 

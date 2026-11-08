@@ -165,12 +165,20 @@ Honour the person's settings in this order: `data-motion="none"` (nothing moves)
 or the app's `data-motion="calm"` (the calm level), then `subtle` or `expressive`, then the brand. Under the calm level: only opacity and colour change, each in 150 ms
 or less, nothing loops, a live indicator goes still and keeps its word, an attention cue is one ring that fades, a
 disclosure snaps open, and a countdown or hold steps instead of gliding because the time left is the information.
-`data-motion="none"` turns even the fades off, and outranks the OS setting.
+`data-motion="none"` turns even the fades off, and outranks the OS setting. A brand file's motion is checked with
+`candor-ui theme check`, which refuses a value outside a family's range and a variant the family doesn't have.
+
+Sound follows the same rule: it reports a change that happened, and it is quieter than a cue the person can see, never
+a replacement for one. Off until the person turns it on, and never decided by a theme. Raised from data, such as an
+approval that arrived while the page was open, never from a component mounting: a page that loads with an approval
+already waiting stays silent. Always with a visible cue (the prompt, the count in the title, a toast), so nothing
+depends on hearing it. One sound for a burst, at most 1.5 seconds, no loops, no speech.
 
 **Don't.** A success animation on click. A progress bar that moves on a timer. Shine, bounce or shake on hover or on a
 button nothing is happening to. Motion as the only cue for a state (the colour and the word carry it; motion only marks
 the moment it changed). A loop that keeps going under reduced motion. A brand setting that makes a change play at a
-different moment.
+different moment. A sound that plays when a screen loads, that is on by default, or that is the only sign something
+needs the person.
 
 **Examples.**
 

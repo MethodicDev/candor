@@ -91,13 +91,14 @@ function Citation({
 }) {
   const t = useStrings("citation", citationStrings)
   if (!source) {
-    return <sup className="text-faint-foreground">[{marker ?? "?"}]</sup>
+    return <sup data-slot="citation" className="text-faint-foreground">[{marker ?? "?"}]</sup>
   }
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button
           type="button"
+          data-slot="citation"
           aria-label={t("sourceLabel", { marker: source.marker, label: source.label })}
           className={cn(
             "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums cd-tint outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80",

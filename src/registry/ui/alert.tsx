@@ -7,8 +7,18 @@ import { motion } from "@/registry/lib/motion"
 
 const enterMotion = motion("alert", "enter", "arrive")
 
-// Set once a first Alert has been drawn and the browser has painted; an Alert that mounts after that has arrived.
+// Set one frame after this file loads in the browser, which is when the page's first draw is done; an Alert that mounts
+// after that has arrived. It is per page load, not per route: after a client-side route change, an Alert on the new route
+// rises in, because it arrived after the page drew. An Alert in the first render, or on the server, is simply there.
 let pageDrawn = false
+if (typeof window !== "undefined") {
+  const frame = typeof window.requestAnimationFrame === "function" ? window.requestAnimationFrame.bind(window) : (cb: () => void) => window.setTimeout(cb, 0)
+  frame(() => {
+    pageDrawn = true
+  })
+}
+
+const subscribeNever = () => () => {}
 
 const alertVariants = cva(
   "relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg border px-4 py-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
@@ -34,7 +44,9 @@ const alertVariants = cva(
  * For a short notice that goes away by itself use a toast; an Alert doesn't dismiss itself.
  *
  * @motion arrive:enter An Alert that appears after the page has drawn rises in over a quarter of a second. One that is
- * there when the page first draws, or when it is rendered on the server, is simply there.
+ * there when the page first draws, or when it is rendered on the server, is simply there. "After the page has drawn" is
+ * counted from when the page loaded, not from the route: after a client-side navigation, an Alert on the new route
+ * rises in.
  */
 function Alert({
   className,
@@ -46,14 +58,11 @@ function Alert({
     /** The kind of message. `destructive` is for a failure or something that can't be undone; `warning` for care before acting; `attention` for something waiting on the person; `success` for a confirmed result. Defaults to a plain card. */
     variant?: "default" | "success" | "warning" | "attention" | "destructive" | null | undefined
 }) {
-  // Whether this Alert mounted after the page's first draw. Decided once, so a re-render doesn't replay it.
-  const [arrived] = React.useState(() => pageDrawn)
-  React.useEffect(() => {
-    const raf = typeof window.requestAnimationFrame === "function" ? window.requestAnimationFrame : (cb: () => void) => window.setTimeout(cb, 0)
-    raf(() => {
-      pageDrawn = true
-    })
-  }, [])
+  // Whether this Alert mounted after the page's first draw. The server and the hydrating render answer no, so what
+  // the server sent is what hydrates; an Alert the browser creates later answers from the page. Decided once, so a
+  // re-render doesn't replay it.
+  const drawn = React.useSyncExternalStore(subscribeNever, () => pageDrawn, () => false)
+  const [arrived] = React.useState(drawn)
   return (
     <div
       data-slot="alert"

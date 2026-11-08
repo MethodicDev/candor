@@ -6,6 +6,16 @@ import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 import { motion } from "@/registry/lib/motion"
 
+/** The running animation's duration on `el`, in milliseconds (its longest, if there are several); undefined when it can't be read. */
+function animationMs(el: Element | null): number | undefined {
+  if (!el || typeof getComputedStyle === "undefined") return undefined
+  const times = getComputedStyle(el)
+    .animationDuration.split(",")
+    .map((t) => (t.trim().endsWith("ms") ? Number.parseFloat(t) : Number.parseFloat(t) * 1000))
+    .filter((n) => Number.isFinite(n))
+  return times.length ? Math.max(...times) : undefined
+}
+
 /** A press on the locked control: the reason is emphasised, and under expressive the control shakes. */
 const refuseMotion = motion("locked", "refuse", "refuse")
 const reasonMotion = motion("locked", "reason", "tint", { dur: 200 })
@@ -50,9 +60,13 @@ function Locked({
   const [press, setPress] = React.useState(0)
   const [shaking, setShaking] = React.useState(false)
   const [held, setHeld] = React.useState(false)
+  const box = React.useRef<HTMLSpanElement>(null)
   React.useEffect(() => {
     if (press === 0) return
-    const shake = window.setTimeout(() => setShaking(false), 400)
+    // The shake ends when its animation does (onAnimationEnd below). This timer is only the fallback for when no
+    // animation runs (motion off, or no Candor CSS), set from the duration the page resolved: a brand's longer shake,
+    // or the speed token, isn't cut short.
+    const shake = window.setTimeout(() => setShaking(false), (animationMs(box.current) ?? 400) + 100)
     const hold = window.setTimeout(() => setHeld(false), 1800)
     return () => {
       window.clearTimeout(shake)
@@ -81,7 +95,11 @@ function Locked({
 
   return (
     <span
+      ref={box}
       data-slot="locked"
+      onAnimationEnd={(e) => {
+        if (e.target === e.currentTarget) setShaking(false)
+      }}
       data-pressed={held ? "" : undefined}
       style={refuseMotion}
       className={cn("relative inline-flex flex-col items-start gap-1.5", shaking && "cd-refuse", className)}

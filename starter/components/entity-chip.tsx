@@ -111,6 +111,7 @@ function EntityChip({
   onOpen,
   onRemove,
   className,
+  style,
 }: {
   /** The thing to show: its kind, identifier and optional label. */
   entity: EntityRef
@@ -119,6 +120,8 @@ function EntityChip({
   /** Adds a remove button, e.g. in the composer. */
   onRemove?: ((entity: EntityRef) => void) | undefined
   className?: string | undefined
+  /** Inline style for the chip's outer element, such as a motion chain from `motion()`. */
+  style?: React.CSSProperties | undefined
 }) {
   const { Icon, noun } = useEntityKinds()(entity.kind)
   const t = useStrings("entityChip", entityChipStrings)
@@ -136,7 +139,7 @@ function EntityChip({
   const base =
     "inline-flex max-w-full items-center gap-1 rounded-sm border bg-card px-1.5 py-px align-baseline font-mono text-[0.92em] leading-[1.35] text-foreground"
   return (
-    <span data-slot="entity-chip" data-kind={entity.kind} title={title} className={cn("inline-flex max-w-full min-w-0 items-center sm:max-w-64", className)}>
+    <span data-slot="entity-chip" data-kind={entity.kind} title={title} style={style} className={cn("inline-flex max-w-full min-w-0 items-center sm:max-w-64", className)}>
       {onOpen ? (
         <button
           type="button"

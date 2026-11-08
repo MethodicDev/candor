@@ -14,7 +14,7 @@ const thumbMotion = motion("switch", "thumb", "move")
  * stays focusable, says why, and doesn't flip. Use a switch for a setting that takes effect at once; a choice the
  * person confirms belongs in a `Checkbox` or `RadioGroup` with a button.
  *
- * @motion move:thumb The thumb slides to the other end when the state changes, in the quick duration. It follows the
+ * @motion move:thumb The thumb slides to the other end when the state changes, over the move family's 200 ms. It follows the
  * reading direction, so it slides the other way in right-to-left text.
  */
 function Switch(allProps: React.ComponentProps<typeof SwitchPrimitive.Root> & RenderProp) {

@@ -101,7 +101,7 @@ function Card({
   const def = cards[name]
   if (!def) {
     return (
-      <div data-slot="card" data-card={name} data-state="unknown" className="flex flex-col gap-1.5 rounded-lg border border-dashed px-3 py-2.5">
+      <div data-slot="card-registry" data-card={name} data-state="unknown" className="flex flex-col gap-1.5 rounded-lg border border-dashed px-3 py-2.5">
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <LayoutTemplate aria-hidden className="size-3.5" /> {t("unknown", { name })}
         </p>
@@ -112,14 +112,14 @@ function Card({
   const problem = def.check(props)
   if (problem) {
     return (
-      <div data-slot="card" data-card={name} data-state="invalid" className="flex flex-col gap-1.5">
+      <div data-slot="card-registry" data-card={name} data-state="invalid" className="flex flex-col gap-1.5">
         <DegradedPanel reason={t("invalid", { label: def.label.toLowerCase(), problem })} />
         <Summary text={summary} />
       </div>
     )
   }
   return (
-    <div data-slot="card" data-card={name} data-state="ready">
+    <div data-slot="card-registry" data-card={name} data-state="ready">
       <CardBoundary
         fallback={
           <div className="flex flex-col gap-1.5">

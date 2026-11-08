@@ -72,6 +72,14 @@ and is named in your report.
 - [ ] Every animation belongs to a family (reveal, arrive, pop, mark, fill, value, move, overlay, press, tint, refuse, attention, live, clock), not a raw duration or an effect with no change behind it (motion follows the outcome)
 - [ ] A brand file changes how a change looks, never when it plays; the moment is still the component's (motion follows the outcome)
 - [ ] No state is carried by motion alone, and the person's setting beats the app's and the brand's (motion follows the outcome)
+- [ ] A brand file's motion was checked with `candor-ui theme check`, not by eye (motion follows the outcome)
+
+## Sound
+
+- [ ] Sound is off until the person turns it on, and nothing in the theme or the app turns it on for them (motion follows the outcome)
+- [ ] A sound is raised from data that arrived while the page was open, never from a component mounting; loading a page with an approval waiting is silent (motion follows the outcome)
+- [ ] Every sound has a visible cue beside it (the prompt, the title count, a toast), and nothing is conveyed by sound alone (motion follows the outcome)
+- [ ] A burst plays one sound, each is 1.5 seconds or less, and none loops or speaks (motion follows the outcome)
 
 ## Accessibility
 

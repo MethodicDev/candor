@@ -269,6 +269,14 @@ export const motionFamilyNames = Object.keys(motionFamilies) as MotionFamily[]
 export type MotionVariant<F extends MotionFamily> = (typeof motionFamilies)[F]["variants"][number]
 
 /**
+ * True when a family has one way of drawing its change (fill, move, press, tint, refuse, attention, live and clock).
+ * Its single variant is fixed: there is no `-variant` token to set, and `motion()` writes none, because the family's
+ * utility has nothing to choose between. The docs mark such a family "(fixed)" instead of listing a value that does
+ * nothing. A later release that adds a second word turns the token on without a new name.
+ */
+export const motionVariantIsFixed = (family: MotionFamily): boolean => motionFamilies[family].variants.length < 2
+
+/**
  * The CSS value a variant is written as. CSS can only choose a drawing by keyframe name, so a variant's value is its
  * keyframe's: the word with Candor's prefix, which keeps an app's own `@keyframes rise` from taking over.
  */
@@ -326,7 +334,7 @@ export function motion<F extends MotionFamily>(item: string, moment: string, fam
   if (spec.outDur) style[`${local}-out-dur`] = `var(${own}-out-dur, var(${fam}-out-dur, ${ms(defaults.outDur ?? spec.outDur.default)}))`
   if (spec.dur) style[`${local}-ease`] = `var(${own}-ease, var(${fam}-ease, ${motionEases[defaults.ease ?? spec.ease]}))`
   if (spec.amp) style[`${local}-amp`] = `var(${own}-${spec.amp.name}, var(${fam}-${spec.amp.name}, ${defaults.amp ?? spec.amp.default}))`
-  if (spec.variants.length > 1) {
+  if (!motionVariantIsFixed(family)) {
     const variant = motionVariantValue(defaults.variant ?? spec.variants[0])
     style[`${local}-variant`] = `var(${own}-variant, var(${fam}-variant, ${variant}))`
   }
@@ -400,10 +408,11 @@ export function useArrived(keys: readonly string[]): (key: string) => boolean {
 
 /**
  * Items that just left, kept as inert ghosts for the length of their out moment. Each ghost goes when `left(item)` is
- * called (from its `onAnimationEnd`), or after `fallbackMs` when nothing animated. An item that comes back while its
+ * called (from its `onAnimationEnd`), or after `fallbackMs` when nothing animated. The default, 600 ms, is longer than
+ * the longest out moment a brand can set (pop's 300 ms at the slowest speed, 1.5×, is 450 ms). An item that comes back while its
  * ghost is still leaving takes the ghost's place.
  */
-export function useLeaving<T>(items: readonly T[], keyOf: (item: T) => string, fallbackMs = 400): { leaving: readonly T[]; left: (item: T) => void } {
+export function useLeaving<T>(items: readonly T[], keyOf: (item: T) => string, fallbackMs = 600): { leaving: readonly T[]; left: (item: T) => void } {
   const [leaving, setLeaving] = React.useState<readonly T[]>([])
   const previous = React.useRef<readonly T[] | null>(null)
   React.useLayoutEffect(() => {
@@ -442,6 +451,29 @@ export function motionMode(el: Element | null | undefined): MotionMode {
   if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return "calm"
   if (el?.closest('[data-motion="calm"]')) return "calm"
   return "full"
+}
+
+/**
+ * `motionMode` for a component that has to react to it: the person's setting where `ref`'s element is, read after
+ * mount and again whenever the app changes `data-motion` or the OS setting changes. It starts as `full` for the first
+ * render, since there is nothing to read until the element exists. Use it for behaviour (a timer that must stop),
+ * not for styling, which the CSS variants already answer.
+ */
+export function useMotionMode(ref: React.RefObject<Element | null>): MotionMode {
+  const [mode, setMode] = React.useState<MotionMode>("full")
+  React.useEffect(() => {
+    const read = () => setMode(motionMode(ref.current))
+    read()
+    const observer = new MutationObserver(read)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"], subtree: true })
+    const query = window.matchMedia?.("(prefers-reduced-motion: reduce)")
+    query?.addEventListener("change", read)
+    return () => {
+      observer.disconnect()
+      query?.removeEventListener("change", read)
+    }
+  }, [ref])
+  return mode
 }
 
 const number = (value: string) => {

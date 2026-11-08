@@ -389,9 +389,13 @@ function Composer({
         {(references.length > 0 || attachments.length > 0 || referenceMotion.leaving.length > 0 || attachmentMotion.leaving.length > 0) && (
           <div className="flex flex-wrap gap-1.5 px-3 pt-3">
             {references.map((r) => (
-              <span key={referenceKey(r)} data-slot="composer-chip" style={chipMotion} className={cn("inline-flex max-w-full min-w-0", referenceArrived(referenceKey(r)) && "cd-pop")}>
-                <EntityChip entity={r} onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))} />
-              </span>
+              <EntityChip
+                key={referenceKey(r)}
+                entity={r}
+                onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))}
+                style={chipMotion}
+                className={cn(referenceArrived(referenceKey(r)) && "cd-pop")}
+              />
             ))}
             {referenceMotion.leaving.map((r) => (
               <LeavingChip key={`leaving:${referenceKey(r)}`} onDone={() => referenceMotion.left(r)}>
@@ -399,9 +403,7 @@ function Composer({
               </LeavingChip>
             ))}
             {attachments.map((a) => (
-              <span key={a.id} data-slot="composer-chip" style={chipMotion} className={cn("inline-flex max-w-full min-w-0", attachmentArrived(a.id) && "cd-pop")}>
-                <AttachmentChip attachment={a} onRemove={onRemoveAttachment} />
-              </span>
+              <AttachmentChip key={a.id} attachment={a} onRemove={onRemoveAttachment} style={chipMotion} className={cn(attachmentArrived(a.id) && "cd-pop")} />
             ))}
             {attachmentMotion.leaving.map((a) => (
               <LeavingChip key={`leaving:${a.id}`} onDone={() => attachmentMotion.left(a)}>

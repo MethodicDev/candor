@@ -878,3 +878,22 @@
     animation: none !important;
   }
 }
+
+/*
+ * Sound (2.4). Candor sets no defaults here: no sound plays unless a brand file names one, and no sound plays at all
+ * until the person turns sound on in your app. These are the names a brand file may set, in `:root`. Each value is a
+ * string, the path of a file your app hosts (MP3, at most 1.5 s); nothing is fetched until a sound plays.
+ *
+ *   --cd-sound-needs-you   a new approval, question or disambiguation waits on the person
+ *   --cd-sound-finished    a run the person started finished
+ *   --cd-sound-failed      a run failed, or a guardrail stopped it
+ *   --cd-sound-reply       a person (not an agent) replied in a thread the person is in
+ *   --cd-sound-silent      a run the person started has not been heard from past its `staleAfter`
+ *
+ *   --cd-sound-<event>-ogg      optional Ogg/Opus alternative for the same event, as a string
+ *   --cd-sound-volume           0 to 1, how loud every sound is (1 when left out)
+ *   --cd-sound-<event>-volume   0 to 1, scales the global volume for one event (1 when left out)
+ *
+ * `useAttention` (Pro) reads them when a signal lands; `sound-setting` (Pro) plays them as a preview. Free items
+ * never play a sound. The starter set (`sounds`, Pro) installs /sounds/<event>.mp3 for all five.
+ */

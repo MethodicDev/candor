@@ -8,6 +8,16 @@ import { Payload } from "@/registry/chat/payload"
 import { Button } from "@/registry/ui/button"
 import { motion } from "@/registry/lib/motion"
 
+/** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
+function animationMs(el: Element | null): number | undefined {
+  if (!el || typeof getComputedStyle === "undefined") return undefined
+  const style = getComputedStyle(el)
+  const durations = style.animationDuration.split(",").map((t) => (t.trim().endsWith("ms") ? Number.parseFloat(t) : Number.parseFloat(t) * 1000))
+  const counts = style.animationIterationCount.split(",").map((c) => (c.trim() === "infinite" ? Number.POSITIVE_INFINITY : Number.parseFloat(c)))
+  const totals = durations.map((d, i) => d * (counts[i % counts.length] || 1)).filter((n) => Number.isFinite(n) || n === Number.POSITIVE_INFINITY)
+  return totals.length ? Math.min(6000, Math.max(...totals)) : undefined
+}
+
 /** Three pulses of 1.6 s while the decision waits (4.8 s, then still), shortened from 2.2's 7.2 s. */
 const waitingMotion = motion("permission-prompt", "waiting", "attention", { dur: 1600, amp: "3" })
 /** A press around the prompt instead of on it: one ring, and the refuse shake under expressive. */
@@ -146,6 +156,11 @@ function parseObject(text: string): Record<string, unknown> | null {
  * nothing else is ever counted as a denial. While the decision waits, its shield pulses slowly; a press on inert
  * space outside it (the gesture that would dismiss a dialog) nudges it instead, so the person sees it is still
  * waiting. Both stop once the answer is being sent.
+ *
+ * @motion attention:waiting While the decision waits, a ring pulses out from the shield three times and then is still.
+ * It stops once the answer is being sent, and under calm it is one ring that fades.
+ * @motion attention:nudge A press on inert space outside the prompt rings it once, so the person sees it is still waiting.
+ * @motion refuse:nudge Under expressive the same press also shakes the prompt a little; nothing is dismissed.
  */
 function PermissionPrompt({
   request,
@@ -219,6 +234,7 @@ function PromptBody({
   // A press on inert space outside every prompt, while it waits, nudges it rather than dismissing anything.
   const section = React.useRef<HTMLElement>(null)
   const [nudged, setNudged] = React.useState(false)
+  const ended = React.useRef(new Set<string>())
   React.useEffect(() => {
     if (busy) return
     const onPress = (e: PointerEvent) => {
@@ -234,7 +250,11 @@ function PromptBody({
   }, [busy])
   React.useEffect(() => {
     if (!nudged) return
-    const timer = window.setTimeout(() => setNudged(false), 1000)
+    // The nudge ends when its animations do (onAnimationEnd on the section). This timer is only the fallback for when
+    // none runs (motion off, or no Candor CSS), set from the duration and count the page resolved, so a brand's longer
+    // ring or shake isn't cut short.
+    ended.current = new Set()
+    const timer = window.setTimeout(() => setNudged(false), (animationMs(section.current) ?? 1200) + 100)
     return () => window.clearTimeout(timer)
   }, [nudged])
 
@@ -278,6 +298,14 @@ function PromptBody({
       data-slot="permission-prompt"
       data-waiting={busy ? undefined : ""}
       data-nudged={nudged ? "" : undefined}
+      onAnimationEnd={(e) => {
+        // The nudge runs two animations (the shake and the ring) and ends with the last of them. A child's own
+        // animation, or one that isn't Candor's, doesn't end it.
+        if (e.target !== e.currentTarget || !e.animationName.startsWith("cd-")) return
+        ended.current.add(e.animationName)
+        const running = getComputedStyle(e.currentTarget).animationName.split(",").map((n) => n.trim()).filter((n) => n.startsWith("cd-"))
+        if (running.every((n) => ended.current.has(n))) setNudged(false)
+      }}
       aria-label={t("label", { title: questions ? t("questions") : title })}
       style={nudgeMotion}
       className={cn("overflow-hidden rounded-xl border border-warning/50 bg-card text-sm shadow-xs [--cd-attention-color:var(--warning)]", nudged && "cd-nudge", className)}

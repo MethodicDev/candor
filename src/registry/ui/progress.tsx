@@ -12,7 +12,7 @@ const indeterminateMotion = motion("progress", "indeterminate", "live")
 /**
  * A bar for work whose progress is measured: an upload, an import, an index. It moves only between values the service
  * reported, and it starts at the first value it is given rather than filling from empty. With no `value` it is
- * indeterminate: a moving sweep and the `label` as text, and never a made-up percentage.
+ * indeterminate: a pulsing bar and the `label` as text, and never a made-up percentage.
  *
  * @motion fill:value The filled part moves to each new measured value in the slow duration, and not on first draw.
  * @motion live:indeterminate While the total is unknown, the bar pulses (the live family's pulse) and the label shimmers

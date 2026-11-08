@@ -154,7 +154,7 @@ Hairline borders separate things at rest; shadows are for what floats. The shado
 | Token | Value | For |
 | --- | --- | --- |
 | `--cd-ease` | cubic-bezier(0.2, 0, 0, 1) | The standard easing for anything that appears or moves. Tailwind `ease-standard`. |
-| `--cd-ease-inout` | cubic-bezier(0.4, 0, 0.2, 1) | For things that move and come back: a panel sliding, a toggle. `ease-inout`; the components themselves use `ease-standard`. |
+| `--cd-ease-inout` | cubic-bezier(0.4, 0, 0.2, 1) | For things that move and come back: a sheet or drawer sliding open, a toggle. `ease-inout`; most components use `ease-standard`. |
 | `--cd-ease-spring` | linear(0, 0.4 15%, 0.7 30%, 1 50%, 0.95 65%, 1.02 80%, 1 100%) | A small overshoot for things that arrive, in your own motion. `ease-spring`. |
 
 | Token | Value | For |
@@ -163,28 +163,28 @@ Hairline borders separate things at rest; shadows are for what floats. The shado
 | `--cd-dur-base` | 200ms | Something arriving or opening: a collapse, a pop, a nudge. `duration-(--cd-dur-base)`. |
 | `--cd-dur-slow` | 360ms | A mark being drawn or a rail filling after a status settled. `duration-(--cd-dur-slow)`. |
 
-Motion reports a change that happened, never one that is predicted or decorative (the ninth honesty rule). Every animation belongs to one of fourteen families, one for each kind of change: `reveal` (content opening or closing to its measured size), `arrive` (something new after the first draw), `pop` (a chip or small mark added or removed), `mark` (a tick or cross drawn when a result settles), `fill` (a bar or ring moving between measured values), `value` (a number or word changing in place), `move` (a thing changing place), `overlay` (a dialog, sheet, popover or menu opening or closing), `press` (a press registered), `tint` (hover, focus, selected), `refuse` (a locked control pressed), `attention` (something new waits on the person), `live` (work being heard from) and `clock` (real time passing: a hold, a deadline). Each component moment (copy-field's tick, a dialog opening) belongs to one.
+Motion reports a change that happened, never one that is predicted or decorative (the ninth honesty rule). Every animation belongs to one of fourteen families, one for each kind of change: `reveal` (content opening or closing to its measured size), `arrive` (something new after the first draw), `pop` (a chip or small mark added or removed), `mark` (a tick or cross drawn when a result settles), `fill` (a bar or ring moving between measured values), `value` (a number or word changing in place), `move` (a thing changing place), `overlay` (a dialog, sheet, popover or menu opening or closing), `press` (a press registered), `tint` (hover, focus, selected), `refuse` (a locked control pressed), `attention` (something new waits on the person), `live` (work being heard from) and `clock` (real time passing: a hold, a deadline). Each component moment (copy-field's tick, a dialog opening) belongs to one. The manifest `motion.json` lists every item's moments with their family, defaults and the sentence that says when each plays; it is served at `/r/v/<version>/motion-manifest.json` beside the registry, and each item's docs page has a Motion section built from it.
 
 A family has a level (0 off, 1 subtle, 2 expressive), a duration, an easing, a size where it has one, and a closed set of variants: named ways of drawing the same change, of which a brand picks one and cannot add another. A brand file sets `--cd-motion-<family>` (the level), `-dur`, `-ease`, the family's amplitude and `-variant` for a family everywhere, or `--cd-motion-<item>-<moment>-*` for one moment of one component; `--cd-motion-speed` (0.5–1.5) scales every duration but the clock's and the attention ring's, which stays under five seconds. A brand changes how a change looks, never when it plays: the trigger stays in the component, so a brand cannot make a tick appear before the result or a bar fill ahead of the work.
 
 Who decides, from the strongest: `data-motion="none"` on `<html>` or any container (nothing moves, whatever else is set), then the person's operating system (`prefers-reduced-motion`) or `data-motion="calm"` as the same choice made in the app (the calm level), then `data-motion="subtle" | "expressive"`, then the brand file, then Candor's defaults. No attribute is the brand's levels (subtle unless it says otherwise); `subtle` caps every family at 1; `expressive` raises the families the brand didn't set. The `clock` family is the exception to turning things off: a hold's progress or an undo window's time left is the information itself, so a brand can restyle it but not remove it. A mark that was already final when the page drew does not animate. Components build a moment's chain with `motion(item, moment, family)` from `lib/motion.ts` and add the family utility (`cd-pop`, `cd-overlay`…) only at the honest moment.
 
-| Family | Reports | Duration (range) | Easing (allowed) | Amplitude (expressive) | Variants (default first) | Calm |
+| Family | Reports | Duration (range) | Easing (allowed) | Amplitude (expressive) | Variants (default first; fixed: one drawing, nothing to set) | Calm |
 | --- | --- | --- | --- | --- | --- | --- |
 | `reveal` | Content opened or closed to its measured size; a chevron turns. | 200 ms (150–300) | standard (standard, inout) | — | `cd-size`, `cd-fade` | Snaps to its measured size. |
 | `arrive` | Something new, added after the first draw. | 240 ms (150–300) | standard (standard, spring) | `-distance` 8px | `cd-rise`, `cd-fade`, `cd-pop` | Fades in, up to 150 ms. |
 | `pop` | Added, removed, or a small mark appearing. | 200 ms (100–300); out 120 ms | standard (standard, spring) | `-scale` 0.85 | `cd-scale`, `cd-fade` | Fades, up to 150 ms. |
 | `mark` | A tick or cross drawn when a result settles. | 360 ms (200–500) | standard (standard) | — | `cd-draw`, `cd-pop`, `cd-drop` | The finished mark fades in, up to 150 ms. |
-| `fill` | A bar or ring moving between measured values. | 360 ms (200–600) | standard (standard, inout) | — | `cd-grow` | Snaps to the new value; its colour may fade. |
+| `fill` | A bar or ring moving between measured values. | 360 ms (200–600) | standard (standard, inout) | — | (fixed) | Snaps to the new value; its colour may fade. |
 | `value` | A number or word changed in place. | 120 ms (80–200) | standard (standard) | `-distance` 2px | `cd-fade`, `cd-slide` | Crossfades, up to 150 ms. |
-| `move` | A thing changed place: a reorder, a tab indicator, a toast restacking, a scroll. | 200 ms (150–300) | standard (standard, spring) | — | `cd-slide` | Jumps to its new place. |
+| `move` | A thing changed place: a reorder, a tab indicator, a toast restacking, a scroll. | 200 ms (150–300) | standard (standard, spring) | — | (fixed) | Jumps to its new place. |
 | `overlay` | A dialog, sheet, popover, menu or tooltip opened or closed. | 150 ms (100–500); out 150 ms | standard (standard, inout, spring) | `-scale` 0.95 | `cd-scale`, `cd-slide`, `cd-fade` | Fades, up to 150 ms. |
-| `press` | A press registered. | 150 ms (80–200) | standard (standard) | `-scale` 0.96 | `cd-scale` | Doesn't scale; the colour still answers. |
-| `tint` | Hover, focus, selected, a drop target: a colour or opacity change. | 150 ms (0–200) | standard (standard, inout) | — | `cd-fade` | Colour and opacity only, up to 150 ms. |
-| `refuse` | A locked control was pressed: the reason is shown, and under expressive it shakes. | 360 ms (200–500) | standard (standard) | `-distance` 3px | `cd-shake` | No shake; the reason's colour still changes. |
-| `attention` | Something new waits on the person: a ring that grows and fades. | 900 ms (600–1600) | standard (standard) | `-count` 1 | `cd-ring` | One ring that fades without growing, up to 150 ms. |
-| `live` | Work that is being heard from: a dot's pulse, a caret, a spinner, a shimmer, a skeleton. | 1600 ms (1000–3000) | standard (standard, inout, linear) | — | `cd-pulse` | Still, with its word. |
-| `clock` | Real time passing: a hold, a deadline, a replay. Painted from the clock. | From the clock | linear (linear) | — | `cd-glide` | Steps instead of gliding; never off. |
+| `press` | A press registered. | 150 ms (80–200) | standard (standard) | `-scale` 0.96 | (fixed) | Doesn't scale; the colour still answers. |
+| `tint` | Hover, focus, selected, a drop target: a colour or opacity change. | 150 ms (0–200) | standard (standard, inout) | — | (fixed) | Colour and opacity only, up to 150 ms. |
+| `refuse` | A locked control was pressed: the reason is shown, and under expressive it shakes. | 360 ms (200–500) | standard (standard) | `-distance` 3px | (fixed) | No shake; the reason's colour still changes. |
+| `attention` | Something new waits on the person: a ring that grows and fades. | 900 ms (600–1600) | standard (standard) | `-count` 1 | (fixed) | One ring that fades without growing, up to 150 ms. |
+| `live` | Work that is being heard from: a dot's pulse, a caret, a spinner, a shimmer, a skeleton. | 1600 ms (1000–3000) | standard (standard, inout, linear) | — | (fixed) | Still, with its word. |
+| `clock` | Real time passing: a hold, a deadline, a replay. Painted from the clock. | From the clock | linear (linear) | — | (fixed) | Steps instead of gliding; never off. |
 
 Easings are written as CSS: standard `var(--cd-ease)`, inout `var(--cd-ease-inout)`, spring `var(--cd-ease-spring)`, linear `linear`. Spring overshoots, so only families that move things in space accept it. A variant is written as its keyframe's name (`--cd-motion-mark-variant: cd-pop`); a 2.2 brand's `--cd-pop-from` and `--cd-motion-shake` still apply.
 
@@ -211,7 +211,32 @@ Under `prefers-reduced-motion: reduce` (or `data-motion="calm"`) the kit moves t
 
 ## For your own motion
 
-Take the duration, easing and size from the family that fits the change, never a raw number of milliseconds: a `duration-200`, an `animate-in` or a `transition-all` in your own component skips the brand's settings, the person's, and the calm level. Start the motion from the moment the change is true (the write resolved, the step finished, the item arrived while the page was open), not from the press or the first draw. `npx candor-ui lint` warns about the raw forms in a file that uses Candor components.
+Take the duration, easing and size from the family that fits the change, never a raw number of milliseconds: a `duration-200`, an `animate-in` or a `transition-all` in your own component skips the brand's settings and the person's own level (`subtle`, `expressive`). The calm level and `data-motion="none"` still catch it, only less precisely: a raw transition keeps its duration, where a family's is capped at 150 ms. Start the motion from the moment the change is true (the write resolved, the step finished, the item arrived while the page was open), not from the press or the first draw. `npx candor-ui lint` warns about the raw forms in a file that uses Candor components.
+
+## Sound
+
+Sound is a second, quieter way to say that something needs a person, and it is never the only way. Five events can have one, each tied to a change the interface already shows: a cue the person can see always comes with it.
+
+| Event | Raised when | The visible cue that always comes with it |
+| --- | --- | --- |
+| `needs-you` | A new approval, question or choice waits on this person. | The prompt or its row, the count in the page title, a notification. |
+| `finished` | A run this person started has finished. | The result, a toast, the title count. |
+| `failed` | A run failed, or a guardrail stopped it. | The error toast, which stays, with the way to recover. |
+| `reply` | Another person (not an agent) replied in a thread this person is in. | The message and the unread count. |
+| `silent` | A run this person started has not been heard from for longer than the app's stale time. | The words "No update since…" on the run. |
+
+A brand file names the sound for an event with `--cd-sound-<event>`, a path in the app's own files (`--cd-sound-needs-you: "/sounds/needs-you.mp3"`), and sets how loud with `--cd-sound-volume` for all of them or `--cd-sound-<event>-volume` for one. `--cd-sound-<event>-ogg` names an Ogg alternative for browsers that play it; the MP3 is required. A brand file chooses which sound plays, not whether sound is on and not when.
+
+The rules sound keeps:
+
+- **Off until the person turns it on.** Nothing in the theme or the kit enables it. The app offers the choice (off, when away, always) and the person makes it; the click that turns it on also plays the chosen sound once, so they hear what they chose.
+- **Raised from data, never from a mount.** A prompt appearing on screen is not news, since the page may have just loaded. A sound plays only for something that was not there when the component first drew, such as an approval that has just arrived.
+- **Always with a visible cue.** Every event above has one. A sound is never the only signal, and nothing depends on hearing it.
+- **Coalesced.** Ten approvals at once play one sound, and the same event plays at most once every three seconds.
+- **Short and still.** At most 1.5 seconds, no loops, no speech.
+- **Hosted by the client.** The files live in the app, at the paths the brand file names. Candor's site does not serve sound to apps in production.
+
+Nothing is fetched until a sound plays: a page with sound off, or on with no event raised, requests no audio file. Components don't play sounds themselves. The app's attention hook does, from the events it offers and the person's setting.
 
 ## Layout
 

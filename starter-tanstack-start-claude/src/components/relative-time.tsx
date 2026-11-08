@@ -108,7 +108,7 @@ function RelativeTime({
   const spoken =
     bare && format === "relative" && current !== null ? formatRelative(d, new Date(current), { locale: fmt.tag, justNow: t("justNow"), numeric: "always" }) : text
   return (
-    <time dateTime={d.toISOString()} title={current === null ? undefined : fmt.date(d, "datetime")} className={className}>
+    <time data-slot="relative-time" dateTime={d.toISOString()} title={current === null ? undefined : fmt.date(d, "datetime")} className={className}>
       {spoken === text ? (
         text
       ) : (

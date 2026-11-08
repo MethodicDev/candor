@@ -52,17 +52,23 @@ const thumbnail = (a: Attachment) => (a.previewUrl && (a.mediaType ?? "").starts
 /**
  * A file waiting to be sent, as a chip in the composer: its name, then upload progress, an error, or its size, and a
  * remove button. Images show their preview when the app gives one.
+ *
+ * @motion fill:progress The upload bar under the chip moves from the old reported fraction to the new one as the service
+ * reports it. It is drawn at its first value in place, never grown from empty, and a file with no progress draws no bar.
  */
 function AttachmentChip({
   attachment: a,
   onRemove,
   className,
+  style,
 }: {
   /** The file, with progress (0–1) while uploading or an error if it failed. */
   attachment: Attachment
   /** Shows a remove button. */
   onRemove?: ((id: string) => void) | undefined
   className?: string | undefined
+  /** Inline style for the chip's outer element, such as a motion chain from `motion()`. */
+  style?: React.CSSProperties | undefined
 }) {
   const t = useStrings("attachmentPreview", attachmentPreviewStrings)
   const fmt = useFormat()
@@ -70,6 +76,7 @@ function AttachmentChip({
   return (
     <span
       data-slot="attachment-chip"
+      style={style}
       className={cn("relative inline-flex max-w-56 items-center gap-1.5 overflow-hidden rounded-md border bg-card py-1 pe-1 ps-2 text-xs", a.error && "border-destructive/50", className)}
     >
       {thumb ? <img src={thumb} alt="" className="size-4 shrink-0 rounded-xs object-cover" /> : <Paperclip aria-hidden className="size-3 shrink-0 text-muted-foreground" />}

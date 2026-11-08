@@ -10,6 +10,16 @@ import { motion, useMotionAllowed } from "@/lib/motion"
 /** The smooth scroll to the latest message. */
 const scrollMotion = motion("thread", "scroll", "move")
 /** Jump to latest appearing while the reader is scrolled up: 2.2's 150 ms and 4 px rise. */
+/** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
+function animationMs(el: Element | null): number | undefined {
+  if (!el || typeof getComputedStyle === "undefined") return undefined
+  const style = getComputedStyle(el)
+  const durations = style.animationDuration.split(",").map((t) => (t.trim().endsWith("ms") ? Number.parseFloat(t) : Number.parseFloat(t) * 1000))
+  const counts = style.animationIterationCount.split(",").map((c) => (c.trim() === "infinite" ? Number.POSITIVE_INFINITY : Number.parseFloat(c)))
+  const totals = durations.map((d, i) => d * (counts[i % counts.length] || 1)).filter((n) => Number.isFinite(n) || n === Number.POSITIVE_INFINITY)
+  return totals.length ? Math.min(6000, Math.max(...totals)) : undefined
+}
+
 const jumpMotion = motion("thread", "jump", "arrive", { dur: 150 })
 /** Its ring when a message arrives while the reader is scrolled up. */
 const arrivalMotion = motion("thread", "arrival", "attention")
@@ -99,6 +109,7 @@ function Thread({
   const [arrived, setArrived] = React.useState(false)
   const arrivedRef = React.useRef(false)
   const frame = React.useRef(0)
+  const jump = React.useRef<HTMLButtonElement>(null)
   React.useEffect(() => {
     arrivedRef.current = arrived
   }, [arrived])
@@ -154,7 +165,10 @@ function Thread({
   }, [virtualize, arrive])
   React.useEffect(() => {
     if (!arrived) return
-    const timer = window.setTimeout(() => setArrived(false), 1000)
+    // The ring ends when its animation does (onAnimationEnd on the button). This timer is only the fallback for when
+    // no animation runs (motion off, or no Candor CSS), set from the duration and count the page resolved, so a brand's
+    // longer ring isn't cut short.
+    const timer = window.setTimeout(() => setArrived(false), (animationMs(jump.current) ?? 1200) + 100)
     return () => window.clearTimeout(timer)
   }, [arrived])
 
@@ -265,7 +279,11 @@ function Thread({
           <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive">
             <button
               type="button"
+              ref={jump}
               data-slot="thread-jump"
+              onAnimationEnd={(e) => {
+                if (e.target === e.currentTarget && e.animationName.startsWith("cd-")) setArrived(false)
+              }}
               data-arrived={arrived ? "" : undefined}
               onClick={() => {
                 pinnedRef.current = true
