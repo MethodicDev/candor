@@ -210,7 +210,7 @@ function PromptBody({
     if (request.defaultToNo) denyRef.current?.focus()
   }, [request.id, request.defaultToNo])
 
-  // A press on inert space outside the prompt, while it waits, nudges it rather than dismissing anything.
+  // A press on inert space outside every prompt, while it waits, nudges it rather than dismissing anything.
   const section = React.useRef<HTMLElement>(null)
   const [nudged, setNudged] = React.useState(false)
   React.useEffect(() => {
@@ -218,6 +218,8 @@ function PromptBody({
     const onPress = (e: PointerEvent) => {
       const target = e.target as Element | null
       if (!target || section.current?.contains(target)) return
+      // A press anywhere inside another prompt is that prompt's business, not an outside press for this one.
+      if (target.closest('[data-slot="permission-prompt"]')) return
       if (target.closest(INTERACTIVE)) return
       setNudged(true)
     }

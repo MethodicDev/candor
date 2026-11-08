@@ -334,7 +334,7 @@ Types and pure functions the components share.
 - **safe-markdown** (free): Reads model text as safe markdown: paragraphs, lists and fenced code. Exports `markdownBlocks`, `inline`, `plainBlocks`.
 - **status** (free): The status vocabulary every Candor agent component shares. Exports `useStatusLabel`, `isTerminal`, `runLiveness`.
 - **team** (Pro): The data behind the app shell and the team screens: an account has an owner and members; a member holds at most one role per environment; invites go to an email; audit events carry ids and codes, never names.
-- **use-attention** (Pro): Something waits on a person, or finished while they were away: a count, a "(n) " badge on the document title, and, only where the app and the browser both allow it, a system notification or a sound. Exports `useAttention`.
+- **use-attention** (Pro): The count and the things the app can do about it. Exports `useAttention`.
 - **use-copy** (free): Copy text and report what actually happened. Exports `useCopy`.
 - **use-shortcut** (free): The keys of a combo as they should be printed: "mod+k" → ["⌘", "K"] on a Mac and ["Ctrl", "K"] elsewhere. Exports `isApple`, `comboKeys`, `useShortcut`.
 - **use-virtual-list** (free): Render only the items of a long list that are in or near view, for Thread's and SessionList's `virtualize`. Exports `useVirtualList`.
