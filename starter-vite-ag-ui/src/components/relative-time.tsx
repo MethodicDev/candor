@@ -23,7 +23,7 @@ const units: [Intl.RelativeTimeFormatUnit, number][] = [
 export function formatRelative(
   date: Date,
   now = new Date(),
-  { locale, justNow = relativeTimeStrings.justNow, bare = false }: { locale?: string | undefined; justNow?: string | undefined; bare?: boolean | undefined } = {}
+  { locale, justNow = relativeTimeStrings.justNow, bare = false, numeric = "auto" }: { locale?: string | undefined; justNow?: string | undefined; bare?: boolean | undefined; numeric?: "auto" | "always" | undefined } = {}
 ) {
   const seconds = Math.round((date.getTime() - now.getTime()) / 1000)
   if (Math.abs(seconds) < 10) return justNow
@@ -32,7 +32,7 @@ export function formatRelative(
       const n = Math.round(seconds / size)
       return bare
         ? new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "long" }).format(Math.abs(n))
-        : new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(n, unit)
+        : new Intl.RelativeTimeFormat(locale, { numeric }).format(n, unit)
     }
   }
   return ""
@@ -76,6 +76,7 @@ export function useNow(): number | null {
 
 /**
  * "3 minutes ago" / "in 6 days", kept fresh, with the exact time on hover. Shows the date until the clock is known.
+ * `bare` shows "3 minutes" and still names the whole phrase, "3 minutes ago", to a screen reader.
  * `format` shows an absolute time instead ("5 Nov 2026, 14:03"), in the locale, with the same server-safe gate.
  */
 function RelativeTime({
@@ -86,7 +87,7 @@ function RelativeTime({
 }: {
   /** When it happened. Shown as "5 minutes ago", with the exact time on hover. */
   date: Date | string
-  /** Drop "ago" and "in", for tight spaces: "5 minutes". */
+  /** Drop "ago" and "in", for tight spaces: "5 minutes". Assistive technology still gets the direction. */
   bare?: boolean | undefined
   /** "relative" (the default), or an absolute "date", "datetime" or "time" in the locale. */
   format?: "relative" | DateStyle | undefined
@@ -102,9 +103,20 @@ function RelativeTime({
       : current === null
         ? d.toISOString().slice(0, 10)
         : formatRelative(d, new Date(current), { locale: fmt.tag, justNow: t("justNow"), bare })
+  // A bare time ("2 days") is read aloud without its direction, so a screen reader hears the whole phrase ("2 days ago")
+  // while the page keeps the short one. "always" keeps the number ("1 day ago", not "yesterday"), so the spoken words match the shown ones.
+  const spoken =
+    bare && format === "relative" && current !== null ? formatRelative(d, new Date(current), { locale: fmt.tag, justNow: t("justNow"), numeric: "always" }) : text
   return (
     <time dateTime={d.toISOString()} title={current === null ? undefined : fmt.date(d, "datetime")} className={className}>
-      {text}
+      {spoken === text ? (
+        text
+      ) : (
+        <>
+          <span aria-hidden>{text}</span>
+          <span className="sr-only">{spoken}</span>
+        </>
+      )}
     </time>
   )
 }

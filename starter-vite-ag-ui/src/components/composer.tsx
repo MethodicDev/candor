@@ -85,7 +85,13 @@ function useChipMotion<T>(items: T[], keyOf: (item: T) => string) {
         return next
       })
     }
-    if (gone.length) setLeaving((list) => [...list.filter((item) => !now.has(keyOf(item))), ...gone])
+    // A chip added again while its ghost is still leaving takes the ghost's place: the ghost goes at once.
+    if (gone.length || added.length) {
+      setLeaving((list) => {
+        const kept = list.filter((item) => !now.has(keyOf(item)))
+        return kept.length === list.length && gone.length === 0 ? list : [...kept, ...gone]
+      })
+    }
   }, [items, keyOf])
   React.useEffect(() => {
     if (leaving.length === 0) return

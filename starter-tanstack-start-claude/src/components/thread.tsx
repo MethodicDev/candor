@@ -25,7 +25,7 @@ export const threadStrings = {
  * reader instead of following.
  *
  * While the reader is scrolled up, "Jump to latest" pulses once each time a
- * new message arrives, then stays still; the jump itself scrolls smoothly
+ * new message arrives (a child of the thread, or any element marked `data-slot="message"` inside it), then stays still; the jump itself scrolls smoothly
  * unless the OS asks for reduced motion or data-motion is "none".
  */
 function Thread({
@@ -80,15 +80,62 @@ function Thread({
     el.scrollTo({ top: el.scrollHeight, behavior: still ? "auto" : behavior })
   }, [])
 
-  // New messages that arrive while the reader is scrolled up: the Jump to latest control pulses once for each.
+  // A new message while the reader is scrolled up: the Jump to latest control pulses once for each arrival, even when
+  // the messages sit inside a wrapper component or a fragment. A second arrival while it still pulses restarts it.
+  const [arrived, setArrived] = React.useState(false)
+  const arrivedRef = React.useRef(false)
+  const frame = React.useRef(0)
+  React.useEffect(() => {
+    arrivedRef.current = arrived
+  }, [arrived])
+  React.useEffect(() => () => cancelAnimationFrame(frame.current), [])
+  const arrive = React.useCallback(() => {
+    if (pinnedRef.current) return
+    if (!arrivedRef.current) {
+      arrivedRef.current = true
+      setArrived(true)
+      return
+    }
+    // Already pulsing: switch it off and on again next frame, so the ring plays again.
+    arrivedRef.current = false
+    setArrived(false)
+    cancelAnimationFrame(frame.current)
+    frame.current = requestAnimationFrame(() => {
+      arrivedRef.current = true
+      setArrived(true)
+    })
+  }, [])
+  // Virtualized, every child is one message and the rows come and go as the reader scrolls, so the children are counted.
   const count = React.Children.count(children)
   const lastCount = React.useRef(count)
-  const [arrived, setArrived] = React.useState(false)
   React.useEffect(() => {
     const grew = count > lastCount.current
     lastCount.current = count
-    if (grew && !pinnedRef.current) setArrived(true)
-  }, [count])
+    if (grew && virtualize) arrive()
+  }, [count, virtualize, arrive])
+  // Otherwise the list itself is watched. A message is an element marked data-slot="message" anywhere inside the log, or a
+  // direct child of it that holds none. It is an arrival only when there are more messages than before and an added one
+  // comes after every message that was already there: unfolding earlier turns inserts in the middle, and swapping a
+  // reply for another version (a keyed remount) doesn't change the count. Text streaming into a message adds neither.
+  React.useEffect(() => {
+    const el = content.current
+    if (virtualize || !el || typeof MutationObserver === "undefined") return
+    const messages = () =>
+      Array.from(el.querySelectorAll<HTMLElement>("*")).filter((node) => node.matches('[data-slot="message"]') || (node.parentElement === el && node.querySelector('[data-slot="message"]') === null))
+    const seen = { messages: messages() }
+    const observer = new MutationObserver(() => {
+      const before = seen.messages
+      const known = (seen.messages = messages())
+      if (known.length <= before.length) return
+      const had = new Set(before)
+      const survivors = before.filter((node) => node.isConnected)
+      const added = known.filter((node) => !had.has(node))
+      const atTheEnd = added.some((node) => survivors.every((old) => old.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING))
+      if (atTheEnd) arrive()
+    })
+    observer.observe(el, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [virtualize, arrive])
   React.useEffect(() => {
     if (!arrived) return
     const timer = window.setTimeout(() => setArrived(false), 1000)
