@@ -266,11 +266,14 @@ Nothing is fetched until a sound plays: a page with sound off, or on with no eve
 
 `--cd-*` is Candor's own namespace: 37 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets and widths. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
 
+The quickest way is the free theme builder at https://candor.themethodic.com/theme-builder: it takes the brand's colours, sets type, shape, motion and sound, checks every pairing in every theme, and downloads `candor-brand.css` (the overrides, imported straight after `candor.css`) and `candor-theme.json` (the same values as design tokens, with each check's ratio). It runs in the browser and the theme is never sent anywhere; if you give it a font's address and press to load it, your browser fetches the font from that host, which sees the request, and an exported file with a font `@import` does the same in your app. Check the result with `npx candor-ui theme check` from the project root (it reads the CSS file named in components.json and the files that file imports). Writing the overrides by hand works the same way:
+
 To re-token for a brand, override after the import, by role, in every theme you support:
 
 ```css
 @import "tailwindcss";
-@import "./candor.css"; /* where candor-ui init put it */
+@import "../styles/candor.css"; /* the path candor-ui init wrote */
+@import "../styles/candor-brand.css"; /* the same folder */
 
 /* Your brand, after Candor's defaults. Keep each role's job; change its value. */
 :root {
