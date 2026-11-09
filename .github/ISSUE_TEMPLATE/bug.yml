@@ -1,0 +1,56 @@
+name: A bug in a free item, a starter or the CLI
+description: Something in this repository or in the free tier doesn't work as its docs say.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a paid item or your licence, email info@themethodic.com instead (see SUPPORT.md). **Never paste a licence key, token or other secret here: issues are public.** For a vulnerability, see SECURITY.md.
+  - type: input
+    id: item
+    attributes:
+      label: Which item, starter or package
+      description: For example `thread`, `permission-prompt`, `starter-vite-ag-ui` or `candor-ui`.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The kit version in your `candor-lock.json`, or the package version (`npm ls candor-ui @candor-ui/react`).
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: If the docs or an honesty rule say what it should do, quote or link them.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to see it
+      description: The smallest steps or code that show it. A link to a repository or a StackBlitz is better than a long paste.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Your setup
+      description: Framework and version, React, Tailwind, shadcn, Node, browser. The output of `npx candor-ui doctor` helps.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send
+      options:
+        - label: I looked at the changelog and the existing issues
+        - label: This report contains no licence key, token or other secret
+          required: true

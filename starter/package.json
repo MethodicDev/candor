@@ -1,6 +1,9 @@
 {
   "name": "candor-starter",
   "version": "0.1.0",
+  "candor": {
+    "kitVersion": "2.6.2"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",

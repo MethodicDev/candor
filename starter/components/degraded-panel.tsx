@@ -20,9 +20,9 @@ export const degradedPanelStrings = {
 }
 
 /**
- * Something couldn't be done. Says what went wrong, what is missing because of
- * it, and offers a retry only when the caller can actually retry (Candor's
- * DegradedPanel: a degraded state names what's missing, never just looks sad).
+ * A degraded result: what went wrong, what is missing because of it, and a
+ * retry only when the caller can actually retry. A degraded state names
+ * what's missing; it never just looks sad.
  */
 function DegradedPanel({
   reason,

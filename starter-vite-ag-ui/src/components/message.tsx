@@ -29,7 +29,7 @@ const caretMotion = motion("message", "caret", "live", { dur: 1000 })
 export const messageStrings = {
   you: "You",
   personLabel: "{name}, {team}",
-  agentLabel: "{name}, {noun} agent",
+  agentLabel: "{name} ({noun})",
   interrupted: "Stopped before it finished. What arrived is kept.",
   continue: "Continue",
   failed: "The agent couldn’t finish this reply.",

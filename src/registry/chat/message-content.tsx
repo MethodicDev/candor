@@ -8,7 +8,7 @@ import type { Attachment, EntityRef, InlineNode, MessageBlock, MessageSource } f
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 import { Citation } from "@/registry/chat/citation"
 import { EntityChip } from "@/registry/chat/entity-chip"
-import { Card } from "@/registry/chat/card-registry"
+import { RegistryCard } from "@/registry/chat/card-registry"
 import { Payload } from "@/registry/chat/payload"
 import { AttachmentList } from "@/registry/chat/attachment-preview"
 import { ToolCallGroup } from "@/registry/chat/tool-call"
@@ -160,7 +160,7 @@ function Block({
     case "degraded":
       return <DegradedPanel reason={block.reason} missing={block.missing} />
     case "card":
-      return <Card name={block.card} props={block.props} summary={block.summary} />
+      return <RegistryCard name={block.card} props={block.props} summary={block.summary} />
     case "attachments":
       return <AttachmentBlock files={block.files} />
   }

@@ -1,11 +1,58 @@
 # Candor UI: the free tier
 
+**Honest agent UI for shadcn/ui:** chat, tool calls and permission prompts that never overstate what an agent did. MIT.
+
+[![npm: candor-ui](https://img.shields.io/npm/v/candor-ui?label=candor-ui)](https://www.npmjs.com/package/candor-ui)
+[![Licence: MIT](https://img.shields.io/github/license/MethodicDev/candor)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/MethodicDev/candor)](https://github.com/MethodicDev/candor/releases)
+
+![The Vite starter's scripted agent asking to add a task: the tool call waits for you, and a permission prompt shows what it will run, with Deny and Allow and neither chosen for you](.github/assets/permission-prompt.png)
+
+**[Try the app demo](https://candor.themethodic.com/app)** · **[Honest against typical, side by side](https://candor.themethodic.com/honest-vs-typical)** · [Docs](https://candor.themethodic.com/docs) · [Changelog](https://candor.themethodic.com/changelog)
+
 Interface components for agent apps: a thread, messages, a composer, tool calls, reasoning and citations, the
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
-Agent SDK and AG-UI. Built on shadcn, installed with its CLI, MIT licensed.
+Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 69 free items (version 2.6.1), the skill and plugins for coding
+This repo is the source of Candor UI's 69 free items (version 2.6.2), the skill and plugins for coding
 agents and three starter apps. Docs and live examples: **https://candor.themethodic.com**.
+
+The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
+would rather `npm install` than copy code in. That package changes only when a free item changes, so its version can be
+behind the kit's after a release that changed only Pro items; the CLI, `candor-ui`, has a version of its own. The
+[changelog](https://candor.themethodic.com/changelog) says which release changed what.
+
+## Try it in a minute, no key
+
+```bash
+npx degit MethodicDev/candor/starter-vite-ag-ui my-app
+cd my-app
+npm install
+npm run dev
+```
+
+Open the address it prints. A scripted agent answers in the page: fixed replies, no model, no server and no API key,
+and the page says so. Ask it to add "Try a Candor block" to your list and you'll see a line of its reasoning, a tool
+call marked "Needs you", and a permission prompt that shows what it will run, with Deny and Allow and neither
+chosen for you. That is what the image above shows. Point `VITE_AGENT_URL` at an AG-UI agent (LangGraph, CrewAI…)
+when you want a real one.
+
+## Why Candor
+
+An agent that acts on real systems can mislead without saying anything false: a spinner nobody has heard from, a total
+that treats a missing cost as zero, an approval that now applies to a different change. Candor's components keep these
+9 rules. Where [Honest against typical](https://candor.themethodic.com/honest-vs-typical) has a moment that shows one, the link goes to its
+Typical and Honest switch; the others go to [Principles](https://candor.themethodic.com/principles).
+
+- **[Model output is text, never markup](https://candor.themethodic.com/honest-vs-typical#link-the-model-wrote)**: Adapters read what a model writes as a small safe subset of markdown; a link becomes plain text with its address beside it.
+- **[Unknown stays unknown](https://candor.themethodic.com/honest-vs-typical#run-that-went-quiet)**: A cost or duration the service didn't report reads “not measured”, not zero, and an estimate says it is one.
+- **[A control that can't be used says why](https://candor.themethodic.com/honest-vs-typical#button-that-was-dead)**: A control that can't be used carries its reason, on hover and focus and to screen readers.
+- **[Nothing is pre-selected in a decision](https://candor.themethodic.com/honest-vs-typical#approve-already-chosen)**: Approve and reject, allow and deny start with neither chosen.
+- **[Approve the exact change](https://candor.themethodic.com/honest-vs-typical#approval-that-moved)**: A decision is tied to a hash of the change that was asked about; a change that moved since is refused.
+- **[Reasoning is believed, not verified](https://candor.themethodic.com/principles#reasoning-is-believed)**: Reasoning is shown as the model's own account and marked as unchecked; evidence is shown as evidence.
+- **[The agent is always named, by the app](https://candor.themethodic.com/principles#agents-are-named)**: Every agent message names its agent from the app's data, never from model output.
+- **[Say what can and can't be undone](https://candor.themethodic.com/honest-vs-typical#restore-that-missed-a-shell-change)**: Destructive actions say what they remove and whether it can be brought back.
+- **[Motion follows the outcome](https://candor.themethodic.com/honest-vs-typical#tick-before-the-clipboard-answered)**: A success mark is drawn after the result settles; motion reports a change and never predicts one.
 
 ## Install
 
@@ -18,6 +65,22 @@ npx candor-ui add thread message composer
 shadcn yet it runs shadcn's setup first (`--yes` sets it up with Radix and shadcn's nova preset, no questions). Or add the registry by
 hand: `"@candor": "https://candor.themethodic.com/r/{name}.json"`. If shadcn asks to overwrite a primitive such as
 `ui/button.tsx`, answer yes: Candor's button styles locked actions; without a terminal, pass `--overwrite`.
+
+## Tools
+
+`candor-ui` also checks what you build, from the CLI's own docs:
+
+- **`lint`** checks your `.tsx`, `.ts`, `.jsx` and `.js` files against Candor's honesty rules and prints
+  `path:line:col  rule  message` for each finding; it exits 1 on an error.
+- **`audit`** is `lint` plus a look at a running page: `npx candor-ui audit http://localhost:3000` runs axe and the
+  honesty rules on it and writes `AUDIT.md`.
+- **`update`** moves installed items to the latest version and keeps your changes: a file you edited gets a three-way
+  merge, and where you and we changed the same lines it writes conflict markers.
+- **`verify`** is for CI: it checks `candor-lock.json` against the registry's versioned snapshots and the files on disk.
+- **`theme check`** checks your theme's colour contrast and its motion and sound values, and changes nothing.
+
+`candor-ui doctor` explains an install that looks wrong. Every command is in the
+[CLI's README](https://www.npmjs.com/package/candor-ui).
 
 ## For coding agents
 
@@ -48,97 +111,82 @@ Three apps with a working agent chat built from these components. Each installs 
 
 | Folder | Stack | Agent |
 |---|---|---|
-| `starter/` | Next.js 16 | Vercel AI SDK at `/`, Claude Agent SDK at `/claude` |
-| `starter-vite-ag-ui/` | Vite and React, no server | any AG-UI agent (LangGraph, CrewAI…), or a scripted one in the page |
-| `starter-tanstack-start-claude/` | TanStack Start | Claude Agent SDK |
+| `starter-vite-ag-ui/` | Vite and React, no server | a scripted one in the page (no key; see above), or any AG-UI agent (LangGraph, CrewAI…) |
+| `starter/` | Next.js 16 | Vercel AI SDK at `/`, Claude Agent SDK at `/claude` (needs an Anthropic API key) |
+| `starter-tanstack-start-claude/` | TanStack Start | Claude Agent SDK (needs an Anthropic API key) |
 
 ```bash
-npx degit MethodicDev/candor/starter my-agent-app
 npx degit MethodicDev/candor/starter-vite-ag-ui my-agent-app
+npx degit MethodicDev/candor/starter my-agent-app
 npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 ```
 
 ## What's here
 
-- `theme`: Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind.
-- `font-inter`: Inter, Candor's default typeface, self-hosted (OFL-1.1). Optional: without it the theme uses the system font. Import styles/candor-font-inter.css next to candor.css.
-- `font-source-sans`: Source Sans 3, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-source-sans.css after candor.css; it points --cd-font at it.
-- `font-ibm-plex`: IBM Plex Sans, self-hosted (OFL-1.1), as an alternative to Inter. Import styles/candor-font-ibm-plex.css after candor.css; it points --cd-font at it.
-- `theme-slate`: Slate, a gallery theme. Cool blue-grey neutrals and a blue accent; dark is a deep navy slate. Contrast-checked like the default. Import styles/candor-theme-slate.css after candor.css.
-- `theme-paper`: Paper, a gallery theme. Warm off-white grounds, blue-black ink and a terracotta accent; dark is a warm sepia. Contrast-checked like the default. Import styles/candor-theme-paper.css after candor.css.
-- `theme-console`: Console, a gallery theme. Dark-first and dense: near-black grounds, a green accent and the compact density. Light is a muted light console. Contrast-checked like the default. Import styles/candor-theme-console.css after candor.css.
-- `theme-signal`: Signal, a gallery theme. True greys with no tint and one high-saturation indigo for the action that matters. Contrast-checked like the default. Import styles/candor-theme-signal.css after candor.css.
-- `ag-ui`: Turns AG-UI events into Candor messages, waiting approvals and usage, with AG-UI 1.0's shared state and activities.
-- `ai-sdk`: Vercel AI SDK (v7) UI messages to Candor messages: text, reasoning, tool calls, sources and data cards.
-- `claude-agent-sdk`: Turns Claude Agent SDK events into Candor messages, waiting approvals (and the agent's questions), usage and sources, and a person's answer back into the SDK's result.
-- `claude-agent-server`: The server half of the Claude Agent SDK adapter: stream a run to useClaudeAgent, keep its permission requests in a store your own route can answer, and let a browser re-attach to a run after a reload.
-- `use-ag-ui`: Wires an AG-UI agent to Candor: messages for <Thread>/<Message>, props for <Composer>, and the interrupts waiting on a person.
-- `use-candor-chat`: Wires a `useChat()` result to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person.
-- `use-claude-agent`: Wires a Claude Agent SDK server route to Candor: messages for <Thread>/<Message>, props for <Composer>, and the tool calls waiting on a person, re-attaching to a run after a reload.
-- `copy-field`: A value a person copies somewhere else (a callback URL, a scope list).
-- `degraded-panel`: Something couldn't be done.
-- `locale`: The interface's words, language and direction.
-- `locked`: The honest-state rule: a control that cannot be used says why.
-- `relative-time`: A time as people say it ("5 minutes ago"), with the exact time on hover, safe to render on the server.
-- `status-dot`: A small status mark.
-- `step-list`: A step's status as a mark.
-- `streaming-text`: Text that is still arriving.
-- `surface`: Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.
-- `terms`: The app's words for its own concepts, so components read like the product: one app says "org", another "project" or "workspace".
-- `agent-avatar`: An agent's glyph and hue by role, so people can tell agents apart at a glance.
-- `ai-disclosure`: A plain notice that the person is interacting with an AI system: a first line in the thread (`variant="line"`) or a compact "AI" badge for a thread header (`variant="badge"`) that opens to the app's own explanation.
-- `attachment-preview`: A file waiting to be sent, as a chip in the composer: its name, then upload progress, an error, or its size, and a remove button.
-- `card-registry`: A card an agent's reply can carry.
-- `citation`: An inline [n] that opens its source in a popover, so evidence is one step away without leaving the thread.
-- `composer`: Where a person writes to the agent: @ mentions attach things as references, / starts a known action, and the scope says where the ask runs.
-- `context-meter`: What fills the model's context budget, as a ring in the composer that opens to a breakdown: system, instructions, Know, the thread, tools, files.
-- `entity-chip`: A thing in the user's system (a table, a record, a flow) as a chip with its kind's icon, that can open it.
-- `folded-turns`: A run of turns folded into one line, for long agent work a reader doesn't need to see step by step: "Drafted three versions and compared them".
-- `message-actions`: Copy, retry and rate under an agent's reply.
-- `message-content`: A message's typed blocks (paragraphs, lists, code, tool calls, cards), rendered as text, never as markdown or HTML.
-- `message`: One message in a thread.
-- `payload`: A block of code or query text from the agent: a query it ran, code it wrote, a config file.
-- `permission-prompt`: A tool call waiting for a person's go-ahead: what it will do, why it reached them, and the permission mode the run is in.
-- `prompt-suggestions`: Prompts to start from.
-- `reasoning`: The agent's stated reasoning above its answer.
-- `thread-divider`: A rule across the thread with a label in the middle: a day ("Today", "Yesterday", "5 Nov 2026") or a chapter of the conversation ("Drafting", "Review").
-- `thread-event`: A quiet, centred line in a thread for something that happened rather than something said: "Sam joined", "Switched to the staging environment", "Run stopped by a guardrail".
-- `thread`: The scrolling message column.
-- `tool-call`: One tool call as a compact row: what it did in plain words, its status, and how long it took.
-- `chat`: The data a Candor thread renders.
-- `highlight`: A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span.
-- `know`: The data behind the agents' knowledge base and agent settings.
-- `mcp-input`: MCP's "input required" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.
-- `motion`: Candor's motion layer, the part that runs in components.
-- `render-prop`: Lets Candor's Radix-based primitives also take Base UI's `render` prop.
-- `safe-markdown`: Reads model text as safe markdown: paragraphs, lists and fenced code.
-- `sound`: The names and the reading half of Candor's sound layer.
-- `status`: The status vocabulary every Candor agent component shares.
-- `use-copy`: Copy text and report what actually happened.
-- `use-shortcut`: The keys of a combo as they should be printed: "mod+k" → ["⌘", "K"] on a Mac and ["Ctrl", "K"] elsewhere.
-- `use-virtual-list`: Render only the items of a long list that are in or near view, for Thread's and SessionList's `virtualize`.
-- `accordion`: A stack of headings that each open to reveal more.
-- `alert`: A message about the page or the work that stays where it is until it no longer applies: a warning before a change, a note that something failed, a fact the person should know.
-- `button`: shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why).
-- `checkbox`: A box the person ticks.
-- `collapsible`: shadcn's collapsible (Radix) in Candor's theme.
-- `label`: The name of a control.
-- `popover`: shadcn's popover (Radix) in Candor's theme.
-- `progress`: A bar for work whose progress is measured: an upload, an import, an index.
-- `skeleton`: A loading placeholder in the shape of what's coming.
-- `slider`: A control for a value in a range, with one thumb or, when the value has two numbers, a range.
-- `switch`: A setting that is on or off.
-- `tooltip`: shadcn's tooltip (Radix) in Candor's theme.
+69 free items, each with a docs page that has its props and live examples. Install any of them by name:
+`npx candor-ui add <name>`.
 
-## Pro and Premium
+| Area | What it's for | Items |
+|---|---|---|
+| **Chat** (20) | A conversation with an agent: messages, the composer, tool calls, reasoning, citations. | [`agent-avatar`](https://candor.themethodic.com/docs/agent-avatar), [`ai-disclosure`](https://candor.themethodic.com/docs/ai-disclosure), [`attachment-preview`](https://candor.themethodic.com/docs/attachment-preview), [`card-registry`](https://candor.themethodic.com/docs/card-registry), [`citation`](https://candor.themethodic.com/docs/citation), [`composer`](https://candor.themethodic.com/docs/composer), [`context-meter`](https://candor.themethodic.com/docs/context-meter), [`entity-chip`](https://candor.themethodic.com/docs/entity-chip), [`folded-turns`](https://candor.themethodic.com/docs/folded-turns), [`message-actions`](https://candor.themethodic.com/docs/message-actions), [`message-content`](https://candor.themethodic.com/docs/message-content), [`message`](https://candor.themethodic.com/docs/message), [`payload`](https://candor.themethodic.com/docs/payload), [`permission-prompt`](https://candor.themethodic.com/docs/permission-prompt), [`prompt-suggestions`](https://candor.themethodic.com/docs/prompt-suggestions), [`reasoning`](https://candor.themethodic.com/docs/reasoning), [`thread-divider`](https://candor.themethodic.com/docs/thread-divider), [`thread-event`](https://candor.themethodic.com/docs/thread-event), [`thread`](https://candor.themethodic.com/docs/thread), [`tool-call`](https://candor.themethodic.com/docs/tool-call) |
+| **Adapters** (7) | Map an agent SDK's messages onto Candor's data: the Vercel AI SDK, the Claude Agent SDK and AG-UI. | [`ag-ui`](https://candor.themethodic.com/docs/ag-ui), [`ai-sdk`](https://candor.themethodic.com/docs/ai-sdk), [`claude-agent-sdk`](https://candor.themethodic.com/docs/claude-agent-sdk), [`claude-agent-server`](https://candor.themethodic.com/docs/claude-agent-server), [`use-ag-ui`](https://candor.themethodic.com/docs/use-ag-ui), [`use-candor-chat`](https://candor.themethodic.com/docs/use-candor-chat), [`use-claude-agent`](https://candor.themethodic.com/docs/use-claude-agent) |
+| **Building blocks** (10) | Small pieces every screen uses: locked controls, status dots, step lists, relative times. | [`copy-field`](https://candor.themethodic.com/docs/copy-field), [`degraded-panel`](https://candor.themethodic.com/docs/degraded-panel), [`locale`](https://candor.themethodic.com/docs/locale), [`locked`](https://candor.themethodic.com/docs/locked), [`relative-time`](https://candor.themethodic.com/docs/relative-time), [`status-dot`](https://candor.themethodic.com/docs/status-dot), [`step-list`](https://candor.themethodic.com/docs/step-list), [`streaming-text`](https://candor.themethodic.com/docs/streaming-text), [`surface`](https://candor.themethodic.com/docs/surface), [`terms`](https://candor.themethodic.com/docs/terms) |
+| **Primitives** (12) | The shadcn/ui primitives Candor's components are built on. | [`accordion`](https://candor.themethodic.com/docs/accordion), [`alert`](https://candor.themethodic.com/docs/alert), [`button`](https://candor.themethodic.com/docs/button), [`checkbox`](https://candor.themethodic.com/docs/checkbox), [`collapsible`](https://candor.themethodic.com/docs/collapsible), [`label`](https://candor.themethodic.com/docs/label), [`popover`](https://candor.themethodic.com/docs/popover), [`progress`](https://candor.themethodic.com/docs/progress), [`skeleton`](https://candor.themethodic.com/docs/skeleton), [`slider`](https://candor.themethodic.com/docs/slider), [`switch`](https://candor.themethodic.com/docs/switch), [`tooltip`](https://candor.themethodic.com/docs/tooltip) |
+| **Themes** (5) | The default theme and 4 gallery themes: colours, type, radius and motion as CSS variables, in light, dark and high contrast. | [`theme`](https://candor.themethodic.com/docs/theme), [`theme-slate`](https://candor.themethodic.com/docs/theme-slate), [`theme-paper`](https://candor.themethodic.com/docs/theme-paper), [`theme-console`](https://candor.themethodic.com/docs/theme-console), [`theme-signal`](https://candor.themethodic.com/docs/theme-signal) |
 
-Plans, approvals, diffs, runs, evals, the app shell, admin screens, full-stack blocks and templates are in the paid
-tiers: https://candor.themethodic.com/#pricing.
+<details>
+<summary>Shared helpers and fonts (15)</summary>
 
-## Contributing
+**Shared types and helpers** (12): Types and pure functions the components share.
 
-This repo is generated from Candor UI's main repo on each release. Issues are welcome here; pull requests are read and
-applied upstream by hand, so they show up in the next release rather than being merged directly.
+[`chat`](https://candor.themethodic.com/docs/chat), [`highlight`](https://candor.themethodic.com/docs/highlight), [`know`](https://candor.themethodic.com/docs/know), [`mcp-input`](https://candor.themethodic.com/docs/mcp-input), [`motion`](https://candor.themethodic.com/docs/motion), [`render-prop`](https://candor.themethodic.com/docs/render-prop), [`safe-markdown`](https://candor.themethodic.com/docs/safe-markdown), [`sound`](https://candor.themethodic.com/docs/sound), [`status`](https://candor.themethodic.com/docs/status), [`use-copy`](https://candor.themethodic.com/docs/use-copy), [`use-shortcut`](https://candor.themethodic.com/docs/use-shortcut), [`use-virtual-list`](https://candor.themethodic.com/docs/use-virtual-list)
+
+**Fonts** (3): Self-hosted, and optional: without one the theme uses the system font.
+
+[`font-inter`](https://candor.themethodic.com/docs/font-inter), [`font-source-sans`](https://candor.themethodic.com/docs/font-source-sans), [`font-ibm-plex`](https://candor.themethodic.com/docs/font-ibm-plex)
+
+</details>
+
+## Pro, Premium and Team
+
+One-time prices, no subscription. A licence includes every version Candor UI publishes, major ones included. You can
+ask for a full refund within 30 days of buying. The free tier here is MIT.
+
+| Tier | Price | What's in it | Support |
+|---|---|---|---|
+| Free (this repo) | $0, MIT | 69 items: the chat core, building blocks, themes, adapters; three starters; the skill and plugins | public issues here |
+| Pro | $149, one person | All 249 components and hooks, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
+| Team | $999, up to ten people in one company | Premium | email, a first reply within 2 business days |
+
+Buy at https://candor.themethodic.com/#pricing. The terms are the [Candor UI Commercial Licence](https://candor.themethodic.com/licence); [SUPPORT.md](.github/SUPPORT.md)
+repeats the support each tier includes. Your key arrives in Polar's receipt email and customer portal; https://candor.themethodic.com/licence-key
+says where, and what a refund does to it. Then, in your project:
+
+```bash
+npx candor-ui key <your licence key>   # saves it to .env.local, checks it, and has the registry send it
+npx candor-ui add approval-request     # a Pro item, installed like any other
+```
+
+In CI, set `CANDOR_LICENSE_KEY` as a secret, so installs and `npx candor-ui verify` can read paid items. Installed code
+needs no key to run; the key is only for installing and updating. Never put a key in an issue, a pull request or a
+repository.
+
+## How this repository works
+
+- **The source of truth is private.** Candor UI's main repository holds the free items and the paid tiers together. This
+  repository is generated from it on each release, so a change made here by hand would be overwritten.
+- **Each release is a commit, a tag and a GitHub Release.** The commit `Candor X.Y.Z`, the tag `vX.Y.Z` and the
+  [release](https://github.com/MethodicDev/candor/releases) all carry that version's changelog section.
+- **Issues are read.** Use the [forms](https://github.com/MethodicDev/candor/issues/new/choose). There is no promised reply time for the free tier; the
+  support each paid tier includes is in [SUPPORT.md](.github/SUPPORT.md). A vulnerability goes to
+  [SECURITY.md](.github/SECURITY.md), not to an issue.
+- **A pull request isn't merged here.** If it is accepted, it is applied upstream by hand, credited in that release's
+  changelog entry, and closed with a link to the release that holds it. [CONTRIBUTING.md](.github/CONTRIBUTING.md) has the
+  rest.
+- **Every release is reviewed over its full diff** by a separate review session that had no part in writing it, before
+  the owner approves the merge. Most of the code is written with AI coding assistants, and the commits here say so in a
+  Co-Authored-By line.
 
 ## Licence
 

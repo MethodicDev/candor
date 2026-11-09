@@ -90,7 +90,7 @@ function Summary({
  * service's text summary: the app doesn't know this card; its data doesn't
  * fit (and how); or it failed while drawing.
  */
-function Card({
+function RegistryCard({
   name,
   props,
   summary,
@@ -146,4 +146,12 @@ export const isObject = (v: unknown): v is Record<string, unknown> => typeof v =
 export const isArrayOf = <T,>(v: unknown, item: (x: unknown) => x is T): v is T[] => Array.isArray(v) && v.every(item)
 export const isString = (v: unknown): v is string => typeof v === "string"
 
-export { Card, CardRegistryProvider }
+/**
+ * The same component as `RegistryCard`, under the name it was first exported with.
+ *
+ * @deprecated `Card` is also the name of the shadcn Card in `@/components/ui/card`, and a file that imports both has to
+ * rename one. Import `RegistryCard` instead. This name is removed in 3.0.
+ */
+const Card = RegistryCard
+
+export { RegistryCard, Card, CardRegistryProvider }

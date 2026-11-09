@@ -17,6 +17,8 @@ to an agent that reads a to-do list on its own and asks you before it adds to it
 Without `ANTHROPIC_API_KEY` the page says so instead of showing the chat. The key is only read on the server: it is
 never imported by anything the browser loads.
 
+> Generated from Candor UI 2.6.2: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+
 ## Get started
 
 ```bash

@@ -1,0 +1,25 @@
+name: A mistake or a gap in the docs
+description: A README, a starter's README or the skill says something wrong, or leaves something out.
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: The site's docs pages are generated from the same source as this repository. Say where you read it, and we'll correct it there. **Don't paste a licence key.**
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The file in this repository, or the address of the docs page.
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong or missing
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What it should say
+      description: If you know. If you tried something and it didn't work as written, say what you ran.

@@ -48,11 +48,26 @@ licence key; it serves docs, never paid source). If it isn't connected, suggest 
 claude mcp add --transport http candor https://candor.themethodic.com/mcp
 ```
 
-Other clients add `https://candor.themethodic.com/mcp` as a remote (streamable HTTP) server. Its tools:
-`suggest_components` (describe the screen, get the items that fit and one install command), `search_docs`,
-`get_component_docs` (one page: props, example with app import paths, `LocaleProvider` keys), `list_components`,
-`get_pattern` and `get_started`. After editing `candor-brand.css`, call `theme_check` with the file's contents: it runs the checks of
-`npx candor-ui theme check` and says what it couldn't measure.
+Other clients add `https://candor.themethodic.com/mcp` as a remote (streamable HTTP) server. When you build a new
+screen, call `list_screens` first: it lists the screens an agent product needs, and `get_screen` gives one with its
+layouts, the items that build each, the rules that matter on it and a brief for the agent that builds it. Its twelve
+tools:
+
+- `list_screens` and `get_screen`: the screen catalogue, as above.
+- `suggest_components`: describe the screen or feature; get the items that fit, an install command per tier, and a
+  plain "Candor has no item for this" when nothing does. Pass `sdk` (`ai-sdk`, `claude` or `ag-ui`) so only your
+  agent SDK's adapter is suggested.
+- `search_docs`: find items and patterns by what they do.
+- `get_component_docs`: one item's page (props, example with app import paths, functions, types, `LocaleProvider`
+  keys). Read it before using an item.
+- `get_brief`: the same page, as the brief to hand to another coding agent.
+- `list_components`: every item by group, or one group's items.
+- `get_pattern`: a common problem in agent UIs and the items that solve it.
+- `get_started`: installing, connecting an agent SDK, licence keys and updates.
+- `get_design`: the colour roles, type, radius, motion and themes, and how to re-token for a brand.
+- `get_review_checklist`: the checks to run after each screen.
+- `theme_check`: after editing `candor-brand.css`, call it with the file's contents; it runs the checks of
+  `npx candor-ui theme check` and says what it couldn't measure.
 
 Without it, every docs page is Markdown at `https://candor.themethodic.com/docs/<name>.md`, indexed in
 `https://candor.themethodic.com/llms.txt`.

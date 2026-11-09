@@ -20,7 +20,10 @@
           "type": "registry:file",
           "target": "styles/candor-theme.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "font-inter",
@@ -36,7 +39,10 @@
           "type": "registry:file",
           "target": "styles/candor-font-inter.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "font-source-sans",
@@ -52,7 +58,10 @@
           "type": "registry:file",
           "target": "styles/candor-font-source-sans.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "font-ibm-plex",
@@ -68,7 +77,10 @@
           "type": "registry:file",
           "target": "styles/candor-font-ibm-plex.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "theme-slate",
@@ -83,7 +95,10 @@
           "type": "registry:file",
           "target": "styles/candor-theme-slate.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "theme-paper",
@@ -98,7 +113,10 @@
           "type": "registry:file",
           "target": "styles/candor-theme-paper.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "theme-console",
@@ -113,7 +131,10 @@
           "type": "registry:file",
           "target": "styles/candor-theme-console.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "theme-signal",
@@ -128,7 +149,10 @@
           "type": "registry:file",
           "target": "styles/candor-theme-signal.css"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "ag-ui",
@@ -150,7 +174,10 @@
       ],
       "categories": [
         "adapters"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "ai-sdk",
@@ -172,7 +199,10 @@
       ],
       "categories": [
         "adapters"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "claude-agent-sdk",
@@ -193,7 +223,10 @@
       ],
       "categories": [
         "adapters"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "claude-agent-server",
@@ -214,7 +247,10 @@
       ],
       "categories": [
         "adapters"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "use-ag-ui",
@@ -236,7 +272,10 @@
       ],
       "categories": [
         "adapters"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "use-candor-chat",
@@ -259,7 +298,10 @@
       ],
       "categories": [
         "adapters"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "use-claude-agent",
@@ -278,7 +320,10 @@
       ],
       "categories": [
         "adapters"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "copy-field",
@@ -301,12 +346,15 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "degraded-panel",
       "type": "registry:component",
-      "description": "Something couldn't be done.",
+      "description": "A degraded result: what went wrong, what is missing because of it, and a retry only when the caller can actually retry.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -324,7 +372,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "locale",
@@ -342,7 +393,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "locked",
@@ -364,7 +418,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "relative-time",
@@ -381,7 +438,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "status-dot",
@@ -401,12 +461,15 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "step-list",
       "type": "registry:component",
-      "description": "A step's status as a mark.",
+      "description": "A run's steps with their status, each mark drawn still on mount and animated only when the status changes on screen.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -423,7 +486,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "streaming-text",
@@ -441,7 +507,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "surface",
@@ -461,7 +530,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "terms",
@@ -476,7 +548,10 @@
       ],
       "categories": [
         "blocks"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "agent-avatar",
@@ -498,7 +573,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "ai-disclosure",
@@ -522,7 +600,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "attachment-preview",
@@ -545,12 +626,15 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "card-registry",
       "type": "registry:component",
-      "description": "A card an agent's reply can carry.",
+      "description": "The cards an agent's reply can carry, each with a check on its props; a card from a model renders only when its props pass.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -568,7 +652,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "citation",
@@ -591,7 +678,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "composer",
@@ -617,7 +707,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "context-meter",
@@ -638,7 +731,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "entity-chip",
@@ -660,7 +756,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "folded-turns",
@@ -683,7 +782,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "message-actions",
@@ -707,7 +809,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "message-content",
@@ -736,7 +841,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "message",
@@ -767,7 +875,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "payload",
@@ -791,7 +902,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "permission-prompt",
@@ -815,7 +929,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "prompt-suggestions",
@@ -839,7 +956,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "reasoning",
@@ -864,7 +984,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "thread-divider",
@@ -883,7 +1006,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "thread-event",
@@ -905,7 +1031,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "thread",
@@ -928,7 +1057,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "tool-call",
@@ -956,7 +1088,10 @@
       ],
       "categories": [
         "chat"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "chat",
@@ -973,7 +1108,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "highlight",
@@ -988,7 +1126,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "know",
@@ -1006,7 +1147,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "mcp-input",
@@ -1021,7 +1165,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "motion",
@@ -1038,7 +1185,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "render-prop",
@@ -1053,7 +1203,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "safe-markdown",
@@ -1070,7 +1223,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "sound",
@@ -1085,7 +1241,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "status",
@@ -1102,7 +1261,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "use-copy",
@@ -1117,7 +1279,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "use-shortcut",
@@ -1132,7 +1297,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "use-virtual-list",
@@ -1147,7 +1315,10 @@
       ],
       "categories": [
         "lib"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "accordion",
@@ -1170,7 +1341,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "alert",
@@ -1191,7 +1365,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "button",
@@ -1214,7 +1391,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "checkbox",
@@ -1236,7 +1416,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "collapsible",
@@ -1258,7 +1441,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "label",
@@ -1279,7 +1465,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "popover",
@@ -1301,7 +1490,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "progress",
@@ -1323,7 +1515,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "skeleton",
@@ -1341,7 +1536,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "slider",
@@ -1363,7 +1561,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "switch",
@@ -1385,7 +1586,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "tooltip",
@@ -1407,7 +1611,10 @@
       ],
       "categories": [
         "ui"
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     }
   ]
 }

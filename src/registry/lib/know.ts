@@ -58,7 +58,8 @@ export type Claim = { id: string; text: string; evidence: string[] }
 
 /* ---------------------------------------------------------------- models */
 
-export type ModelVendor = "Anthropic" | "Google" | "OpenAI" | "xAI"
+/** The four vendors Candor lists first, in this order. Any other vendor ("Meta", "Mistral", "Local") is listed after them, by the name you give. */
+export type ModelVendor = "Anthropic" | "Google" | "OpenAI" | "xAI" | (string & {})
 
 export type ModelOption = {
   id: string

@@ -15,6 +15,8 @@ endpoint when you have one.
   server would. Ask it about your to-do list and it reads the list; ask it to add a task and it waits for your OK first.
   It isn't a model: its replies are fixed text, and the page says so.
 
+> Generated from Candor UI 2.6.2: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+
 ## Get started
 
 ```bash
@@ -26,6 +28,10 @@ npm run dev
 ```
 
 Or clone `https://github.com/MethodicDev/candor` and use its `starter-vite-ag-ui` folder.
+
+If `npm install` prints `install-scripts … fsevents`, that is npm's newer policy of listing packages that have install
+scripts. `fsevents` is the file watcher Vite uses on macOS, and it is optional: the starter installs, builds and runs with
+it left unapproved, so you can ignore the warning.
 
 ### Use your own agent
 

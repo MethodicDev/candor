@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A paid item (Pro, Premium or Team), your licence or a refund
+    url: mailto:info@themethodic.com
+    about: Email us, and don't paste a licence key into an issue. Paid source isn't in this repository, so an issue here can't show it. Terms are in SUPPORT.md.
+  - name: A security problem
+    url: https://github.com/MethodicDev/candor/security/policy
+    about: Report it privately (see SECURITY.md). Don't open a public issue for a vulnerability.
+  - name: Questions about using Candor
+    url: https://candor.themethodic.com/docs
+    about: The docs, the patterns and `npx candor-ui doctor` answer most install questions.
