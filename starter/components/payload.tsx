@@ -37,6 +37,9 @@ const languageLabel = (lang: string, t: Translate<typeof payloadStrings>) => {
  *
  * Code is split into tokens (keywords, strings, comments…) rendered as spans of text, never as HTML. They're coloured
  * when `highlight` is set, or anywhere under `data-syntax="highlight"` (set it on `<html>` for the whole app).
+ *
+ * @motion tint:tint The copy button's background and text colour change when the pointer is over it, and a ring fades
+ * in when it takes keyboard focus.
  */
 function Payload({
   language,

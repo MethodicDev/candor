@@ -5,6 +5,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useStrings } from "@/components/locale"
 import { motion } from "@/lib/motion"
 
+/**
+ * @motion reveal:open The text view opens to its full height when the person asks to see the card as text, and the
+ * chevron turns with it; closing reverses both. Under reduced motion it snaps open or shut.
+ */
 const turnMotion = motion("card-registry", "open", "reveal")
 
 /** CardRegistry's fixed words; override them under `cardRegistry` in LocaleProvider's `strings`. */

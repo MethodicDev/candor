@@ -56,8 +56,8 @@ function AccordionTrigger(allProps: React.ComponentProps<typeof AccordionPrimiti
  * The panel. It opens and closes to the height Radix measured, so a change is seen settling rather than snapping;
  * data-motion="none" and the OS's reduced-motion setting make it snap.
  *
- * @motion reveal:open The panel grows to its measured height when opened and shrinks back when closed, in the base
- * duration. Content the app puts in it is not animated.
+ * @motion reveal:open The panel grows to its full height when the person opens it and shrinks back when they close it.
+ * What the app puts inside it doesn't move. Under reduced motion the panel snaps open or shut.
  */
 function AccordionContent(allProps: React.ComponentProps<typeof AccordionPrimitive.Content> & RenderProp) {
   const { className, children, render, nativeButton: _nativeButton, style, ...props } = allProps

@@ -16,7 +16,7 @@ const lockedKeys = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "
  *
  * @motion clock:drag The thumb and the filled range follow the pointer exactly, with no easing: what moves is the
  * person's hand, not an animation.
- * @motion tint:focus The thumb's ring grows in on hover and keyboard focus.
+ * @motion tint:tint The thumb's ring fades in when the pointer is over it and when it takes keyboard focus.
  */
 function Slider(allProps: SliderProps) {
   const {

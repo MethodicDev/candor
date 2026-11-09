@@ -10,8 +10,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useStrings } from "@/components/locale"
 import { motion, useArrived } from "@/lib/motion"
 
+/**
+ * @motion arrive:arrive A step of reasoning rises in when the agent adds it while the reasoning is on screen. A step
+ * added while it is folded rises in when it is opened. The steps it was drawn with are still.
+ */
 const arriveMotion = motion("reasoning", "arrive", "arrive")
 
+/**
+ * @motion reveal:open The steps open to their full height when the person opens the summary, or when the agent starts
+ * thinking, and the chevron turns with it; closing reverses both. Under reduced motion they snap open or shut.
+ */
 const turnMotion = motion("reasoning", "open", "reveal")
 
 /** Reasoning's fixed words; override them under `reasoning` in LocaleProvider's `strings`. */

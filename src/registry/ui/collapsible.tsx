@@ -5,6 +5,11 @@ import { cn } from "@/lib/utils"
 import { withRender, type RenderProp } from "@/registry/lib/render-prop"
 import { motion } from "@/registry/lib/motion"
 
+/**
+ * @motion reveal:open The content grows to its full height when the person opens it and shrinks when they close it. A
+ * collapsible that is already open when it first appears is shown open at once, and under reduced motion it snaps
+ * open or shut.
+ */
 const openMotion = motion("collapsible", "open", "reveal")
 
 function Collapsible({

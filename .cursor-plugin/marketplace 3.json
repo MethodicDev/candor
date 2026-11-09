@@ -1,0 +1,19 @@
+{
+  "name": "candor",
+  "owner": {
+    "name": "Methodic LLC"
+  },
+  "metadata": {
+    "description": "Candor UI for coding agents: the candor-ui skill and the docs MCP server, installed together. Candor UI is a shadcn/ui registry of React components for agents that do real work, by Methodic LLC.",
+    "version": "2.4.0"
+  },
+  "plugins": [
+    {
+      "name": "candor-ui",
+      "source": "./plugins/cursor/candor-ui",
+      "description": "The candor-ui skill (which component fits which job, the adapters, the honesty rules) and the candor MCP server, which serves Candor's docs and component suggestions only: read-only, no key, never paid source.",
+      "category": "ui",
+      "tags": ["candor", "shadcn", "react", "ai-agents", "ui", "mcp"]
+    }
+  ]
+}

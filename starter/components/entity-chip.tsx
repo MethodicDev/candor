@@ -105,6 +105,9 @@ function useEntityKinds() {
  * so "Account" the table and "Account" the report never read alike. The
  * identifier is the label unless a friendlier one is given; then the
  * identifier is on hover and for screen readers.
+ *
+ * @motion tint:tint A chip that can be pressed changes its border and background when the pointer is over it, and a
+ * ring fades in on keyboard focus. A chip that can't be pressed does not change.
  */
 function EntityChip({
   entity,

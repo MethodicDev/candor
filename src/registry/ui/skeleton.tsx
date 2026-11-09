@@ -1,7 +1,10 @@
 import { cn } from "@/lib/utils"
 import { motion } from "@/registry/lib/motion"
 
-/** Pulses while the content it stands in for is being fetched; still at level 0 and under calm. */
+/**
+ * @motion live:loading The placeholder pulses softly for as long as it is on screen, which should be only while the
+ * content it stands in for is being fetched. Under reduced motion it is still.
+ */
 const loadingMotion = motion("skeleton", "loading", "live", { dur: 2000 })
 
 function Skeleton({ className, style, ...props }: React.ComponentProps<"div">) {

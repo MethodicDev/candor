@@ -1,0 +1,5 @@
+/*
+ * Inter, Candor's default typeface, self-hosted through Fontsource (SIL Open Font Licence 1.1). Optional: without it,
+ * --cd-font falls back to the system's own sans-serif. Import it next to candor.css (`npx candor-ui init` does).
+ */
+@import "@fontsource-variable/inter/opsz.css";

@@ -1,6 +1,10 @@
 import { cn } from "@/lib/utils"
 import { motion } from "@/lib/motion"
 
+/**
+ * @motion live:caret While the text is still streaming in, a caret blinks at its end. It goes when streaming stops,
+ * and under reduced motion it is a still bar.
+ */
 const caretMotion = motion("streaming-text", "caret", "live", { dur: 1000 })
 
 /**

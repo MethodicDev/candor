@@ -7,6 +7,10 @@ import { withRender, type RenderProp } from "@/registry/lib/render-prop"
 import { cn } from "@/lib/utils"
 import { motion } from "@/registry/lib/motion"
 
+/**
+ * @motion press:press The button shrinks a little while it is held down and returns when it is let go. A button that
+ * is locked or disabled never moves, and under reduced motion no button changes size.
+ */
 const pressMotion = motion("button", "press", "press")
 
 // The accent fills the one primary act, the radius is the theme's

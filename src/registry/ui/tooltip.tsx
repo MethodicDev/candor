@@ -6,6 +6,10 @@ import { Tooltip as TooltipPrimitive } from "radix-ui"
 import { withRender, type RenderProp } from "@/registry/lib/render-prop"
 import { motion } from "@/registry/lib/motion"
 
+/**
+ * @motion overlay:open The tooltip fades in and scales up a little from the control it describes once the delay has
+ * passed, and fades out when the pointer or focus leaves. Under reduced motion it is a short fade.
+ */
 const openMotion = motion("tooltip", "open", "overlay")
 
 // Whether a TooltipProvider is above, so a lone Tooltip can supply its own.

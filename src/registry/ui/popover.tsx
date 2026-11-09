@@ -6,6 +6,10 @@ import { Popover as PopoverPrimitive } from "radix-ui"
 import { withRender, type RenderProp } from "@/registry/lib/render-prop"
 import { motion } from "@/registry/lib/motion"
 
+/**
+ * @motion overlay:open The popover fades in and scales up a little from its trigger when the person opens it, and
+ * fades out when it closes. Under reduced motion it is a short fade.
+ */
 const openMotion = motion("popover", "open", "overlay")
 
 function Popover({

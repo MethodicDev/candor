@@ -14,8 +14,15 @@ import { ThreadEvent } from "@/components/thread-event"
 import { useStrings } from "@/components/locale"
 import { motion } from "@/lib/motion"
 
-/** A message that arrived after the thread first drew rises in (Thread marks it `data-arrived`); loaded history is still. */
+/**
+ * @motion arrive:arrive A message rises in when it is added to a Thread after the thread first drew, whether it is
+ * the person's or the agent's. Messages loaded with the thread, and a Message outside a Thread, are drawn still.
+ */
 const arriveMotion = motion("message", "arrive", "arrive")
+/**
+ * @motion live:caret While a reply is still streaming, a caret blinks at the end of its text. It goes when the reply
+ * finishes or is interrupted, and under reduced motion it is a still bar.
+ */
 const caretMotion = motion("message", "caret", "live", { dur: 1000 })
 
 /** Message's fixed words; override them under `message` in LocaleProvider's `strings`. */

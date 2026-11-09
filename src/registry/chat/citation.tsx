@@ -79,6 +79,9 @@ function SourceDetail({
  * An inline [n]. Opens the source in a popover on click or Enter, so evidence is
  * one step away without leaving the thread. A source the message doesn't list
  * renders as a plain bracket rather than a guess.
+ *
+ * @motion tint:tint A source chip's border and text colour change when the pointer is over it, and a ring fades in
+ * when a citation number or chip takes keyboard focus.
  */
 function Citation({
   source,

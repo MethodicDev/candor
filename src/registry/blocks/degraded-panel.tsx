@@ -6,6 +6,10 @@ import { Button } from "@/registry/ui/button"
 import { useStrings } from "@/registry/blocks/locale"
 import { motion } from "@/registry/lib/motion"
 
+/**
+ * @motion live:busy While a retry is under way, the retry icon turns in place and the button says it is retrying. It
+ * stops when the app ends the retry, and under reduced motion the icon is still.
+ */
 const spinMotion = motion("degraded-panel", "busy", "live", { dur: 1000 })
 
 /** DegradedPanel's fixed words; override them under `degradedPanel` in LocaleProvider's `strings`. */

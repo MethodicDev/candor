@@ -6,7 +6,10 @@ import { useCopy } from "@/registry/lib/use-copy"
 import { useStrings } from "@/registry/blocks/locale"
 import { motion } from "@/registry/lib/motion"
 
-/** The tick or cross after the clipboard write settles. */
+/**
+ * @motion pop:tick After the person copies, a tick (or a cross, if the browser refused the clipboard) pops in on the
+ * button once the browser has answered. Nothing shows before the answer, and under reduced motion it fades in.
+ */
 const tickMotion = motion("copy-field", "tick", "pop")
 
 /** CopyField's fixed words; override them under `copyField` in LocaleProvider's `strings`. */

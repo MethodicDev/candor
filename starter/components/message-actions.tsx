@@ -8,7 +8,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useStrings } from "@/components/locale"
 import { motion } from "@/lib/motion"
 
-/** The tick or cross after the clipboard write settles. */
+/**
+ * @motion pop:tick After the person copies, a tick (or a cross, if the browser refused the clipboard) pops in on the
+ * button once the browser has answered. Nothing shows before the answer, and under reduced motion it fades in.
+ */
 const tickMotion = motion("message-actions", "tick", "pop")
 
 /** MessageActions' fixed words; override them under `messageActions` in LocaleProvider's `strings`. */

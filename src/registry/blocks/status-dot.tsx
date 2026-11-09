@@ -5,9 +5,16 @@ import { useNow } from "@/registry/blocks/relative-time"
 import { motion, useSettled } from "@/registry/lib/motion"
 import { runLiveness, STALE_AFTER, useStatusLabel, type RunStatus } from "@/registry/lib/status"
 
-/** The pulse while a run is heard from. */
+/**
+ * @motion live:live A running or waiting dot pulses only while the run has been heard from within the allowed
+ * silence. Past it, or when the time can't be read, the dot is still rather than claiming the run is alive, and under
+ * reduced motion it is still.
+ */
 const liveMotion = motion("status-dot", "live", "live")
-/** The dot popping into its final colour when the run settles on screen. */
+/**
+ * @motion pop:settle The dot pops into its final colour when a run it was showing as unfinished settles while it is
+ * on screen. A dot that is already settled when it appears is drawn in its colour at once.
+ */
 const settleMotion = motion("status-dot", "settle", "pop")
 
 const dotColor: Record<RunStatus, string> = {

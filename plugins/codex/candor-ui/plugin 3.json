@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "candor-ui",
+  "version": "2.4.0",
+  "description": "Build agent product UIs with Candor UI, a shadcn/ui registry of React components for agents that do real work. Installs the candor-ui skill (which component fits which job, the adapters, the honesty rules) and the candor MCP server, which serves Candor's docs and component suggestions only: read-only, no key, never paid source.",
+  "author": {
+    "name": "Methodic LLC",
+    "url": "https://candor.themethodic.com"
+  },
+  "homepage": "https://candor.themethodic.com",
+  "repository": "https://github.com/MethodicDev/candor",
+  "license": "MIT",
+  "keywords": ["candor", "shadcn", "react", "ai-agents", "ui", "mcp"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Candor UI",
+        "shortDescription": "Components for agent UIs, with a docs MCP server that is read-only and keyless.",
+        "longDescription": "Candor UI is a shadcn/ui registry of React components for agents that do real work: chat, tool calls, plans, approvals, diffs, run logs, traces, evals, admin and the app shell around them. This plugin installs the candor-ui skill, which says which component fits which job, how the Vercel AI SDK, Claude Agent SDK and AG-UI adapters are wired, and the honesty rules every Candor screen keeps. It also connects the candor MCP server, which serves Candor's docs and component suggestions only: read-only, no key or sign-in, and never paid source.",
+        "developerName": "Methodic LLC",
+        "websiteURL": "https://candor.themethodic.com"
+      }
+    }
+  }
+}

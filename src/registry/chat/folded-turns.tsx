@@ -7,6 +7,10 @@ import { useStrings } from "@/registry/blocks/locale"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
 import { motion } from "@/registry/lib/motion"
 
+/**
+ * @motion reveal:open The folded turns open to their full height when the person presses the summary, with its
+ * chevron turning, and close the same way. Under reduced motion they snap open or shut.
+ */
 const turnMotion = motion("folded-turns", "open", "reveal")
 
 /** FoldedTurns' fixed words; override them under `foldedTurns` in LocaleProvider's `strings`. */

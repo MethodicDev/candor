@@ -12,8 +12,15 @@ import { Payload } from "@/components/payload"
 import { useStrings } from "@/components/locale"
 import { motion } from "@/lib/motion"
 
-/** A call's detail opening, and a group of calls. */
+/**
+ * @motion reveal:open A call's detail opens to its full height when the person opens it, and the chevron turns with
+ * it; closing reverses both. Under reduced motion it snaps open or shut.
+ */
 const openMotion = motion("tool-call", "open", "reveal")
+/**
+ * @motion reveal:group-open A group of calls opens to its full height when the person opens it, and its chevron turns
+ * with it; closing reverses both. Under reduced motion it snaps open or shut.
+ */
 const groupMotion = motion("tool-call", "group-open", "reveal")
 
 /** ToolCall's fixed words; override them under `toolCall` in LocaleProvider's `strings`. */

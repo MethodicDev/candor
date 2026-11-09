@@ -16,8 +16,17 @@ function animationMs(el: Element | null): number | undefined {
   return times.length ? Math.max(...times) : undefined
 }
 
-/** A press on the locked control: the reason is emphasised, and under expressive the control shakes. */
+/**
+ * @motion refuse:refuse A press on a locked control shows the reason it is locked; under the expressive setting the
+ * control also shakes once. The control stays locked and does nothing it would have done unlocked. Nothing plays
+ * until the person presses it.
+ */
 const refuseMotion = motion("locked", "refuse", "refuse")
+/**
+ * @motion tint:reason When the person presses a locked control, its reason changes from muted to full-strength text
+ * so it can be read, and goes back to muted for a moment after the press. Screen readers always have the reason,
+ * whether or not it is shown.
+ */
 const reasonMotion = motion("locked", "reason", "tint", { dur: 200 })
 
 type Lockable = React.ReactElement<{

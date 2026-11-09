@@ -6,12 +6,25 @@ import { cn } from "@/lib/utils"
 import { motion, useArrived, useSettled } from "@/registry/lib/motion"
 import { useStatusLabel, type RunStatus } from "@/registry/lib/status"
 
-/** A step's tick or cross, drawn when its status settles on screen. */
+/**
+ * @motion mark:mark A step's tick or cross is drawn along its path when the step settles while the list is on screen.
+ * Steps that were already settled when the list appeared show their mark at once.
+ */
 const markMotion = motion("step-list", "mark", "mark")
-/** The rail growing to a step that finished on screen. */
+/**
+ * @motion fill:rail The line leading to a step fills in when that step finishes while the list is on screen, never
+ * ahead of it. Lines for steps that were already finished when the list appeared are full at once.
+ */
 const railMotion = motion("step-list", "rail", "fill")
-/** A step added after the list first drew. */
+/**
+ * @motion arrive:arrive A step rises in when the app adds it after the list first drew. The steps the list was drawn
+ * with appear still.
+ */
 const arriveMotion = motion("step-list", "arrive", "arrive")
+/**
+ * @motion live:working A step that is running shows a spinner that turns until the app reports it finished or failed.
+ * Under reduced motion the spinner is still, and the step's status is still written in words.
+ */
 const workingMotion = motion("step-list", "working", "live", { dur: 1000 })
 
 export type Step = {

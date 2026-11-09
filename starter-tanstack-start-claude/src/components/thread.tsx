@@ -5,9 +5,12 @@ import { useStrings } from "@/components/locale"
 import { useVirtualList } from "@/lib/use-virtual-list"
 import { motion, useMotionAllowed } from "@/lib/motion"
 
-/** The smooth scroll to the latest message. */
+/**
+ * @motion move:scroll When the person presses Jump to latest, the thread glides down to the newest message. Under
+ * reduced motion it jumps. Opening the thread and following new messages while the person is at the bottom are never
+ * smooth scrolls.
+ */
 const scrollMotion = motion("thread", "scroll", "move")
-/** Jump to latest appearing while the reader is scrolled up: 2.2's 150 ms and 4 px rise. */
 /** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
 function animationMs(el: Element | null): number | undefined {
   if (!el || typeof getComputedStyle === "undefined") return undefined
@@ -18,8 +21,15 @@ function animationMs(el: Element | null): number | undefined {
   return totals.length ? Math.min(6000, Math.max(...totals)) : undefined
 }
 
+/**
+ * @motion arrive:jump The Jump to latest control fades in when the person scrolls up from the bottom and goes when
+ * they return. It is not shown for a thread that has no messages.
+ */
 const jumpMotion = motion("thread", "jump", "arrive", { dur: 150 })
-/** Its ring when a message arrives while the reader is scrolled up. */
+/**
+ * @motion attention:arrival While the person is scrolled up, Jump to latest pulses once each time a new message
+ * arrives, then is still. Nothing pulses at the bottom, where the new message is already in view.
+ */
 const arrivalMotion = motion("thread", "arrival", "attention")
 
 /** Thread's fixed words; override them under `thread` in LocaleProvider's `strings`. */

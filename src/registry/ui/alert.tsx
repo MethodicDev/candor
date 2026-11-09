@@ -44,9 +44,8 @@ const alertVariants = cva(
  * For a short notice that goes away by itself use a toast; an Alert doesn't dismiss itself.
  *
  * @motion arrive:enter An Alert that appears after the page has drawn rises in over a quarter of a second. One that is
- * there when the page first draws, or when it is rendered on the server, is simply there. "After the page has drawn" is
- * counted from when the page loaded, not from the route: after a client-side navigation, an Alert on the new route
- * rises in.
+ * there when the page first draws, or that the server rendered, is simply there; after a client-side navigation, an
+ * Alert on the new route rises in.
  */
 function Alert({
   className,

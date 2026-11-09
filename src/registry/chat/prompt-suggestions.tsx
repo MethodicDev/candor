@@ -7,7 +7,10 @@ import { Skeleton } from "@/registry/ui/skeleton"
 import { useStrings } from "@/registry/blocks/locale"
 import { motion } from "@/registry/lib/motion"
 
-/** A suggestion pressed: 2.2's slight scale of 0.99. */
+/**
+ * @motion press:press A suggestion shrinks slightly while it is held down and returns when it is let go. Under
+ * reduced motion no suggestion changes size.
+ */
 const pressMotion = motion("prompt-suggestions", "press", "press", { amp: "0.98" })
 
 /** PromptSuggestions' fixed words; override them under `promptSuggestions` in LocaleProvider's `strings`. */

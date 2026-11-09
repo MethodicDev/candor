@@ -10,12 +10,25 @@ import { AttachmentChip } from "@/components/attachment-preview"
 import { useStrings } from "@/components/locale"
 import { motion, useArrived, useLeaving } from "@/lib/motion"
 
-/** A chip added after the first draw pops in; a removed one pops out as a ghost. */
+/**
+ * @motion pop:chip A mention or attachment chip pops in when the person adds one while writing, and a chip they
+ * remove pops out. Chips that were there when the composer first drew, such as a restored draft, appear still.
+ */
 const chipMotion = motion("composer", "chip", "pop")
-/** The mention and command menu: 2.2's fade and 4 px rise. */
+/**
+ * @motion overlay:menu The mention and command menu rises a little and fades in above the field when the person types
+ * the character that opens it, and goes at once when it closes. Under reduced motion it is a short fade.
+ */
 const menuMotion = motion("composer", "menu", "overlay", { variant: "slide" })
-/** Send and Stop acknowledge the press: 2.2's scale of 0.95. */
+/**
+ * @motion press:send Send and Stop shrink a little while they are held down and return when let go. A Send that is
+ * disabled never moves, and under reduced motion neither changes size.
+ */
 const sendMotion = motion("composer", "send", "press", { amp: "0.9" })
+/**
+ * @motion live:sending While the app reports that the message is being sent, a spinner turns in place of Send's
+ * arrow. It stops when the app says sending is over, and under reduced motion the spinner is still.
+ */
 const sendingMotion = motion("composer", "sending", "live", { dur: 1000 })
 
 /** Composer's fixed words; override them under `composer` in LocaleProvider's `strings`. */
