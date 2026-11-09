@@ -4,11 +4,30 @@
   "homepage": "https://candor.themethodic.com",
   "items": [
     {
+      "name": "tokens",
+      "type": "registry:style",
+      "description": "Candor's tokens without its colours: the --cd-* variables, Candor's own @theme entries and the motion utilities every item's classes assume. It sets nothing a shadcn project already defines (radius, sidebar, colour roles, type scale, base styles). Every item installs it. A Candor project imports styles/candor.css and needs nothing more; with plain shadcn and your own colours, import styles/candor-tokens.css once, after Tailwind.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/styles/candor-tokens.css",
+          "type": "registry:file",
+          "target": "styles/candor-tokens.css"
+        }
+      ],
+      "meta": {
+        "tier": "free"
+      }
+    },
+    {
       "name": "theme",
       "type": "registry:style",
       "description": "Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind.",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/styles/candor.css",
@@ -164,7 +183,8 @@
       "registryDependencies": [
         "@candor/chat",
         "@candor/safe-markdown",
-        "@candor/status"
+        "@candor/status",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -189,7 +209,8 @@
       "registryDependencies": [
         "@candor/chat",
         "@candor/safe-markdown",
-        "@candor/status"
+        "@candor/status",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -213,7 +234,8 @@
       ],
       "registryDependencies": [
         "@candor/chat",
-        "@candor/safe-markdown"
+        "@candor/safe-markdown",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -237,7 +259,8 @@
       ],
       "registryDependencies": [
         "@candor/chat",
-        "@candor/claude-agent-sdk"
+        "@candor/claude-agent-sdk",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -262,7 +285,8 @@
       "registryDependencies": [
         "@candor/ag-ui",
         "@candor/chat",
-        "@candor/composer"
+        "@candor/composer",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -288,7 +312,8 @@
       "registryDependencies": [
         "@candor/ai-sdk",
         "@candor/chat",
-        "@candor/composer"
+        "@candor/composer",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -310,7 +335,8 @@
       "registryDependencies": [
         "@candor/chat",
         "@candor/claude-agent-sdk",
-        "@candor/composer"
+        "@candor/composer",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -335,6 +361,7 @@
       "registryDependencies": [
         "@candor/locale",
         "@candor/motion",
+        "@candor/tokens",
         "@candor/use-copy",
         "utils"
       ],
@@ -362,6 +389,7 @@
         "@candor/button",
         "@candor/locale",
         "@candor/motion",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -384,7 +412,9 @@
       "dependencies": [
         "radix-ui@^1.8.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/blocks/locale.tsx",
@@ -407,6 +437,7 @@
       ],
       "registryDependencies": [
         "@candor/motion",
+        "@candor/tokens",
         "@candor/tooltip",
         "utils"
       ],
@@ -428,7 +459,8 @@
       "type": "registry:component",
       "description": "A time as people say it (\"5 minutes ago\"), with the exact time on hover, safe to render on the server.",
       "registryDependencies": [
-        "@candor/locale"
+        "@candor/locale",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -451,6 +483,7 @@
         "@candor/motion",
         "@candor/relative-time",
         "@candor/status",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -476,6 +509,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/status",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -497,6 +531,7 @@
       "description": "Text that is still arriving.",
       "registryDependencies": [
         "@candor/motion",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -520,6 +555,7 @@
         "class-variance-authority@^0.7.1"
       ],
       "registryDependencies": [
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -539,7 +575,9 @@
       "name": "terms",
       "type": "registry:component",
       "description": "The app's words for its own concepts, so components read like the product: one app says \"org\", another \"project\" or \"workspace\".",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/blocks/terms.tsx",
@@ -563,6 +601,7 @@
       "registryDependencies": [
         "@candor/chat",
         "@candor/locale",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -590,6 +629,7 @@
         "@candor/chat",
         "@candor/locale",
         "@candor/popover",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -616,6 +656,7 @@
         "@candor/chat",
         "@candor/locale",
         "@candor/motion",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -642,7 +683,8 @@
         "@candor/collapsible",
         "@candor/degraded-panel",
         "@candor/locale",
-        "@candor/motion"
+        "@candor/motion",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -668,6 +710,7 @@
         "@candor/chat",
         "@candor/locale",
         "@candor/popover",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -696,6 +739,7 @@
         "@candor/entity-chip",
         "@candor/locale",
         "@candor/motion",
+        "@candor/tokens",
         "@candor/tooltip",
         "utils"
       ],
@@ -721,6 +765,7 @@
         "@candor/locale",
         "@candor/motion",
         "@candor/popover",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -746,6 +791,7 @@
       "registryDependencies": [
         "@candor/chat",
         "@candor/locale",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -772,6 +818,7 @@
         "@candor/collapsible",
         "@candor/locale",
         "@candor/motion",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -797,6 +844,7 @@
       "registryDependencies": [
         "@candor/locale",
         "@candor/motion",
+        "@candor/tokens",
         "@candor/tooltip",
         "@candor/use-copy",
         "utils"
@@ -829,6 +877,7 @@
         "@candor/payload",
         "@candor/safe-markdown",
         "@candor/terms",
+        "@candor/tokens",
         "@candor/tool-call",
         "@candor/tooltip",
         "utils"
@@ -865,6 +914,7 @@
         "@candor/reasoning",
         "@candor/relative-time",
         "@candor/thread-event",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -891,6 +941,7 @@
         "@candor/chat",
         "@candor/highlight",
         "@candor/locale",
+        "@candor/tokens",
         "@candor/use-copy",
         "utils"
       ],
@@ -919,6 +970,7 @@
         "@candor/locale",
         "@candor/motion",
         "@candor/payload",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -946,6 +998,7 @@
         "@candor/locale",
         "@candor/motion",
         "@candor/skeleton",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -974,6 +1027,7 @@
         "@candor/locale",
         "@candor/motion",
         "@candor/streaming-text",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -996,6 +1050,7 @@
       "registryDependencies": [
         "@candor/locale",
         "@candor/relative-time",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1021,6 +1076,7 @@
       "registryDependencies": [
         "@candor/locale",
         "@candor/relative-time",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1046,6 +1102,7 @@
       "registryDependencies": [
         "@candor/locale",
         "@candor/motion",
+        "@candor/tokens",
         "@candor/use-virtual-list",
         "utils"
       ],
@@ -1078,6 +1135,7 @@
         "@candor/status",
         "@candor/step-list",
         "@candor/streaming-text",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1098,7 +1156,8 @@
       "type": "registry:lib",
       "description": "The data a Candor thread renders.",
       "registryDependencies": [
-        "@candor/status"
+        "@candor/status",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -1117,7 +1176,9 @@
       "name": "highlight",
       "type": "registry:lib",
       "description": "A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span.",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/lib/highlight.ts",
@@ -1137,7 +1198,8 @@
       "description": "The data behind the agents' knowledge base and agent settings.",
       "registryDependencies": [
         "@candor/chat",
-        "@candor/status"
+        "@candor/status",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -1156,7 +1218,9 @@
       "name": "mcp-input",
       "type": "registry:lib",
       "description": "MCP's \"input required\" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/lib/mcp-input.ts",
@@ -1175,7 +1239,8 @@
       "type": "registry:lib",
       "description": "Candor's motion layer, the part that runs in components.",
       "registryDependencies": [
-        "@candor/status"
+        "@candor/status",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -1194,7 +1259,9 @@
       "name": "render-prop",
       "type": "registry:lib",
       "description": "Lets Candor's Radix-based primitives also take Base UI's `render` prop.",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/lib/render-prop.ts",
@@ -1213,7 +1280,8 @@
       "type": "registry:lib",
       "description": "Reads model text as safe markdown: paragraphs, lists and fenced code.",
       "registryDependencies": [
-        "@candor/chat"
+        "@candor/chat",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -1232,7 +1300,9 @@
       "name": "sound",
       "type": "registry:lib",
       "description": "The names and the reading half of Candor's sound layer.",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/lib/sound.ts",
@@ -1251,7 +1321,8 @@
       "type": "registry:lib",
       "description": "The status vocabulary every Candor agent component shares.",
       "registryDependencies": [
-        "@candor/locale"
+        "@candor/locale",
+        "@candor/tokens"
       ],
       "files": [
         {
@@ -1270,7 +1341,9 @@
       "name": "use-copy",
       "type": "registry:lib",
       "description": "Copy text and report what actually happened.",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/lib/use-copy.ts",
@@ -1288,7 +1361,9 @@
       "name": "use-shortcut",
       "type": "registry:lib",
       "description": "The keys of a combo as they should be printed: \"mod+k\" → [\"⌘\", \"K\"] on a Mac and [\"Ctrl\", \"K\"] elsewhere.",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/lib/use-shortcut.ts",
@@ -1306,7 +1381,9 @@
       "name": "use-virtual-list",
       "type": "registry:lib",
       "description": "Render only the items of a long list that are in or near view, for Thread's and SessionList's `virtualize`.",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
       "files": [
         {
           "path": "src/registry/lib/use-virtual-list.ts",
@@ -1331,6 +1408,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1355,6 +1433,7 @@
       ],
       "registryDependencies": [
         "@candor/motion",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1381,6 +1460,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1406,6 +1486,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1431,6 +1512,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1455,6 +1537,7 @@
       ],
       "registryDependencies": [
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1480,6 +1563,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1505,6 +1589,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1526,6 +1611,7 @@
       "description": "A loading placeholder in the shape of what's coming.",
       "registryDependencies": [
         "@candor/motion",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1551,6 +1637,7 @@
       ],
       "registryDependencies": [
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1576,6 +1663,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [
@@ -1601,6 +1689,7 @@
       "registryDependencies": [
         "@candor/motion",
         "@candor/render-prop",
+        "@candor/tokens",
         "utils"
       ],
       "files": [

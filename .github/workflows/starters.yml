@@ -1,0 +1,63 @@
+name: Starters
+
+# Each generated release builds the three starter apps, and runs axe on the Vite starter's page in a real browser.
+# This workflow is written in the private repository and arrives with the release; edit it there, not here.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# The token can read the code and nothing else; nothing here writes to the repository.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.starter }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        starter: [starter, starter-vite-ag-ui, starter-tanstack-start-claude]
+    defaults:
+      run:
+        working-directory: ${{ matrix.starter }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ${{ matrix.starter }}/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+  axe:
+    name: axe on the Vite starter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: starter-vite-ag-ui/package-lock.json
+      - run: npm ci
+        working-directory: starter-vite-ag-ui
+      - run: npm run build
+        working-directory: starter-vite-ag-ui
+      - name: Browser and axe, at pinned versions
+        run: |
+          mkdir -p "$RUNNER_TEMP/axe" && cd "$RUNNER_TEMP/axe"
+          npm init -y > /dev/null
+          npm install --no-save playwright@1.65.0 axe-core@4.14.0
+          npx playwright install --with-deps chromium
+      - name: Serve the build and run axe
+        run: |
+          npm --prefix starter-vite-ag-ui run preview -- --host 127.0.0.1 --port 4173 &
+          npx --yes wait-on@8 http://127.0.0.1:4173 --timeout 60000
+          cp .github/scripts/axe-starter.mjs "$RUNNER_TEMP/axe/axe-starter.mjs"
+          cd "$RUNNER_TEMP/axe" && node axe-starter.mjs http://127.0.0.1:4173

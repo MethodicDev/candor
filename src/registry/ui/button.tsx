@@ -14,16 +14,17 @@ import { motion } from "@/registry/lib/motion"
 const pressMotion = motion("button", "press", "press")
 
 // The accent fills the one primary act, the radius is the theme's
-// --cd-radius-button, and buttons press down slightly on :active.
+// --cd-radius-button, and buttons press down slightly on :active. In forced colours a fill collapses to the system's
+// background, so the filled variants draw a 1px ButtonText edge there (outline already has a border).
 const buttonVariants = cva(
   "inline-flex shrink-0 items-center justify-center gap-(--cd-control-gap,0.5rem) rounded-button text-sm font-medium whitespace-nowrap outline-none select-none cd-press focus-visible:ring-[3px] focus-visible:ring-ring/80 disabled:pointer-events-none disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-[locked]:active:scale-100 aria-invalid:ring-destructive/25 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
-        destructive: "bg-destructive text-on-destructive hover:bg-destructive/90 focus-visible:ring-destructive/25",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover forced-colors:border forced-colors:border-[ButtonText]",
+        destructive: "bg-destructive text-on-destructive hover:bg-destructive/90 focus-visible:ring-destructive/25 forced-colors:border forced-colors:border-[ButtonText]",
         outline: "border border-input bg-card hover:bg-accent",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-accent",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-accent forced-colors:border forced-colors:border-[ButtonText]",
         ghost: "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
         link: "text-accent-text underline-offset-4 hover:underline active:scale-100",
       },

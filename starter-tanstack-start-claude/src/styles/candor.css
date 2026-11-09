@@ -996,3 +996,73 @@
  * `useAttention` (Pro) reads them when a signal lands; `sound-setting` (Pro) plays them as a preview. Free items
  * never play a sound. The starter set (`sounds`, Pro) installs /sounds/<event>.mp3 for all five.
  */
+
+/*
+ * Forced colours (2.7): Windows high contrast and other forced-colour modes replace the theme's colours with a few
+ * system ones and drop backgrounds and shadows, which is how most selected states here are drawn. These rules give
+ * each selectable thing a mark that survives, in the system's own Highlight colour:
+ *
+ *   a selected row, option, tree item or command item, a chosen tab or segment (the small radio groups drawn as
+ *   buttons), the current page or item, and a pressed toggle or chip (filters, ratings, view switches): an inset
+ *   outline;
+ *   a checked checkbox, radio and switch: drawn the way the system draws its own, in Highlight.
+ *
+ * Only system colour keywords are used, so they follow whichever contrast theme the person picked.
+ */
+@media (forced-colors: active) {
+  [data-slot="table-row"][data-state="selected"],
+  tr[aria-selected="true"],
+  [role="row"][aria-selected="true"],
+  [role="option"][aria-selected="true"],
+  [role="gridcell"][aria-selected="true"],
+  [role="treeitem"][aria-selected="true"],
+  [data-slot="command-item"][data-selected="true"],
+  [role="tab"][aria-selected="true"],
+  [data-slot="tabs-trigger"][data-state="active"],
+  [role="radio"][aria-checked="true"]:not([data-slot="radio-group-item"]),
+  [role="menuitemradio"][aria-checked="true"],
+  [aria-current]:not([aria-current="false"], [data-slot="breadcrumb-page"]),
+  [aria-pressed="true"],
+  [data-slot="toggle"][data-state="on"],
+  [data-slot="toggle-group-item"][data-state="on"] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  /* Table cells paint over a row's outline in some engines, so the row's edges are drawn on its cells too. */
+  :is([data-slot="table-row"][data-state="selected"], tr[aria-selected="true"], [role="row"][aria-selected="true"]) > :is(td, th, [role="gridcell"]) {
+    border-block: 2px solid Highlight;
+  }
+
+  [data-slot="checkbox"]:is([data-state="checked"], [data-state="indeterminate"]) {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  [data-slot="radio-group-item"][data-state="checked"] {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background-color: Canvas;
+  }
+  [data-slot="radio-group-indicator"] svg {
+    fill: Highlight;
+  }
+
+  [data-slot="switch"] {
+    forced-color-adjust: none;
+    border-color: CanvasText;
+    background-color: Canvas;
+  }
+  [data-slot="switch-thumb"] {
+    background-color: CanvasText;
+  }
+  [data-slot="switch"][data-state="checked"] {
+    border-color: Highlight;
+    background-color: Highlight;
+  }
+  [data-slot="switch"][data-state="checked"] [data-slot="switch-thumb"] {
+    background-color: HighlightText;
+  }
+}

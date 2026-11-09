@@ -16,6 +16,7 @@ and is named in your report.
 - [ ] Every estimate has the word "estimate" beside it, with what it rests on (unknown stays unknown)
 - [ ] A missing value renders as empty or "not measured", never as a default (unknown stays unknown)
 - [ ] A running job heard from nothing past the threshold shows when it was last heard, not "Running" (unknown stays unknown)
+- [ ] Every list and table has a loading, an empty and an error state in its own words (its `state` prop); a fetch that failed never shows as an empty list (unknown stays unknown)
 
 ## Locked controls
 
@@ -89,3 +90,4 @@ and is named in your report.
 - [ ] Icon-only buttons and groups of answers have accessible names that say what they do (accessibility)
 - [ ] Text and status colours pass contrast in every theme the app supports; motion goes calm under reduced motion (accessibility)
 - [ ] Targets meet the minimum size; relative times carry the exact time (accessibility)
+- [ ] Every screen works narrow (320 px): nothing is cut off, and only a table or log scrolls sideways, in its own scroller (accessibility)

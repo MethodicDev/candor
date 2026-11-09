@@ -2,6 +2,7 @@
 
 **Honest agent UI for shadcn/ui:** chat, tool calls and permission prompts that never overstate what an agent did. MIT.
 
+[![Starters](https://github.com/MethodicDev/candor/actions/workflows/starters.yml/badge.svg)](https://github.com/MethodicDev/candor/actions/workflows/starters.yml)
 [![npm: candor-ui](https://img.shields.io/npm/v/candor-ui?label=candor-ui)](https://www.npmjs.com/package/candor-ui)
 [![Licence: MIT](https://img.shields.io/github/license/MethodicDev/candor)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/MethodicDev/candor)](https://github.com/MethodicDev/candor/releases)
@@ -14,7 +15,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 69 free items (version 2.6.2), the skill and plugins for coding
+This repo is the source of Candor UI's 70 free items (version 2.7.0), the skill and plugins for coding
 agents and three starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -57,7 +58,7 @@ Typical and Honest switch; the others go to [Principles](https://candor.themetho
 ## Install
 
 ```bash
-npx candor-ui init
+npx candor-ui@latest init
 npx candor-ui add thread message composer
 ```
 
@@ -65,6 +66,19 @@ npx candor-ui add thread message composer
 shadcn yet it runs shadcn's setup first (`--yes` sets it up with Radix and shadcn's nova preset, no questions). Or add the registry by
 hand: `"@candor": "https://candor.themethodic.com/r/{name}.json"`. If shadcn asks to overwrite a primitive such as
 `ui/button.tsx`, answer yes: Candor's button styles locked actions; without a terminal, pass `--overwrite`.
+
+### Or from npm
+
+```bash
+npm install @candor-ui/react
+```
+
+```tsx
+import { Thread, Message, Composer } from "@candor-ui/react"
+```
+
+Then `@import "@candor-ui/react/styles.css"` after Tailwind. The package holds the free tier only, and its version can be
+behind the kit's; its [README](https://www.npmjs.com/package/@candor-ui/react) has the adapters and the entry points.
 
 ## Tools
 
@@ -123,7 +137,7 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 
 ## What's here
 
-69 free items, each with a docs page that has its props and live examples. Install any of them by name:
+70 free items, each with a docs page that has its props and live examples. Install any of them by name:
 `npx candor-ui add <name>`.
 
 | Area | What it's for | Items |
@@ -132,7 +146,7 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 | **Adapters** (7) | Map an agent SDK's messages onto Candor's data: the Vercel AI SDK, the Claude Agent SDK and AG-UI. | [`ag-ui`](https://candor.themethodic.com/docs/ag-ui), [`ai-sdk`](https://candor.themethodic.com/docs/ai-sdk), [`claude-agent-sdk`](https://candor.themethodic.com/docs/claude-agent-sdk), [`claude-agent-server`](https://candor.themethodic.com/docs/claude-agent-server), [`use-ag-ui`](https://candor.themethodic.com/docs/use-ag-ui), [`use-candor-chat`](https://candor.themethodic.com/docs/use-candor-chat), [`use-claude-agent`](https://candor.themethodic.com/docs/use-claude-agent) |
 | **Building blocks** (10) | Small pieces every screen uses: locked controls, status dots, step lists, relative times. | [`copy-field`](https://candor.themethodic.com/docs/copy-field), [`degraded-panel`](https://candor.themethodic.com/docs/degraded-panel), [`locale`](https://candor.themethodic.com/docs/locale), [`locked`](https://candor.themethodic.com/docs/locked), [`relative-time`](https://candor.themethodic.com/docs/relative-time), [`status-dot`](https://candor.themethodic.com/docs/status-dot), [`step-list`](https://candor.themethodic.com/docs/step-list), [`streaming-text`](https://candor.themethodic.com/docs/streaming-text), [`surface`](https://candor.themethodic.com/docs/surface), [`terms`](https://candor.themethodic.com/docs/terms) |
 | **Primitives** (12) | The shadcn/ui primitives Candor's components are built on. | [`accordion`](https://candor.themethodic.com/docs/accordion), [`alert`](https://candor.themethodic.com/docs/alert), [`button`](https://candor.themethodic.com/docs/button), [`checkbox`](https://candor.themethodic.com/docs/checkbox), [`collapsible`](https://candor.themethodic.com/docs/collapsible), [`label`](https://candor.themethodic.com/docs/label), [`popover`](https://candor.themethodic.com/docs/popover), [`progress`](https://candor.themethodic.com/docs/progress), [`skeleton`](https://candor.themethodic.com/docs/skeleton), [`slider`](https://candor.themethodic.com/docs/slider), [`switch`](https://candor.themethodic.com/docs/switch), [`tooltip`](https://candor.themethodic.com/docs/tooltip) |
-| **Themes** (5) | The default theme and 4 gallery themes: colours, type, radius and motion as CSS variables, in light, dark and high contrast. | [`theme`](https://candor.themethodic.com/docs/theme), [`theme-slate`](https://candor.themethodic.com/docs/theme-slate), [`theme-paper`](https://candor.themethodic.com/docs/theme-paper), [`theme-console`](https://candor.themethodic.com/docs/theme-console), [`theme-signal`](https://candor.themethodic.com/docs/theme-signal) |
+| **Themes** (6) | The default theme and 5 gallery themes: colours, type, radius and motion as CSS variables, in light, dark and high contrast. | [`tokens`](https://candor.themethodic.com/docs/tokens), [`theme`](https://candor.themethodic.com/docs/theme), [`theme-slate`](https://candor.themethodic.com/docs/theme-slate), [`theme-paper`](https://candor.themethodic.com/docs/theme-paper), [`theme-console`](https://candor.themethodic.com/docs/theme-console), [`theme-signal`](https://candor.themethodic.com/docs/theme-signal) |
 
 <details>
 <summary>Shared helpers and fonts (15)</summary>
@@ -154,10 +168,10 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
-| Free (this repo) | $0, MIT | 69 items: the chat core, building blocks, themes, adapters; three starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 249 components and hooks, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Free (this repo) | $0, MIT | 70 items: the chat core, building blocks, themes, adapters; three starters; the skill and plugins | public issues here |
+| Pro | $149, one person | All 268 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
-| Team | $999, up to ten people in one company | Premium | email, a first reply within 2 business days |
+| Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 
 Buy at https://candor.themethodic.com/#pricing. The terms are the [Candor UI Commercial Licence](https://candor.themethodic.com/licence); [SUPPORT.md](.github/SUPPORT.md)
 repeats the support each tier includes. Your key arrives in Polar's receipt email and customer portal; https://candor.themethodic.com/licence-key
@@ -176,7 +190,7 @@ repository.
 
 - **The source of truth is private.** Candor UI's main repository holds the free items and the paid tiers together. This
   repository is generated from it on each release, so a change made here by hand would be overwritten.
-- **Each release is a commit, a tag and a GitHub Release.** The commit `Candor X.Y.Z`, the tag `vX.Y.Z` and the
+- **From 2.6.2, each release is a commit, a tag and a GitHub Release.** The commit `Candor X.Y.Z`, the tag `vX.Y.Z` and the
   [release](https://github.com/MethodicDev/candor/releases) all carry that version's changelog section.
 - **Issues are read.** Use the [forms](https://github.com/MethodicDev/candor/issues/new/choose). There is no promised reply time for the free tier; the
   support each paid tier includes is in [SUPPORT.md](.github/SUPPORT.md). A vulnerability goes to

@@ -50,7 +50,7 @@ claude mcp add --transport http candor https://candor.themethodic.com/mcp
 
 Other clients add `https://candor.themethodic.com/mcp` as a remote (streamable HTTP) server. When you build a new
 screen, call `list_screens` first: it lists the screens an agent product needs, and `get_screen` gives one with its
-layouts, the items that build each, the rules that matter on it and a brief for the agent that builds it. Its twelve
+layouts, the items that build each, the rules that matter on it and a brief for the agent that builds it. Its thirteen
 tools:
 
 - `list_screens` and `get_screen`: the screen catalogue, as above.
@@ -68,6 +68,9 @@ tools:
 - `get_review_checklist`: the checks to run after each screen.
 - `theme_check`: after editing `candor-brand.css`, call it with the file's contents; it runs the checks of
   `npx candor-ui theme check` and says what it couldn't measure.
+- `item_changes`: before updating an item, what changed in it between the project's version (in `candor-lock.json`)
+  and another: props, exports and string keys added, removed or retyped, files touched, and the CHANGELOG entries that
+  name it. Records start at 2.7.0; for an earlier version it says what isn't known.
 
 Without it, every docs page is Markdown at `https://candor.themethodic.com/docs/<name>.md`, indexed in
 `https://candor.themethodic.com/llms.txt`.

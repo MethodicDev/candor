@@ -61,12 +61,17 @@ function ActionButton({
  * copy icon until the write settles, then becomes a tick (or a cross when the
  * clipboard refused). A rating is the caller's state, so it shows only what
  * the service recorded.
+ *
+ * `report` puts a report control after the ratings and links the two: a bad rating opens it, so the person says what was
+ * wrong once, in the report, rather than rating and then reporting separately. `report-reply` (Pro) takes the control
+ * as it is: `report={(control) => <ReportReply {...control} reviewer="the quality team" onReport={send} />}`.
  */
 function MessageActions({
   text,
   onRetry,
   rating,
   onRate,
+  report,
   meta,
   className,
 }: {
@@ -78,12 +83,15 @@ function MessageActions({
   rating?: Rating | undefined
   /** Shows thumbs up and down. */
   onRate?: ((rating: Rating) => void) | undefined
+  /** A report control after the ratings, given whether it's open; a bad rating opens it. Pair it with `report-reply`. */
+  report?: ((control: { open: boolean; onOpenChange: (open: boolean) => void }) => React.ReactNode) | undefined
   /** Facts after the actions, e.g. the model and cost. */
   meta?: React.ReactNode | undefined
   className?: string | undefined
 }) {
   const { state, copy } = useCopy()
   const t = useStrings("messageActions", messageActionsStrings)
+  const [reporting, setReporting] = React.useState(false)
   return (
     <div data-slot="message-actions" className={cn("flex items-center gap-0.5", className)}>
       {text !== undefined && (
@@ -107,11 +115,20 @@ function MessageActions({
           <ActionButton label={t("good")} pressed={rating === "up"} onClick={() => onRate(rating === "up" ? null : "up")}>
             <ThumbsUp className={cn(rating === "up" && "fill-current")} />
           </ActionButton>
-          <ActionButton label={t("bad")} pressed={rating === "down"} onClick={() => onRate(rating === "down" ? null : "down")}>
+          <ActionButton
+            label={t("bad")}
+            pressed={rating === "down"}
+            onClick={() => {
+              const next = rating === "down" ? null : "down"
+              onRate(next)
+              if (next === "down" && report) setReporting(true)
+            }}
+          >
             <ThumbsDown className={cn(rating === "down" && "fill-current")} />
           </ActionButton>
         </>
       )}
+      {report?.({ open: reporting, onOpenChange: setReporting })}
       {meta && <span className="ms-1.5 truncate text-xs text-faint-foreground">{meta}</span>}
     </div>
   )

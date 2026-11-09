@@ -2,14 +2,14 @@
   "name": "candor-starter",
   "version": "0.1.0",
   "candor": {
-    "kitVersion": "2.6.2"
+    "kitVersion": "2.7.0"
   },
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.97",
