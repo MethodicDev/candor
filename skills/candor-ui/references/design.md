@@ -247,7 +247,7 @@ Nothing is fetched until a sound plays: a page with sound off, or on with no eve
 
 ## Density
 
-`data-density="compact" | "spacious"` on `<html>` or any container changes the scale: compact tightens it for dense apps, spacious loosens it for reading. What they change:
+`data-density="compact" | "spacious"` on `<html>` or any container changes the scale: compact tightens it for dense apps, spacious loosens it for reading. It reaches the type and layout, and the size of controls and rows. What changes in type and layout:
 
 | Token | Default | Compact | Spacious |
 | --- | --- | --- | --- |
@@ -255,6 +255,30 @@ Nothing is fetched until a sound plays: a page with sound off, or on with no eve
 | `--cd-text-md` | 0.875rem | 0.8125rem | 0.9375rem |
 | `--cd-thread-width` | 48rem | 44rem | 52rem |
 | `--cd-sidebar-width` | 16rem | 14rem | 18rem |
+
+The size of controls and rows. Heights run on one ladder (`2xs`, `xs`, `sm`, none, `lg`) and a button is one step under a field: Button's default is `sm`, Input and Select's is the bare `--cd-control-h`. Components read the tokens in the form `h-(--cd-control-h-sm)` and `px-(--cd-control-px)`, so a brand file that sets a token reaches every control. Write that form in your own classes, not the named utilities (`h-control-sm`, `py-item-y`): `cn()` merges by what a class sets, and it recognises `h-(--cd-control-h-sm)` as a height, so a consumer's `h-10` still wins. It does not recognise the named utilities, and both classes would apply. No compact value is under 24px, the smallest target WCAG 2.2 allows without spacing around it.
+
+| Token | Default | Compact | Spacious |
+| --- | --- | --- | --- |
+| `--cd-control-h-2xs` | 1.5rem | 1.5rem | 1.75rem |
+| `--cd-control-h-xs` | 1.75rem | 1.625rem | 2rem |
+| `--cd-control-h-sm` | 2rem | 1.75rem | 2.25rem |
+| `--cd-control-h` | 2.25rem | 2rem | 2.5rem |
+| `--cd-control-h-lg` | 2.5rem | 2.25rem | 2.75rem |
+| `--cd-control-px-xs` | 0.5rem | 0.375rem | 0.625rem |
+| `--cd-control-px-sm` | 0.625rem | 0.5rem | 0.75rem |
+| `--cd-control-px` | 0.75rem | 0.625rem | 0.875rem |
+| `--cd-control-px-md` | 0.875rem | 0.75rem | 1rem |
+| `--cd-control-px-lg` | 1.25rem | 1rem | 1.5rem |
+| `--cd-control-py` | 0.5rem | 0.375rem | 0.625rem |
+| `--cd-control-gap` | 0.5rem | 0.375rem | 0.625rem |
+| `--cd-area-min-h` | 4rem | 3.5rem | 4.5rem |
+| `--cd-item-px` | 0.5rem | 0.5rem | 0.625rem |
+| `--cd-item-py` | 0.375rem | 0.25rem | 0.5rem |
+| `--cd-row-h` | 2.5rem | 2rem | 3rem |
+| `--cd-row-px` | 1rem | 0.75rem | 1.25rem |
+| `--cd-row-py` | 0.5rem | 0.25rem | 0.75rem |
+| `--cd-cell-px` | 0.5rem | 0.375rem | 0.75rem |
 
 ## Themes
 
@@ -264,7 +288,7 @@ Nothing is fetched until a sound plays: a page with sound off, or on with no eve
 
 ## Naming, and making it your own
 
-`--cd-*` is Candor's own namespace: 37 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets and widths. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
+`--cd-*` is Candor's own namespace: 56 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets, widths, and the sizes of controls and rows. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
 
 The quickest way is the free theme builder at https://candor.themethodic.com/theme-builder: it takes the brand's colours, sets type, shape, motion and sound, checks every pairing in every theme, and downloads `candor-brand.css` (the overrides, imported straight after `candor.css`) and `candor-theme.json` (the same values as design tokens, with each check's ratio). It runs in the browser and the theme is never sent anywhere; if you give it a font's address and press to load it, your browser fetches the font from that host, which sees the request, and an exported file with a font `@import` does the same in your app. Check the result with `npx candor-ui theme check` from the project root (it reads the CSS file named in components.json and the files that file imports). Writing the overrides by hand works the same way:
 

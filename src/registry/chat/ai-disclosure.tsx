@@ -53,7 +53,7 @@ function AiDisclosure({
   const name = typeof agent === "string" ? agent : agent?.name
   const sentence = name ? t("line", { name }) : t("lineUnnamed")
   const learnMore = onLearnMore && (
-    <Button type="button" variant="link" size="xs" className="h-6 px-0 has-[>svg]:px-0" onClick={onLearnMore}>
+    <Button type="button" variant="link" size="xs" className="h-(--cd-control-h-2xs,1.5rem) px-0 has-[>svg]:px-0" onClick={onLearnMore}>
       {t("learnMore")}
     </Button>
   )
@@ -66,7 +66,7 @@ function AiDisclosure({
         <span aria-hidden>{t("badge")}</span>
       </>
     )
-    const badgeClass = "inline-flex min-h-6 min-w-6 items-center justify-center gap-1 rounded-full border px-2 text-2xs font-medium text-muted-foreground"
+    const badgeClass = "inline-flex min-h-(--cd-control-h-2xs,1.5rem) min-w-(--cd-control-h-2xs,1.5rem) items-center justify-center gap-1 rounded-full border px-2 text-2xs font-medium text-muted-foreground"
     // Nothing more to say: a static mark with a name, not a button that opens nothing.
     if (!details && !onLearnMore)
       return (

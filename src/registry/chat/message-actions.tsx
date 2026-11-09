@@ -45,7 +45,7 @@ function ActionButton({
           aria-label={label}
           aria-pressed={pressed}
           onClick={onClick}
-          className="flex size-7 items-center justify-center rounded-md text-faint-foreground cd-tint outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 aria-pressed:text-accent-text [&_svg]:size-3.5"
+          className="flex size-(--cd-control-h-xs,1.75rem) items-center justify-center rounded-md text-faint-foreground cd-tint outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 aria-pressed:text-accent-text [&_svg]:size-3.5"
         >
           {children}
         </button>

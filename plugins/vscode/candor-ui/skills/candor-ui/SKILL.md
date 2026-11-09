@@ -51,7 +51,8 @@ claude mcp add --transport http candor https://candor.themethodic.com/mcp
 Other clients add `https://candor.themethodic.com/mcp` as a remote (streamable HTTP) server. Its tools:
 `suggest_components` (describe the screen, get the items that fit and one install command), `search_docs`,
 `get_component_docs` (one page: props, example with app import paths, `LocaleProvider` keys), `list_components`,
-`get_pattern` and `get_started`.
+`get_pattern` and `get_started`. After editing `candor-brand.css`, call `theme_check` with the file's contents: it runs the checks of
+`npx candor-ui theme check` and says what it couldn't measure.
 
 Without it, every docs page is Markdown at `https://candor.themethodic.com/docs/<name>.md`, indexed in
 `https://candor.themethodic.com/llms.txt`.

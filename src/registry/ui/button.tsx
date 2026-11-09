@@ -16,7 +16,7 @@ const pressMotion = motion("button", "press", "press")
 // The accent fills the one primary act, the radius is the theme's
 // --cd-radius-button, and buttons press down slightly on :active.
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-button text-sm font-medium whitespace-nowrap outline-none select-none cd-press focus-visible:ring-[3px] focus-visible:ring-ring/80 disabled:pointer-events-none disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-[locked]:active:scale-100 aria-invalid:ring-destructive/25 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 items-center justify-center gap-(--cd-control-gap,0.5rem) rounded-button text-sm font-medium whitespace-nowrap outline-none select-none cd-press focus-visible:ring-[3px] focus-visible:ring-ring/80 disabled:pointer-events-none disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-[locked]:active:scale-100 aria-invalid:ring-destructive/25 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -28,14 +28,14 @@ const buttonVariants = cva(
         link: "text-accent-text underline-offset-4 hover:underline active:scale-100",
       },
       size: {
-        default: "h-8 px-3.5 has-[>svg]:px-3",
-        xs: "h-6 gap-1 px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1.5 px-2.5 text-xs has-[>svg]:px-2 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-10 px-5 text-base has-[>svg]:px-4",
-        icon: "size-8",
-        "icon-xs": "size-6 [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-7 [&_svg:not([class*='size-'])]:size-3.5",
-        "icon-lg": "size-10",
+        default: "h-(--cd-control-h-sm,2rem) px-(--cd-control-px-md,0.875rem) has-[>svg]:px-(--cd-control-px,0.75rem)",
+        xs: "h-(--cd-control-h-2xs,1.5rem) gap-1 px-(--cd-control-px-xs,0.5rem) text-xs has-[>svg]:px-[calc(var(--cd-control-px-xs,0.5rem)-2px)] [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-(--cd-control-h-xs,1.75rem) gap-1.5 px-(--cd-control-px-sm,0.625rem) text-xs has-[>svg]:px-(--cd-control-px-xs,0.5rem) [&_svg:not([class*='size-'])]:size-3.5",
+        lg: "h-(--cd-control-h-lg,2.5rem) px-(--cd-control-px-lg,1.25rem) text-base has-[>svg]:px-[calc(var(--cd-control-px-lg,1.25rem)-4px)]",
+        icon: "size-(--cd-control-h-sm,2rem)",
+        "icon-xs": "size-(--cd-control-h-2xs,1.5rem) [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm": "size-(--cd-control-h-xs,1.75rem) [&_svg:not([class*='size-'])]:size-3.5",
+        "icon-lg": "size-(--cd-control-h-lg,2.5rem)",
       },
     },
     defaultVariants: {

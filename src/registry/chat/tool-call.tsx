@@ -136,7 +136,7 @@ function ToolCallGroup({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call-group" className={cn("group/tools rounded-lg border bg-card", className)}>
-      <CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2 text-start text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 rounded-lg">
+      <CollapsibleTrigger className="flex w-full items-center gap-2 px-(--cd-control-px,0.75rem) py-(--cd-row-py,0.5rem) text-start text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 rounded-lg">
         <Wrench aria-hidden className="size-3.5" />
         <span className="flex-1">
           {t("calls", { count: calls.length })}

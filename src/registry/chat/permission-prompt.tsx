@@ -354,7 +354,7 @@ function PromptBody({
                   {q.prompt}
                 </legend>
                 {q.options.map((o) => (
-                  <label key={o.id} className="flex min-h-6 items-start gap-2">
+                  <label key={o.id} className="flex min-h-(--cd-control-h-2xs,1.5rem) items-start gap-(--cd-control-gap,0.5rem)">
                     <input type={q.multiple ? "checkbox" : "radio"} name={`${id}-${q.id}`} checked={a?.choice.includes(o.id) ?? false} onChange={() => choose(q, o.id)} className="mt-0.5 size-4 accent-[var(--primary)]" />
                     <span>
                       {o.label}
@@ -364,7 +364,7 @@ function PromptBody({
                 ))}
                 {q.other && (
                   <>
-                    <label className="flex min-h-6 items-start gap-2">
+                    <label className="flex min-h-(--cd-control-h-2xs,1.5rem) items-start gap-(--cd-control-gap,0.5rem)">
                       <input type={q.multiple ? "checkbox" : "radio"} name={`${id}-${q.id}`} checked={a?.other ?? false} onChange={() => toggleOther(q)} className="mt-0.5 size-4 accent-[var(--primary)]" />
                       <span>{t("otherOption")}</span>
                     </label>
@@ -374,7 +374,7 @@ function PromptBody({
                         rows={2}
                         value={a.text}
                         onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: { ...prev[q.id]!, text: e.target.value } }))}
-                        className="ms-6 block resize-none rounded-md border border-input bg-card px-2.5 py-1.5 text-sm outline-none [field-sizing:content] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
+                        className="ms-6 block resize-none rounded-md border border-input bg-card px-(--cd-control-px-sm,0.625rem) py-(--cd-item-py,0.375rem) text-sm outline-none [field-sizing:content] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30"
                       />
                     )}
                   </>
@@ -398,7 +398,7 @@ function PromptBody({
                 rows={Math.min(12, draft.split("\n").length + 1)}
                 aria-invalid={invalid || undefined}
                 aria-describedby={`${id}-changes`}
-                className="block w-full resize-y rounded-md border border-input bg-card px-2.5 py-1.5 font-mono text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30 aria-invalid:border-destructive"
+                className="block w-full resize-y rounded-md border border-input bg-card px-(--cd-control-px-sm,0.625rem) py-(--cd-item-py,0.375rem) font-mono text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30 aria-invalid:border-destructive"
               />
               <div id={`${id}-changes`} role="status" className="text-xs">
                 {invalid ? (
@@ -444,7 +444,7 @@ function PromptBody({
               {suggestions.map((s, i) => {
                 const w = word(s)
                 return (
-                  <label key={i} className="flex min-h-6 items-start gap-2">
+                  <label key={i} className="flex min-h-(--cd-control-h-2xs,1.5rem) items-start gap-(--cd-control-gap,0.5rem)">
                     <input
                       type="checkbox"
                       checked={ticked.includes(i)}

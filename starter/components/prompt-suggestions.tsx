@@ -73,7 +73,7 @@ function PromptSuggestions({
                   key={s.id}
                   type="button"
                   onClick={() => onChoose(s)}
-                  className="rounded-lg border bg-card px-3 py-1.5 text-sm text-muted-foreground cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
+                  className="rounded-lg border bg-card px-(--cd-control-px,0.75rem) py-(--cd-item-py,0.375rem) text-sm text-muted-foreground cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
                 >
                   {s.text}
                 </button>

@@ -300,7 +300,7 @@ function Thread({
               }}
               style={arrivalMotion}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border bg-popover px-3 py-1.5 text-xs font-medium shadow-float [--cd-attention-color:var(--primary)]",
+                "inline-flex items-center gap-1.5 rounded-full border bg-popover px-(--cd-control-px,0.75rem) py-(--cd-item-py,0.375rem) text-xs font-medium shadow-float [--cd-attention-color:var(--primary)]",
                 arrived && "cd-attention"
               )}
             >

@@ -458,7 +458,7 @@ function Composer({
           aria-autocomplete="list"
           aria-describedby={locked ? `${id}-locked` : held ? `${id}-held` : undefined}
           className={cn(
-            "block max-h-60 min-h-12 w-full resize-none bg-transparent px-4 pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground disabled:cursor-not-allowed",
+            "block max-h-60 min-h-12 w-full resize-none bg-transparent px-(--cd-row-px,1rem) pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground disabled:cursor-not-allowed",
             locked && !value && "min-h-0 h-3 pt-3 pb-0"
           )}
         />
@@ -491,7 +491,7 @@ function Composer({
                 }}
               />
               <Tooltip>
-                <TooltipTrigger render={<button type="button" aria-label={t("attachFiles")} disabled={Boolean(locked)} onClick={() => fileInput.current?.click()} className="flex size-8 items-center justify-center rounded-lg text-muted-foreground cd-tint hover:bg-accent hover:text-foreground disabled:opacity-40" />}><Paperclip className="size-4" /></TooltipTrigger>
+                <TooltipTrigger render={<button type="button" aria-label={t("attachFiles")} disabled={Boolean(locked)} onClick={() => fileInput.current?.click()} className="flex size-(--cd-control-h-sm,2rem) items-center justify-center rounded-lg text-muted-foreground cd-tint hover:bg-accent hover:text-foreground disabled:opacity-40" />}><Paperclip className="size-4" /></TooltipTrigger>
                 <TooltipContent>{t("attachFiles")}</TooltipContent>
               </Tooltip>
             </>
@@ -541,7 +541,7 @@ function Composer({
               aria-label={t("stop")}
               onClick={onStop}
               style={sendMotion}
-              className={cn("ms-auto flex size-8 items-center justify-center bg-foreground text-background cd-press", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+              className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-foreground text-background cd-press", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
               <Square className="size-3 fill-current" />
             </button>
@@ -553,7 +553,7 @@ function Composer({
               disabled={!canSend}
               aria-busy={state === "sending"}
               style={sendMotion}
-              className={cn("ms-auto flex size-8 items-center justify-center bg-primary text-primary-foreground cd-press enabled:hover:bg-primary-hover disabled:opacity-30", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+              className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-primary text-primary-foreground cd-press enabled:hover:bg-primary-hover disabled:opacity-30", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
             >
               {state === "sending" ? <LoaderCircle style={sendingMotion} className="size-4 cd-live-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
             </button>

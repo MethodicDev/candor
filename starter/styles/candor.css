@@ -14,11 +14,14 @@
  * else the system's sans-serif. Point --cd-font at your own font to use it instead.
  *
  * Density: data-density="compact" | "spacious" on <html> (or any container); no
- * attribute is the default. Compact tightens type for dense apps: 14px conversation
- * text and 13px body and label text, with a narrower thread and sidebar. Spacious is
- * the other way, for reading-first apps: 16px conversation
- * text and 15px body and label text, with a wider thread and sidebar. Both set the
- * same four tokens, so one overrides the other when nested.
+ * attribute is the default. Two groups of tokens change, the same ones in both presets, so
+ * one overrides the other when nested. Type and layout: compact is 14px conversation text
+ * and 13px body and label text, with a narrower thread and sidebar; spacious is 16px and
+ * 15px, wider. Controls and rows: the heights, padding and gaps of buttons, fields, menu
+ * items and table rows (--cd-control-*, --cd-item-*, --cd-row-*, --cd-cell-px). Compact is
+ * 2px to 4px smaller and never under 24px, the smallest target WCAG 2.2 allows without
+ * spacing around it; spacious is 2px to 4px larger. The default is what the kit has always
+ * drawn. Components read the tokens through h-(--cd-control-h), px-(--cd-control-px), py-item-y and the like.
  *
  * Motion: fourteen families (reveal, arrive, pop, mark, fill, value, move, overlay,
  * press, tint, refuse, attention, live, clock), each with a level (0 off, 1 subtle,
@@ -84,6 +87,33 @@
   --cd-thread-width: 48rem;
   --cd-sidebar-width: 16rem;
 
+  /*
+   * Control and row sizes: the default density, which is what the kit has always drawn. Heights run on one ladder
+   * (2xs 24px, xs 28px, sm 32px, none 36px, lg 40px), and a button is one step under a field: Button's default is
+   * -sm, Input and Select's is the bare token. Padding runs on its own (xs 8px, sm 10px, none 12px, md 14px, lg 20px).
+   * data-density="compact" | "spacious" changes all of them, and no compact value is under 24px.
+   */
+  --cd-control-h-2xs: 1.5rem;
+  --cd-control-h-xs: 1.75rem;
+  --cd-control-h-sm: 2rem;
+  --cd-control-h: 2.25rem;
+  --cd-control-h-lg: 2.5rem;
+  --cd-control-px-xs: 0.5rem;
+  --cd-control-px-sm: 0.625rem;
+  --cd-control-px: 0.75rem;
+  --cd-control-px-md: 0.875rem;
+  --cd-control-px-lg: 1.25rem;
+  --cd-control-py: 0.5rem;
+  --cd-control-gap: 0.5rem;
+  --cd-area-min-h: 4rem;
+  /* Items in a menu, a command list or a list of choices; and table rows and cells. */
+  --cd-item-px: 0.5rem;
+  --cd-item-py: 0.375rem;
+  --cd-row-h: 2.5rem;
+  --cd-row-px: 1rem;
+  --cd-row-py: 0.5rem;
+  --cd-cell-px: 0.5rem;
+
   --radius: var(--cd-radius-lg);
 
   --sidebar: var(--chrome);
@@ -105,19 +135,57 @@
   --cd-shadow: oklch(0 0 0 / 0.35);
 }
 
-/* The compact preset. Prose is pinned, since by default it follows --cd-text-md, which this shrinks. */
+/* The compact preset. Prose is pinned, since by default it follows --cd-text-md, which this shrinks. Nothing here is under 24px. */
 [data-density="compact"] {
   --cd-text-prose: 0.875rem;
   --cd-text-md: 0.8125rem;
   --cd-thread-width: 44rem;
   --cd-sidebar-width: 14rem;
+  --cd-control-h-2xs: 1.5rem;
+  --cd-control-h-xs: 1.625rem;
+  --cd-control-h-sm: 1.75rem;
+  --cd-control-h: 2rem;
+  --cd-control-h-lg: 2.25rem;
+  --cd-control-px-xs: 0.375rem;
+  --cd-control-px-sm: 0.5rem;
+  --cd-control-px: 0.625rem;
+  --cd-control-px-md: 0.75rem;
+  --cd-control-px-lg: 1rem;
+  --cd-control-py: 0.375rem;
+  --cd-control-gap: 0.375rem;
+  --cd-area-min-h: 3.5rem;
+  --cd-item-px: 0.5rem;
+  --cd-item-py: 0.25rem;
+  --cd-row-h: 2rem;
+  --cd-row-px: 0.75rem;
+  --cd-row-py: 0.25rem;
+  --cd-cell-px: 0.375rem;
 }
-/* The spacious preset: the same four tokens as compact, set the other way. Prose is pinned here too, at 16px. */
+/* The spacious preset: the same tokens as compact, set the other way. Prose is pinned here too, at 16px. */
 [data-density="spacious"] {
   --cd-text-prose: 1rem;
   --cd-text-md: 0.9375rem;
   --cd-thread-width: 52rem;
   --cd-sidebar-width: 18rem;
+  --cd-control-h-2xs: 1.75rem;
+  --cd-control-h-xs: 2rem;
+  --cd-control-h-sm: 2.25rem;
+  --cd-control-h: 2.5rem;
+  --cd-control-h-lg: 2.75rem;
+  --cd-control-px-xs: 0.625rem;
+  --cd-control-px-sm: 0.75rem;
+  --cd-control-px: 0.875rem;
+  --cd-control-px-md: 1rem;
+  --cd-control-px-lg: 1.5rem;
+  --cd-control-py: 0.625rem;
+  --cd-control-gap: 0.625rem;
+  --cd-area-min-h: 4.5rem;
+  --cd-item-px: 0.625rem;
+  --cd-item-py: 0.5rem;
+  --cd-row-h: 3rem;
+  --cd-row-px: 1.25rem;
+  --cd-row-py: 0.75rem;
+  --cd-cell-px: 0.75rem;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
@@ -326,6 +394,37 @@
   --shadow-raised: var(--cd-elev-2);
   --shadow-float: var(--cd-elev-3);
   --shadow-overlay: var(--cd-elev-4);
+
+  /* Control and row sizes (see :root), so h-control-sm and px-control follow data-density. */
+  --height-control-2xs: var(--cd-control-h-2xs);
+  --height-control-xs: var(--cd-control-h-xs);
+  --height-control-sm: var(--cd-control-h-sm);
+  --height-control: var(--cd-control-h);
+  --height-control-lg: var(--cd-control-h-lg);
+  --height-row: var(--cd-row-h);
+  --size-control-2xs: var(--cd-control-h-2xs);
+  --size-control-xs: var(--cd-control-h-xs);
+  --size-control-sm: var(--cd-control-h-sm);
+  --size-control: var(--cd-control-h);
+  --size-control-lg: var(--cd-control-h-lg);
+  --min-width-control-2xs: var(--cd-control-h-2xs);
+  --min-width-control-xs: var(--cd-control-h-xs);
+  --min-width-control-sm: var(--cd-control-h-sm);
+  --min-width-control: var(--cd-control-h);
+  --min-width-control-lg: var(--cd-control-h-lg);
+  --spacing-control-xs: var(--cd-control-px-xs);
+  --spacing-control-sm: var(--cd-control-px-sm);
+  --spacing-control: var(--cd-control-px);
+  --spacing-control-md: var(--cd-control-px-md);
+  --spacing-control-lg: var(--cd-control-px-lg);
+  --spacing-control-y: var(--cd-control-py);
+  --spacing-control-gap: var(--cd-control-gap);
+  --spacing-item-x: var(--cd-item-px);
+  --spacing-item-y: var(--cd-item-py);
+  --spacing-row: var(--cd-row-py);
+  --spacing-row-x: var(--cd-row-px);
+  --spacing-cell: var(--cd-cell-px);
+  --min-height-area: var(--cd-area-min-h);
 
   --ease-standard: var(--cd-ease);
   --ease-inout: var(--cd-ease-inout);
