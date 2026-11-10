@@ -2,7 +2,7 @@ import * as React from "react"
 import type { UIMessage } from "ai"
 import type { UseChatHelpers } from "@ai-sdk/react"
 import type { ComposerState } from "@/registry/chat/composer"
-import type { EntityRef, Message } from "@/registry/lib/chat"
+import type { EntityRef, Message } from "@/registry/foundation/chat"
 import { fromAiSdkMessages, type FromAiSdkOptions } from "@/registry/adapters/ai-sdk"
 
 export type PendingApproval = { id: string; toolCallId: string; tool: string; input: unknown; reason?: string | undefined }

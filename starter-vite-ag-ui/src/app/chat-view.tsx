@@ -1,11 +1,11 @@
 import * as React from "react"
-import { Composer } from "@/components/composer"
-import { Message } from "@/components/message"
-import { PermissionPrompt } from "@/components/permission-prompt"
-import { PromptSuggestions } from "@/components/prompt-suggestions"
-import { Thread } from "@/components/thread"
-import type { AgentIdentity } from "@/lib/chat"
-import { useAgUi } from "@/components/use-ag-ui"
+import { Composer } from "@/components/candor/composer"
+import { Message } from "@/components/candor/message"
+import { PermissionPrompt } from "@/components/candor/permission-prompt"
+import { PromptSuggestions } from "@/components/candor/prompt-suggestions"
+import { Thread } from "@/components/candor/thread"
+import type { AgentIdentity } from "@/lib/candor/chat"
+import { useAgUi } from "@/components/candor/use-ag-ui"
 import { toolTitle } from "./tool-title"
 
 const suggestions = [

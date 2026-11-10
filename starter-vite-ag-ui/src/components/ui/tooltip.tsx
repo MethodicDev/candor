@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Tooltip as TooltipPrimitive } from "radix-ui"
-import { withRender, type RenderProp } from "@/lib/render-prop"
+import { withRender, type RenderProp } from "@/lib/candor/render-prop"
 
 // Whether a TooltipProvider is above, so a lone Tooltip can supply its own.
 const HasProvider = React.createContext(false)

@@ -2,10 +2,10 @@
 
 import { ArrowUpRight, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { PromptSuggestion } from "@/registry/lib/chat"
+import type { PromptSuggestion } from "@/registry/foundation/chat"
 import { Skeleton } from "@/registry/ui/skeleton"
-import { useStrings } from "@/registry/blocks/locale"
-import { motion } from "@/registry/lib/motion"
+import { useStrings } from "@/registry/foundation/locale"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion press:press A suggestion shrinks slightly while it is held down and returns when it is let go. Under

@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import { Switch as SwitchPrimitive } from "radix-ui"
-import { type RenderProp } from "@/registry/lib/render-prop"
+import { type RenderProp } from "@/registry/foundation/render-prop"
 import { cn } from "@/lib/utils"
-import { motion } from "@/registry/lib/motion"
+import { motion } from "@/registry/foundation/motion"
 
 const thumbMotion = motion("switch", "thumb", "move")
 

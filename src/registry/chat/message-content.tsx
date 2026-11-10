@@ -2,9 +2,8 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { useTerms } from "@/registry/blocks/terms"
-import { DegradedPanel } from "@/registry/blocks/degraded-panel"
-import type { Attachment, EntityRef, InlineNode, MessageBlock, MessageSource } from "@/registry/lib/chat"
+import { DegradedPanel } from "@/registry/parts/degraded-panel"
+import type { Attachment, EntityRef, InlineNode, MessageBlock, MessageSource } from "@/registry/foundation/chat"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 import { Citation } from "@/registry/chat/citation"
 import { EntityChip } from "@/registry/chat/entity-chip"
@@ -12,7 +11,7 @@ import { RegistryCard } from "@/registry/chat/card-registry"
 import { Payload } from "@/registry/chat/payload"
 import { AttachmentList } from "@/registry/chat/attachment-preview"
 import { ToolCallGroup } from "@/registry/chat/tool-call"
-import { useStrings } from "@/registry/blocks/locale"
+import { useStrings } from "@/registry/foundation/locale"
 
 /** MessageContent's fixed words; override them under `messageContent` in LocaleProvider's `strings`. */
 export const messageContentStrings = {
@@ -33,21 +32,6 @@ type Ctx = {
 const ContentContext = React.createContext<Ctx>({ sources: new Map() })
 
 /**
- * Whether this is a production build. Bundlers replace `process.env.NODE_ENV` at build time (Vite and Next both do);
- * where nothing defines it the answer is "production", so a development warning never reaches a page that can't say.
- */
-const production = () => {
-  try {
-    return process.env.NODE_ENV === "production"
-  } catch {
-    return true
-  }
-}
-
-/** Set once this page has been told that 3.0 removes the `orgData` node. */
-let warnedOrgData = false
-
-/**
  * Inline nodes. Every string here may come from a model or the user's system, so it is
  * only ever rendered as a React text child: no markdown parsing, no HTML.
  */
@@ -57,18 +41,8 @@ function Inline({
   /** Inline nodes: text, strong, code, entities, citations. */
   nodes: InlineNode[]
 }) {
-  const terms = useTerms()
   const t = useStrings("messageContent", messageContentStrings)
   const ctx = React.useContext(ContentContext)
-  // `orgData` is drawn as `measured` until 3.0 removes it; stored messages carry it where no compiler looks.
-  const hasOrgData = nodes.some((n) => n.kind === "orgData")
-  React.useEffect(() => {
-    if (!hasOrgData || warnedOrgData || production()) return
-    warnedOrgData = true
-    console.warn(
-      'Candor: a message has an inline node of kind "orgData", which 3.0 removes (it was renamed "measured" in 1.0). Change kind: "orgData" to kind: "measured" where the blocks are built (npx candor-ui migrate orgdata makes the change in source), and update the kind of any stored messages once. (Development only, once per page.)'
-    )
-  }, [hasOrgData])
   return (
     <>
       {nodes.map((n, i) => {
@@ -86,9 +60,8 @@ function Inline({
               </code>
             )
           case "measured":
-          case "orgData":
             return (
-              <span key={i} title={n.source ? t("measuredFrom", { environment: terms.environment, source: n.source }) : t("measured", { environment: terms.environment })} className="font-medium tabular-nums text-foreground">
+              <span key={i} title={n.source ? t("measuredFrom", { source: n.source }) : t("measured")} className="font-medium tabular-nums text-foreground">
                 {n.text}
               </span>
             )
@@ -105,7 +78,7 @@ function Inline({
                     <span className="sr-only">{t("notVerified")}</span>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{n.reason ?? t("provisional", { environment: terms.environment })}</TooltipContent>
+                <TooltipContent>{n.reason ?? t("provisional")}</TooltipContent>
               </Tooltip>
             )
           case "citation":

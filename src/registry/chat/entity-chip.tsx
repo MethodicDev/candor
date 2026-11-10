@@ -16,8 +16,8 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { EntityRef } from "@/registry/lib/chat"
-import { useStrings } from "@/registry/blocks/locale"
+import type { EntityRef } from "@/registry/foundation/chat"
+import { useStrings } from "@/registry/foundation/locale"
 
 /** EntityChip's fixed words; override them under `entityChip` in LocaleProvider's `strings`. */
 export const entityChipStrings = {

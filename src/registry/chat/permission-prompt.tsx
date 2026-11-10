@@ -3,10 +3,10 @@
 import * as React from "react"
 import { Info, Pencil, ShieldAlert, ShieldQuestion } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useStrings } from "@/registry/blocks/locale"
+import { useStrings } from "@/registry/foundation/locale"
 import { Payload } from "@/registry/chat/payload"
 import { Button } from "@/registry/ui/button"
-import { motion } from "@/registry/lib/motion"
+import { motion } from "@/registry/foundation/motion"
 
 /** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
 function animationMs(el: Element | null): number | undefined {

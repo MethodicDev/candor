@@ -3,9 +3,9 @@
 import * as React from "react"
 import { ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useStrings } from "@/registry/blocks/locale"
-import { useVirtualList } from "@/registry/lib/use-virtual-list"
-import { motion, useMotionAllowed } from "@/registry/lib/motion"
+import { useStrings } from "@/registry/foundation/locale"
+import { useVirtualList } from "@/registry/foundation/use-virtual-list"
+import { motion, useMotionAllowed } from "@/registry/foundation/motion"
 
 /**
  * @motion move:scroll When the person presses Jump to latest, the thread glides down to the newest message. Under

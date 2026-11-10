@@ -3,19 +3,19 @@
 import type * as React from "react"
 import { CircleDashed, CircleStop, UserCheck, UserRound } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { DegradedPanel } from "@/registry/blocks/degraded-panel"
-import { RelativeTime } from "@/registry/blocks/relative-time"
-import { ShimmerLabel } from "@/registry/blocks/streaming-text"
-import type { DateStyle } from "@/registry/blocks/locale"
-import type { Attachment, EntityRef, Message as MessageData } from "@/registry/lib/chat"
+import { DegradedPanel } from "@/registry/parts/degraded-panel"
+import { RelativeTime } from "@/registry/parts/relative-time"
+import { ShimmerLabel } from "@/registry/parts/streaming-text"
+import type { DateStyle } from "@/registry/foundation/locale"
+import type { Attachment, EntityRef, Message as MessageData } from "@/registry/foundation/chat"
 import { AgentAvatar, useAgentRoles } from "@/registry/chat/agent-avatar"
 import { SourceList } from "@/registry/chat/citation"
 import { blocksToText, MessageContent } from "@/registry/chat/message-content"
 import { MessageActions, type Rating } from "@/registry/chat/message-actions"
 import { Reasoning } from "@/registry/chat/reasoning"
 import { ThreadEvent } from "@/registry/chat/thread-event"
-import { useStrings } from "@/registry/blocks/locale"
-import { motion } from "@/registry/lib/motion"
+import { useStrings } from "@/registry/foundation/locale"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion arrive:arrive A message rises in when it is added to a Thread after the thread first drew, whether it is
@@ -41,8 +41,6 @@ export const messageStrings = {
   editedBy: "Edited by {name} before sending",
   /** The line a streaming reply shows before anything of it has arrived. Not "Thinking": nothing says the model is yet. */
   working: "Working",
-  /** Deprecated, removed in 3.0; use message.working. An app's override of it still shows when working has none. */
-  thinking: "Thinking",
 }
 
 /**
@@ -249,17 +247,6 @@ function MessageHeader({
 }
 
 /**
- * The working line's words: the app's message.working, else its message.thinking (the key before 2.9.0, until 3.0),
- * else "Working". An override is told from the default by its text, so the line never falls back to "Thinking".
- */
-function workingLine(t: (key: keyof typeof messageStrings) => string): string {
-  const working = t("working")
-  if (working !== messageStrings.working) return working
-  const thinking = t("thinking")
-  return thinking !== messageStrings.thinking ? thinking : working
-}
-
-/**
  * A reply's content: its reasoning, then its blocks, with a caret after the last one while it streams. Until anything
  * of a streaming reply arrives it shows a working line, "Working", which counts the time since the message's
  * `startedAt` when it has one ("Working · 4.2s"). It says "Working", not "Thinking": the request may still be queued
@@ -297,7 +284,7 @@ function MessageBody({
         <p data-slot="message-working" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <CircleDashed aria-hidden className="size-3.5 text-accent-text" />
           <ShimmerLabel className="text-xs" startedAt={startedAt}>
-            {workingLine(t)}
+            {t("working")}
           </ShimmerLabel>
         </p>
       )}

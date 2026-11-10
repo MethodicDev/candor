@@ -3,9 +3,9 @@
 import * as React from "react"
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useStrings } from "@/registry/blocks/locale"
+import { useStrings } from "@/registry/foundation/locale"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
-import { motion } from "@/registry/lib/motion"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion reveal:open The folded turns open to their full height when the person presses the summary, with its

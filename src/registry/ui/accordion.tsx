@@ -3,9 +3,9 @@
 import * as React from "react"
 import { ChevronDown } from "lucide-react"
 import { Accordion as AccordionPrimitive } from "radix-ui"
-import { withRender, type RenderProp } from "@/registry/lib/render-prop"
+import { withRender, type RenderProp } from "@/registry/foundation/render-prop"
 import { cn } from "@/lib/utils"
-import { motion } from "@/registry/lib/motion"
+import { motion } from "@/registry/foundation/motion"
 
 const openMotion = motion("accordion", "open", "reveal")
 

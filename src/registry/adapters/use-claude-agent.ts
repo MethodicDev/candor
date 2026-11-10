@@ -1,6 +1,6 @@
 import * as React from "react"
 import type { ComposerState } from "@/registry/chat/composer"
-import type { EntityRef } from "@/registry/lib/chat"
+import type { EntityRef } from "@/registry/foundation/chat"
 import { fromClaudeAgentEvents, type AgentEvent, type ClaudeApprovalAnswer, type ClaudePermissionMode, type FromClaudeAgentOptions } from "@/registry/adapters/claude-agent-sdk"
 
 export type UseClaudeAgentOptions = Omit<FromClaudeAgentOptions, "running"> & {

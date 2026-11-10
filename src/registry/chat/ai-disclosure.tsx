@@ -2,8 +2,8 @@
 
 import { Bot } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { AgentIdentity } from "@/registry/lib/chat"
-import { useStrings } from "@/registry/blocks/locale"
+import type { AgentIdentity } from "@/registry/foundation/chat"
+import { useStrings } from "@/registry/foundation/locale"
 import { Button } from "@/registry/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
 

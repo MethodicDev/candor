@@ -3,11 +3,11 @@
 import * as React from "react"
 import { Check, Copy, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { PayloadLanguage } from "@/registry/lib/chat"
-import { useCopy } from "@/registry/lib/use-copy"
-import { tokenize } from "@/registry/lib/highlight"
+import type { PayloadLanguage } from "@/registry/foundation/chat"
+import { useCopy } from "@/registry/foundation/use-copy"
+import { tokenize } from "@/registry/foundation/highlight"
 
-import { useStrings, type Translate } from "@/registry/blocks/locale"
+import { useStrings, type Translate } from "@/registry/foundation/locale"
 
 /** Payload's fixed words; override them under `payload` in LocaleProvider's `strings`. */
 export const payloadStrings = {

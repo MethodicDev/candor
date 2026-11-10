@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { answerClaudeAgentApproval } from "@/components/claude-agent-server"
+import { answerClaudeAgentApproval } from "@/components/candor/claude-agent-server"
 import { crossSite, crossSiteRefused } from "@/app/cross-site.server"
 
 /** A person's answer to the agent's permission request: `{ id, approved, reason? }`. */

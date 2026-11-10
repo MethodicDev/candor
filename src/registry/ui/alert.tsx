@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cva } from "class-variance-authority"
 import { cn } from "@/lib/utils"
-import { motion } from "@/registry/lib/motion"
+import { motion } from "@/registry/foundation/motion"
 
 const enterMotion = motion("alert", "enter", "arrive")
 

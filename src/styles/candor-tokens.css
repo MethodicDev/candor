@@ -233,9 +233,6 @@
 [data-motion="expressive"] {
   --cd-motion-preset: 2;
   --cd-motion-cap: 2;
-  /* 2.2's expressive values, for apps that use the animate-pop-in and animate-shake utilities directly. */
-  --cd-pop-from-preset: 0.85;
-  --cd-motion-shake-preset: shake var(--cd-dur-slow) var(--cd-ease) both;
 }
 [data-motion="calm"] { --cd-motion-cap: 1; }
 [data-motion="none"] { --cd-motion-preset: 0; --cd-motion-cap: 0; }
@@ -329,85 +326,11 @@
   --ease-standard: var(--cd-ease);
   --ease-inout: var(--cd-ease-inout);
   --ease-spring: var(--cd-ease-spring);
-
-  /*
-   * 2.2's animation utilities, kept for apps that use them in their own screens. Candor's components use the motion
-   * families below (cd-pop, cd-reveal…), which a brand file and data-motion reach moment by moment; these read only the
-   * family's duration. attention-wait is three pulses of 1.6 s (4.8 s in all, then still: WCAG 2.2.2 wants moving
-   * content to stop).
-   */
-  --animate-shimmer: shimmer 2.2s linear infinite;
-  --animate-pulse-dot: pulse-dot var(--cd-motion-live-dur, 1.6s) var(--cd-ease) infinite;
-  --animate-rise-in: rise-in var(--cd-motion-arrive-dur, 240ms) var(--cd-ease) both;
-  --animate-caret: caret 1s steps(2, start) infinite;
-  --animate-collapse-down: collapse-down var(--cd-motion-reveal-dur, var(--cd-dur-base)) var(--cd-ease);
-  --animate-collapse-up: collapse-up var(--cd-motion-reveal-dur, var(--cd-dur-base)) var(--cd-ease);
-  --animate-pop-in: pop-in var(--cd-motion-pop-dur, var(--cd-dur-base)) var(--cd-ease) both;
-  --animate-pop-out: pop-out var(--cd-motion-pop-out-dur, var(--cd-dur-quick)) var(--cd-ease) both;
-  --animate-tick-draw: tick-draw var(--cd-motion-mark-dur, var(--cd-dur-slow)) var(--cd-ease) both;
-  --animate-fill: fill var(--cd-motion-fill-dur, var(--cd-dur-slow)) var(--cd-ease) both;
-  --animate-shake: var(--cd-motion-shake, var(--cd-motion-shake-preset, none));
-  --animate-attention: attention var(--cd-motion-attention-dur, 900ms) var(--cd-ease) 1;
-  --animate-attention-wait: attention 1.6s var(--cd-ease) 3;
-  --animate-nudge: var(--cd-motion-shake, var(--cd-motion-shake-preset, none)), attention var(--cd-motion-attention-dur, 900ms) var(--cd-ease) 1;
 }
 
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
-}
-@keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, currentColor 45%, transparent); }
-  70% { box-shadow: 0 0 0 5px transparent; }
-}
-@keyframes rise-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes caret {
-  to { visibility: hidden; }
-}
-/* Collapsible content, to and from the height Radix measured. Overflow is hidden only while it moves. */
-@keyframes collapse-down {
-  from { height: 0; overflow: hidden; }
-  to { height: var(--radix-collapsible-content-height); overflow: hidden; }
-}
-@keyframes collapse-up {
-  from { height: var(--radix-collapsible-content-height); overflow: hidden; }
-  to { height: 0; overflow: hidden; }
-}
-/* Something added or removed: a fade, and a scale from --cd-pop-from (1 unless expressive). */
-@keyframes pop-in {
-  from { opacity: 0; transform: scale(var(--cd-pop-from, var(--cd-pop-from-preset, 1))); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes pop-out {
-  from { opacity: 1; transform: none; }
-  to { opacity: 0; transform: scale(var(--cd-pop-from, var(--cd-pop-from-preset, 1))); }
-}
-/* A tick or cross drawn along its path; the path has pathLength="1" and stroke-dasharray 1. */
-@keyframes tick-draw {
-  from { stroke-dashoffset: 1; }
-  to { stroke-dashoffset: 0; }
-}
-/* A bar that fills to a measured point: along its width by default, or set --cd-fill-from to "1 0" for height. */
-@keyframes fill {
-  from { scale: var(--cd-fill-from, 0 1); }
-  to { scale: 1; }
-}
-/* A pressed control that can't be used: a small horizontal shake, expressive only. */
-@keyframes shake {
-  0%, 100% { transform: none; }
-  20%, 60% { transform: translateX(-3px); }
-  40%, 80% { transform: translateX(3px); }
-}
-/*
- * A ring that grows and fades, in --cd-attention-color (the text colour unless set): once for something that arrived
- * or a press that asked for attention, repeating while a decision waits.
- */
-@keyframes attention {
-  0%, 100% { outline: 0 solid color-mix(in oklab, var(--cd-attention-color, currentColor) 45%, transparent); }
-  60% { outline: 6px solid transparent; }
 }
 
 /*
@@ -493,8 +416,7 @@
 @utility cd-pop {
   --cd-pop-l: min(var(--cd-m-pop, var(--cd-motion-pop, var(--cd-motion-preset))), var(--cd-motion-cap));
   --cd-pop-t: calc(var(--cd-m-pop-dur, var(--cd-motion-pop-dur, 200ms)) * var(--cd-motion-speed) * min(var(--cd-pop-l), 1));
-  /* A 2.2 brand's --cd-pop-from still wins. */
-  --cd-from-scale: var(--cd-pop-from, calc(1 - (1 - var(--cd-m-pop-amp, var(--cd-motion-pop-scale, 0.85))) * clamp(0, var(--cd-pop-l) - 1, 1)));
+  --cd-from-scale: calc(1 - (1 - var(--cd-m-pop-amp, var(--cd-motion-pop-scale, 0.85))) * clamp(0, var(--cd-pop-l) - 1, 1));
   animation: var(--cd-m-pop-variant, var(--cd-motion-pop-variant, cd-scale)) var(--cd-pop-t) var(--cd-m-pop-ease, var(--cd-motion-pop-ease, var(--cd-ease))) both;
   @variant calm {
     animation-name: cd-fade !important;
@@ -504,7 +426,7 @@
 @utility cd-pop-out {
   --cd-pop-l: min(var(--cd-m-pop, var(--cd-motion-pop, var(--cd-motion-preset))), var(--cd-motion-cap));
   --cd-pop-t: calc(var(--cd-m-pop-out-dur, var(--cd-motion-pop-out-dur, 120ms)) * var(--cd-motion-speed) * min(var(--cd-pop-l), 1));
-  --cd-from-scale: var(--cd-pop-from, calc(1 - (1 - var(--cd-m-pop-amp, var(--cd-motion-pop-scale, 0.85))) * clamp(0, var(--cd-pop-l) - 1, 1)));
+  --cd-from-scale: calc(1 - (1 - var(--cd-m-pop-amp, var(--cd-motion-pop-scale, 0.85))) * clamp(0, var(--cd-pop-l) - 1, 1));
   animation: var(--cd-m-pop-variant, var(--cd-motion-pop-variant, cd-scale)) var(--cd-pop-t) var(--cd-m-pop-ease, var(--cd-motion-pop-ease, var(--cd-ease))) reverse both;
   @variant calm {
     animation-name: cd-fade !important;
@@ -684,8 +606,7 @@
   --cd-refuse-l: min(var(--cd-m-refuse, var(--cd-motion-refuse, var(--cd-motion-preset))), var(--cd-motion-cap));
   --cd-refuse-t: calc(var(--cd-m-refuse-dur, var(--cd-motion-refuse-dur, 360ms)) * var(--cd-motion-speed) * min(var(--cd-refuse-l), 1));
   --cd-shake: calc(var(--cd-m-refuse-amp, var(--cd-motion-refuse-distance, 3px)) * clamp(0, var(--cd-refuse-l) - 1, 1));
-  /* A 2.2 brand's --cd-motion-shake still wins. */
-  animation: var(--cd-motion-shake, cd-shake var(--cd-refuse-t) var(--cd-m-refuse-ease, var(--cd-motion-refuse-ease, var(--cd-ease))) both);
+  animation: cd-shake var(--cd-refuse-t) var(--cd-m-refuse-ease, var(--cd-motion-refuse-ease, var(--cd-ease))) both;
   @variant calm {
     animation-name: none !important;
   }
@@ -711,7 +632,7 @@
   --cd-attention-l: min(var(--cd-m-attention, var(--cd-motion-attention, var(--cd-motion-preset))), var(--cd-motion-cap));
   --cd-attention-t: calc(var(--cd-m-attention-dur, var(--cd-motion-attention-dur, 900ms)) * var(--cd-motion-speed) * min(var(--cd-attention-l), 1));
   animation:
-    var(--cd-motion-shake, cd-shake var(--cd-refuse-t) var(--cd-m-refuse-ease, var(--cd-motion-refuse-ease, var(--cd-ease))) both),
+    cd-shake var(--cd-refuse-t) var(--cd-m-refuse-ease, var(--cd-motion-refuse-ease, var(--cd-ease))) both,
     cd-ring var(--cd-attention-t) var(--cd-m-attention-ease, var(--cd-motion-attention-ease, var(--cd-ease))) 1;
   @variant calm {
     animation: cd-ring-calm min(var(--cd-attention-t), 150ms) var(--cd-ease) 1 !important;

@@ -3,14 +3,14 @@
 import * as React from "react"
 import { ChevronRight, Wrench } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { StepMark } from "@/registry/blocks/step-list"
-import { ShimmerLabel } from "@/registry/blocks/streaming-text"
-import type { ToolCall as ToolCallData } from "@/registry/lib/chat"
-import { useStatusLabel } from "@/registry/lib/status"
+import { StepMark } from "@/registry/parts/step-list"
+import { ShimmerLabel } from "@/registry/parts/streaming-text"
+import type { ToolCall as ToolCallData } from "@/registry/foundation/chat"
+import { useStatusLabel } from "@/registry/foundation/status"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
 import { Payload } from "@/registry/chat/payload"
-import { useStrings } from "@/registry/blocks/locale"
-import { motion } from "@/registry/lib/motion"
+import { useStrings } from "@/registry/foundation/locale"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion reveal:open A call's detail opens to its full height when the person opens it, and the chevron turns with

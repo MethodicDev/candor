@@ -2,8 +2,8 @@
 
 import { Collapsible as CollapsiblePrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
-import { withRender, type RenderProp } from "@/registry/lib/render-prop"
-import { motion } from "@/registry/lib/motion"
+import { withRender, type RenderProp } from "@/registry/foundation/render-prop"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion reveal:open The content grows to its full height when the person opens it and shrinks when they close it. A

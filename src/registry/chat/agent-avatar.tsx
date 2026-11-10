@@ -3,8 +3,8 @@
 import * as React from "react"
 import { Bot, ClipboardList, CodeXml, Compass, FlaskConical, PenTool, ScanSearch, SearchCheck, Workflow, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { AgentIdentity } from "@/registry/lib/chat"
-import { useStrings } from "@/registry/blocks/locale"
+import type { AgentIdentity } from "@/registry/foundation/chat"
+import { useStrings } from "@/registry/foundation/locale"
 
 /** AgentAvatar's fixed words; override them under `agentAvatar` in LocaleProvider's `strings`. */
 export const agentAvatarStrings = {

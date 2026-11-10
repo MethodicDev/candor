@@ -1,7 +1,7 @@
 import type { UIMessage } from "ai"
-import type { AgentIdentity, Message, MessageBlock, MessageSource, MessageStatus, ReasoningEntry, ToolCall, ToolSource } from "@/registry/lib/chat"
-import type { RunStatus } from "@/registry/lib/status"
-import { inline, markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
+import type { AgentIdentity, Message, MessageBlock, MessageSource, MessageStatus, ReasoningEntry, ToolCall, ToolSource } from "@/registry/foundation/chat"
+import type { RunStatus } from "@/registry/foundation/status"
+import { inline, markdownBlocks, plainBlocks } from "@/registry/foundation/safe-markdown"
 
 // Re-exported for apps that use them from here. (Imported first: shadcn rewrites import paths, not export-from paths.)
 export { inline, markdownBlocks, plainBlocks }

@@ -2,8 +2,8 @@
 
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, lastAssistantMessageIsCompleteWithApprovalResponses } from "ai"
-import { useCandorChat } from "@/components/use-candor-chat"
-import type { AgentIdentity } from "@/lib/chat"
+import { useCandorChat } from "@/components/candor/use-candor-chat"
+import type { AgentIdentity } from "@/lib/candor/chat"
 import { toolTitle } from "@/app/_lib/tool-title"
 import { ChatView } from "./chat-view"
 

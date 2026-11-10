@@ -3,8 +3,8 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Tooltip as TooltipPrimitive } from "radix-ui"
-import { withRender, type RenderProp } from "@/registry/lib/render-prop"
-import { motion } from "@/registry/lib/motion"
+import { withRender, type RenderProp } from "@/registry/foundation/render-prop"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion overlay:open The tooltip fades in and scales up a little from the control it describes once the delay has

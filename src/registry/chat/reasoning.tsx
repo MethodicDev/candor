@@ -3,12 +3,12 @@
 import * as React from "react"
 import { Brain, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ShimmerLabel } from "@/registry/blocks/streaming-text"
-import type { ReasoningEntry } from "@/registry/lib/chat"
+import { ShimmerLabel } from "@/registry/parts/streaming-text"
+import type { ReasoningEntry } from "@/registry/foundation/chat"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
 
-import { useStrings } from "@/registry/blocks/locale"
-import { motion, useArrived } from "@/registry/lib/motion"
+import { useStrings } from "@/registry/foundation/locale"
+import { motion, useArrived } from "@/registry/foundation/motion"
 
 /**
  * @motion arrive:arrive A step of reasoning rises in when the agent adds it while the reasoning is on screen. A step

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { LockKeyhole } from "lucide-react"
 import { Slider as SliderPrimitive } from "radix-ui"
-import { type RenderProp } from "@/registry/lib/render-prop"
+import { type RenderProp } from "@/registry/foundation/render-prop"
 import { cn } from "@/lib/utils"
 
 const lockedKeys = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"])

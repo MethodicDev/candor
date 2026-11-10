@@ -1,6 +1,6 @@
 import type { PermissionResult, PermissionUpdate, SDKMessage } from "@anthropic-ai/claude-agent-sdk"
-import type { AgentIdentity, EntityRef, InlineNode, Message, MessageBlock, MessageSource, ReasoningEntry, ToolCall, ToolSource } from "@/registry/lib/chat"
-import { markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
+import type { AgentIdentity, EntityRef, InlineNode, Message, MessageBlock, MessageSource, ReasoningEntry, ToolCall, ToolSource } from "@/registry/foundation/chat"
+import { markdownBlocks, plainBlocks } from "@/registry/foundation/safe-markdown"
 
 /*
  * Claude Agent SDK events → Candor messages.

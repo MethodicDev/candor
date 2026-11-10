@@ -3,10 +3,10 @@
 import * as React from "react"
 import { Check, Copy, RotateCw, ThumbsDown, ThumbsUp, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useCopy } from "@/registry/lib/use-copy"
+import { useCopy } from "@/registry/foundation/use-copy"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
-import { useStrings } from "@/registry/blocks/locale"
-import { motion } from "@/registry/lib/motion"
+import { useStrings } from "@/registry/foundation/locale"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion pop:tick After the person copies, a tick (or a cross, if the browser refused the clipboard) pops in on the

@@ -2,9 +2,9 @@
 
 import { BookOpen, Braces, Database, FileText, Globe, Table2, Waypoints, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { MessageSource, SourceKind } from "@/registry/lib/chat"
+import type { MessageSource, SourceKind } from "@/registry/foundation/chat"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
-import { useStrings, type Translate } from "@/registry/blocks/locale"
+import { useStrings, type Translate } from "@/registry/foundation/locale"
 
 /** Citation's fixed words; override them under `citation` in LocaleProvider's `strings`. */
 export const citationStrings = {

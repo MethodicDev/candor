@@ -1,6 +1,6 @@
 import { createSdkMcpServer, query, tool } from "@anthropic-ai/claude-agent-sdk"
 import { z } from "zod"
-import { streamClaudeAgent } from "@/components/claude-agent-server"
+import { streamClaudeAgent } from "@/components/candor/claude-agent-server"
 import { crossSite, crossSiteRefused } from "@/app/_lib/cross-site"
 import { addTask, instructions, listTasks } from "@/app/_lib/tasks"
 

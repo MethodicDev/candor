@@ -3,9 +3,9 @@
 import * as React from "react"
 import { File, FileArchive, FileCode, FileImage, FileSpreadsheet, FileText, Music, Paperclip, Video, X, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useFormat, useStrings, type Formatter, type Translate } from "@/registry/blocks/locale"
-import type { Attachment } from "@/registry/lib/chat"
-import { motion } from "@/registry/lib/motion"
+import { useFormat, useStrings, type Formatter, type Translate } from "@/registry/foundation/locale"
+import type { Attachment } from "@/registry/foundation/chat"
+import { motion } from "@/registry/foundation/motion"
 
 /** The upload bar moving between measured byte counts: 2.2's 300 ms. */
 const progressMotion = motion("attachment-preview", "progress", "fill", { dur: 300 })

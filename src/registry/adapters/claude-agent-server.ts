@@ -7,7 +7,7 @@ import {
   type ClaudeApprovalAnswer,
   type ClaudePermissionMode,
 } from "@/registry/adapters/claude-agent-sdk"
-import type { EntityRef } from "@/registry/lib/chat"
+import type { EntityRef } from "@/registry/foundation/chat"
 
 /*
  * The server half of the Claude Agent SDK adapter. Server-only: it runs the

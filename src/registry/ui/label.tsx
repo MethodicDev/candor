@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Label as LabelPrimitive } from "radix-ui"
-import { withRender, type RenderProp } from "@/registry/lib/render-prop"
+import { withRender, type RenderProp } from "@/registry/foundation/render-prop"
 import { cn } from "@/lib/utils"
 
 /**

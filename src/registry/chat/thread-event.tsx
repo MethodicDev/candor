@@ -3,8 +3,8 @@
 import * as React from "react"
 import { Info, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { RelativeTime } from "@/registry/blocks/relative-time"
-import type { DateStyle } from "@/registry/blocks/locale"
+import { RelativeTime } from "@/registry/parts/relative-time"
+import type { DateStyle } from "@/registry/foundation/locale"
 
 /**
  * A quiet, centred line in a thread for something that happened rather than something said: "Sam joined", "Switched

@@ -1,8 +1,8 @@
 import { EventType, type ContentPart, type Event, type Interrupt, type JsonPatch, type Message as AgUiMessage, type TokenUsage } from "@ag-ui/core"
-import type { AgentIdentity, EntityRef, Message, MessageBlock, ReasoningEntry, ToolCall } from "@/registry/lib/chat"
-import type { RunStatus } from "@/registry/lib/status"
-import { markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
-import { formatElapsed } from "@/registry/lib/format-elapsed"
+import type { AgentIdentity, EntityRef, Message, MessageBlock, ReasoningEntry, ToolCall } from "@/registry/foundation/chat"
+import type { RunStatus } from "@/registry/foundation/status"
+import { markdownBlocks, plainBlocks } from "@/registry/foundation/safe-markdown"
+import { formatElapsed } from "@/registry/foundation/format-elapsed"
 
 /*
  * AG-UI events → Candor messages.

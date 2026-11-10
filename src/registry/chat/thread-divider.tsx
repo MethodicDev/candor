@@ -1,8 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { useFormat, useLocale, useStrings } from "@/registry/blocks/locale"
-import { useNow } from "@/registry/blocks/relative-time"
+import { useFormat, useLocale, useStrings } from "@/registry/foundation/locale"
+import { useNow } from "@/registry/parts/relative-time"
 
 /** ThreadDivider's fixed words; override them under `threadDivider` in LocaleProvider's `strings`. */
 export const threadDividerStrings = {

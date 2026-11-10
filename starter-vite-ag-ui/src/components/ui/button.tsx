@@ -1,7 +1,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
-import { withRender, type RenderProp } from "@/lib/render-prop"
+import { withRender, type RenderProp } from "@/lib/candor/render-prop"
 import { cn } from "@/lib/utils"
 
 // The accent fills the one primary act, the radius is the theme's

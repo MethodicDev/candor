@@ -14,9 +14,10 @@ npx candor-ui add thread message composer
 ```
 
 `init --yes` adds the `@candor` registry to `components.json`, the theme and its import, and sets up shadcn if the
-project has none (Radix, shadcn's nova preset, no questions). `add` copies the named items into the project:
-primitives in `@/components/ui/…`, libraries and types in `@/lib/…`, everything else in `@/components/…`. Import from
-those paths. If shadcn asks to overwrite a primitive such as `ui/button.tsx`, answer yes, or pass `--overwrite`.
+project has none (Radix, shadcn's nova preset, no questions). `add` copies the named items into folders of their own:
+primitives in `@/components/candor/ui/…`, libraries and types in `@/lib/candor/…`, everything else in
+`@/components/candor/…` (for example `@/components/candor/thread`). Import from those paths. shadcn's own primitives in
+`@/components/ui/…` stay the app's.
 
 Pro and Premium items need the buyer's licence key. The person runs `npx candor-ui key <key>` themselves; never ask
 for the key in chat or write it into a file. `npx candor-ui doctor` explains anything that looks wrong.

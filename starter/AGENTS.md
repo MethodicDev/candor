@@ -11,5 +11,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## UI components
 
 UI components come from the @candor shadcn registry; read https://candor.themethodic.com/llms.txt before choosing one,
-and keep its honesty rules. Installed Candor components live in `components/` and `lib/`; the starter's own code is in
+and keep its honesty rules. Installed Candor components live in `components/candor/` and `lib/candor/`; the starter's own code is in
 `app/_components/` and `app/_lib/`.

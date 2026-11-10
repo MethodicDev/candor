@@ -3,12 +3,12 @@
 import * as React from "react"
 import { ArrowUp, LoaderCircle, Paperclip, Square, TriangleAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Attachment, ComposerScope, EntityRef, MentionOption, SlashCommand } from "@/registry/lib/chat"
+import type { Attachment, ComposerScope, EntityRef, MentionOption, SlashCommand } from "@/registry/foundation/chat"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 import { EntityChip, useEntityKinds } from "@/registry/chat/entity-chip"
 import { AttachmentChip } from "@/registry/chat/attachment-preview"
-import { useStrings } from "@/registry/blocks/locale"
-import { motion, useArrived, useLeaving } from "@/registry/lib/motion"
+import { useStrings } from "@/registry/foundation/locale"
+import { motion, useArrived, useLeaving } from "@/registry/foundation/motion"
 
 /**
  * @motion pop:chip A mention or attachment chip pops in when the person adds one while writing, and a chip they

@@ -1,7 +1,7 @@
 "use client"
 
 import { Collapsible as CollapsiblePrimitive } from "radix-ui"
-import { withRender, type RenderProp } from "@/lib/render-prop"
+import { withRender, type RenderProp } from "@/lib/candor/render-prop"
 
 function Collapsible({
   ...props

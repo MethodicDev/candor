@@ -2,10 +2,10 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import type { ContextSegment } from "@/registry/lib/know"
+import type { ContextSegment } from "@/registry/foundation/know"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
-import { useFormat, useStrings } from "@/registry/blocks/locale"
-import { motion, useSettled, type SettledTest } from "@/registry/lib/motion"
+import { useFormat, useStrings } from "@/registry/foundation/locale"
+import { motion, useSettled, type SettledTest } from "@/registry/foundation/motion"
 
 /** The ring moving to a new measured value, after the first one was drawn in place. */
 const fillMotion = motion("context-meter", "fill", "fill")

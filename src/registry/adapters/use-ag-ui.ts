@@ -1,10 +1,10 @@
 import * as React from "react"
 import { HttpAgent, isInterruptExpired, type Interrupt, type ResumeEntry, type RunAgentParameters } from "@ag-ui/client"
 import type { ComposerState } from "@/registry/chat/composer"
-import type { EntityRef } from "@/registry/lib/chat"
+import type { EntityRef } from "@/registry/foundation/chat"
 import { fromAgUiEvents, type AgUiEvent, type CandorAgUiEvent, type FromAgUiOptions } from "@/registry/adapters/ag-ui"
-import { formatElapsed } from "@/registry/lib/format-elapsed"
-import { useFormat } from "@/registry/blocks/locale"
+import { formatElapsed } from "@/registry/foundation/format-elapsed"
+import { useFormat } from "@/registry/foundation/locale"
 
 export type UseAgUiOptions = Omit<FromAgUiOptions, "running" | "now"> & {
   /** Your AG-UI endpoint (LangGraph, Mastra, CrewAI, Google ADK, Pydantic AI…). It receives a RunAgentInput and streams events back. */

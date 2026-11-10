@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { motion } from "@/registry/lib/motion"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion live:loading The placeholder pulses softly for as long as it is on screen, which should be only while the

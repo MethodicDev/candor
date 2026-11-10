@@ -1,7 +1,7 @@
 "use client"
 
-import { useClaudeAgent } from "@/components/use-claude-agent"
-import type { AgentIdentity } from "@/lib/chat"
+import { useClaudeAgent } from "@/components/candor/use-claude-agent"
+import type { AgentIdentity } from "@/lib/candor/chat"
 import { toolTitle } from "@/app/_lib/tool-title"
 import { ChatView } from "./chat-view"
 

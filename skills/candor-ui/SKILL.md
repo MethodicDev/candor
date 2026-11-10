@@ -18,9 +18,10 @@ npx candor-ui@latest init --yes        # registry in components.json, the theme,
 npx candor-ui add thread message composer
 ```
 
-- **Where files land:** `ui` primitives in `@/components/ui/…`, libraries and types in `@/lib/…` (for example
-  `@/lib/chat`), everything else in `@/components/…` (for example `@/components/thread`). Import from those paths;
-  the `@/registry/…` paths in Candor's own repo don't exist in an app.
+- **Where files land:** in folders of their own: `ui` primitives in `@/components/candor/ui/…`, libraries and types
+  in `@/lib/candor/…` (for example `@/lib/candor/chat`), everything else in `@/components/candor/…` (for example
+  `@/components/candor/thread`). Import from those paths; the `@/registry/…` paths in Candor's own repo don't exist in
+  an app, and `@/components/ui/…` is shadcn's, not Candor's.
 - **Client components:** anything with state or handlers needs `"use client"` at the top in the Next.js App Router.
 - **Pro and Premium items** need the buyer's licence key. The person runs `npx candor-ui key <key>` themselves (it
   goes in `.env.local`, which must stay out of git); never ask for the key in chat or put it in a file you write. In
@@ -161,6 +162,6 @@ client providers file. Event handlers and helpers exported from client modules (
 
 - Override colour and type tokens in a CSS file imported after `candor.css` (shadcn names such as `--primary`,
   plus Candor's `--cd-*` and status pairs like `--success-weak` / `--success-text`), for every theme you support.
-- `TermsProvider` sets the app's words ("project", "workspace"); `EntityKindsProvider` and `AgentRolesProvider`
+- `LocaleProvider`'s `nouns` sets the app's words ("project", "workspace"); `EntityKindsProvider` and `AgentRolesProvider`
   register its entity types and agent roles. Policy (who may do what, why something is locked) stays in the app and
   arrives as props.

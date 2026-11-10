@@ -3,9 +3,9 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
-import { withRender, type RenderProp } from "@/registry/lib/render-prop"
+import { withRender, type RenderProp } from "@/registry/foundation/render-prop"
 import { cn } from "@/lib/utils"
-import { motion } from "@/registry/lib/motion"
+import { motion } from "@/registry/foundation/motion"
 
 /**
  * @motion press:press The button shrinks a little while it is held down and returns when it is let go. A button that

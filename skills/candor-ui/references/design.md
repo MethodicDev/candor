@@ -167,7 +167,7 @@ Motion reports a change that happened, never one that is predicted or decorative
 
 A family has a level (0 off, 1 subtle, 2 expressive), a duration, an easing, a size where it has one, and a closed set of variants: named ways of drawing the same change, of which a brand picks one and cannot add another. A brand file sets `--cd-motion-<family>` (the level), `-dur`, `-ease`, the family's amplitude and `-variant` for a family everywhere, or `--cd-motion-<item>-<moment>-*` for one moment of one component; `--cd-motion-speed` (0.5–1.5) scales every duration but the clock's and the attention ring's, which stays under five seconds. A brand changes how a change looks, never when it plays: the trigger stays in the component, so a brand cannot make a tick appear before the result or a bar fill ahead of the work.
 
-Who decides, from the strongest: `data-motion="none"` on `<html>` or any container (nothing moves, whatever else is set), then the person's operating system (`prefers-reduced-motion`) or `data-motion="calm"` as the same choice made in the app (the calm level), then `data-motion="subtle" | "expressive"`, then the brand file, then Candor's defaults. No attribute is the brand's levels (subtle unless it says otherwise); `subtle` caps every family at 1; `expressive` raises the families the brand didn't set. The `clock` family is the exception to turning things off: a hold's progress or an undo window's time left is the information itself, so a brand can restyle it but not remove it. A mark that was already final when the page drew does not animate. Components build a moment's chain with `motion(item, moment, family)` from `lib/motion.ts` and add the family utility (`cd-pop`, `cd-overlay`…) only at the honest moment.
+Who decides, from the strongest: `data-motion="none"` on `<html>` or any container (nothing moves, whatever else is set), then the person's operating system (`prefers-reduced-motion`) or `data-motion="calm"` as the same choice made in the app (the calm level), then `data-motion="subtle" | "expressive"`, then the brand file, then Candor's defaults. No attribute is the brand's levels (subtle unless it says otherwise); `subtle` caps every family at 1; `expressive` raises the families the brand didn't set. The `clock` family is the exception to turning things off: a hold's progress or an undo window's time left is the information itself, so a brand can restyle it but not remove it. A mark that was already final when the page drew does not animate. Components build a moment's chain with `motion(item, moment, family)` from `lib/candor/motion.ts` and add the family utility (`cd-pop`, `cd-overlay`…) only at the honest moment.
 
 | Family | Reports | Duration (range) | Easing (allowed) | Amplitude (expressive) | Variants (default first; fixed: one drawing, nothing to set) | Calm |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -186,24 +186,9 @@ Who decides, from the strongest: `data-motion="none"` on `<html>` or any contain
 | `live` | Work that is being heard from: a dot's pulse, a caret, a spinner, a shimmer, a skeleton. | 1600 ms (1000–3000) | standard (standard, inout, linear) | — | (fixed) | Still, with its word. |
 | `clock` | Real time passing: a hold, a deadline, a replay. Painted from the clock. | From the clock | linear (linear) | — | (fixed) | Steps instead of gliding; never off. |
 
-Easings are written as CSS: standard `var(--cd-ease)`, inout `var(--cd-ease-inout)`, spring `var(--cd-ease-spring)`, linear `linear`. Spring overshoots, so only families that move things in space accept it. A variant is written as its keyframe's name (`--cd-motion-mark-variant: cd-pop`); a 2.2 brand's `--cd-pop-from` and `--cd-motion-shake` still apply.
+Easings are written as CSS: standard `var(--cd-ease)`, inout `var(--cd-ease-inout)`, spring `var(--cd-ease-spring)`, linear `linear`. Spring overshoots, so only families that move things in space accept it. A variant is written as its keyframe's name (`--cd-motion-mark-variant: cd-pop`).
 
-The 2.2 animations, kept as Tailwind `animate-<name>` utilities for your own screens (the components use the families):
-
-| Animation | Value | For |
-| --- | --- | --- |
-| `animate-shimmer` | shimmer 2.2s linear infinite | Text that is still arriving (`StreamingText`, `ShimmerLabel`). |
-| `animate-pulse-dot` | pulse-dot var(--cd-motion-live-dur, 1.6s) var(--cd-ease) infinite | A running status dot. |
-| `animate-rise-in` | rise-in var(--cd-motion-arrive-dur, 240ms) var(--cd-ease) both | A new message, card or row arriving. |
-| `animate-caret` | caret 1s steps(2, start) infinite | The caret at the end of streaming text. |
-| `animate-collapse-down` | collapse-down var(--cd-motion-reveal-dur, var(--cd-dur-base)) var(--cd-ease) | Collapsible content opening to its measured height (`ToolCall`, `Reasoning`, `FoldedTurns`). |
-| `animate-collapse-up` | collapse-up var(--cd-motion-reveal-dur, var(--cd-dur-base)) var(--cd-ease) | The same content closing. |
-| `animate-pop-in` | pop-in var(--cd-motion-pop-dur, var(--cd-dur-base)) var(--cd-ease) both | A chip or mark that arrived after the screen first drew (a mention, an attachment, a copied tick). |
-| `animate-pop-out` | pop-out var(--cd-motion-pop-out-dur, var(--cd-dur-quick)) var(--cd-ease) both | A chip leaving. |
-| `animate-tick-draw` | tick-draw var(--cd-motion-mark-dur, var(--cd-dur-slow)) var(--cd-ease) both | A tick or cross drawn along its path when a status settles while on screen; a mark that mounts finished is drawn still. |
-| `animate-fill` | fill var(--cd-motion-fill-dur, var(--cd-dur-slow)) var(--cd-ease) both | A rail or bar growing to a finished step, never ahead of it. |
-| `animate-shake` | var(--cd-motion-shake, var(--cd-motion-shake-preset, none)) | A pressed locked control, under `data-motion="expressive"` only. |
-| `animate-attention` | attention var(--cd-motion-attention-dur, 900ms) var(--cd-ease) 1 | One pulse when something new waits on the person; `attention-wait` pulses three times (1.6 s each) when a decision arrives, then stays still (moving content stops, as WCAG 2.2.2 asks). |
+The 2.2 `animate-<name>` utilities, the unprefixed keyframes they ran, and the 2.2 tokens for the pop scale and the shake were removed in 3.0 ([Upgrading to 3.0](https://candor.themethodic.com/upgrading-to-3) lists each with its replacement and the `npx candor-ui migrate motion-aliases` codemod); use the family utilities above. `shimmer-text` animates text that is still arriving (`StreamingText`, `ShimmerLabel`) and keeps the `shimmer` keyframes.
 
 ## Reduced motion
 
@@ -318,7 +303,7 @@ To re-token for a brand, override after the import, by role, in every theme you 
 - Check contrast after you change a colour. Candor checks its own pairings before writing the CSS; it can't check yours.
 - Point `--cd-font` at your typeface rather than restyling components; keep `--cd-font-mono` monospaced.
 - Change density with `data-density` before changing sizes.
-- Your product's words go through `LocaleProvider` and `TermsProvider`, not through forks of the components.
+- Your product's words go through `LocaleProvider`, its strings and its nouns, not through forks of the components.
 
 ## Screens around Candor components
 

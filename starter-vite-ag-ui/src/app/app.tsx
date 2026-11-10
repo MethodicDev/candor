@@ -1,5 +1,5 @@
 import * as React from "react"
-import type { AgentIdentity } from "@/lib/chat"
+import type { AgentIdentity } from "@/lib/candor/chat"
 import { ChatView } from "./chat-view"
 import { createScriptedAgent } from "./scripted-agent"
 

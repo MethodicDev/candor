@@ -1,11 +1,11 @@
 import * as React from "react"
-import type { AgentIdentity } from "@/lib/chat"
-import { Composer } from "@/components/composer"
-import { Message } from "@/components/message"
-import { PermissionPrompt } from "@/components/permission-prompt"
-import { PromptSuggestions } from "@/components/prompt-suggestions"
-import { Thread } from "@/components/thread"
-import { useClaudeAgent } from "@/components/use-claude-agent"
+import type { AgentIdentity } from "@/lib/candor/chat"
+import { Composer } from "@/components/candor/composer"
+import { Message } from "@/components/candor/message"
+import { PermissionPrompt } from "@/components/candor/permission-prompt"
+import { PromptSuggestions } from "@/components/candor/prompt-suggestions"
+import { Thread } from "@/components/candor/thread"
+import { useClaudeAgent } from "@/components/candor/use-claude-agent"
 import { toolTitle } from "./tool-title"
 
 const agent: AgentIdentity = { id: "claude-agent", name: "Claude agent", role: "assistant" }

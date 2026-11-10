@@ -15,7 +15,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 72 free items (version 2.10.0), the skill and plugins for coding
+This repo is the source of Candor UI's 71 free items (version 3.0.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -137,14 +137,14 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 
 ## What's here
 
-72 free items, each with a docs page that has its props and live examples. Install any of them by name:
+71 free items, each with a docs page that has its props and live examples. Install any of them by name:
 `npx candor-ui add <name>`.
 
 | Area | What it's for | Items |
 |---|---|---|
 | **Chat** (20) | A conversation with an agent: messages, the composer, tool calls, reasoning, citations. | [`agent-avatar`](https://candor.themethodic.com/docs/agent-avatar), [`ai-disclosure`](https://candor.themethodic.com/docs/ai-disclosure), [`attachment-preview`](https://candor.themethodic.com/docs/attachment-preview), [`card-registry`](https://candor.themethodic.com/docs/card-registry), [`citation`](https://candor.themethodic.com/docs/citation), [`composer`](https://candor.themethodic.com/docs/composer), [`context-meter`](https://candor.themethodic.com/docs/context-meter), [`entity-chip`](https://candor.themethodic.com/docs/entity-chip), [`folded-turns`](https://candor.themethodic.com/docs/folded-turns), [`message-actions`](https://candor.themethodic.com/docs/message-actions), [`message-content`](https://candor.themethodic.com/docs/message-content), [`message`](https://candor.themethodic.com/docs/message), [`payload`](https://candor.themethodic.com/docs/payload), [`permission-prompt`](https://candor.themethodic.com/docs/permission-prompt), [`prompt-suggestions`](https://candor.themethodic.com/docs/prompt-suggestions), [`reasoning`](https://candor.themethodic.com/docs/reasoning), [`thread-divider`](https://candor.themethodic.com/docs/thread-divider), [`thread-event`](https://candor.themethodic.com/docs/thread-event), [`thread`](https://candor.themethodic.com/docs/thread), [`tool-call`](https://candor.themethodic.com/docs/tool-call) |
 | **Adapters** (7) | Map an agent SDK's messages onto Candor's data: the Vercel AI SDK, the Claude Agent SDK and AG-UI. | [`ag-ui`](https://candor.themethodic.com/docs/ag-ui), [`ai-sdk`](https://candor.themethodic.com/docs/ai-sdk), [`claude-agent-sdk`](https://candor.themethodic.com/docs/claude-agent-sdk), [`claude-agent-server`](https://candor.themethodic.com/docs/claude-agent-server), [`use-ag-ui`](https://candor.themethodic.com/docs/use-ag-ui), [`use-candor-chat`](https://candor.themethodic.com/docs/use-candor-chat), [`use-claude-agent`](https://candor.themethodic.com/docs/use-claude-agent) |
-| **Building blocks** (10) | Small pieces every screen uses: locked controls, status dots, step lists, relative times. | [`copy-field`](https://candor.themethodic.com/docs/copy-field), [`degraded-panel`](https://candor.themethodic.com/docs/degraded-panel), [`locale`](https://candor.themethodic.com/docs/locale), [`locked`](https://candor.themethodic.com/docs/locked), [`relative-time`](https://candor.themethodic.com/docs/relative-time), [`status-dot`](https://candor.themethodic.com/docs/status-dot), [`step-list`](https://candor.themethodic.com/docs/step-list), [`streaming-text`](https://candor.themethodic.com/docs/streaming-text), [`surface`](https://candor.themethodic.com/docs/surface), [`terms`](https://candor.themethodic.com/docs/terms) |
+| **Building blocks** (9) | Small pieces every screen uses: locked controls, status dots, step lists, relative times. | [`copy-field`](https://candor.themethodic.com/docs/copy-field), [`degraded-panel`](https://candor.themethodic.com/docs/degraded-panel), [`locale`](https://candor.themethodic.com/docs/locale), [`locked`](https://candor.themethodic.com/docs/locked), [`relative-time`](https://candor.themethodic.com/docs/relative-time), [`status-dot`](https://candor.themethodic.com/docs/status-dot), [`step-list`](https://candor.themethodic.com/docs/step-list), [`streaming-text`](https://candor.themethodic.com/docs/streaming-text), [`surface`](https://candor.themethodic.com/docs/surface) |
 | **Primitives** (12) | The shadcn/ui primitives Candor's components are built on. | [`accordion`](https://candor.themethodic.com/docs/accordion), [`alert`](https://candor.themethodic.com/docs/alert), [`button`](https://candor.themethodic.com/docs/button), [`checkbox`](https://candor.themethodic.com/docs/checkbox), [`collapsible`](https://candor.themethodic.com/docs/collapsible), [`label`](https://candor.themethodic.com/docs/label), [`popover`](https://candor.themethodic.com/docs/popover), [`progress`](https://candor.themethodic.com/docs/progress), [`skeleton`](https://candor.themethodic.com/docs/skeleton), [`slider`](https://candor.themethodic.com/docs/slider), [`switch`](https://candor.themethodic.com/docs/switch), [`tooltip`](https://candor.themethodic.com/docs/tooltip) |
 | **Themes** (6) | The default theme and 5 gallery themes: colours, type, radius and motion as CSS variables, in light, dark and high contrast. | [`tokens`](https://candor.themethodic.com/docs/tokens), [`theme`](https://candor.themethodic.com/docs/theme), [`theme-slate`](https://candor.themethodic.com/docs/theme-slate), [`theme-paper`](https://candor.themethodic.com/docs/theme-paper), [`theme-console`](https://candor.themethodic.com/docs/theme-console), [`theme-signal`](https://candor.themethodic.com/docs/theme-signal) |
 
@@ -168,8 +168,8 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
-| Free (this repo) | $0, MIT | 72 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 294 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Free (this repo) | $0, MIT | 71 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
+| Pro | $149, one person | All 293 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 
