@@ -161,6 +161,7 @@ function parseObject(text: string): Record<string, unknown> | null {
  * It stops once the answer is being sent, and under calm it is one ring that fades.
  * @motion attention:nudge A press on inert space outside the prompt rings it once, so the person sees it is still waiting.
  * @motion refuse:nudge Under expressive the same press also shakes the prompt a little; nothing is dismissed.
+ * @keywords ask confirm approval
  */
 function PermissionPrompt({
   request,

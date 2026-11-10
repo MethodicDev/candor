@@ -1,6 +1,7 @@
 import { createSdkMcpServer, query, tool } from "@anthropic-ai/claude-agent-sdk"
 import { z } from "zod"
 import { streamClaudeAgent } from "@/components/claude-agent-server"
+import { crossSite, crossSiteRefused } from "@/app/_lib/cross-site"
 import { addTask, instructions, listTasks } from "@/app/_lib/tasks"
 
 export const maxDuration = 120
@@ -13,6 +14,8 @@ const text = (value: unknown) => ({ content: [{ type: "text" as const, text: JSO
  * so serverless functions spread over instances can't answer them.
  */
 export async function POST(request: Request) {
+  // Another site's page can't make a signed-in person's browser start a run here.
+  if (crossSite(request)) return crossSiteRefused()
   if (!process.env.ANTHROPIC_API_KEY) {
     return new Response("ANTHROPIC_API_KEY isn't set on the server, so the agent can't run.", { status: 503 })
   }

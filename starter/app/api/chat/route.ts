@@ -1,6 +1,7 @@
 import { anthropic } from "@ai-sdk/anthropic"
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai"
 import { z } from "zod"
+import { crossSite, crossSiteRefused } from "@/app/_lib/cross-site"
 import { addTask, instructions, listTasks } from "@/app/_lib/tasks"
 
 export const maxDuration = 60
@@ -11,6 +12,8 @@ export const maxDuration = 60
  * never asked about.
  */
 export async function POST(request: Request) {
+  // Another site's page can't make a signed-in person's browser start a run here.
+  if (crossSite(request)) return crossSiteRefused()
   if (!process.env.ANTHROPIC_API_KEY) {
     return new Response("ANTHROPIC_API_KEY isn't set on the server, so the agent can't run.", { status: 503 })
   }

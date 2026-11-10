@@ -1,5 +1,5 @@
 import type * as React from "react"
-import { Brain, CircleStop, UserCheck, UserRound } from "lucide-react"
+import { CircleDashed, CircleStop, UserCheck, UserRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DegradedPanel } from "@/components/degraded-panel"
 import { RelativeTime } from "@/components/relative-time"
@@ -37,6 +37,9 @@ export const messageStrings = {
   failedMissing: "The rest of the answer",
   checkedBy: "Checked by {name} before sending",
   editedBy: "Edited by {name} before sending",
+  /** The line a streaming reply shows before anything of it has arrived. Not "Thinking": nothing says the model is yet. */
+  working: "Working",
+  /** Deprecated, removed in 3.0; use message.working. An app's override of it still shows when working has none. */
   thinking: "Thinking",
 }
 
@@ -244,9 +247,21 @@ function MessageHeader({
 }
 
 /**
+ * The working line's words: the app's message.working, else its message.thinking (the key before 2.9.0, until 3.0),
+ * else "Working". An override is told from the default by its text, so the line never falls back to "Thinking".
+ */
+function workingLine(t: (key: keyof typeof messageStrings) => string): string {
+  const working = t("working")
+  if (working !== messageStrings.working) return working
+  const thinking = t("thinking")
+  return thinking !== messageStrings.thinking ? thinking : working
+}
+
+/**
  * A reply's content: its reasoning, then its blocks, with a caret after the last one while it streams. Until anything
- * of a streaming reply arrives it shows a working line, "Thinking", which counts the time since the message's
- * `startedAt` when it has one ("Thinking · 4.2s").
+ * of a streaming reply arrives it shows a working line, "Working", which counts the time since the message's
+ * `startedAt` when it has one ("Working · 4.2s"). It says "Working", not "Thinking": the request may still be queued
+ * or on its way, and nothing yet says the model is reasoning. Reasoning, once it arrives, says "Thinking".
  */
 function MessageBody({
   message,
@@ -278,9 +293,9 @@ function MessageBody({
     <div data-slot="message-body" className={cn("flex flex-col gap-3", className)}>
       {thinking && !hasReasoning && (
         <p data-slot="message-working" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Brain aria-hidden className="size-3.5 text-accent-text" />
+          <CircleDashed aria-hidden className="size-3.5 text-accent-text" />
           <ShimmerLabel className="text-xs" startedAt={startedAt}>
-            {t("thinking")}
+            {workingLine(t)}
           </ShimmerLabel>
         </p>
       )}

@@ -17,7 +17,7 @@ to an agent that reads a to-do list on its own and asks you before it adds to it
 Without `ANTHROPIC_API_KEY` the page says so instead of showing the chat. The key is only read on the server: it is
 never imported by anything the browser loads.
 
-> Generated from Candor UI 2.8.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+> Generated from Candor UI 2.9.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
 
 ## Get started
 
@@ -54,6 +54,7 @@ src/routes/__root.tsx          the document: head, stylesheet
 src/routes/api/agent/          the agent (index.ts), and your answers to its permission requests (approve.ts)
 src/app/                       the starter's own UI (chat view, missing-key note) and the to-do list
 src/app/tasks.server.ts        the demo's to-do list, in server memory: replace with your data
+src/app/cross-site.server.ts   refuses a POST another site's page sent; every route that changes something asks it first
 src/components/, ui/           Candor components, installed from the registry
 src/lib/                       Candor's shared types and helpers
 src/styles/candor.css          Candor's theme (light, dark and high contrast)

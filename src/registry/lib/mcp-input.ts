@@ -1,3 +1,5 @@
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v)
+
 /* ---------------------------------------------------------------- MCP's shapes (2026-07-28) */
 
 /** A form field's schema, as MCP restricts it: a string, number, boolean or enum. Unknown keys pass through. */
@@ -241,8 +243,6 @@ export const mcpInputWords = {
 export type McpInputWords = Partial<typeof mcpInputWords>
 
 const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m))
-
-const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v)
 
 /** The id of "Leave unanswered" on a choice the server doesn't require; no enum value or "true"/"false" can clash with it. */
 const SKIP = "\u0000skip"

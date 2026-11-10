@@ -201,6 +201,12 @@ export type MentionOption = {
   entity?: EntityRef | undefined
   label: string
   description?: string | undefined
+  /** A short state at the end of its row, such as "Connected"; `tone` colours the dot beside it. */
+  status?: { label: string; tone?: "success" | "warning" | "neutral" | undefined } | undefined
+  /** Why it can't be chosen now, e.g. "The server isn't answering". It stays in the menu, says why, and inserts nothing. */
+  unavailable?: string | undefined
+  /** Called in place of inserting it, e.g. to sign in to a source first. The typed @ text is removed and the menu closes. */
+  onChoose?: (() => void) | undefined
 }
 
 export type SlashCommand = {

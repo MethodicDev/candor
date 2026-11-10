@@ -2,6 +2,7 @@ import { EventType, type ContentPart, type Event, type Interrupt, type JsonPatch
 import type { AgentIdentity, EntityRef, Message, MessageBlock, ReasoningEntry, ToolCall } from "@/registry/lib/chat"
 import type { RunStatus } from "@/registry/lib/status"
 import { markdownBlocks, plainBlocks } from "@/registry/lib/safe-markdown"
+import { formatElapsed } from "@/registry/lib/format-elapsed"
 
 /*
  * AG-UI events → Candor messages.
@@ -458,21 +459,9 @@ function thoughtFor(t: Thought, format: (ms: number) => string): string | undefi
   return format(t.ms)
 }
 
-/**
- * A measured time in English, by streaming-text's formatElapsed rule: "4.2s" under ten seconds, "42s" under a minute,
- * then "2m 5s", rounded down so it never reads longer than what was measured. Written out here because formatElapsed
- * lives in a client module and this one also runs on the server.
- */
-function elapsedInEnglish(ms: number) {
-  const s = Math.max(0, ms) / 1000
-  const unit = (n: number, u: "second" | "minute", digits = 0) =>
-    new Intl.NumberFormat("en-US", { style: "unit", unit: u, unitDisplay: "narrow", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n)
-  if (s < 10) return unit(Math.floor(s * 10) / 10, "second", 1)
-  if (s < 60) return unit(Math.floor(s), "second")
-  const minutes = Math.floor(s / 60)
-  const seconds = Math.floor(s % 60)
-  return new Intl.ListFormat("en-US", { style: "narrow", type: "unit" }).format(seconds ? [unit(minutes, "minute"), unit(seconds, "second")] : [unit(minutes, "minute")])
-}
+/** A measured time in English ("4.2s", "2m 5s"), the default when the app passes no `formatDuration`. */
+const english = { tag: "en-US", number: (n: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat("en-US", options).format(n) }
+const elapsedInEnglish = (ms: number) => formatElapsed(ms, english)
 
 function addText(r: Reply, id: string, delta: string) {
   if (!r.texts.has(id)) r.parts.push({ kind: "text", id })

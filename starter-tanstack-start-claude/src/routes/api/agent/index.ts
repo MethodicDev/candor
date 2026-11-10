@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { createSdkMcpServer, query, tool } from "@anthropic-ai/claude-agent-sdk"
 import { z } from "zod"
 import { streamClaudeAgent } from "@/components/claude-agent-server"
+import { crossSite, crossSiteRefused } from "@/app/cross-site.server"
 import { addTask, instructions, listTasks } from "@/app/tasks.server"
 
 const text = (value: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(value) }] })
@@ -14,6 +15,8 @@ export const Route = createFileRoute("/api/agent/")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Another site's page can't make a signed-in person's browser start a run here.
+        if (crossSite(request)) return crossSiteRefused()
         if (!process.env.ANTHROPIC_API_KEY?.trim()) {
           return new Response("ANTHROPIC_API_KEY isn't set on the server, so the agent can't run.", { status: 503 })
         }

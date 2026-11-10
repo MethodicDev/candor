@@ -164,6 +164,31 @@ export type Formatter = {
 }
 
 /**
+ * `Formatter.date`, outside the hook so the React Compiler can optimise `useFormat` (it doesn't lower the conditionals
+ * a try/catch holds here).
+ */
+function formatDate(
+  value: Date | string | number,
+  style: DateStyle,
+  options: DateOptions | undefined,
+  context: { tag: string | undefined; locale: string | undefined; timeZone: string | undefined; hydrated: boolean }
+): string {
+  const d = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(d.getTime())) return String(value)
+  const zone = options?.timeZone ?? context.timeZone
+  if (!(context.hydrated || Boolean(context.locale && zone))) return isoText(d, style)
+  const format = { ...(options?.weekday ? weekdayOptions : dateOptions)[style], ...(zone && { timeZone: zone }) }
+  const given = options?.timeZone !== undefined
+  try {
+    return new Intl.DateTimeFormat(context.tag, format).format(d)
+  } catch (e) {
+    // An unknown zone: the UTC form says which zone it is in, where the provider's zone wouldn't.
+    if (e instanceof RangeError && given) return isoText(d, style)
+    throw e
+  }
+}
+
+/**
  * Locale-aware formatting that's safe to render on the server. With no `locale` set, numbers use "en-US" until the
  * page hydrates and then the browser's locale; dates show their ISO form until then. Set `locale` (and `timeZone`
  * for dates) on the provider to render the final text on the server.
@@ -176,19 +201,7 @@ function useFormat(): Formatter {
     return {
       tag,
       number: (n, options) => new Intl.NumberFormat(tag, options).format(n),
-      date: (value, style = "datetime", options) => {
-        const d = value instanceof Date ? value : new Date(value)
-        if (Number.isNaN(d.getTime())) return String(value)
-        const zone = options?.timeZone ?? timeZone
-        if (!(hydrated || Boolean(locale && zone))) return isoText(d, style)
-        try {
-          return new Intl.DateTimeFormat(tag, { ...(options?.weekday ? weekdayOptions : dateOptions)[style], ...(zone && { timeZone: zone }) }).format(d)
-        } catch (e) {
-          // An unknown zone: the UTC form says which zone it is in, where the provider's zone wouldn't.
-          if (e instanceof RangeError && options?.timeZone !== undefined) return isoText(d, style)
-          throw e
-        }
-      },
+      date: (value, style = "datetime", options) => formatDate(value, style, options, { tag, locale, timeZone, hydrated }),
       list: (items, type = "conjunction") => new Intl.ListFormat(tag, { style: "long", type }).format(items),
     }
   }, [locale, timeZone, hydrated])

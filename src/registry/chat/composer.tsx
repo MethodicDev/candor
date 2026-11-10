@@ -105,6 +105,7 @@ function LeavingChip({ onDone, children }: { onDone: () => void; children: React
  * own controls to the toolbar, such as a dictation button. A held composer
  * (`{ kind: "held", reason }`) keeps typing open and says why sending waits.
  * `textareaRef` focuses the box from outside, e.g. after a new project starts.
+ * An @ option can say its state, or that it can't be used now and why.
  */
 function Composer({
   value,
@@ -144,7 +145,10 @@ function Composer({
   scope?: ComposerScope | undefined
   /** Makes the scope pill a button, e.g. to change environment. */
   onScopeClick?: (() => void) | undefined
-  /** What @ can insert, grouped under their headings. */
+  /**
+   * What @ can insert, grouped under their headings. An option can carry a `status` ("Connected"), be `unavailable`
+   * with the reason (shown, and it can't be chosen), or call `onChoose` in place of inserting, e.g. to sign in first.
+   */
   mentions?: MentionOption[] | undefined
   /** What / can run, only at the start of a message. */
   commands?: SlashCommand[] | undefined
@@ -256,6 +260,12 @@ function Composer({
   const choose = (item: MenuItem) => {
     if (item.type === "command") {
       replaceTrigger(`/${item.command.name} `)
+    } else if (item.option.unavailable) {
+      // It can't be chosen: the menu stays, with the reason on the option.
+      return
+    } else if (item.option.onChoose) {
+      replaceTrigger("")
+      item.option.onChoose()
     } else if (item.option.entity) {
       onReferencesChange?.([...references, item.option.entity])
       replaceTrigger("")
@@ -350,6 +360,7 @@ function Composer({
             const prev = items[i - 1]
             const header = !prev || groupOf(prev, t("commands")) !== group ? group : null
             const Icon = item.type === "mention" && item.option.entity ? kindOf(item.option.entity.kind).Icon : null
+            const unavailable = item.type === "mention" ? item.option.unavailable : undefined
             return (
               <React.Fragment key={item.type === "command" ? item.command.id : item.option.id}>
                 {header && <p className="px-2 pt-2 pb-1 text-2xs font-medium text-faint-foreground">{header}</p>}
@@ -358,12 +369,13 @@ function Composer({
                   role="option"
                   tabIndex={-1}
                   aria-selected={i === active}
+                  aria-disabled={unavailable ? true : undefined}
                   onMouseDown={(e) => {
                     e.preventDefault()
                     choose(item)
                   }}
                   onMouseMove={() => setActive(i)}
-                  className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm aria-selected:bg-accent"
+                  className={cn("flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm aria-selected:bg-accent", unavailable ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer")}
                 >
                   {item.type === "command" ? (
                     <>
@@ -378,12 +390,29 @@ function Composer({
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate">{item.option.label}</span>
-                        {(item.option.description ?? item.option.entity?.name) !== item.option.label && (item.option.description ?? item.option.entity?.name) && (
-                          <span className="block truncate font-mono text-2xs text-faint-foreground">
-                            {item.option.description ?? item.option.entity?.name}
+                        {unavailable ? (
+                          <span data-slot="composer-unavailable" className="block text-2xs text-muted-foreground">
+                            {unavailable}
                           </span>
+                        ) : (
+                          (item.option.description ?? item.option.entity?.name) !== item.option.label &&
+                          (item.option.description ?? item.option.entity?.name) && (
+                            <span className="block truncate font-mono text-2xs text-faint-foreground">{item.option.description ?? item.option.entity?.name}</span>
+                          )
                         )}
                       </span>
+                      {item.option.status && (
+                        <span data-slot="composer-status" className="flex shrink-0 items-center gap-1.5 text-2xs text-muted-foreground">
+                          <span
+                            aria-hidden
+                            className={cn(
+                              "size-1.5 rounded-full",
+                              item.option.status.tone === "success" ? "bg-success" : item.option.status.tone === "warning" ? "bg-warning" : "bg-faint-foreground"
+                            )}
+                          />
+                          {item.option.status.label}
+                        </span>
+                      )}
                     </>
                   )}
                 </div>

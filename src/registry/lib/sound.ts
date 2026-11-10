@@ -1,3 +1,8 @@
+const unit = (raw: string): number | undefined => {
+  const n = Number.parseFloat(raw)
+  return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : undefined
+}
+
 /** The five things the app may make a sound for. A closed list: `reply` and `silent` have no `AttentionKind` until 3.0. */
 export type SoundEvent = "needs-you" | "finished" | "failed" | "reply" | "silent"
 
@@ -36,11 +41,6 @@ export function soundString(raw: string): string {
   const url = /^url\(\s*(['"]?)(.*?)\1\s*\)$/.exec(v)
   const text = url ? (url[2] ?? "") : v
   return text.replace(/^(['"])(.*)\1$/, "$2").trim()
-}
-
-const unit = (raw: string): number | undefined => {
-  const n = Number.parseFloat(raw)
-  return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : undefined
 }
 
 const styleOf = (element?: Element | undefined) =>

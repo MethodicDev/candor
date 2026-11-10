@@ -3,7 +3,7 @@ import { HttpAgent, isInterruptExpired, type Interrupt, type ResumeEntry, type R
 import type { ComposerState } from "@/registry/chat/composer"
 import type { EntityRef } from "@/registry/lib/chat"
 import { fromAgUiEvents, type AgUiEvent, type CandorAgUiEvent, type FromAgUiOptions } from "@/registry/adapters/ag-ui"
-import { formatElapsed } from "@/registry/blocks/streaming-text"
+import { formatElapsed } from "@/registry/lib/format-elapsed"
 import { useFormat } from "@/registry/blocks/locale"
 
 export type UseAgUiOptions = Omit<FromAgUiOptions, "running" | "now"> & {

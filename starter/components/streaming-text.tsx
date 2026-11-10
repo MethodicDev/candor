@@ -2,8 +2,10 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { useFormat, type Formatter } from "@/components/locale"
+import { useFormat } from "@/components/locale"
 import { motion } from "@/lib/motion"
+// Re-exported for code that imported it from here; it lives in a module without "use client" so the server can call it.
+import { formatElapsed } from "@/lib/format-elapsed"
 
 /**
  * @motion live:caret While the text is still streaming in, a caret blinks at its end. It goes when streaming stops,
@@ -115,20 +117,6 @@ function ShimmerLabel({
       <span aria-hidden className="text-muted-foreground tabular-nums"> · {formatElapsed(elapsed, format)}</span>
     </span>
   )
-}
-
-/**
- * A measured span of time in the locale: "4.2s" under ten seconds, "42s" under a minute, then "2m 5s". Rounded down,
- * so it never reads longer than what was measured. Pass `useFormat()` from LocaleProvider.
- */
-function formatElapsed(ms: number, format: Pick<Formatter, "tag" | "number">): string {
-  const s = Math.max(0, ms) / 1000
-  const unit = (n: number, u: "second" | "minute", digits = 0) => format.number(n, { style: "unit", unit: u, unitDisplay: "narrow", minimumFractionDigits: digits, maximumFractionDigits: digits })
-  if (s < 10) return unit(Math.floor(s * 10) / 10, "second", 1)
-  if (s < 60) return unit(Math.floor(s), "second")
-  const minutes = Math.floor(s / 60)
-  const seconds = Math.floor(s % 60)
-  return new Intl.ListFormat(format.tag, { style: "narrow", type: "unit" }).format(seconds ? [unit(minutes, "minute"), unit(seconds, "second")] : [unit(minutes, "minute")])
 }
 
 export { StreamingText, ShimmerLabel, formatElapsed }

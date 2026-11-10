@@ -182,6 +182,7 @@
       ],
       "registryDependencies": [
         "@candor/chat",
+        "@candor/format-elapsed",
         "@candor/safe-markdown",
         "@candor/status",
         "@candor/tokens"
@@ -286,8 +287,8 @@
         "@candor/ag-ui",
         "@candor/chat",
         "@candor/composer",
+        "@candor/format-elapsed",
         "@candor/locale",
-        "@candor/streaming-text",
         "@candor/tokens"
       ],
       "files": [
@@ -532,6 +533,7 @@
       "type": "registry:component",
       "description": "Text that is still arriving.",
       "registryDependencies": [
+        "@candor/format-elapsed",
         "@candor/locale",
         "@candor/motion",
         "@candor/tokens",
@@ -651,7 +653,7 @@
     {
       "name": "attachment-preview",
       "type": "registry:component",
-      "description": "A file waiting to be sent, as a chip in the composer: its name, then upload progress, an error, or its size, and a remove button.",
+      "description": "Attached files: a chip in the composer for a file waiting to be sent (name, upload progress or error, size, remove) and tiles for sent files, with an image preview when the app supplies one.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -1177,6 +1179,26 @@
       }
     },
     {
+      "name": "format-elapsed",
+      "type": "registry:lib",
+      "description": "A measured span of time in the locale: \"4.2s\" under ten seconds, \"42s\" under a minute, then \"2m 5s\".",
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/lib/format-elapsed.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": [
+        "lib"
+      ],
+      "meta": {
+        "tier": "free"
+      }
+    },
+    {
       "name": "highlight",
       "type": "registry:lib",
       "description": "A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span.",
@@ -1241,7 +1263,7 @@
     {
       "name": "motion",
       "type": "registry:lib",
-      "description": "Candor's motion layer, the part that runs in components.",
+      "description": "Candor's motion layer: fourteen families, one per kind of change, each tunable by a brand file, and the hooks that decide when a change has settled or arrived; a theme tunes how a change looks, never when it happens.",
       "registryDependencies": [
         "@candor/status",
         "@candor/tokens"
@@ -1364,7 +1386,7 @@
     {
       "name": "use-shortcut",
       "type": "registry:lib",
-      "description": "The keys of a combo as they should be printed: \"mod+k\" → [\"⌘\", \"K\"] on a Mac and [\"Ctrl\", \"K\"] elsewhere.",
+      "description": "Run `handler` when a key combo is pressed anywhere on the page: \"mod+k\", \"mod+shift+o\", \"?\", \"escape\".",
       "registryDependencies": [
         "@candor/tokens"
       ],
