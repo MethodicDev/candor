@@ -43,12 +43,14 @@ const basisTone = {
  * The agent's stated reasoning above its answer. Each step says what it rests
  * on: verified against evidence, believed, or assumed (with the assumption
  * spelled out). Open while the agent is thinking; folds to a one-line summary
- * when it answers.
+ * when it answers. Given `startedAt`, the thinking line counts the time since
+ * the request went out ("Thinking · 4.2s") and stops when the agent answers.
  */
 function Reasoning({
   entries,
   thinking = false,
   thoughtFor,
+  startedAt,
   className,
 }: {
   /** The steps, each verified (with evidence), believed or assumed. */
@@ -57,6 +59,11 @@ function Reasoning({
   thinking?: boolean | undefined
   /** How long it thought, once known, e.g. "6s". */
   thoughtFor?: string | undefined
+  /**
+   * When the request went out, as a Date or milliseconds since the epoch. While `thinking`, the line counts up from
+   * it; the count goes when thinking ends. Left out, no time is shown.
+   */
+  startedAt?: number | Date | undefined
   className?: string | undefined
 }) {
   const t = useStrings("reasoning", reasoningStrings)
@@ -77,7 +84,7 @@ function Reasoning({
     <Collapsible open={open} onOpenChange={setOpen} data-slot="reasoning" className={cn("group/reasoning", className)}>
       <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1.5 rounded-md py-0.5 pe-1.5 text-xs text-muted-foreground outline-none cd-tint hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80">
         <Brain aria-hidden className={cn("size-3.5", thinking && "text-accent-text")} />
-        {thinking ? <ShimmerLabel className="text-xs">{t("thinking")}</ShimmerLabel> : summary}
+        {thinking ? <ShimmerLabel className="text-xs" startedAt={startedAt}>{t("thinking")}</ShimmerLabel> : summary}
         <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3 cd-reveal-turn group-data-[state=open]/reasoning:[transform:rotate(90deg)]" />
       </CollapsibleTrigger>
       <CollapsibleContent style={turnMotion}>

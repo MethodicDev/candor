@@ -1,3 +1,4 @@
+import * as React from "react"
 import type { AgentIdentity } from "@/lib/chat"
 import { Composer } from "@/components/composer"
 import { Message } from "@/components/message"
@@ -23,6 +24,14 @@ const suggestions = [
  */
 export function ChatView() {
   const { messages, composer, approvals, respond, error } = useClaudeAgent({ api: "/api/agent", approveApi: "/api/agent/approve", agent, toolTitle })
+  // The approvals whose answer is being sent: their buttons wait, so Allow can't be pressed twice in that time.
+  const [answering, setAnswering] = React.useState<ReadonlySet<string>>(() => new Set())
+  const answer = (id: string, approved: boolean, reason?: string) => {
+    setAnswering((ids) => new Set(ids).add(id))
+    void Promise.resolve()
+      .then(() => respond(id, approved, reason))
+      .finally(() => setAnswering((ids) => new Set([...ids].filter((other) => other !== id))))
+  }
 
   return (
     <Thread
@@ -42,8 +51,10 @@ export function ChatView() {
               key={a.id}
               request={{ ...a, title: toolTitle(a.tool, a.input) ?? a.title }}
               mode={a.mode}
-              onAllow={() => void respond(a.id, true)}
-              onDeny={() => void respond(a.id, false, "Not now")}
+              onAllow={() => answer(a.id, true)}
+              onDeny={() => answer(a.id, false, "Not now")}
+              busy={answering.has(a.id)}
+              headingLevel={2}
             />
           ))}
           {error && (

@@ -15,8 +15,8 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 70 free items (version 2.7.0), the skill and plugins for coding
-agents and three starter apps. Docs and live examples: **https://candor.themethodic.com**.
+This repo is the source of Candor UI's 70 free items (version 2.8.0), the skill and plugins for coding
+agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
 would rather `npm install` than copy code in. That package changes only when a free item changes, so its version can be
@@ -121,7 +121,7 @@ https://candor.themethodic.com/llms.txt.
 
 ## Starters
 
-Three apps with a working agent chat built from these components. Each installs and builds on its own:
+Starter apps with a working agent chat built from these components (3 of them). Each installs and builds on its own:
 
 | Folder | Stack | Agent |
 |---|---|---|
@@ -168,8 +168,8 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
-| Free (this repo) | $0, MIT | 70 items: the chat core, building blocks, themes, adapters; three starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 268 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Free (this repo) | $0, MIT | 70 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
+| Pro | $149, one person | All 269 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 

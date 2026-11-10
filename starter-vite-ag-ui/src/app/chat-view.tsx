@@ -21,6 +21,14 @@ const suggestions = [
  */
 export function ChatView({ url, agent, fetch }: { url: string; agent: AgentIdentity; fetch?: typeof globalThis.fetch | undefined }) {
   const { messages, composer, approvals, respond, notice, error } = useAgUi({ url, agent, fetch, toolTitle })
+  // The approvals whose answer is being sent: their buttons wait, so Allow can't be pressed twice in that time.
+  const [answering, setAnswering] = React.useState<ReadonlySet<string>>(() => new Set())
+  const answer = (id: string, approved: boolean, reason?: string) => {
+    setAnswering((ids) => new Set(ids).add(id))
+    void Promise.resolve()
+      .then(() => respond(id, approved, reason))
+      .finally(() => setAnswering((ids) => new Set([...ids].filter((other) => other !== id))))
+  }
 
   return (
     <Thread
@@ -39,8 +47,10 @@ export function ChatView({ url, agent, fetch }: { url: string; agent: AgentIdent
             <PermissionPrompt
               key={a.id}
               request={{ id: a.id, tool: a.tool ?? "tool", input: a.input ?? {}, title: a.tool ? (toolTitle(a.tool, a.input) ?? a.title) : a.title }}
-              onAllow={() => void respond(a.id, true)}
-              onDeny={() => void respond(a.id, false, "Not now")}
+              onAllow={() => answer(a.id, true)}
+              onDeny={() => answer(a.id, false, "Not now")}
+              busy={answering.has(a.id)}
+              headingLevel={2}
             />
           ))}
           {notice && <p className="text-sm text-muted-foreground">{notice}</p>}

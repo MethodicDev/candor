@@ -16,7 +16,10 @@ export { inline, markdownBlocks, plainBlocks }
  * user's text is kept exactly as typed.
  * Model reasoning is shown as believed, not verified, because nothing checked
  * it. Tool durations are left empty: the SDK doesn't measure them, and Candor
- * never estimates. `data-*` parts become cards for the app's card registry.
+ * never estimates. How long the model thought (`thoughtFor`) is left empty too:
+ * the SDK's reasoning parts carry no timestamps, only text and a state. Of
+ * Candor's adapters, only AG-UI's sets it, from its REASONING_START and
+ * REASONING_END timestamps. `data-*` parts become cards for the app's card registry.
  *
  * Durable runs (AI SDK 7's WorkflowAgent) stream the same UI messages: a tool
  * that needs approval waits as `approval-requested` for as long as the workflow

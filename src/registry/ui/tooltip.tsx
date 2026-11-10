@@ -12,18 +12,37 @@ import { motion } from "@/registry/lib/motion"
  */
 const openMotion = motion("tooltip", "open", "overlay")
 
-// Whether a TooltipProvider is above, so a lone Tooltip can supply its own.
-const HasProvider = React.createContext(false)
+type TooltipTiming = Pick<React.ComponentProps<typeof TooltipPrimitive.Provider>, "delayDuration" | "skipDelayDuration" | "disableHoverableContent">
 
+// The TooltipProvider above, if any: a lone Tooltip supplies its own when there is none, and a nested provider takes
+// the outer one's timing for any setting it leaves out.
+const HasProvider = React.createContext<TooltipTiming | null>(null)
+
+/**
+ * Tooltip timing for everything below it. A setting left out keeps what a TooltipProvider above set; with none above,
+ * tooltips open at once (`delayDuration` 0) and Radix's defaults apply to the rest.
+ */
 function TooltipProvider({
-  delayDuration = 0,
+  delayDuration,
+  skipDelayDuration,
+  disableHoverableContent,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+  const outer = React.useContext(HasProvider)
+  const delay = delayDuration ?? outer?.delayDuration ?? 0
+  const skip = skipDelayDuration ?? outer?.skipDelayDuration
+  const hoverable = disableHoverableContent ?? outer?.disableHoverableContent
+  const timing = React.useMemo<TooltipTiming>(
+    () => ({ delayDuration: delay, skipDelayDuration: skip, disableHoverableContent: hoverable }),
+    [delay, skip, hoverable]
+  )
   return (
-    <HasProvider.Provider value>
+    <HasProvider.Provider value={timing}>
       <TooltipPrimitive.Provider
         data-slot="tooltip-provider"
-        delayDuration={delayDuration}
+        delayDuration={delay}
+        skipDelayDuration={skip}
+        disableHoverableContent={hoverable}
         {...props}
       />
     </HasProvider.Provider>
@@ -35,7 +54,7 @@ function Tooltip({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   const root = <TooltipPrimitive.Root data-slot="tooltip" {...props} />
-  return React.useContext(HasProvider) ? root : <TooltipProvider>{root}</TooltipProvider>
+  return React.useContext(HasProvider) !== null ? root : <TooltipProvider>{root}</TooltipProvider>
 }
 
 function TooltipTrigger(allProps: React.ComponentProps<typeof TooltipPrimitive.Trigger> & RenderProp) {

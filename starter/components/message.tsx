@@ -1,10 +1,11 @@
 "use client"
 
 import type * as React from "react"
-import { CircleStop, UserCheck, UserRound } from "lucide-react"
+import { Brain, CircleStop, UserCheck, UserRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DegradedPanel } from "@/components/degraded-panel"
 import { RelativeTime } from "@/components/relative-time"
+import { ShimmerLabel } from "@/components/streaming-text"
 import type { DateStyle } from "@/components/locale"
 import type { Attachment, EntityRef, Message as MessageData } from "@/lib/chat"
 import { AgentAvatar, useAgentRoles } from "@/components/agent-avatar"
@@ -38,6 +39,7 @@ export const messageStrings = {
   failedMissing: "The rest of the answer",
   checkedBy: "Checked by {name} before sending",
   editedBy: "Edited by {name} before sending",
+  thinking: "Thinking",
 }
 
 /**
@@ -243,7 +245,11 @@ function MessageHeader({
   )
 }
 
-/** A reply's content: its reasoning, then its blocks, with a caret after the last one while it streams. */
+/**
+ * A reply's content: its reasoning, then its blocks, with a caret after the last one while it streams. Until anything
+ * of a streaming reply arrives it shows a working line, "Thinking", which counts the time since the message's
+ * `startedAt` when it has one ("Thinking · 4.2s").
+ */
 function MessageBody({
   message,
   onOpenEntity,
@@ -264,11 +270,23 @@ function MessageBody({
   bareCode?: boolean | undefined
   className?: string | undefined
 }) {
+  const t = useStrings("message", messageStrings)
   const streaming = message.status === "streaming"
   const thinking = streaming && message.blocks.length === 0
+  const hasReasoning = message.reasoning !== undefined && message.reasoning.length > 0
+  const started = message.startedAt === undefined ? undefined : typeof message.startedAt === "number" ? message.startedAt : Date.parse(message.startedAt)
+  const startedAt = started !== undefined && Number.isFinite(started) ? started : undefined
   return (
     <div data-slot="message-body" className={cn("flex flex-col gap-3", className)}>
-      {message.reasoning && message.reasoning.length > 0 && <Reasoning entries={message.reasoning} thinking={thinking} thoughtFor={message.thoughtFor} />}
+      {thinking && !hasReasoning && (
+        <p data-slot="message-working" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Brain aria-hidden className="size-3.5 text-accent-text" />
+          <ShimmerLabel className="text-xs" startedAt={startedAt}>
+            {t("thinking")}
+          </ShimmerLabel>
+        </p>
+      )}
+      {message.reasoning && hasReasoning && <Reasoning entries={message.reasoning} thinking={thinking} thoughtFor={message.thoughtFor} startedAt={startedAt} />}
       {message.blocks.length > 0 && (
         <div className="relative">
           <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />

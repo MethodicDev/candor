@@ -168,6 +168,7 @@ function PermissionPrompt({
   onAllow,
   onDeny,
   busy = false,
+  headingLevel = 3,
   className,
 }: {
   /** The waiting request. */
@@ -184,10 +185,12 @@ function PermissionPrompt({
   onDeny: () => void
   /** The answer is being sent: both buttons wait, and the waiting pulse stops. */
   busy?: boolean | undefined
+  /** The level of the prompt's heading, to fit under the page's own headings without skipping a level. Defaults to 3. */
+  headingLevel?: 2 | 3 | 4 | 5 | 6 | undefined
   className?: string | undefined
 }) {
   // Keyed by the request, so an edit, a ticked rule or an answer never carries over to the next request.
-  return <PromptBody key={request.id} {...{ request, mode, suggestions, editable: editable && request.editable !== false, onAllow, onDeny, busy, className }} />
+  return <PromptBody key={request.id} {...{ request, mode, suggestions, editable: editable && request.editable !== false, onAllow, onDeny, busy, headingLevel, className }} />
 }
 
 function PromptBody({
@@ -198,6 +201,7 @@ function PromptBody({
   onAllow,
   onDeny,
   busy,
+  headingLevel,
   className,
 }: {
   request: PermissionRequest
@@ -207,6 +211,7 @@ function PromptBody({
   onAllow: (answer: PermissionAnswer) => void
   onDeny: () => void
   busy: boolean
+  headingLevel: 2 | 3 | 4 | 5 | 6
   className?: string | undefined
 }) {
   const t = useStrings("permissionPrompt", permissionPromptStrings)
@@ -222,6 +227,7 @@ function PromptBody({
   const invalid = editing && !edited
   const title = request.title ?? t("fallbackTitle", { tool: request.tool })
   const questions = request.questions
+  const Heading = `h${headingLevel}` as const
 
   // A request that grants more than it looks opens on Deny, so a stray Enter can't allow it.
   const denyRef = React.useRef<HTMLButtonElement>(null)
@@ -313,7 +319,7 @@ function PromptBody({
           <ShieldQuestion className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold leading-snug">{questions ? t("questions") : title}</h3>
+          <Heading className="font-semibold leading-snug">{questions ? t("questions") : title}</Heading>
           {request.description && <p className="mt-0.5 text-muted-foreground">{request.description}</p>}
         </div>
         <code className="shrink-0 font-mono text-2xs text-muted-foreground">{request.tool}</code>

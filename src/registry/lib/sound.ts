@@ -1,3 +1,6 @@
+/** The five things the app may make a sound for. A closed list: `reply` and `silent` have no `AttentionKind` until 3.0. */
+export type SoundEvent = "needs-you" | "finished" | "failed" | "reply" | "silent"
+
 /**
  * The names and the reading half of Candor's sound layer. A brand file names a sound per event
  * (`--cd-sound-needs-you: "/sounds/needs-you.mp3"`); this file knows the five events, reads that token from the
@@ -11,9 +14,6 @@
  *
  * Safe to import on the server: the document is touched only inside `readSoundToken`.
  */
-
-/** The five things the app may make a sound for. A closed list: `reply` and `silent` have no `AttentionKind` until 3.0. */
-export type SoundEvent = "needs-you" | "finished" | "failed" | "reply" | "silent"
 
 /** Every event, in the order the settings control lists them. */
 export const soundEvents: readonly SoundEvent[] = ["needs-you", "finished", "failed", "reply", "silent"]

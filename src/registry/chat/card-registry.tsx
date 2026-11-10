@@ -50,11 +50,12 @@ function CardRegistryProvider({
   cards,
   children,
 }: {
-  /** Your app's cards by name, made with defineCard. */
-  cards: Record<string, AnyCard>
+  /** Your app's cards by name, made with defineCard. Left out, the cards of a provider above still apply. */
+  cards?: Record<string, AnyCard> | undefined
   children: React.ReactNode
 }) {
-  return <Registry.Provider value={cards}>{children}</Registry.Provider>
+  const parent = React.useContext(Registry)
+  return <Registry.Provider value={cards ?? parent}>{children}</Registry.Provider>
 }
 
 class CardBoundary extends React.Component<{ fallback: React.ReactNode; children: React.ReactNode }, { failed: boolean }> {

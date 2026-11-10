@@ -111,14 +111,14 @@ function Citation({
           {source.marker}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] p-3">
+      <PopoverContent align="start" aria-label={t("sourceLabel", { marker: source.marker, label: source.label })} className="w-80 max-w-[calc(100vw-2rem)] p-3">
         <SourceDetail source={source} />
       </PopoverContent>
     </Popover>
   )
 }
 
-/** The sources under a reply, as chips that open the same detail. */
+/** The sources under a reply, as chips that open the same detail. A long label wraps inside its chip, so all of it can be read on a narrow screen. */
 function SourceList({
   sources,
   className,
@@ -142,16 +142,18 @@ function SourceList({
                 <button
                   type="button"
                   className={cn(
-                    "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-56 items-center gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-xs text-muted-foreground cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80",
+                    "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-full items-start gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-start text-xs text-muted-foreground sm:max-w-72 cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80",
                     s.provisional && "border-dashed"
                   )}
                 >
-                  <span className="flex h-4 min-w-4 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span>
-                  <Icon aria-hidden className="size-3 shrink-0" />
-                  <span className="truncate">{s.label}</span>
+                  <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span>
+                  <Icon aria-hidden className="mt-0.5 size-3 shrink-0" />{" "}
+                  <span data-slot="source-label" className="min-w-0 [overflow-wrap:anywhere]">
+                    {s.label}
+                  </span>
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] p-3">
+              <PopoverContent align="start" aria-label={t("sourceLabel", { marker: s.marker, label: s.label })} className="w-80 max-w-[calc(100vw-2rem)] p-3">
                 <SourceDetail source={s} />
               </PopoverContent>
             </Popover>

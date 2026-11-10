@@ -18,9 +18,11 @@
  * one overrides the other when nested. Type and layout: compact is 14px conversation text
  * and 13px body and label text, with a narrower thread and sidebar; spacious is 16px and
  * 15px, wider. Controls and rows: the heights, padding and gaps of buttons, fields, menu
- * items and table rows (--cd-control-*, --cd-item-*, --cd-row-*, --cd-cell-px). Compact is
- * 2px to 4px smaller and never under 24px, the smallest target WCAG 2.2 allows without
- * spacing around it; spacious is 2px to 4px larger. The default is what the kit has always
+ * items, text areas and table rows (--cd-control-*, --cd-item-*, --cd-area-min-h,
+ * --cd-row-*, --cd-cell-px). Compact is up to 4px smaller, and no height goes under 24px,
+ * the smallest target WCAG 2.2 allows without spacing around it; spacious is up to 4px
+ * larger. Rows and text areas step 8px: a row is 32px compact, 40px by default and 48px
+ * spacious, a text area at least 56px, 64px and 72px. The default is what the kit has always
  * drawn. Components read the tokens through h-(--cd-control-h), px-(--cd-control-px), py-item-y and the like.
  *
  * Motion: fourteen families (reveal, arrive, pop, mark, fill, value, move, overlay,

@@ -3,6 +3,8 @@ import { HttpAgent, isInterruptExpired, type Interrupt, type ResumeEntry, type R
 import type { ComposerState } from "@/registry/chat/composer"
 import type { EntityRef } from "@/registry/lib/chat"
 import { fromAgUiEvents, type AgUiEvent, type CandorAgUiEvent, type FromAgUiOptions } from "@/registry/adapters/ag-ui"
+import { formatElapsed } from "@/registry/blocks/streaming-text"
+import { useFormat } from "@/registry/blocks/locale"
 
 export type UseAgUiOptions = Omit<FromAgUiOptions, "running" | "now"> & {
   /** Your AG-UI endpoint (LangGraph, Mastra, CrewAI, Google ADK, Pydantic AI…). It receives a RunAgentInput and streams events back. */
@@ -32,9 +34,12 @@ export type UseAgUiOptions = Omit<FromAgUiOptions, "running" | "now"> & {
  * `resume`: approved → `{ status: "resolved", payload: { approved: true } }`,
  * denied → `{ status: "cancelled", payload: { approved: false, reason } }`.
  * Mentions are sent as structured `forwardedProps.references`, not pasted into the text.
+ * A reply's thinking time, when the agent's events carry timestamps, reads in LocaleProvider's locale.
  */
 export function useAgUi(options: UseAgUiOptions) {
   const { url, headers, agent, agents, toolTitle, fetch: fetcher, threadId, forwardedProps, tools, context, initialState } = options
+  const format = useFormat()
+  const formatDuration = React.useMemo(() => options.formatDuration ?? ((ms: number) => formatElapsed(ms, format)), [options.formatDuration, format])
   const [events, setEvents] = React.useState<AgUiEvent[]>([])
   const [running, setRunning] = React.useState(false)
   const [error, setError] = React.useState<string>()
@@ -47,8 +52,8 @@ export function useAgUi(options: UseAgUiOptions) {
   const answers = React.useRef(new Map<string, { approved: boolean; reason?: string | undefined }>())
 
   const state = React.useMemo(
-    () => fromAgUiEvents(events, { agent, agents, toolTitle, running, now: new Date(now), initialState }),
-    [events, agent, agents, toolTitle, running, now, initialState]
+    () => fromAgUiEvents(events, { agent, agents, toolTitle, running, now: new Date(now), initialState, formatDuration }),
+    [events, agent, agents, toolTitle, running, now, initialState, formatDuration]
   )
 
   const nextExpiry = state.approvals.reduce<number | undefined>((soonest, a) => {

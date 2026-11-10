@@ -286,6 +286,8 @@
         "@candor/ag-ui",
         "@candor/chat",
         "@candor/composer",
+        "@candor/locale",
+        "@candor/streaming-text",
         "@candor/tokens"
       ],
       "files": [
@@ -530,6 +532,7 @@
       "type": "registry:component",
       "description": "Text that is still arriving.",
       "registryDependencies": [
+        "@candor/locale",
         "@candor/motion",
         "@candor/tokens",
         "utils"
@@ -913,6 +916,7 @@
         "@candor/motion",
         "@candor/reasoning",
         "@candor/relative-time",
+        "@candor/streaming-text",
         "@candor/thread-event",
         "@candor/tokens",
         "utils"

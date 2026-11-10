@@ -1,17 +1,3 @@
-/**
- * MCP's "input required" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes
- * questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for
- * ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.
- * Requests it can't show (sampling, roots, anything newer) stay listed as not supported, never dropped.
- *
- * Pure functions on plain data, so they run in the browser or on the server, with any MCP client.
- *
- * Checked against https://modelcontextprotocol.io/specification/2026-07-28 (basic/patterns/mrtr, client/elicitation
- * and the schema): `resultType: "input_required"`, `inputRequests` as a map keyed by the server's ids, `requestState`
- * echoed back unchanged, and the retry's `inputResponses` keyed the same way. Elicitation results are
- * `{ action: "accept" | "decline" | "cancel", content? }`.
- */
-
 /* ---------------------------------------------------------------- MCP's shapes (2026-07-28) */
 
 /** A form field's schema, as MCP restricts it: a string, number, boolean or enum. Unknown keys pass through. */
@@ -47,6 +33,20 @@ export type McpFieldSchema = {
   /** The largest number allowed. */
   maximum?: number | undefined
 }
+
+/**
+ * MCP's "input required" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes
+ * questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for
+ * ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.
+ * Requests it can't show (sampling, roots, anything newer) stay listed as not supported, never dropped.
+ *
+ * Pure functions on plain data, so they run in the browser or on the server, with any MCP client.
+ *
+ * Checked against https://modelcontextprotocol.io/specification/2026-07-28 (basic/patterns/mrtr, client/elicitation
+ * and the schema): `resultType: "input_required"`, `inputRequests` as a map keyed by the server's ids, `requestState`
+ * echoed back unchanged, and the retry's `inputResponses` keyed the same way. Elicitation results are
+ * `{ action: "accept" | "decline" | "cancel", content? }`.
+ */
 
 /** An `elicitation/create` request in form mode: a message and a flat schema of primitive fields. */
 export type McpElicitFormRequest = {

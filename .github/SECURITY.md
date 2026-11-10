@@ -28,7 +28,7 @@ This is a small company, not a security team, and these are targets we plan to k
   to serve paid source.
 - **The components' source in this repository**: for example a component that renders model output as HTML or a live
   link (Candor's first rule is that it never does), or one that leaks data it was given.
-- **The three starters** (`starter/`, `starter-vite-ag-ui/`, `starter-tanstack-start-claude/`): for example an exposed
+- **The starters** (`starter/`, `starter-vite-ag-ui/`, `starter-tanstack-start-claude/`): for example an exposed
   secret, an unauthenticated route that runs an agent, or an unsafe default.
 - **The npm packages** `candor-ui` (the CLI) and `@candor-ui/react`.
 

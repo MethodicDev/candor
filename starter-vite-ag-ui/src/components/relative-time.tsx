@@ -39,18 +39,27 @@ export function formatRelative(
 }
 
 /*
- * One shared clock for every relative time on the page. During server rendering (and React's hydration pass) there's
- * no "now" to read, so useNow returns null and components show a fixed date until the browser takes over. That keeps
- * server and browser output identical, and lets frameworks prerender pages without reading the clock.
+ * One shared clock for every relative time on the page: one timer, however many times are shown, ticking every 30
+ * seconds while any is mounted. A read between ticks still gets the current time: the shared value is taken afresh when
+ * it's a second or more old, or when the clock has gone back, so a time that mounts after the last tick (or after
+ * every other one unmounted) never shows an earlier clock. Reads within the same second get the same value, as
+ * useSyncExternalStore needs. During server rendering (and React's hydration pass) there's no "now" to read, so useNow
+ * returns null and components show a fixed date until the browser takes over. That keeps server and browser output
+ * identical, and lets frameworks prerender pages without reading the clock.
  */
 const listeners = new Set<() => void>()
 let now = 0
 let timer: ReturnType<typeof setInterval> | undefined
 
+function read() {
+  const current = Date.now()
+  if (current - now >= 1000 || current < now) now = current
+  return now
+}
+
 function subscribe(onChange: () => void) {
   listeners.add(onChange)
   if (!timer) {
-    now = Date.now()
     timer = setInterval(() => {
       now = Date.now()
       listeners.forEach((l) => l())
@@ -65,13 +74,9 @@ function subscribe(onChange: () => void) {
   }
 }
 
-/** The current time in milliseconds, updated every 30 seconds; null while rendering on the server. */
+/** The current time in milliseconds, to within a second, updated every 30 seconds; null while rendering on the server. */
 export function useNow(): number | null {
-  return React.useSyncExternalStore(
-    subscribe,
-    () => now || (now = Date.now()),
-    () => null
-  )
+  return React.useSyncExternalStore(subscribe, read, () => null)
 }
 
 /**

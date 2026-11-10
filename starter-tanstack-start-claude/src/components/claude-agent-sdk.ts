@@ -14,7 +14,9 @@ import { markdownBlocks, plainBlocks } from "@/lib/safe-markdown"
  * As everywhere in Candor: model text is read as safe markdown, never HTML;
  * reasoning is believed, not verified; tool durations are left empty because
  * the SDK doesn't report them exactly; cost is the SDK's own estimate,
- * labelled as one. Subagent traffic stays inside the tool call that started it.
+ * labelled as one. How long Claude thought (`thoughtFor`) is left empty: the
+ * SDK stamps when a content block finished, never when thinking started, so
+ * there is no span to measure. Of Candor's adapters, only AG-UI's sets it. Subagent traffic stays inside the tool call that started it.
  *
  * The fold is pure, so a stored run replays exactly: keep the events (the
  * server's `onEvent`, or a run store) and fold them again after a reload.

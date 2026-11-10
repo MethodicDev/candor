@@ -1,10 +1,12 @@
+import type { AgentIdentity } from "@/registry/lib/chat"
+
 /**
  * The data behind the agents' knowledge base and agent settings. Its rules: unknown never renders as definitive; no
  * figure without a basis; each source door has its own freshness. The model
  * layer's rule: only zero-data-retention endpoints, and only once an operator
  * has attested the vendor's contract.
  */
-import type { AgentIdentity } from "@/registry/lib/chat"
+
 import type { RunStatus } from "@/registry/lib/status"
 
 /* ---------------------------------------------------------------- Know sources */

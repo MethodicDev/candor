@@ -1,5 +1,17 @@
 import type { RunStatus } from "@/lib/status"
 
+/**
+ * The data a Candor thread renders. Plain, serialisable shapes: your
+ * service produces them from its own model drivers, and an adapter can produce
+ * them from any SDK. They follow the Candor design system's ChatMessage contract:
+ *
+ * - A message is a list of typed blocks, never markdown or HTML. Text from a
+ *   model or from the user's system is always rendered as text.
+ * - An agent message always carries the agent's full identity.
+ * - A claim the agent has not verified is marked `provisional`, and reasoning
+ *   says whether each step is verified, believed or assumed.
+ */
+
 /* ---------------------------------------------------------------- who */
 
 /** What an agent does: "assistant", "coder", "reviewer"… The app registers each role's glyph and hue (AgentRolesProvider). */
@@ -166,6 +178,12 @@ export type Message = {
   reasoning?: ReasoningEntry[] | undefined
   /** How long the agent spent before answering, e.g. "6s". Only once known. */
   thoughtFor?: string | undefined
+  /**
+   * When the request for this reply went out, as the app measured it: an ISO time or milliseconds since the epoch.
+   * While the reply streams and nothing of it has arrived, its working line counts up from here ("Thinking · 4.2s"),
+   * and so does its reasoning's. Left out, no time is shown.
+   */
+  startedAt?: string | number | undefined
   sources?: MessageSource[] | undefined
   /** Shown under an agent's reply: model, cost. Only values the service measured. */
   attribution?: { model?: string | undefined; cost?: string | undefined } | undefined

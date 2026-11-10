@@ -122,6 +122,25 @@ const dateOptions: Record<DateStyle, Intl.DateTimeFormatOptions> = {
   time: { timeStyle: "short" },
 }
 
+/** The same styles with the short day name in front ("Tue, 10 Nov 2026"); Intl can't add a weekday to `dateStyle`. */
+const weekdayOptions: Record<DateStyle, Intl.DateTimeFormatOptions> = {
+  date: { weekday: "short", day: "numeric", month: "short", year: "numeric" },
+  datetime: { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" },
+  time: { weekday: "short", hour: "numeric", minute: "2-digit" },
+}
+
+/** What `Formatter.date` takes beyond the style. */
+export type DateOptions = {
+  /**
+   * The IANA time zone to show the time in, e.g. "Europe/London", in place of LocaleProvider's `timeZone`: for a time
+   * that belongs to a place, such as a schedule's next run. A zone this browser's Intl doesn't know shows the ISO form
+   * in UTC, which says so, rather than throwing.
+   */
+  timeZone?: string | undefined
+  /** Put the short day name in front: "Tue, 10 Nov 2026, 9:00". */
+  weekday?: boolean | undefined
+}
+
 /** The ISO form shown before hydration: the same on server and browser, in UTC, and says so. */
 function isoText(d: Date, style: DateStyle): string {
   const iso = d.toISOString()
@@ -135,8 +154,11 @@ export type Formatter = {
   tag: string | undefined
   /** A number in the locale: "1,234.5", "1 234,5". */
   number: (n: number, options?: Intl.NumberFormatOptions) => string
-  /** An absolute time. Until the page hydrates it reads as an ISO date in UTC, unless both `locale` and `timeZone` are set. */
-  date: (date: Date | string | number, style?: DateStyle) => string
+  /**
+   * An absolute time, in LocaleProvider's `timeZone` (or the browser's), or in `options.timeZone` when given. Until the
+   * page hydrates it reads as an ISO date in UTC, unless both a locale and a time zone are set.
+   */
+  date: (date: Date | string | number, style?: DateStyle, options?: DateOptions | undefined) => string
   /** Items joined as the locale does: "A, B and C". */
   list: (items: string[], type?: "conjunction" | "disjunction") => string
 }
@@ -151,15 +173,21 @@ function useFormat(): Formatter {
   const hydrated = useHydrated()
   return React.useMemo(() => {
     const tag = locale ?? (hydrated ? undefined : "en-US")
-    const fixedDates = hydrated || Boolean(locale && timeZone)
     return {
       tag,
       number: (n, options) => new Intl.NumberFormat(tag, options).format(n),
-      date: (value, style = "datetime") => {
+      date: (value, style = "datetime", options) => {
         const d = value instanceof Date ? value : new Date(value)
         if (Number.isNaN(d.getTime())) return String(value)
-        if (!fixedDates) return isoText(d, style)
-        return new Intl.DateTimeFormat(tag, { ...dateOptions[style], ...(timeZone && { timeZone }) }).format(d)
+        const zone = options?.timeZone ?? timeZone
+        if (!(hydrated || Boolean(locale && zone))) return isoText(d, style)
+        try {
+          return new Intl.DateTimeFormat(tag, { ...(options?.weekday ? weekdayOptions : dateOptions)[style], ...(zone && { timeZone: zone }) }).format(d)
+        } catch (e) {
+          // An unknown zone: the UTC form says which zone it is in, where the provider's zone wouldn't.
+          if (e instanceof RangeError && options?.timeZone !== undefined) return isoText(d, style)
+          throw e
+        }
       },
       list: (items, type = "conjunction") => new Intl.ListFormat(tag, { style: "long", type }).format(items),
     }

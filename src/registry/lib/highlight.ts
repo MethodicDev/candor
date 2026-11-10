@@ -1,13 +1,13 @@
+export type TokenType = "keyword" | "string" | "number" | "comment" | "function" | "property" | "type" | "tag" | "variable" | "operator" | "plain"
+
+export type Token = { type: TokenType; text: string }
+
 /**
  * A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…),
  * and Payload renders each as a span. The output is text, never HTML, so nothing in the code can run or inject markup.
  * It covers the languages agents show most (JS/TS, Python, SQL, JSON, shell, YAML, CSS, HTML/XML, Go, Rust, Java, C)
  * in a few kilobytes; anything else comes back as one plain token.
  */
-
-export type TokenType = "keyword" | "string" | "number" | "comment" | "function" | "property" | "type" | "tag" | "variable" | "operator" | "plain"
-
-export type Token = { type: TokenType; text: string }
 
 type Grammar = {
   line?: string[] | undefined

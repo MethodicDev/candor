@@ -16,7 +16,17 @@ import { markdownBlocks, plainBlocks } from "@/lib/safe-markdown"
  * As everywhere in Candor: model text is read as safe markdown, never HTML;
  * reasoning is believed, not verified; tool durations are left empty because
  * the protocol doesn't report them; token counts are only what the runs
- * reported, and AG-UI reports no cost. Subagent traffic stays out of the main
+ * reported, and AG-UI reports no cost.
+ *
+ * How long the agent thought (a reply's `thoughtFor`) is measured from the
+ * stream's own timestamps: each REASONING_START to its REASONING_END (or, from
+ * an agent that sends no spans, each REASONING_MESSAGE_START to its
+ * REASONING_MESSAGE_END), summed over the reply. AG-UI's `timestamp` is
+ * optional and, in every SDK that sets it, milliseconds since the epoch. A
+ * reply with any span missing a timestamp, still open, or ending before it
+ * started gets no `thoughtFor`: Candor shows no time rather than a guess.
+ * (Of the other adapters, neither the AI SDK's UI messages nor the Claude
+ * Agent SDK's events carry a reasoning start time, so they never set it.) Subagent traffic stays out of the main
  * thread: the tool call that started a subagent reports for it.
  *
  * Agent state (STATE_SNAPSHOT, STATE_DELTA) and activities (ACTIVITY_SNAPSHOT,
@@ -74,6 +84,11 @@ export type FromAgUiOptions = {
   initialState?: unknown
   /** Other agents the app knows, by id. An activity naming an agent id not here (or `agent`) isn't mapped to an agent entry. */
   agents?: AgentIdentity[] | undefined
+  /**
+   * How a measured thinking time reads, given milliseconds: "4.2s". useAgUi passes one that formats in the
+   * LocaleProvider's locale; without it, English by the same rule: tenths under ten seconds, rounded down.
+   */
+  formatDuration?: ((ms: number) => string) | undefined
 }
 
 /**
@@ -151,7 +166,16 @@ type Reply = {
   model?: string | undefined
   failure?: string | undefined
   aborted?: boolean | undefined
+  /** Thinking time, from the stream's timestamps. */
+  thought: Thought
 }
+
+/**
+ * Reasoning spans: open ones by id with their start (undefined when it had no timestamp), the milliseconds of the
+ * closed ones, and whether any span couldn't be measured. `byMessage` marks spans opened by a reasoning message
+ * because no REASONING_START came.
+ */
+type Thought = { open: Map<string, { start: number | undefined; byMessage: boolean }>; ms: number; spans: number; unmeasured: boolean }
 
 type Turn = { user?: Message | undefined; reply?: Reply | undefined }
 
@@ -303,9 +327,24 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
         call.status = "succeeded"
         break
       }
-      case EventType.REASONING_MESSAGE_START:
-        current(e.messageId).reasoning.set(e.messageId, "")
+      case EventType.REASONING_START:
+        current(e.messageId).thought.open.set(e.messageId, { start: e.timestamp, byMessage: false })
         break
+      case EventType.REASONING_END:
+        endSpan(current(e.messageId).thought, e.messageId, e.timestamp, false)
+        break
+      case EventType.REASONING_MESSAGE_START: {
+        const r = current(e.messageId)
+        r.reasoning.set(e.messageId, "")
+        // Inside a span, the span is what's timed; a message outside one is timed on its own.
+        if (![...r.thought.open.values()].some((s) => !s.byMessage)) r.thought.open.set(e.messageId, { start: e.timestamp, byMessage: true })
+        break
+      }
+      case EventType.REASONING_MESSAGE_END: {
+        const r = current(e.messageId)
+        if (r.thought.open.get(e.messageId)?.byMessage) endSpan(r.thought, e.messageId, e.timestamp, true)
+        break
+      }
       case EventType.REASONING_MESSAGE_CONTENT: {
         const r = current(e.messageId)
         r.reasoning.set(e.messageId, (r.reasoning.get(e.messageId) ?? "") + e.delta)
@@ -399,7 +438,41 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
 
 /* ---------------------------------------------------------------- building a reply */
 
-const emptyReply = (id: string): Reply => ({ id, parts: [], texts: new Map(), reasoning: new Map(), tools: new Map() })
+const emptyReply = (id: string): Reply => ({ id, parts: [], texts: new Map(), reasoning: new Map(), tools: new Map(), thought: { open: new Map(), ms: 0, spans: 0, unmeasured: false } })
+
+/** Closes a reasoning span. One without both timestamps, or ending before it started, leaves the reply unmeasured. */
+function endSpan(t: Thought, id: string, end: number | undefined, byMessage: boolean) {
+  const span = t.open.get(id)
+  t.open.delete(id)
+  t.spans++
+  if (!span || span.byMessage !== byMessage || span.start === undefined || end === undefined || !Number.isFinite(span.start) || !Number.isFinite(end) || end < span.start) {
+    t.unmeasured = true
+    return
+  }
+  t.ms += end - span.start
+}
+
+/** The reply's thinking time, only when every span in it was measured and none is still open. */
+function thoughtFor(t: Thought, format: (ms: number) => string): string | undefined {
+  if (!t.spans || t.unmeasured || t.open.size) return undefined
+  return format(t.ms)
+}
+
+/**
+ * A measured time in English, by streaming-text's formatElapsed rule: "4.2s" under ten seconds, "42s" under a minute,
+ * then "2m 5s", rounded down so it never reads longer than what was measured. Written out here because formatElapsed
+ * lives in a client module and this one also runs on the server.
+ */
+function elapsedInEnglish(ms: number) {
+  const s = Math.max(0, ms) / 1000
+  const unit = (n: number, u: "second" | "minute", digits = 0) =>
+    new Intl.NumberFormat("en-US", { style: "unit", unit: u, unitDisplay: "narrow", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n)
+  if (s < 10) return unit(Math.floor(s * 10) / 10, "second", 1)
+  if (s < 60) return unit(Math.floor(s), "second")
+  const minutes = Math.floor(s / 60)
+  const seconds = Math.floor(s % 60)
+  return new Intl.ListFormat("en-US", { style: "narrow", type: "unit" }).format(seconds ? [unit(minutes, "minute"), unit(seconds, "second")] : [unit(minutes, "minute")])
+}
 
 function addText(r: Reply, id: string, delta: string) {
   if (!r.texts.has(id)) r.parts.push({ kind: "text", id })
@@ -530,6 +603,7 @@ function render(r: Reply, o: FromAgUiOptions & { now: Date; last: boolean; open:
     status: live ? "streaming" : r.failure ? "failed" : finished && !r.aborted ? "complete" : "interrupted",
     blocks,
     reasoning: reasoning.length ? reasoning : undefined,
+    thoughtFor: thoughtFor(r.thought, o.formatDuration ?? elapsedInEnglish),
     attribution: r.model && finished ? { model: r.model } : undefined,
   }
 }

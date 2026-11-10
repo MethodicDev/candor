@@ -1,7 +1,9 @@
 name: Starters
 
-# Each generated release builds the three starter apps, and runs axe on the Vite starter's page in a real browser.
+# Each generated release builds the starter apps, and runs axe on the Vite starter's page in a real browser.
 # This workflow is written in the private repository and arrives with the release; edit it there, not here.
+# Actions are pinned to a full commit SHA, with the release it was in a comment, and npm tools to an exact version, so
+# a moved tag or a new release can't change what runs. To update one, look up the new release's commit SHA.
 
 on:
   push:
@@ -25,8 +27,8 @@ jobs:
       run:
         working-directory: ${{ matrix.starter }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -39,8 +41,8 @@ jobs:
     name: axe on the Vite starter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -58,6 +60,6 @@ jobs:
       - name: Serve the build and run axe
         run: |
           npm --prefix starter-vite-ag-ui run preview -- --host 127.0.0.1 --port 4173 &
-          npx --yes wait-on@8 http://127.0.0.1:4173 --timeout 60000
+          npx --yes wait-on@8.0.5 http://127.0.0.1:4173 --timeout 60000
           cp .github/scripts/axe-starter.mjs "$RUNNER_TEMP/axe/axe-starter.mjs"
           cd "$RUNNER_TEMP/axe" && node axe-starter.mjs http://127.0.0.1:4173
