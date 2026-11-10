@@ -17,7 +17,38 @@
         }
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "motion-aliases",
+            "in": "3.0.0",
+            "change": "The 2.2 motion tokens `--cd-pop-from` and `--cd-motion-shake`, kept through 2.x as the last fallback of their families, are no longer read, and `data-motion=\"expressive\"` no longer sets their presets.",
+            "breaks": "A brand file or the app's own CSS that sets `--cd-pop-from` or `--cd-motion-shake` stops having an effect.",
+            "at": [
+              "styling"
+            ],
+            "migration": "Set the motion families' tokens instead: `--cd-motion-pop-scale` (the pop family's scale) for `--cd-pop-from`, and for `--cd-motion-shake`, which set a whole animation, the refuse family's `--cd-motion-refuse-distance` and `--cd-motion-refuse-dur`.",
+            "codemod": "motion-aliases",
+            "find": [
+              "--cd-pop-from(?![\\w-])",
+              "--cd-motion-shake(?![\\w-])"
+            ]
+          },
+          {
+            "id": "legacy-animations",
+            "in": "3.0.0",
+            "change": "The 2.2 animation utilities (`animate-shimmer`, `animate-pulse-dot`, `animate-rise-in`, `animate-caret`, `animate-collapse-down`, `animate-collapse-up`, `animate-pop-in`, `animate-pop-out`, `animate-tick-draw`, `animate-fill`, `animate-shake`, `animate-attention`, `animate-attention-wait`, `animate-nudge`) are removed, with the unprefixed keyframes only they ran (`pulse-dot`, `rise-in`, `caret`, `collapse-down`, `collapse-up`, `pop-in`, `pop-out`, `tick-draw`, `fill`, `shake`, `attention`). The `shimmer` keyframes stay: the `shimmer-text` utility runs them. Candor's own components use none of these utilities.",
+            "breaks": "A class such as `animate-pop-in` in the app's own markup stops animating, and CSS that names one of the keyframes (`animation: pop-in …`) finds none.",
+            "at": [
+              "styling"
+            ],
+            "migration": "Use the motion families' utilities (`cd-pop`, `cd-reveal`, `cd-arrive`, `cd-refuse`, `cd-attention`, `cd-live-pulse` and the rest), which a brand file and `data-motion` reach; the Design page lists them. For `animate-shimmer`, use `shimmer-text` on text, or write the animation with the `shimmer` keyframes, which stay.",
+            "codemod": "motion-aliases",
+            "find": [
+              "\\banimate-(?:shimmer|pulse-dot|rise-in|caret|collapse-down|collapse-up|pop-in|pop-out|tick-draw|fill|shake|attention-wait|attention|nudge)(?![\\w-])"
+            ]
+          }
+        ]
       }
     },
     {
@@ -41,7 +72,38 @@
         }
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "motion-aliases",
+            "in": "3.0.0",
+            "change": "The 2.2 motion tokens `--cd-pop-from` and `--cd-motion-shake`, kept through 2.x as the last fallback of their families, are no longer read, and `data-motion=\"expressive\"` no longer sets their presets.",
+            "breaks": "A brand file or the app's own CSS that sets `--cd-pop-from` or `--cd-motion-shake` stops having an effect.",
+            "at": [
+              "styling"
+            ],
+            "migration": "Set the motion families' tokens instead: `--cd-motion-pop-scale` (the pop family's scale) for `--cd-pop-from`, and for `--cd-motion-shake`, which set a whole animation, the refuse family's `--cd-motion-refuse-distance` and `--cd-motion-refuse-dur`.",
+            "codemod": "motion-aliases",
+            "find": [
+              "--cd-pop-from(?![\\w-])",
+              "--cd-motion-shake(?![\\w-])"
+            ]
+          },
+          {
+            "id": "legacy-animations",
+            "in": "3.0.0",
+            "change": "The 2.2 animation utilities (`animate-shimmer`, `animate-pulse-dot`, `animate-rise-in`, `animate-caret`, `animate-collapse-down`, `animate-collapse-up`, `animate-pop-in`, `animate-pop-out`, `animate-tick-draw`, `animate-fill`, `animate-shake`, `animate-attention`, `animate-attention-wait`, `animate-nudge`) are removed, with the unprefixed keyframes only they ran (`pulse-dot`, `rise-in`, `caret`, `collapse-down`, `collapse-up`, `pop-in`, `pop-out`, `tick-draw`, `fill`, `shake`, `attention`). The `shimmer` keyframes stay: the `shimmer-text` utility runs them. Candor's own components use none of these utilities.",
+            "breaks": "A class such as `animate-pop-in` in the app's own markup stops animating, and CSS that names one of the keyframes (`animation: pop-in …`) finds none.",
+            "at": [
+              "styling"
+            ],
+            "migration": "Use the motion families' utilities (`cd-pop`, `cd-reveal`, `cd-arrive`, `cd-refuse`, `cd-attention`, `cd-live-pulse` and the rest), which a brand file and `data-motion` reach; the Design page lists them. For `animate-shimmer`, use `shimmer-text` on text, or write the animation with the `shimmer` keyframes, which stay.",
+            "codemod": "motion-aliases",
+            "find": [
+              "\\banimate-(?:shimmer|pulse-dot|rise-in|caret|collapse-down|collapse-up|pop-in|pop-out|tick-draw|fill|shake|attention-wait|attention|nudge)(?![\\w-])"
+            ]
+          }
+        ]
       }
     },
     {
@@ -197,7 +259,20 @@
         "adapters"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -223,7 +298,20 @@
         "adapters"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -248,7 +336,20 @@
         "adapters"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -273,7 +374,20 @@
         "adapters"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -301,7 +415,20 @@
         "adapters"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -328,7 +455,20 @@
         "adapters"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -351,7 +491,20 @@
         "adapters"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -378,7 +531,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -405,7 +571,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -416,6 +595,7 @@
         "radix-ui@^1.8.1"
       ],
       "registryDependencies": [
+        "@candor/fill-strings",
         "@candor/tokens"
       ],
       "files": [
@@ -428,7 +608,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -454,7 +647,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -475,7 +681,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -499,7 +718,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -525,7 +757,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -549,7 +794,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -573,7 +831,20 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -593,7 +864,34 @@
         "blocks"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "terms",
+            "in": "3.0.0",
+            "change": "`TermsProvider`, `useTerms` and `capitalise` are folded into LocaleProvider: the app's nouns become arguments of its messages, with plural and select forms, set where the interface's words are set.",
+            "breaks": "Code that imports `TermsProvider`, `useTerms`, `capitalise` or the `Terms` type fails the type check. Where the app gives its nouns (`TermsProvider`'s `terms`, `CandorProvider`'s `terms`, a preset's terms object) changes to LocaleProvider's form.",
+            "at": [
+              "type-check"
+            ],
+            "migration": "Nothing to change in 2.x: `TermsProvider`, `useTerms` and `capitalise` work until 3.0, and the form the app's nouns take in LocaleProvider isn't designed yet. To be ready, list your uses: `npx candor-ui migrate terms` names each one in the app's own files (`TermsProvider`, `useTerms()`, `capitalise()`, the `Terms` type and the `terms` given to `CandorProvider`) and changes nothing. 3.0's release notes will say what each becomes.",
+            "codemod": "terms",
+            "find": [
+              "\\b(?:TermsProvider|useTerms|capitalise)\\b"
+            ]
+          }
+        ]
       }
     },
     {
@@ -619,7 +917,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -647,7 +958,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -674,7 +998,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -701,7 +1038,34 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "card",
+            "in": "3.0.0",
+            "change": "`Card`, card-registry's first name for `RegistryCard`, is removed.",
+            "breaks": "`import { Card } from \"@/components/card-registry\"` fails the type check.",
+            "at": [
+              "type-check"
+            ],
+            "migration": "Import `RegistryCard` from the same file and rename the tag; the props are the same. shadcn's own `Card` in `@/components/ui/card` is not affected.",
+            "codemod": "card",
+            "find": [
+              "import\\s*(?:type\\s*)?\\{[^}]*\\bCard\\b[^}]*\\}\\s*from\\s*[\"'][^\"']*card-registry[\"']"
+            ]
+          }
+        ]
       }
     },
     {
@@ -728,7 +1092,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -758,7 +1135,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -783,7 +1173,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -809,7 +1212,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -836,7 +1252,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -864,7 +1293,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -897,7 +1339,35 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "orgdata",
+            "in": "3.0.0",
+            "change": "The `orgData` inline node is removed. It was renamed `measured` in 1.0 and has been drawn as `measured` since.",
+            "breaks": "A message block that carries `{ kind: \"orgData\", … }` fails the type check. Untyped data (a server's JSON, stored messages) draws nothing where the node was, though the message's plain-text copy still has its text.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Change `kind: \"orgData\"` to `kind: \"measured\"` wherever the blocks are built (the app's adapter or the server's output); the fields are the same. Messages the app has stored are data, not source: update their stored `kind` once. From 2.10, MessageContent logs a console warning in development, once per page, when it meets the node.",
+            "codemod": "orgdata",
+            "find": [
+              "\\bkind[\"']?\\s*:\\s*[\"']orgData[\"']"
+            ]
+          },
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -933,7 +1403,34 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "message-thinking",
+            "in": "3.0.0",
+            "change": "Message's `thinking` string, renamed `working` in 2.9.0, is removed: the working line reads only `message.working`.",
+            "breaks": "An app that overrides `message.thinking` in LocaleProvider's `strings`, and not `message.working`, sees Candor's own \"Working\" again on a reply that hasn't started.",
+            "at": [
+              "render"
+            ],
+            "migration": "Rename the key in LocaleProvider's (or CandorProvider's) `strings` from `message.thinking` to `message.working`; the text can stay. 2.9 and later already read `working` first.",
+            "codemod": null,
+            "find": [
+              "[\"']?\\bmessage[\"']?\\s*:\\s*\\{[^{}]*[\"']?\\bthinking[\"']?\\s*:"
+            ]
+          }
+        ]
       }
     },
     {
@@ -961,13 +1458,26 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
       "name": "permission-prompt",
       "type": "registry:component",
-      "description": "A tool call waiting for a person's go-ahead: what it will do, why it reached them, and the permission mode the run is in.",
+      "description": "A tool call an agent asks to make, waiting for a person to approve or deny it before it runs: what it will do, why it reached them, and the permission mode the run is in.",
       "dependencies": [
         "lucide-react@^1.67.0"
       ],
@@ -989,7 +1499,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1017,7 +1540,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1046,7 +1582,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1069,7 +1618,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1095,7 +1657,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1122,7 +1697,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1154,7 +1742,20 @@
         "chat"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1175,7 +1776,68 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "orgdata",
+            "in": "3.0.0",
+            "change": "The `orgData` inline node is removed. It was renamed `measured` in 1.0 and has been drawn as `measured` since.",
+            "breaks": "A message block that carries `{ kind: \"orgData\", … }` fails the type check. Untyped data (a server's JSON, stored messages) draws nothing where the node was, though the message's plain-text copy still has its text.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Change `kind: \"orgData\"` to `kind: \"measured\"` wherever the blocks are built (the app's adapter or the server's output); the fields are the same. Messages the app has stored are data, not source: update their stored `kind` once. From 2.10, MessageContent logs a console warning in development, once per page, when it meets the node.",
+            "codemod": "orgdata",
+            "find": [
+              "\\bkind[\"']?\\s*:\\s*[\"']orgData[\"']"
+            ]
+          },
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fill-strings",
+      "type": "registry:lib",
+      "description": "A translate function over a table of English defaults, for code that runs outside a component: on the server, or a helper called without the component's `useStrings`.",
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/lib/fill-strings.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": [
+        "lib"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1195,7 +1857,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1215,7 +1890,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1237,7 +1925,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1257,7 +1958,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1278,7 +1992,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1298,7 +2025,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1319,7 +2059,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1339,7 +2092,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1360,7 +2126,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1380,7 +2159,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1400,7 +2192,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1420,7 +2225,20 @@
         "lib"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1447,7 +2265,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1472,7 +2303,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1499,7 +2343,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1525,7 +2382,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1551,7 +2421,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1576,7 +2459,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1602,7 +2498,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1628,7 +2537,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1650,7 +2572,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1676,7 +2611,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1702,7 +2650,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     },
     {
@@ -1728,7 +2689,20 @@
         "ui"
       ],
       "meta": {
-        "tier": "free"
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places, and on a 2.x project `npx candor-ui migrate paths` refuses and moves nothing. As part of the update to 3.0, once 3.0 is released, run `npx candor-ui migrate paths --for 3.0.0`, which moves the installed files into `components/candor/` and `lib/candor/`, rewrites the project's imports of the old paths and records the moves, then `npx candor-ui update --to 3.0.0`, which follows them. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
       }
     }
   ]

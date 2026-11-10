@@ -61,7 +61,7 @@ export type InlineNode =
   | { kind: "code"; text: string }
   /** A value read from the environment (a count, a setting). Shown with its source on hover. */
   | { kind: "measured"; text: string; source?: string | undefined }
-  /** @deprecated Renamed `measured`; still rendered the same way until 2.0. */
+  /** @deprecated Renamed `measured`; drawn the same way until 3.0, which removes it. Change `kind: "orgData"` to `kind: "measured"`. */
   | { kind: "orgData"; text: string; source?: string | undefined }
   /** The agent asserts this but has not verified it. */
   | { kind: "provisional"; nodes: InlineNode[]; reason?: string | undefined }

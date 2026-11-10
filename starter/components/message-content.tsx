@@ -33,6 +33,21 @@ type Ctx = {
 const ContentContext = React.createContext<Ctx>({ sources: new Map() })
 
 /**
+ * Whether this is a production build. Bundlers replace `process.env.NODE_ENV` at build time (Vite and Next both do);
+ * where nothing defines it the answer is "production", so a development warning never reaches a page that can't say.
+ */
+const production = () => {
+  try {
+    return process.env.NODE_ENV === "production"
+  } catch {
+    return true
+  }
+}
+
+/** Set once this page has been told that 3.0 removes the `orgData` node. */
+let warnedOrgData = false
+
+/**
  * Inline nodes. Every string here may come from a model or the user's system, so it is
  * only ever rendered as a React text child: no markdown parsing, no HTML.
  */
@@ -45,6 +60,15 @@ function Inline({
   const terms = useTerms()
   const t = useStrings("messageContent", messageContentStrings)
   const ctx = React.useContext(ContentContext)
+  // `orgData` is drawn as `measured` until 3.0 removes it; stored messages carry it where no compiler looks.
+  const hasOrgData = nodes.some((n) => n.kind === "orgData")
+  React.useEffect(() => {
+    if (!hasOrgData || warnedOrgData || production()) return
+    warnedOrgData = true
+    console.warn(
+      'Candor: a message has an inline node of kind "orgData", which 3.0 removes (it was renamed "measured" in 1.0). Change kind: "orgData" to kind: "measured" where the blocks are built (npx candor-ui migrate orgdata makes the change in source), and update the kind of any stored messages once. (Development only, once per page.)'
+    )
+  }, [hasOrgData])
   return (
     <>
       {nodes.map((n, i) => {

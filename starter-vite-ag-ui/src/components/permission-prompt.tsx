@@ -144,8 +144,8 @@ function parseObject(text: string): Record<string, unknown> | null {
 }
 
 /**
- * A tool call waiting for a person's go-ahead: what it will do, why it reached them, and the permission mode the
- * run is in. They can edit the input before allowing it and see exactly what they changed; Allow then sends that
+ * A tool call an agent asks to make, waiting for a person to approve or deny it before it runs: what it will do, why
+ * it reached them, and the permission mode the run is in. They can edit the input before allowing it and see exactly what they changed; Allow then sends that
  * input, nothing else. "Don't ask again" rules are offered as boxes nobody has ticked, and are kept only if the
  * person ticks them. When the agent is asking questions instead, it shows them as a short form. Words from the
  * request (its title, reason, input) are shown as text, never markup.
@@ -159,7 +159,6 @@ function parseObject(text: string): Record<string, unknown> | null {
  * It stops once the answer is being sent, and under calm it is one ring that fades.
  * @motion attention:nudge A press on inert space outside the prompt rings it once, so the person sees it is still waiting.
  * @motion refuse:nudge Under expressive the same press also shakes the prompt a little; nothing is dismissed.
- * @keywords ask confirm approval
  */
 function PermissionPrompt({
   request,

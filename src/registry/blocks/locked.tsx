@@ -35,6 +35,7 @@ type Lockable = React.ReactElement<{
   onClick?: React.MouseEventHandler | undefined
   onKeyDown?: React.KeyboardEventHandler | undefined
   "data-locked"?: string | undefined
+  className?: string | undefined
 }>
 
 /**
@@ -60,6 +61,7 @@ function Locked({
   /** Print the reason under the control instead of in a tooltip. */
   inline?: boolean | undefined
   children: Lockable
+  /** Classes for the wrapper around the control and its reason. Without a reason there is no wrapper, so they go on the control itself. */
   className?: string | undefined
 }) {
   const id = React.useId()
@@ -83,7 +85,8 @@ function Locked({
     }
   }, [press])
 
-  if (!reason) return children
+  // No wrapper without a reason: the classes it would have had go on the control, so a layout class isn't lost.
+  if (!reason) return className ? React.cloneElement(children, { className: cn(children.props.className, className) }) : children
 
   const block = (e: React.SyntheticEvent) => {
     e.preventDefault()
@@ -92,6 +95,8 @@ function Locked({
     setShaking(true)
     setHeld(true)
   }
+  // The trigger takes it as `render`, not as an asChild child: shadcn's Base UI rewrite drops an asChild whose child is
+  // an expression, which would draw the trigger's own button round this one.
   const control = React.cloneElement(children, {
     "aria-disabled": true,
     "aria-describedby": id,
@@ -117,7 +122,7 @@ function Locked({
         control
       ) : (
         <Tooltip open={shown || held} onOpenChange={setShown}>
-          <TooltipTrigger asChild>{control}</TooltipTrigger>
+          <TooltipTrigger render={control} />
           <TooltipContent>{reason}</TooltipContent>
         </Tooltip>
       )}

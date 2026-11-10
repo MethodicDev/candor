@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Direction } from "radix-ui"
+import { fill, pick } from "@/registry/lib/fill-strings"
 
 /**
  * The interface's words, language and direction. Every fixed string in Candor (labels, buttons, screen-reader text,
@@ -207,22 +208,6 @@ function useFormat(): Formatter {
   }, [locale, timeZone, hydrated])
 }
 
-/** Fill `{name}` placeholders. Numbers go through the locale's number format. */
-export function fill(template: string, vars: Record<string, string | number> | undefined, number: (n: number) => string = String): string {
-  if (!vars) return template
-  return template.replace(/\{(\w+)\}/g, (whole, key: string) => {
-    const v = vars[key]
-    return v === undefined ? whole : typeof v === "number" ? number(v) : v
-  })
-}
-
-/** The plural form for `count`, falling back to `other`. */
-export function pick(message: Phrase, count: number | undefined, rules: Intl.PluralRules): string {
-  if (typeof message === "string") return message
-  if (count === undefined) return message.other
-  if (count === 0 && message.zero !== undefined) return message.zero
-  return message[rules.select(count)] ?? message.other
-}
 
 /**
  * A translated sentence with elements in it: `place(t("signedInAs"), { email: <strong>{email}</strong> })`. Each
@@ -262,4 +247,5 @@ function useStartSide(): "left" | "right" {
   return useLocale().dir === "rtl" ? "right" : "left"
 }
 
-export { LocaleProvider, useLocale, useFormat, useHydrated, useStrings, useStartSide }
+// fill and pick live in lib/fill-strings, without "use client", so server code can use them; still exported from here.
+export { LocaleProvider, useLocale, useFormat, useHydrated, useStrings, useStartSide, fill, pick }

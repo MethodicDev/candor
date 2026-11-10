@@ -13,8 +13,6 @@ export type ElapsedFormat = {
  * so it never reads longer than what was measured. In a component, pass `useFormat()` from LocaleProvider. This module
  * has no `"use client"`, so a server component or a server-side replay can call it too, with a format of its own:
  * `formatElapsed(ms, { tag: "en-GB", number: (n, o) => new Intl.NumberFormat("en-GB", o).format(n) })`.
- *
- * @keywords duration
  */
 export function formatElapsed(ms: number, format: ElapsedFormat): string {
   const s = Math.max(0, ms) / 1000
