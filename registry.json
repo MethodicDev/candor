@@ -2756,7 +2756,7 @@
     {
       "name": "collapsible",
       "type": "registry:ui",
-      "description": "shadcn's collapsible (Radix) in Candor's theme.",
+      "description": "shadcn's collapsible (Base UI) in Candor's theme.",
       "dependencies": [
         "@base-ui/react@^1.9.0"
       ],
@@ -2957,7 +2957,7 @@
     {
       "name": "popover",
       "type": "registry:ui",
-      "description": "shadcn's popover (Radix) in Candor's theme.",
+      "description": "shadcn's popover (Base UI) in Candor's theme.",
       "dependencies": [
         "@base-ui/react@^1.9.0"
       ],
@@ -3302,7 +3302,7 @@
     {
       "name": "tooltip",
       "type": "registry:ui",
-      "description": "shadcn's tooltip (Radix) in Candor's theme.",
+      "description": "shadcn's tooltip (Base UI) in Candor's theme.",
       "dependencies": [
         "@base-ui/react@^1.9.0"
       ],

@@ -323,18 +323,18 @@ The shadcn/ui primitives Candor's components are built on.
 - **card** (Pro): shadcn's card in Candor's theme. Exports `Card`, `CardHeader`, `CardFooter`, `CardTitle`, `CardAction`, `CardDescription`, `CardContent`.
 - **carousel** (Pro): The slides, one at a time or a few, that a person moves through with buttons, arrow keys or by swiping. Exports `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselPrevious`, `CarouselNext`, `CarouselStatus`.
 - **checkbox** (free): A box the person ticks. Exports `Checkbox`.
-- **collapsible** (free): shadcn's collapsible (Radix) in Candor's theme. Exports `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`.
+- **collapsible** (free): shadcn's collapsible (Base UI) in Candor's theme. Exports `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`.
 - **combobox** (Pro): Choose one option, or several with `multiple`, from a list you can search by typing. Exports `Combobox`.
 - **command** (Pro): shadcn's command menu (cmdk) in Candor's theme. Exports `Command`, `CommandDialog`, `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandShortcut`, `CommandSeparator`.
-- **context-menu** (Pro): A menu that opens where a person right-clicks (or long-presses, or presses the Menu key) on an area, in Candor's theme (Radix). Exports `ContextMenu`, `ContextMenuCheckboxItem`, `ContextMenuContent`, `ContextMenuGroup`, `ContextMenuItem`, `ContextMenuLabel`, `ContextMenuPortal`, `ContextMenuRadioGroup`, `ContextMenuRadioItem`, `ContextMenuSeparator`, `ContextMenuShortcut`, `ContextMenuSub`, `ContextMenuSubContent`, `ContextMenuSubTrigger`, `ContextMenuTrigger`.
+- **context-menu** (Pro): A menu that opens where a person right-clicks (or long-presses, or presses the Menu key) on an area, in Candor's theme (Base UI). Exports `ContextMenu`, `ContextMenuCheckboxItem`, `ContextMenuContent`, `ContextMenuGroup`, `ContextMenuItem`, `ContextMenuLabel`, `ContextMenuPortal`, `ContextMenuRadioGroup`, `ContextMenuRadioItem`, `ContextMenuSeparator`, `ContextMenuShortcut`, `ContextMenuSub`, `ContextMenuSubContent`, `ContextMenuSubTrigger`, `ContextMenuTrigger`.
 - **date-picker** (Pro): A button that opens a calendar in a popover and shows the chosen day. Exports `DatePicker`.
 - **date-range-picker** (Pro): A button that opens a list of time windows ("Last 24 hours", "Last 7 days") and a Custom one picked on two calendars. Exports `DateRangePicker`, `useDefaultRangePresets`, `useDateRangeText`.
-- **dialog** (Pro): shadcn's dialog (Radix) in Candor's theme. Exports `Dialog`, `DialogClose`, `DialogContent`, `DialogDescription`, `DialogFooter`, `DialogHeader`, `DialogOverlay`, `DialogPortal`, `DialogTitle`, `DialogTrigger`.
+- **dialog** (Pro): shadcn's dialog (Base UI) in Candor's theme. Exports `Dialog`, `DialogClose`, `DialogContent`, `DialogDescription`, `DialogFooter`, `DialogHeader`, `DialogOverlay`, `DialogPortal`, `DialogTitle`, `DialogTrigger`.
 - **drawer** (Pro): A panel that slides in from an edge and can be dragged away, in Candor's theme (built on Base UI's Dialog). Exports `Drawer`, `DrawerClose`, `DrawerContent`, `DrawerDescription`, `DrawerFooter`, `DrawerHandle`, `DrawerHeader`, `DrawerOverlay`, `DrawerPortal`, `DrawerTitle`, `DrawerTrigger`.
-- **dropdown-menu** (Pro): shadcn's dropdown menu (Radix) in Candor's theme. Exports `DropdownMenu`, `DropdownMenuPortal`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuItem`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioGroup`, `DropdownMenuRadioItem`, `DropdownMenuSeparator`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`.
+- **dropdown-menu** (Pro): shadcn's dropdown menu (Base UI) in Candor's theme. Exports `DropdownMenu`, `DropdownMenuPortal`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuItem`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioGroup`, `DropdownMenuRadioItem`, `DropdownMenuSeparator`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`.
 - **field** (Pro): One form control with its label, hint and error, wired together: the label points at the control, the control is described by the hint and the error and is `aria-invalid` while there is one, and `required` marks the label and sets `aria-required` (not the native `required`, so the browser's own bubbles don't speak over yours). Exports `Field`.
 - **form-error-summary** (Pro): The form's problems listed at its top after a submit, each a link that moves focus to the control it concerns. Exports `FormErrorSummary`.
-- **hover-card** (Pro): shadcn's hover card (Radix) in Candor's theme. Exports `HoverCard`, `HoverCardTrigger`, `HoverCardContent`.
+- **hover-card** (Pro): shadcn's hover card (Base UI) in Candor's theme. Exports `HoverCard`, `HoverCardTrigger`, `HoverCardContent`.
 - **input** (Pro): shadcn's input in Candor's theme. Exports `Input`.
 - **kbd** (Pro): Keyboard keys, single or grouped, as shown in menus and shortcuts. Exports `Kbd`, `KbdGroup`.
 - **label** (free): The name of a control. Exports `Label`.
@@ -345,24 +345,24 @@ The shadcn/ui primitives Candor's components are built on.
 - **one-time-code** (Pro): A one-time code typed into a row of boxes, one character each: the code an email or authenticator app gives. Exports `OneTimeCode`.
 - **pagination** (Pro): Links between pages of a list, in Candor's theme: previous, next and numbered pages, with the current page marked `aria-current="page"` and a labelled navigation landmark. Exports `Pagination`, `PaginationContent`, `PaginationEllipsis`, `PaginationItem`, `PaginationLink`, `PaginationNext`, `PaginationPrevious`, `PaginationRange`, `pageWindow`.
 - **password-input** (Pro): A password field with a button that shows or hides what was typed. Exports `PasswordInput`.
-- **popover** (free): shadcn's popover (Radix) in Candor's theme. Exports `Popover`, `PopoverTrigger`, `PopoverContent`, `PopoverAnchor`, `PopoverHeader`, `PopoverTitle`, `PopoverDescription`.
+- **popover** (free): shadcn's popover (Base UI) in Candor's theme. Exports `Popover`, `PopoverTrigger`, `PopoverContent`, `PopoverAnchor`, `PopoverHeader`, `PopoverTitle`, `PopoverDescription`.
 - **progress** (free): A bar for work whose progress is measured: an upload, an import, an index. Exports `Progress`.
 - **radio-group** (Pro): A set of choices where one can be picked. Exports `RadioGroup`, `RadioGroupItem`.
-- **scroll-area** (Pro): shadcn's scroll area (Radix) in Candor's theme. Exports `ScrollArea`, `ScrollBar`.
-- **select** (Pro): shadcn's select (Radix) in Candor's theme. Exports `Select`, `SelectContent`, `SelectGroup`, `SelectItem`, `SelectLabel`, `SelectScrollDownButton`, `SelectScrollUpButton`, `SelectSeparator`, `SelectTrigger`, `SelectValue`.
-- **separator** (Pro): shadcn's separator (Radix) in Candor's theme. Exports `Separator`.
-- **sheet** (Pro): shadcn's sheet (Radix dialog from an edge) in Candor's theme. Exports `Sheet`, `SheetTrigger`, `SheetClose`, `SheetContent`, `SheetHeader`, `SheetFooter`, `SheetTitle`, `SheetDescription`.
+- **scroll-area** (Pro): shadcn's scroll area (Base UI) in Candor's theme. Exports `ScrollArea`, `ScrollBar`.
+- **select** (Pro): shadcn's select (Base UI) in Candor's theme. Exports `Select`, `SelectContent`, `SelectGroup`, `SelectItem`, `SelectLabel`, `SelectScrollDownButton`, `SelectScrollUpButton`, `SelectSeparator`, `SelectTrigger`, `SelectValue`.
+- **separator** (Pro): shadcn's separator (Base UI) in Candor's theme. Exports `Separator`.
+- **sheet** (Pro): shadcn's sheet (Base UI dialog from an edge) in Candor's theme. Exports `Sheet`, `SheetTrigger`, `SheetClose`, `SheetContent`, `SheetHeader`, `SheetFooter`, `SheetTitle`, `SheetDescription`.
 - **skeleton** (free): A loading placeholder in the shape of what's coming. Exports `Skeleton`.
 - **slider** (free): A control for a value in a range, with one thumb or, when the value has two numbers, a range. Exports `Slider`.
 - **stepper** (Pro): The steps of a process, with where the person is. Exports `Stepper`.
 - **switch** (free): A setting that is on or off. Exports `Switch`.
 - **table** (Pro): shadcn's table in Candor's theme: the plain table elements, for rows you lay out yourself. Exports `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableHead`, `TableRow`, `TableCell`, `TableCaption`, `TableEmpty`.
-- **tabs** (Pro): shadcn's tabs (Radix) in Candor's theme. Exports `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `tabsListVariants`.
+- **tabs** (Pro): shadcn's tabs (Base UI) in Candor's theme. Exports `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `tabsListVariants`.
 - **textarea** (Pro): shadcn's textarea in Candor's theme. Exports `Textarea`.
 - **time-input** (Pro): A field for a time of day, "14:30". Exports `TimeInput`.
 - **toggle-group** (Pro): A row of toggles in Candor's theme: one choice from a few (`type="single"`) or several at once (`type="multiple"`). Exports `ToggleGroup`, `ToggleGroupItem`.
 - **toggle** (Pro): A two-state button in Candor's theme, for one setting that is on or off (bold, wrap lines, show hidden files). Exports `Toggle`, `toggleVariants`.
-- **tooltip** (free): shadcn's tooltip (Radix) in Candor's theme. Exports `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider`.
+- **tooltip** (free): shadcn's tooltip (Base UI) in Candor's theme. Exports `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider`.
 
 ## Shared types and helpers
 

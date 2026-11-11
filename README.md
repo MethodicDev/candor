@@ -15,7 +15,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 73 free items (version 4.0.0), the skill and plugins for coding
+This repo is the source of Candor UI's 73 free items (version 4.0.1), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -63,7 +63,7 @@ npx candor-ui add thread message composer
 ```
 
 `candor-ui init` adds the `@candor` registry to `components.json` and the theme to your CSS; in a project without
-shadcn yet it runs shadcn's setup first (`--yes` sets it up with Radix and shadcn's nova preset, no questions). Or add the registry by
+shadcn yet it runs shadcn's setup first (`--yes` sets it up with Base UI and shadcn's nova preset, no questions). Or add the registry by
 hand: `"@candor": "https://candor.themethodic.com/r/{name}.json"`. If shadcn asks to overwrite a primitive such as
 `ui/button.tsx`, answer yes: Candor's button styles locked actions; without a terminal, pass `--overwrite`.
 
