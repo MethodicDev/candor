@@ -98,12 +98,21 @@ function Citation({
   }
   return (
     <Popover>
-      <PopoverTrigger render={<button type="button" data-slot="citation" aria-label={t("sourceLabel", { marker: source.marker, label: source.label })} className={cn(
-                      "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums cd-tint outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80",
-                      source.provisional
-                        ? "border border-dashed border-provisional/60 text-provisional hover:bg-muted"
-                        : "bg-accent-weak text-accent-text hover:bg-primary hover:text-primary-foreground"
-                    )} />}>{source.marker}</PopoverTrigger>
+      <PopoverTrigger render={
+        <button
+          type="button"
+          data-slot="citation"
+          aria-label={t("sourceLabel", { marker: source.marker, label: source.label })}
+          className={cn(
+            "mx-0.5 inline-flex h-4 min-w-4 -translate-y-px items-center justify-center rounded-sm px-1 align-middle text-2xs font-semibold tabular-nums cd-tint outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80",
+            source.provisional
+              ? "border border-dashed border-provisional/60 text-provisional hover:bg-muted"
+              : "bg-accent-weak text-accent-text hover:bg-primary hover:text-primary-foreground"
+          )}
+        >
+          {source.marker}
+        </button>
+      } />
       <PopoverContent align="start" aria-label={t("sourceLabel", { marker: source.marker, label: source.label })} className="w-80 max-w-[calc(100vw-2rem)] p-3">
         <SourceDetail source={source} />
       </PopoverContent>
@@ -131,12 +140,21 @@ function SourceList({
           const { Icon } = kindOf(s.kind, t)
           return (
             <Popover key={s.id}>
-              <PopoverTrigger render={<button type="button" className={cn(
-                                      "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-full items-start gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-start text-xs text-muted-foreground sm:max-w-72 cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80",
-                                      s.provisional && "border-dashed"
-                                    )} />}><span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span><Icon aria-hidden className="mt-0.5 size-3 shrink-0" />{" "}<span data-slot="source-label" className="min-w-0 [overflow-wrap:anywhere]">
-                                      {s.label}
-                                    </span></PopoverTrigger>
+              <PopoverTrigger render={
+                <button
+                  type="button"
+                  className={cn(
+                    "relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex max-w-full items-start gap-1.5 rounded-md border bg-card py-0.5 pe-2 ps-1 text-start text-xs text-muted-foreground sm:max-w-72 cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80",
+                    s.provisional && "border-dashed"
+                  )}
+                >
+                  <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span>
+                  <Icon aria-hidden className="mt-0.5 size-3 shrink-0" />{" "}
+                  <span data-slot="source-label" className="min-w-0 [overflow-wrap:anywhere]">
+                    {s.label}
+                  </span>
+                </button>
+              } />
               <PopoverContent align="start" aria-label={t("sourceLabel", { marker: s.marker, label: s.label })} className="w-80 max-w-[calc(100vw-2rem)] p-3">
                 <SourceDetail source={s} />
               </PopoverContent>

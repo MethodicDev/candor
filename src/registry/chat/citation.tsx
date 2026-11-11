@@ -98,7 +98,7 @@ function Citation({
   }
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger render={
         <button
           type="button"
           data-slot="citation"
@@ -112,7 +112,7 @@ function Citation({
         >
           {source.marker}
         </button>
-      </PopoverTrigger>
+      } />
       <PopoverContent align="start" aria-label={t("sourceLabel", { marker: source.marker, label: source.label })} className="w-80 max-w-[calc(100vw-2rem)] p-3">
         <SourceDetail source={source} />
       </PopoverContent>
@@ -140,7 +140,7 @@ function SourceList({
           const { Icon } = kindOf(s.kind, t)
           return (
             <Popover key={s.id}>
-              <PopoverTrigger asChild>
+              <PopoverTrigger render={
                 <button
                   type="button"
                   className={cn(
@@ -154,7 +154,7 @@ function SourceList({
                     {s.label}
                   </span>
                 </button>
-              </PopoverTrigger>
+              } />
               <PopoverContent align="start" aria-label={t("sourceLabel", { marker: s.marker, label: s.label })} className="w-80 max-w-[calc(100vw-2rem)] p-3">
                 <SourceDetail source={s} />
               </PopoverContent>

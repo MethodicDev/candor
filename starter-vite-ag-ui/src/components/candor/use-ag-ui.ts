@@ -202,7 +202,7 @@ export function useAgUi(options: UseAgUiOptions) {
     },
     composer: {
       value,
-      onChange: setValue,
+      onValueChange: setValue,
       state: composerState,
       references,
       onReferencesChange: setReferences,

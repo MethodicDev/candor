@@ -188,7 +188,7 @@ function PermissionPrompt({
   /** The answer is being sent: both buttons wait, and the waiting pulse stops. */
   busy?: boolean | undefined
   /** The level of the prompt's heading, to fit under the page's own headings without skipping a level. Defaults to 3. */
-  headingLevel?: 2 | 3 | 4 | 5 | 6 | undefined
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
   className?: string | undefined
 }) {
   // Keyed by the request, so an edit, a ticked rule or an answer never carries over to the next request.
@@ -213,7 +213,7 @@ function PromptBody({
   onAllow: (answer: PermissionAnswer) => void
   onDeny: () => void
   busy: boolean
-  headingLevel: 2 | 3 | 4 | 5 | 6
+  headingLevel: 1 | 2 | 3 | 4 | 5 | 6
   className?: string | undefined
 }) {
   const t = useStrings("permissionPrompt", permissionPromptStrings)
@@ -314,7 +314,7 @@ function PromptBody({
       }}
       aria-label={t("label", { title: questions ? t("questions") : title })}
       style={nudgeMotion}
-      className={cn("overflow-hidden rounded-xl border border-warning/50 bg-card text-sm shadow-xs [--cd-attention-color:var(--warning)]", nudged && "cd-nudge", className)}
+      className={cn("overflow-hidden rounded-xl border border-warning/50 bg-card text-sm shadow-xs [--cd-attention-color:var(--cd-warning)]", nudged && "cd-nudge", className)}
     >
       <header className="flex items-start gap-2.5 bg-warning-weak/50 px-3.5 py-2.5">
         <span aria-hidden style={waitingMotion} className={cn("mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full text-warning-text", !busy && "cd-attention")}>

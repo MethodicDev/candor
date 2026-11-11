@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Progress as ProgressPrimitive } from "radix-ui"
-import { type RenderProp } from "@/registry/foundation/render-prop"
+import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
+import { useLocale } from "@/registry/foundation/locale"
 import { cn } from "@/lib/utils"
 import { motion } from "@/registry/foundation/motion"
 
@@ -19,20 +19,22 @@ const indeterminateMotion = motion("progress", "indeterminate", "live")
  * with it; it runs only while that state lasts, and stops the moment a value arrives.
  */
 function Progress(allProps: ProgressProps) {
-  const { className, value, max = 100, label, render, nativeButton: _nativeButton, children, ...props } = allProps
+  const { className, value, max = 100, label, children, ...props } = allProps
+  const { locale } = useLocale()
   const known = typeof value === "number" && Number.isFinite(value) && max > 0
   const percent = known ? Math.min(100, Math.max(0, (value / max) * 100)) : 0
+  // Plain elements rather than Base UI's Indicator, which sets its own width: the fill moves on --cd-progress.
   const indicator =
     children ??
     (known ? (
-      <ProgressPrimitive.Indicator
+      <div
         key="value"
         data-slot="progress-indicator"
         className="h-full w-[calc(100%+var(--cd-progress))] rounded-full bg-primary cd-fill"
         style={{ ...valueMotion, "--cd-progress": `-${100 - percent}%` } as React.CSSProperties}
       />
     ) : (
-      <ProgressPrimitive.Indicator
+      <div
         key="unknown"
         data-slot="progress-indicator"
         style={indeterminateMotion}
@@ -45,12 +47,12 @@ function Progress(allProps: ProgressProps) {
         data-slot="progress"
         value={known ? value : null}
         max={max}
+        locale={locale}
         aria-label={label}
         className={cn("relative h-2 w-full overflow-hidden rounded-full bg-muted", className)}
         {...props}
-        {...(render ? { asChild: true } : null)}
       >
-        {render ? React.cloneElement(render, undefined, indicator) : indicator}
+        {indicator}
       </ProgressPrimitive.Root>
       {!known && label ? (
         <span data-slot="progress-label" aria-hidden style={indeterminateMotion} className="shimmer-text mt-1.5 block text-xs">
@@ -61,8 +63,9 @@ function Progress(allProps: ProgressProps) {
   )
 }
 
-type ProgressProps = Omit<React.ComponentProps<typeof ProgressPrimitive.Root>, "value" | "max"> &
-  RenderProp & {
+type ProgressProps = Omit<ProgressPrimitive.Root.Props, "value" | "max" | "className"> & {
+    /** Classes for the bar's track. */
+    className?: string | undefined
     /**
      * How far along the work is, from `0` to `max`, as the service reported it. Leave it out (or pass `null`) when the
      * total isn't known: the bar then shows no fraction, only that work is going on, with the `label`. A bar is a claim

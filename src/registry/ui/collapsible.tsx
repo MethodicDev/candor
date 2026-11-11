@@ -1,8 +1,8 @@
 "use client"
 
-import { Collapsible as CollapsiblePrimitive } from "radix-ui"
+import * as React from "react"
+import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible"
 import { cn } from "@/lib/utils"
-import { withRender, type RenderProp } from "@/registry/foundation/render-prop"
 import { motion } from "@/registry/foundation/motion"
 
 /**
@@ -12,37 +12,40 @@ import { motion } from "@/registry/foundation/motion"
  */
 const openMotion = motion("collapsible", "open", "reveal")
 
-function Collapsible({
-  ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.Root>) {
-  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />
+function Collapsible({ className, ...props }: Omit<CollapsiblePrimitive.Root.Props, "className"> & { className?: string | undefined }) {
+  return <CollapsiblePrimitive.Root data-slot="collapsible" className={className} {...props} />
 }
 
-function CollapsibleTrigger(allProps: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger> & RenderProp) {
-  const props = withRender(allProps)
-  return (
-    <CollapsiblePrimitive.CollapsibleTrigger
-      data-slot="collapsible-trigger"
-      {...props}
-    />
-  )
+function CollapsibleTrigger({ className, ...props }: Omit<CollapsiblePrimitive.Trigger.Props, "className"> & { className?: string | undefined }) {
+  return <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" className={className} {...props} />
 }
 
 /**
- * The content opens and closes to the height Radix measured (--radix-collapsible-content-height), so a change of
- * state is seen settling rather than snapping (the reveal family); data-motion="none" and the calm level make it snap.
- * An item can pass its own moment's chain as `style` (`motion("tool-call", "open", "reveal")`).
+ * The content opens and closes to the height Base UI measured (--collapsible-panel-height), so a change of state is
+ * seen settling rather than snapping (the reveal family); data-motion="none" and the calm level make it snap. An item
+ * can pass its own moment's chain as `style` (`motion("tool-call", "open", "reveal")`). `forceMount` keeps the content
+ * in the page while it is closed (hidden), as Base UI's `keepMounted` does.
  */
 function CollapsibleContent({
   className,
   style,
+  forceMount,
+  keepMounted,
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
+}: Omit<CollapsiblePrimitive.Panel.Props, "className" | "style"> & {
+  /** Classes, merged with Candor's. */
+  className?: string | undefined
+  /** Inline styles, merged over the part's motion chain. */
+  style?: React.CSSProperties | undefined
+  /** Keeps the content in the page, hidden, while it is closed. The same as Base UI's `keepMounted`. */
+  forceMount?: boolean | undefined
+}) {
   return (
-    <CollapsiblePrimitive.CollapsibleContent
+    <CollapsiblePrimitive.Panel
       data-slot="collapsible-content"
+      keepMounted={keepMounted ?? forceMount}
       style={{ ...openMotion, ...style }}
-      className={cn("data-[state=open]:cd-reveal data-[state=closed]:cd-reveal-out", className)}
+      className={cn("overflow-hidden data-open:cd-reveal data-closed:cd-reveal-out", className)}
       {...props}
     />
   )

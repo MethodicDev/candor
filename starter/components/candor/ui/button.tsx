@@ -2,8 +2,7 @@
 
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Slot } from "radix-ui"
-import { withRender, type RenderProp } from "@/lib/candor/render-prop"
+import { useRender } from "@base-ui/react/use-render"
 import { cn } from "@/lib/utils"
 import { motion } from "@/lib/candor/motion"
 
@@ -46,26 +45,46 @@ const buttonVariants = cva(
   }
 )
 
-function Button(
-  allProps: React.ComponentProps<"button"> &
-    VariantProps<typeof buttonVariants> & {
-      /** Render the child element (a link, say) with the button's styles instead of a <button>. */
-      asChild?: boolean | undefined
-    } & RenderProp
-) {
-  const { className, style, variant = "default", size = "default", asChild = false, ...props } = withRender(allProps)
-  const Comp = asChild ? Slot.Root : "button"
-
-  return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      style={{ ...pressMotion, ...style }}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+/**
+ * A button in Candor's theme. It is a native `<button>` (in a form it submits unless given `type="button"`), or the
+ * element `render` names, drawn with the button's styles and props.
+ */
+function Button({
+  className,
+  style,
+  variant = "default",
+  size = "default",
+  render,
+  nativeButton: _nativeButton,
+  ref,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    /**
+     * Draws this element (a link, say) with the button's styles and props instead of a <button>:
+     * `render={<a href="/docs" />}`. The element keeps its own children unless the button is given some. Base UI's
+     * function form, `render={(props) => <a {...props} />}`, works too.
+     */
+    render?: useRender.RenderProp | undefined
+    /**
+     * Base UI's flag for a button drawn as another element (shadcn's Base UI rewrite adds `nativeButton={false}` beside
+     * `render={<a … />}`). Candor's Button draws the element `render` gives as it is, so the flag changes nothing.
+     */
+    nativeButton?: boolean | undefined
+  }) {
+  return useRender({
+    defaultTagName: "button",
+    render,
+    ref,
+    props: {
+      "data-slot": "button",
+      "data-variant": variant,
+      "data-size": size,
+      ...props,
+      style: { ...pressMotion, ...style },
+      className: cn(buttonVariants({ variant, size, className })),
+    },
+  })
 }
 
 export { Button, buttonVariants }

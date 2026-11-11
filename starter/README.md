@@ -19,7 +19,7 @@ before it adds to it.
 
 Without `ANTHROPIC_API_KEY` the pages say so instead of showing the chat. The key is only read on the server.
 
-> Generated from Candor UI 3.0.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+> Generated from Candor UI 4.0.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
 
 ## Get started
 
@@ -51,7 +51,7 @@ app/_components/               the starter's own UI (chat view, header, missing-
 app/_lib/tasks.ts              the demo's to-do list, in server memory: replace with your data
 app/_lib/cross-site.ts         refuses a POST another site's page sent; every route that changes something asks it first
 components/candor/             Candor components, installed from the registry (ui/ holds its primitives)
-components/ui/                 the starter's own primitives (shadcn's, and the copies 2.x Candor installed there)
+components/ui/                 the starter's own primitives (shadcn's)
 lib/candor/                    Candor's shared types and helpers
 styles/candor.css              Candor's theme (light, dark and high contrast)
 ```

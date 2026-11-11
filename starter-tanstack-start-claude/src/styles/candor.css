@@ -53,7 +53,7 @@
 :root {
   --radius: var(--cd-radius-lg);
 
-  --sidebar: var(--chrome);
+  --sidebar: var(--cd-chrome);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);

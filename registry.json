@@ -47,6 +47,20 @@
             "find": [
               "\\banimate-(?:shimmer|pulse-dot|rise-in|caret|collapse-down|collapse-up|pop-in|pop-out|tick-draw|fill|shake|attention-wait|attention|nudge)(?![\\w-])"
             ]
+          },
+          {
+            "id": "tokens-cd-prefix",
+            "in": "4.0.0",
+            "change": "Candor's own tokens take the `--cd-` prefix, as its motion and sound tokens have: 23 colour roles, from `--sunken` to `--cd-sunken`, `--warning` to `--cd-warning`, `--faint-foreground` to `--cd-faint-foreground`, `--border-strong`, `--primary-hover`, the `-weak` and `-text` pairs, `--on-success`, `--on-destructive`, `--surface-agent`, `--surface-user` and `--text-provisional`. The six chart series join shadcn's: `--series-1` to `--series-5` are `--chart-1` to `--chart-5`, which Candor's charts now read, and `--series-6` is `--cd-chart-6`. shadcn's own tokens (`--background`, `--primary`, `--chart-1` …) keep shadcn's names, and Tailwind classes (`bg-sunken`, `text-warning-text`) don't change.",
+            "breaks": "Nothing fails to compile. A brand file or stylesheet that sets an old name no longer reaches Candor, which shows its own value, and a `var()` of an old name reads nothing. A chart colour set as `--series-N` no longer reaches Candor's charts; one set as `--chart-N` now does, so an app's shadcn chart colours restyle Candor's charts too.",
+            "at": [
+              "styling"
+            ],
+            "migration": "Rename the tokens where you set them and where you read them with `var()`. `npx candor-ui migrate tokens` does it in your stylesheets and in the strings of your source (arbitrary classes such as `bg-[var(--sunken)]`, styles); Candor's own stylesheets come with the update. A file that sets both `--series-N` and `--chart-N` is listed for you to choose the colour. `npx candor-ui theme check` reports an old name as an error. `migrate tokens` can't tell a variable your app defines for itself from Candor's, so it renames those too: if your app had its own `--warning` (or another of these names), rename yours back after migrating. `npx candor-ui theme check`, run before migrating, lists each place your CSS sets or reads one of these names, with its file and line, and `migrate tokens --dry-run` lists every rename it would make.",
+            "codemod": "tokens",
+            "find": [
+              "(?<![\\w-])--(?:sunken|chrome|faint-foreground|border-strong|primary-hover|accent-(?:weak|text)|destructive-(?:weak|text)|on-(?:destructive|success)|warning(?:-weak|-text)?|success(?:-weak|-text)?|attention(?:-weak|-text)?|surface-(?:agent|user)|text-provisional|series-[1-6])(?![\\w-])"
+            ]
           }
         ]
       }
@@ -54,7 +68,7 @@
     {
       "name": "theme",
       "type": "registry:style",
-      "description": "Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind.",
+      "description": "Candor's default theme: light, dark and high contrast, contrast-checked. Import styles/candor.css after Tailwind. Roles shadcn names keep shadcn's names (--primary, --background, and --chart-1 to --chart-5, which Candor's charts read); Candor's own take the --cd- prefix (--cd-sunken, --cd-warning, --cd-chart-6).",
       "dependencies": [],
       "registryDependencies": [
         "@candor/tokens"
@@ -101,6 +115,20 @@
             "codemod": "motion-aliases",
             "find": [
               "\\banimate-(?:shimmer|pulse-dot|rise-in|caret|collapse-down|collapse-up|pop-in|pop-out|tick-draw|fill|shake|attention-wait|attention|nudge)(?![\\w-])"
+            ]
+          },
+          {
+            "id": "tokens-cd-prefix",
+            "in": "4.0.0",
+            "change": "Candor's own tokens take the `--cd-` prefix, as its motion and sound tokens have: 23 colour roles, from `--sunken` to `--cd-sunken`, `--warning` to `--cd-warning`, `--faint-foreground` to `--cd-faint-foreground`, `--border-strong`, `--primary-hover`, the `-weak` and `-text` pairs, `--on-success`, `--on-destructive`, `--surface-agent`, `--surface-user` and `--text-provisional`. The six chart series join shadcn's: `--series-1` to `--series-5` are `--chart-1` to `--chart-5`, which Candor's charts now read, and `--series-6` is `--cd-chart-6`. shadcn's own tokens (`--background`, `--primary`, `--chart-1` …) keep shadcn's names, and Tailwind classes (`bg-sunken`, `text-warning-text`) don't change.",
+            "breaks": "Nothing fails to compile. A brand file or stylesheet that sets an old name no longer reaches Candor, which shows its own value, and a `var()` of an old name reads nothing. A chart colour set as `--series-N` no longer reaches Candor's charts; one set as `--chart-N` now does, so an app's shadcn chart colours restyle Candor's charts too.",
+            "at": [
+              "styling"
+            ],
+            "migration": "Rename the tokens where you set them and where you read them with `var()`. `npx candor-ui migrate tokens` does it in your stylesheets and in the strings of your source (arbitrary classes such as `bg-[var(--sunken)]`, styles); Candor's own stylesheets come with the update. A file that sets both `--series-N` and `--chart-N` is listed for you to choose the colour. `npx candor-ui theme check` reports an old name as an error. `migrate tokens` can't tell a variable your app defines for itself from Candor's, so it renames those too: if your app had its own `--warning` (or another of these names), rename yours back after migrating. `npx candor-ui theme check`, run before migrating, lists each place your CSS sets or reads one of these names, with its file and line, and `migrate tokens --dry-run` lists every rename it would make.",
+            "codemod": "tokens",
+            "find": [
+              "(?<![\\w-])--(?:sunken|chrome|faint-foreground|border-strong|primary-hover|accent-(?:weak|text)|destructive-(?:weak|text)|on-(?:destructive|success)|warning(?:-weak|-text)?|success(?:-weak|-text)?|attention(?:-weak|-text)?|surface-(?:agent|user)|text-provisional|series-[1-6])(?![\\w-])"
             ]
           }
         ]
@@ -432,6 +460,22 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "props-on-value-change",
+            "in": "4.0.0",
+            "change": "A callback that hands back the component's value is `onValueChange`, as Combobox's and Select's already are: the `onChange` of Composer, DictationButton, PermissionMode, MemoryMode, InstructionsEditor, ModelSettings, ModelPicker, MessageBranches, ColumnMapper, RunScrubber, SoundSetting, CodeEditor and ReviewLadder is `onValueChange`. So are useDictation's `onChange` option and the `onChange` in the `composer` props that useCandorChat, useAgUi and useClaudeAgent return.",
+            "breaks": "`onChange` on these fails the type check; in code that isn't type-checked the callback is never called. Code that reads `composer.onChange` from an adapter's hook fails the type check; `<Composer {...composer} />` keeps working.",
+            "at": [
+              "type-check",
+              "behaviour"
+            ],
+            "migration": "Rename the prop to `onValueChange`; it gets the same value. `npx candor-ui migrate props` does it on Candor's components only: an `onChange` on an element of your own, such as an `<input>`, is a DOM event and stays. By hand: `composer.onChange` from an adapter's hook is `composer.onValueChange`, and useDictation's `onChange` option is `onValueChange`. NotificationPreferences' and ToolPermissions' `onChange`, which report one row's change, are unchanged.",
+            "codemod": "props",
+            "find": [
+              "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
+              "\\bcomposer\\.onChange\\b"
+            ]
           }
         ]
       }
@@ -473,6 +517,22 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "props-on-value-change",
+            "in": "4.0.0",
+            "change": "A callback that hands back the component's value is `onValueChange`, as Combobox's and Select's already are: the `onChange` of Composer, DictationButton, PermissionMode, MemoryMode, InstructionsEditor, ModelSettings, ModelPicker, MessageBranches, ColumnMapper, RunScrubber, SoundSetting, CodeEditor and ReviewLadder is `onValueChange`. So are useDictation's `onChange` option and the `onChange` in the `composer` props that useCandorChat, useAgUi and useClaudeAgent return.",
+            "breaks": "`onChange` on these fails the type check; in code that isn't type-checked the callback is never called. Code that reads `composer.onChange` from an adapter's hook fails the type check; `<Composer {...composer} />` keeps working.",
+            "at": [
+              "type-check",
+              "behaviour"
+            ],
+            "migration": "Rename the prop to `onValueChange`; it gets the same value. `npx candor-ui migrate props` does it on Candor's components only: an `onChange` on an element of your own, such as an `<input>`, is a DOM event and stays. By hand: `composer.onChange` from an adapter's hook is `composer.onValueChange`, and useDictation's `onChange` option is `onValueChange`. NotificationPreferences' and ToolPermissions' `onChange`, which report one row's change, are unchanged.",
+            "codemod": "props",
+            "find": [
+              "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
+              "\\bcomposer\\.onChange\\b"
+            ]
           }
         ]
       }
@@ -510,369 +570,22 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "copy-field",
-      "type": "registry:component",
-      "description": "A value a person copies somewhere else (a callback URL, a scope list).",
-      "dependencies": [
-        "lucide-react@^1.67.0"
-      ],
-      "registryDependencies": [
-        "@candor/locale",
-        "@candor/motion",
-        "@candor/tokens",
-        "@candor/use-copy",
-        "utils"
-      ],
-      "files": [
-        {
-          "path": "src/registry/parts/copy-field.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/copy-field.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "degraded-panel",
-      "type": "registry:component",
-      "description": "A degraded result: what went wrong, what is missing because of it, and a retry only when the caller can actually retry.",
-      "dependencies": [
-        "lucide-react@^1.67.0"
-      ],
-      "registryDependencies": [
-        "@candor/button",
-        "@candor/locale",
-        "@candor/motion",
-        "@candor/tokens",
-        "utils"
-      ],
-      "files": [
-        {
-          "path": "src/registry/parts/degraded-panel.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/degraded-panel.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "locale",
-      "type": "registry:component",
-      "description": "The interface's words, language and direction.",
-      "dependencies": [
-        "radix-ui@^1.8.1"
-      ],
-      "registryDependencies": [
-        "@candor/fill-strings",
-        "@candor/tokens"
-      ],
-      "files": [
-        {
-          "path": "src/registry/foundation/locale.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/locale.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
           },
           {
-            "id": "terms",
-            "in": "3.0.0",
-            "change": "`TermsProvider`, `useTerms` and `capitalise` are folded into LocaleProvider: the app's nouns become arguments of its messages, with plural and select forms, set where the interface's words are set.",
-            "breaks": "Code that imports `TermsProvider`, `useTerms`, `capitalise` or `Terms` from `terms`, or passes `terms` to `CandorProvider` or uses a `…Terms` preset, fails the type check. The `terms` item is gone from the registry.",
+            "id": "props-on-value-change",
+            "in": "4.0.0",
+            "change": "A callback that hands back the component's value is `onValueChange`, as Combobox's and Select's already are: the `onChange` of Composer, DictationButton, PermissionMode, MemoryMode, InstructionsEditor, ModelSettings, ModelPicker, MessageBranches, ColumnMapper, RunScrubber, SoundSetting, CodeEditor and ReviewLadder is `onValueChange`. So are useDictation's `onChange` option and the `onChange` in the `composer` props that useCandorChat, useAgUi and useClaudeAgent return.",
+            "breaks": "`onChange` on these fails the type check; in code that isn't type-checked the callback is never called. Code that reads `composer.onChange` from an adapter's hook fails the type check; `<Composer {...composer} />` keeps working.",
             "at": [
-              "type-check"
+              "type-check",
+              "behaviour"
             ],
-            "migration": "Run `npx candor-ui migrate terms`. It rewrites `<TermsProvider terms={…}>` to `<LocaleProvider nouns={…}>`, `useTerms()` to `useNouns()`, `capitalise(` to `startOf(`, `Terms` to `NounTable`/`Nouns`, `CandorConfig`'s `terms` to `nouns` and `githubTerms` to `githubNouns`, importing from `@/components/candor/locale`, and lists what it can't follow. Then delete the installed `terms` file (the codemod names its path). Your 2.x words work as they are; add plural forms where a message counts them.",
-            "codemod": "terms",
+            "migration": "Rename the prop to `onValueChange`; it gets the same value. `npx candor-ui migrate props` does it on Candor's components only: an `onChange` on an element of your own, such as an `<input>`, is a DOM event and stays. By hand: `composer.onChange` from an adapter's hook is `composer.onValueChange`, and useDictation's `onChange` option is `onValueChange`. NotificationPreferences' and ToolPermissions' `onChange`, which report one row's change, are unchanged.",
+            "codemod": "props",
             "find": [
-              "\\b(?:TermsProvider|useTerms|capitalise)\\b"
+              "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
+              "\\bcomposer\\.onChange\\b"
             ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "locked",
-      "type": "registry:component",
-      "description": "The honest-state rule: a control that cannot be used says why.",
-      "dependencies": [
-        "lucide-react@^1.67.0"
-      ],
-      "registryDependencies": [
-        "@candor/motion",
-        "@candor/tokens",
-        "@candor/tooltip",
-        "utils"
-      ],
-      "files": [
-        {
-          "path": "src/registry/ui/locked.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/locked.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "relative-time",
-      "type": "registry:component",
-      "description": "A time as people say it (\"5 minutes ago\"), with the exact time on hover, safe to render on the server.",
-      "registryDependencies": [
-        "@candor/locale",
-        "@candor/tokens"
-      ],
-      "files": [
-        {
-          "path": "src/registry/parts/relative-time.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/relative-time.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "status-dot",
-      "type": "registry:component",
-      "description": "A small status mark.",
-      "registryDependencies": [
-        "@candor/motion",
-        "@candor/relative-time",
-        "@candor/status",
-        "@candor/tokens",
-        "utils"
-      ],
-      "files": [
-        {
-          "path": "src/registry/parts/status-dot.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/status-dot.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "step-list",
-      "type": "registry:component",
-      "description": "A run's steps with their status, each mark drawn still on mount and animated only when the status changes on screen.",
-      "dependencies": [
-        "lucide-react@^1.67.0"
-      ],
-      "registryDependencies": [
-        "@candor/motion",
-        "@candor/status",
-        "@candor/tokens",
-        "utils"
-      ],
-      "files": [
-        {
-          "path": "src/registry/parts/step-list.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/step-list.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "streaming-text",
-      "type": "registry:component",
-      "description": "Text that is still arriving.",
-      "registryDependencies": [
-        "@candor/format-elapsed",
-        "@candor/locale",
-        "@candor/motion",
-        "@candor/tokens",
-        "utils"
-      ],
-      "files": [
-        {
-          "path": "src/registry/parts/streaming-text.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/streaming-text.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "surface",
-      "type": "registry:component",
-      "description": "Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.",
-      "dependencies": [
-        "class-variance-authority@^0.7.1"
-      ],
-      "registryDependencies": [
-        "@candor/tokens",
-        "utils"
-      ],
-      "files": [
-        {
-          "path": "src/registry/parts/surface.tsx",
-          "type": "registry:component",
-          "target": "@components/candor/surface.tsx"
-        }
-      ],
-      "categories": [
-        "blocks"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
           }
         ]
       }
@@ -1136,6 +849,22 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "props-on-value-change",
+            "in": "4.0.0",
+            "change": "A callback that hands back the component's value is `onValueChange`, as Combobox's and Select's already are: the `onChange` of Composer, DictationButton, PermissionMode, MemoryMode, InstructionsEditor, ModelSettings, ModelPicker, MessageBranches, ColumnMapper, RunScrubber, SoundSetting, CodeEditor and ReviewLadder is `onValueChange`. So are useDictation's `onChange` option and the `onChange` in the `composer` props that useCandorChat, useAgUi and useClaudeAgent return.",
+            "breaks": "`onChange` on these fails the type check; in code that isn't type-checked the callback is never called. Code that reads `composer.onChange` from an adapter's hook fails the type check; `<Composer {...composer} />` keeps working.",
+            "at": [
+              "type-check",
+              "behaviour"
+            ],
+            "migration": "Rename the prop to `onValueChange`; it gets the same value. `npx candor-ui migrate props` does it on Candor's components only: an `onChange` on an element of your own, such as an `<input>`, is a DOM event and stays. By hand: `composer.onChange` from an adapter's hook is `composer.onValueChange`, and useDictation's `onChange` option is `onValueChange`. NotificationPreferences' and ToolPermissions' `onChange`, which report one row's change, are unchanged.",
+            "codemod": "props",
+            "find": [
+              "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
+              "\\bcomposer\\.onChange\\b"
+            ]
           }
         ]
       }
@@ -1507,6 +1236,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "props-heading-level",
+            "in": "4.0.0",
+            "change": "Every prop that sets a heading's level is `headingLevel`, and every one takes the same levels, 1 to 6 (`1 | 2 | 3 | 4 | 5 | 6`). EmailPreview took 2 to 4, CommentThread and Finding 2 to 5, ArtifactPanel and ExtractionReview 1 to 4, the rest 2 to 6.",
+            "breaks": "A level you pass today still type-checks: the union only widens. Code of yours that reads the prop's type (`ComponentProps<typeof EmailPreview>[\"headingLevel\"]`) and passes it to something narrower fails the type check.",
+            "at": [
+              "type-check"
+            ],
+            "migration": "Nothing for a level you pass. Widen your own type where the type check asks, or narrow the value before you pass it on. No codemod: there is nothing to rename.",
+            "codemod": null
           }
         ]
       }
@@ -1549,6 +1289,46 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "props-busy",
+            "in": "4.0.0",
+            "change": "A component that is waiting says so with `busy`: Combobox's, DataTable's, PromptSuggestions' and ImportReview's `loading`, PermissionMode's and MemoryMode's `pending`, ClarifyingQuestions' `submitting`, WorkflowEditor's `saving`, CommandPalette's `searching`, AssigneePicker's `assigning`, ChangeSetReview's `applying`, ShipReview's `shipping`, DataImport's `reading`, DegradedPanel's `retrying` and ChartFrame's `refreshing` are `busy`.",
+            "breaks": "The old name on these fails the type check; in code that isn't type-checked the component stops showing that it's waiting.",
+            "at": [
+              "type-check",
+              "behaviour"
+            ],
+            "migration": "Rename the prop to `busy`; it takes the same boolean. `npx candor-ui migrate props` does it on Candor's components only. DataTable's `state={{ kind: \"loading\" }}` is unchanged.",
+            "codemod": "props",
+            "find": [
+              "<(?:Combobox|DataTable|PromptSuggestions|ImportReview)\\b[^>]*\\bloading=",
+              "<(?:PermissionMode|MemoryMode)\\b[^>]*\\bpending=",
+              "<ClarifyingQuestions\\b[^>]*\\bsubmitting=",
+              "<WorkflowEditor\\b[^>]*\\bsaving=",
+              "<CommandPalette\\b[^>]*\\bsearching=",
+              "<AssigneePicker\\b[^>]*\\bassigning(?:=|[\\s/>])",
+              "<ChangeSetReview\\b[^>]*\\bapplying(?:=|[\\s/>])",
+              "<ShipReview\\b[^>]*\\bshipping(?:=|[\\s/>])",
+              "<DataImport\\b[^>]*\\breading(?:=|[\\s/>])",
+              "<DegradedPanel\\b[^>]*\\bretrying(?:=|[\\s/>])",
+              "<ChartFrame\\b[^>]*\\brefreshing(?:=|[\\s/>])"
+            ]
+          },
+          {
+            "id": "props-title",
+            "in": "4.0.0",
+            "change": "A component's visible heading is `title`, as in DataTable, PageHeader and the charts; `label` is an accessible name or a control's own text. PromptSuggestions' `label`, the heading above the suggestions, is `title`.",
+            "breaks": "`label` on PromptSuggestions fails the type check; in code that isn't type-checked the heading reads \"Try asking\".",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Rename the prop to `title`; it takes the same text. `npx candor-ui migrate props` does it on Candor's components only. The words given under `strings.promptSuggestions.label` are unchanged.",
+            "codemod": "props",
+            "find": [
+              "<PromptSuggestions\\b[^>]*\\blabel="
+            ]
           }
         ]
       }
@@ -1776,7 +1556,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -1825,7 +1605,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -1859,7 +1639,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -1893,7 +1673,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -1929,7 +1709,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -1949,6 +1729,104 @@
       }
     },
     {
+      "name": "layer",
+      "type": "registry:lib",
+      "description": "How Candor's portalled layers (dialogs, sheets, popovers, menus, selects, tooltips) stay usable inside an app built on another primitive library.",
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/foundation/layer.tsx",
+          "type": "registry:lib",
+          "target": "@lib/candor/layer.tsx"
+        }
+      ],
+      "categories": [
+        "foundation"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "locale",
+      "type": "registry:component",
+      "description": "The interface's words, language and direction.",
+      "dependencies": [
+        "@base-ui/react@^1.9.0"
+      ],
+      "registryDependencies": [
+        "@candor/fill-strings",
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/foundation/locale.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/locale.tsx"
+        }
+      ],
+      "categories": [
+        "foundation"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "terms",
+            "in": "3.0.0",
+            "change": "`TermsProvider`, `useTerms` and `capitalise` are folded into LocaleProvider: the app's nouns become arguments of its messages, with plural and select forms, set where the interface's words are set.",
+            "breaks": "Code that imports `TermsProvider`, `useTerms`, `capitalise` or `Terms` from `terms`, or passes `terms` to `CandorProvider` or uses a `…Terms` preset, fails the type check. The `terms` item is gone from the registry.",
+            "at": [
+              "type-check"
+            ],
+            "migration": "Run `npx candor-ui migrate terms`. It rewrites `<TermsProvider terms={…}>` to `<LocaleProvider nouns={…}>`, `useTerms()` to `useNouns()`, `capitalise(` to `startOf(`, `Terms` to `NounTable`/`Nouns`, `CandorConfig`'s `terms` to `nouns` and `githubTerms` to `githubNouns`, importing from `@/components/candor/locale`, and lists what it can't follow. Then delete the installed `terms` file (the codemod names its path). Your 2.x words work as they are; add plural forms where a message counts them.",
+            "codemod": "terms",
+            "find": [
+              "\\b(?:TermsProvider|useTerms|capitalise)\\b"
+            ]
+          },
+          {
+            "id": "direction-moved",
+            "in": "4.0.0",
+            "change": "LocaleProvider hands the text direction to Base UI's DirectionProvider, so Candor's primitives follow it; the locale file no longer imports Radix's `Direction`. `TextDirection` and `directionOf` are unchanged.",
+            "breaks": "Code that reached Radix's `Direction` through Candor's locale file no longer finds it there and fails the type check. Imports of `TextDirection` and `directionOf` are unchanged.",
+            "at": [
+              "imports",
+              "type-check"
+            ],
+            "migration": "Keep importing `TextDirection` and `directionOf` from Candor's locale file. If your own code uses Radix's `Direction`, import it from `radix-ui` there.",
+            "codemod": null
+          }
+        ]
+      }
+    },
+    {
       "name": "mcp-input",
       "type": "registry:lib",
       "description": "MCP's \"input required\" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.",
@@ -1963,7 +1841,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -1998,41 +1876,7 @@
         }
       ],
       "categories": [
-        "lib"
-      ],
-      "meta": {
-        "tier": "free",
-        "breaking": [
-          {
-            "id": "paths",
-            "in": "3.0.0",
-            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
-            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
-            "at": [
-              "imports"
-            ],
-            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
-            "codemod": "paths"
-          }
-        ]
-      }
-    },
-    {
-      "name": "render-prop",
-      "type": "registry:lib",
-      "description": "Lets Candor's Radix-based primitives also take Base UI's `render` prop.",
-      "registryDependencies": [
-        "@candor/tokens"
-      ],
-      "files": [
-        {
-          "path": "src/registry/foundation/render-prop.ts",
-          "type": "registry:lib",
-          "target": "@lib/candor/render-prop.ts"
-        }
-      ],
-      "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -2067,7 +1911,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -2101,7 +1945,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -2136,7 +1980,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -2170,7 +2014,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -2204,7 +2048,7 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -2238,7 +2082,384 @@
         }
       ],
       "categories": [
-        "lib"
+        "foundation"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "copy-field",
+      "type": "registry:component",
+      "description": "A value a person copies somewhere else (a callback URL, a scope list).",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/locale",
+        "@candor/motion",
+        "@candor/tokens",
+        "@candor/use-copy",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/parts/copy-field.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/copy-field.tsx"
+        }
+      ],
+      "categories": [
+        "parts"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "degraded-panel",
+      "type": "registry:component",
+      "description": "A degraded result: what went wrong, what is missing because of it, and a retry only when the caller can actually retry.",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/button",
+        "@candor/locale",
+        "@candor/motion",
+        "@candor/tokens",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/parts/degraded-panel.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/degraded-panel.tsx"
+        }
+      ],
+      "categories": [
+        "parts"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "props-busy",
+            "in": "4.0.0",
+            "change": "A component that is waiting says so with `busy`: Combobox's, DataTable's, PromptSuggestions' and ImportReview's `loading`, PermissionMode's and MemoryMode's `pending`, ClarifyingQuestions' `submitting`, WorkflowEditor's `saving`, CommandPalette's `searching`, AssigneePicker's `assigning`, ChangeSetReview's `applying`, ShipReview's `shipping`, DataImport's `reading`, DegradedPanel's `retrying` and ChartFrame's `refreshing` are `busy`.",
+            "breaks": "The old name on these fails the type check; in code that isn't type-checked the component stops showing that it's waiting.",
+            "at": [
+              "type-check",
+              "behaviour"
+            ],
+            "migration": "Rename the prop to `busy`; it takes the same boolean. `npx candor-ui migrate props` does it on Candor's components only. DataTable's `state={{ kind: \"loading\" }}` is unchanged.",
+            "codemod": "props",
+            "find": [
+              "<(?:Combobox|DataTable|PromptSuggestions|ImportReview)\\b[^>]*\\bloading=",
+              "<(?:PermissionMode|MemoryMode)\\b[^>]*\\bpending=",
+              "<ClarifyingQuestions\\b[^>]*\\bsubmitting=",
+              "<WorkflowEditor\\b[^>]*\\bsaving=",
+              "<CommandPalette\\b[^>]*\\bsearching=",
+              "<AssigneePicker\\b[^>]*\\bassigning(?:=|[\\s/>])",
+              "<ChangeSetReview\\b[^>]*\\bapplying(?:=|[\\s/>])",
+              "<ShipReview\\b[^>]*\\bshipping(?:=|[\\s/>])",
+              "<DataImport\\b[^>]*\\breading(?:=|[\\s/>])",
+              "<DegradedPanel\\b[^>]*\\bretrying(?:=|[\\s/>])",
+              "<ChartFrame\\b[^>]*\\brefreshing(?:=|[\\s/>])"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "relative-time",
+      "type": "registry:component",
+      "description": "A time as people say it (\"5 minutes ago\"), with the exact time on hover, safe to render on the server.",
+      "registryDependencies": [
+        "@candor/locale",
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/parts/relative-time.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/relative-time.tsx"
+        }
+      ],
+      "categories": [
+        "parts"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "status-dot",
+      "type": "registry:component",
+      "description": "A small status mark.",
+      "registryDependencies": [
+        "@candor/motion",
+        "@candor/relative-time",
+        "@candor/status",
+        "@candor/tokens",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/parts/status-dot.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/status-dot.tsx"
+        }
+      ],
+      "categories": [
+        "parts"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "step-list",
+      "type": "registry:component",
+      "description": "A run's steps with their status, each mark drawn still on mount and animated only when the status changes on screen.",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/motion",
+        "@candor/status",
+        "@candor/tokens",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/parts/step-list.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/step-list.tsx"
+        }
+      ],
+      "categories": [
+        "parts"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "streaming-text",
+      "type": "registry:component",
+      "description": "Text that is still arriving.",
+      "registryDependencies": [
+        "@candor/format-elapsed",
+        "@candor/locale",
+        "@candor/motion",
+        "@candor/tokens",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/parts/streaming-text.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/streaming-text.tsx"
+        }
+      ],
+      "categories": [
+        "parts"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "surface",
+      "type": "registry:component",
+      "description": "Candor's card: a plain, muted, bordered or floating surface, so no screen hand-rolls its own.",
+      "dependencies": [
+        "class-variance-authority@^0.7.1"
+      ],
+      "registryDependencies": [
+        "@candor/tokens",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/parts/surface.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/surface.tsx"
+        }
+      ],
+      "categories": [
+        "parts"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "page-header",
+      "type": "registry:component",
+      "description": "The top of every page that isn't a thread: where you are (breadcrumb), what the page is, what you can do here (actions), and its views (tabs).",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/locale",
+        "@candor/tokens",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/shell/page-header.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/page-header.tsx"
+        }
+      ],
+      "categories": [
+        "shell"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "page-state",
+      "type": "registry:component",
+      "description": "What a page shows instead of its content: nothing here yet (empty), nothing matches the filters (no-match), something broke (error), it can't be shown to you (unavailable), or the service can't be reached from here (offline).",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/button",
+        "@candor/copy-field",
+        "@candor/locale",
+        "@candor/skeleton",
+        "@candor/tokens",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/shell/page-state.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/page-state.tsx"
+        }
+      ],
+      "categories": [
+        "shell"
       ],
       "meta": {
         "tier": "free",
@@ -2262,12 +2483,11 @@
       "type": "registry:ui",
       "description": "A stack of headings that each open to reveal more.",
       "dependencies": [
-        "lucide-react@^1.67.0",
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0",
+        "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2294,6 +2514,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2333,6 +2586,24 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2342,12 +2613,11 @@
       "type": "registry:ui",
       "description": "shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why).",
       "dependencies": [
-        "class-variance-authority@^0.7.1",
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0",
+        "class-variance-authority@^0.7.1"
       ],
       "registryDependencies": [
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2374,6 +2644,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2383,11 +2686,10 @@
       "type": "registry:ui",
       "description": "A box the person ticks.",
       "dependencies": [
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2414,6 +2716,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2423,11 +2758,10 @@
       "type": "registry:ui",
       "description": "shadcn's collapsible (Radix) in Candor's theme.",
       "dependencies": [
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2454,6 +2788,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2463,10 +2830,9 @@
       "type": "registry:ui",
       "description": "The name of a control.",
       "dependencies": [
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2493,6 +2859,97 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "locked",
+      "type": "registry:component",
+      "description": "The honest-state rule: a control that cannot be used says why.",
+      "dependencies": [
+        "lucide-react@^1.67.0"
+      ],
+      "registryDependencies": [
+        "@candor/motion",
+        "@candor/tokens",
+        "@candor/tooltip",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/locked.tsx",
+          "type": "registry:component",
+          "target": "@components/candor/locked.tsx"
+        }
+      ],
+      "categories": [
+        "ui"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2502,11 +2959,11 @@
       "type": "registry:ui",
       "description": "shadcn's popover (Radix) in Candor's theme.",
       "dependencies": [
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
+        "@candor/layer",
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2533,6 +2990,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2542,11 +3032,11 @@
       "type": "registry:ui",
       "description": "A bar for work whose progress is measured: an upload, an import, an index.",
       "dependencies": [
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
+        "@candor/locale",
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2573,6 +3063,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2609,6 +3132,24 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2618,11 +3159,11 @@
       "type": "registry:ui",
       "description": "A control for a value in a range, with one thumb or, when the value has two numbers, a range.",
       "dependencies": [
-        "lucide-react@^1.67.0",
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0",
+        "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
-        "@candor/render-prop",
+        "@candor/locale",
         "@candor/tokens",
         "utils"
       ],
@@ -2649,6 +3190,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2658,11 +3232,10 @@
       "type": "registry:ui",
       "description": "A setting that is on or off.",
       "dependencies": [
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2689,6 +3262,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }
@@ -2698,11 +3304,11 @@
       "type": "registry:ui",
       "description": "shadcn's tooltip (Radix) in Candor's theme.",
       "dependencies": [
-        "radix-ui@^1.8.1"
+        "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
+        "@candor/layer",
         "@candor/motion",
-        "@candor/render-prop",
         "@candor/tokens",
         "utils"
       ],
@@ -2729,6 +3335,39 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "as-child",
+            "in": "4.0.0",
+            "change": "Candor's primitives take `render`, not `asChild`; `<X asChild><a …/></X>` becomes `<X render={<a …/>}/>`: a part that renders as another element is given that element, as in `<Button render={<a href=\"/docs\" />}>Read the docs</Button>`.",
+            "breaks": "`asChild` on one of Candor's primitives fails the type check, and the part renders its own element with the child inside it.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Pass the child element as `render` and give its children to the part; a Button that renders a link, a span or a div also takes `nativeButton={false}`. `npx candor-ui migrate as-child` does it on Candor's components only: shadcn's own components in components/ui and an `asChild` on anything else stay as they are. It lists an `asChild` it can't follow (no element child, or a value that isn't `true`).",
+            "codemod": "as-child",
+            "find": [
+              "\\basChild\\b"
+            ]
+          },
+          {
+            "id": "primitives-base-ui",
+            "in": "4.0.0",
+            "change": "Every one of Candor's primitives is built on Base UI: `@base-ui/react` replaces `radix-ui`, and the primitives install in components/candor/ui/ as before. Where Radix and Base UI name a prop differently, they take Base UI's: TooltipProvider's `delayDuration` is `delay`, `skipDelayDuration` is `timeout` and `disableHoverableContent` is `disableHoverablePopup`; a dialog's or popover's `onOpenAutoFocus` and `onCloseAutoFocus` are `initialFocus` and `finalFocus`; `onEscapeKeyDown` and `onInteractOutside` are the root's `onOpenChange(open, details)`, where `details.cancel()` keeps it open. Their state shows in Base UI's attributes (`data-open`, `data-closed`, `data-checked` …), not Radix's `data-state`.",
+            "breaks": "A Radix-only prop on one of Candor's primitives fails the type check, and in code that isn't type-checked it does nothing. A style of yours that selects `data-state` on them stops matching. A project without `@base-ui/react` installed doesn't build.",
+            "at": [
+              "type-check",
+              "styling",
+              "behaviour"
+            ],
+            "migration": "`npx candor-ui update --to 4.0.0` installs `@base-ui/react`. `npx candor-ui migrate props` renames `delayDuration`, `skipDelayDuration` and `disableHoverableContent` on Candor's TooltipProvider. By hand: move a focus handler to `initialFocus` or `finalFocus` (an element, a ref or a function that returns one), move an Escape or outside-click handler into the root's `onOpenChange` and call `details.cancel()` where you prevented the default, and change `data-[state=open]` and the other `data-state` selectors to Base UI's attributes. A Radix app keeps its own components/ui and the radix-ui package; Candor's primitives sit beside them in components/candor/ui.",
+            "codemod": "props",
+            "find": [
+              "\\bdelayDuration=",
+              "\\bon(Open|Close)AutoFocus=",
+              "data-\\[state="
+            ]
           }
         ]
       }

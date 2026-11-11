@@ -32,6 +32,37 @@ type Ctx = {
 const ContentContext = React.createContext<Ctx>({ sources: new Map() })
 
 /**
+ * A claim the agent hasn't verified. Its reason shows in a tooltip, and describes the claim to screen readers whether
+ * the tooltip is open or not (a hidden copy the claim points at), as `Locked` gives its reason.
+ */
+function Provisional({ nodes, reason, notVerified }: { nodes: InlineNode[]; reason: string; notVerified: string }) {
+  const id = React.useId()
+  return (
+    <>
+      <Tooltip describes={false}>
+        <TooltipTrigger
+          render={
+            <button
+              type="button"
+              data-provisional
+              aria-describedby={id}
+              className="inline rounded-xs text-start text-provisional underline decoration-provisional/50 decoration-dotted underline-offset-[3px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80"
+            >
+              <Inline nodes={nodes} />
+              <span className="sr-only">{notVerified}</span>
+            </button>
+          }
+        />
+        <TooltipContent>{reason}</TooltipContent>
+      </Tooltip>
+      <span id={id} hidden>
+        {reason}
+      </span>
+    </>
+  )
+}
+
+/**
  * Inline nodes. Every string here may come from a model or the user's system, so it is
  * only ever rendered as a React text child: no markdown parsing, no HTML.
  */
@@ -66,21 +97,7 @@ function Inline({
               </span>
             )
           case "provisional":
-            return (
-              <Tooltip key={i}>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    data-provisional
-                    className="inline rounded-xs text-start text-provisional underline decoration-provisional/50 decoration-dotted underline-offset-[3px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80"
-                  >
-                    <Inline nodes={n.nodes} />
-                    <span className="sr-only">{t("notVerified")}</span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>{n.reason ?? t("provisional")}</TooltipContent>
-              </Tooltip>
-            )
+            return <Provisional key={i} nodes={n.nodes} reason={n.reason ?? t("provisional")} notVerified={t("notVerified")} />
           case "citation":
             return <Citation key={i} source={ctx.sources.get(n.sourceId)} />
           case "entity":

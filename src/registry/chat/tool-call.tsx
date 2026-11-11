@@ -85,7 +85,7 @@ function ToolCall({
           <ChevronRight
             aria-hidden
             style={openMotion}
-            className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground cd-reveal-turn group-data-[state=open]/tool:[transform:rotate(90deg)]"
+            className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground cd-reveal-turn group-data-open/tool:[transform:rotate(90deg)]"
           />
         )}
       </CollapsibleTrigger>
@@ -144,7 +144,7 @@ function ToolCallGroup({
           {failed > 0 && <span className="text-destructive-text"> · {t("failed", { count: failed })}</span>}
           {running && ` · ${t("working")}`}
         </span>
-        <ChevronRight aria-hidden style={groupMotion} className="rtl:-scale-x-100 size-3.5 cd-reveal-turn group-data-[state=open]/tools:[transform:rotate(90deg)]" />
+        <ChevronRight aria-hidden style={groupMotion} className="rtl:-scale-x-100 size-3.5 cd-reveal-turn group-data-open/tools:[transform:rotate(90deg)]" />
       </CollapsibleTrigger>
       <CollapsibleContent style={groupMotion}>
         <div className="flex flex-col border-t px-1.5 py-1.5">

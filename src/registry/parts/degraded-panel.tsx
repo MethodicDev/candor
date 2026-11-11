@@ -28,7 +28,7 @@ function DegradedPanel({
   reason,
   missing,
   onRetry,
-  retrying = false,
+  busy = false,
   variant = "block",
   className,
 }: {
@@ -36,10 +36,10 @@ function DegradedPanel({
   reason: React.ReactNode
   /** What the person won't see because of it. */
   missing?: React.ReactNode | undefined
-  /** Shows a Try again button that calls this. */
+  /** Shows a Retry button that calls this. */
   onRetry?: (() => void) | undefined
-  /** Shows the retry as in progress. */
-  retrying?: boolean | undefined
+  /** The retry is under way: the button is disabled, its icon turns, and it says it is retrying. */
+  busy?: boolean | undefined
   /** A boxed panel, or one line inside other content. */
   variant?: "block" | "inline" | undefined
   className?: string | undefined
@@ -61,8 +61,8 @@ function DegradedPanel({
         {missing && <p className="mt-0.5 text-xs text-muted-foreground">{t("missing")} {missing}</p>}
       </div>
       {onRetry && (
-        <Button size="xs" variant="outline" onClick={onRetry} disabled={retrying} aria-busy={retrying} className="shrink-0">
-          <RotateCw style={spinMotion} className={cn(retrying && "cd-live-spin")} /> {retrying ? t("retrying") : t("retry")}
+        <Button size="xs" variant="outline" onClick={onRetry} disabled={busy} aria-busy={busy} className="shrink-0">
+          <RotateCw style={spinMotion} className={cn(busy && "cd-live-spin")} /> {busy ? t("retrying") : t("retry")}
         </Button>
       )}
     </div>

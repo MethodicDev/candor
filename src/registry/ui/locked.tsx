@@ -29,12 +29,28 @@ const refuseMotion = motion("locked", "refuse", "refuse")
  */
 const reasonMotion = motion("locked", "reason", "tint", { dur: 200 })
 
+/** Whether the control opens a list or menu (a Select's or Menu's trigger), which opens on a press or an arrow key. */
+const opensPopup = (e: React.SyntheticEvent) => {
+  const popup = (e.currentTarget as Element).getAttribute("aria-haspopup")
+  return popup !== null && popup !== "false"
+}
+
+/** Stops a Base UI part's own handler for this event (Base UI runs the handler passed in first). */
+const stopBaseUI = (e: React.SyntheticEvent) =>
+  (e as React.SyntheticEvent & { preventBaseUIHandler?: (() => void) | undefined }).preventBaseUIHandler?.()
+
+/** The hidden inputs Base UI draws beside a checkbox, switch or radio. */
+const hiddenInputs = 'input[type="checkbox"], input[type="radio"]'
+
 type Lockable = React.ReactElement<{
   "aria-disabled"?: boolean | "true" | "false" | undefined
   "aria-describedby"?: string | undefined
   onClick?: React.MouseEventHandler | undefined
   onKeyDown?: React.KeyboardEventHandler | undefined
+  onPointerDown?: React.PointerEventHandler | undefined
+  onMouseDown?: React.MouseEventHandler | undefined
   "data-locked"?: string | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }>
 
@@ -42,9 +58,12 @@ type Lockable = React.ReactElement<{
  * The honest-state rule: a control that cannot be used says why.
  *
  * Wrap any single control. With a `reason`, the control stays focusable but is
- * marked `aria-disabled`, its activation is blocked (click, Enter, Space), and
+ * marked `aria-disabled`, its activation is blocked (click, Enter, Space, and
+ * for a Select's or Menu's trigger the press and ArrowDown or ArrowUp), and
  * it is described by the reason — so keyboard and screen-reader users reach
- * the explanation on the control itself. The reason shows as a tooltip, or
+ * the explanation on the control itself. A checkbox, switch or radio inside
+ * doesn't change by any other route either: not by a click on its label, a
+ * radio group's arrow keys, or a form reset. The reason shows as a tooltip, or
  * printed under the control with `inline`. Pressing the control reveals the
  * reason (the tooltip is held open, the printed reason is emphasised) and,
  * under data-motion="expressive" only, shakes it briefly; with reduced motion
@@ -85,25 +104,52 @@ function Locked({
     }
   }, [press])
 
+  // A form reset puts a hidden <input> back to the checked state it was first drawn with, which can differ from what the
+  // locked control shows (the app changed it since). The reset runs straight after its event, so the inputs inside are
+  // put back as they were a microtask later: a locked control's form value doesn't change by a reset either.
+  React.useEffect(() => {
+    if (!reason) return
+    const onReset = (e: Event) => {
+      const el = box.current
+      if (!el || !(e.target instanceof Node) || !e.target.contains(el)) return
+      const inputs = Array.from(el.querySelectorAll<HTMLInputElement>(hiddenInputs))
+      const was = inputs.map((input) => input.checked)
+      queueMicrotask(() => inputs.forEach((input, i) => (input.checked = was[i]!)))
+    }
+    document.addEventListener("reset", onReset, true)
+    return () => document.removeEventListener("reset", onReset, true)
+  }, [reason])
+
   // No wrapper without a reason: the classes it would have had go on the control, so a layout class isn't lost.
   if (!reason) return className ? React.cloneElement(children, { className: cn(children.props.className, className) }) : children
 
   const block = (e: React.SyntheticEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    // On a Base UI part (a trigger, a menu item, a switch), this also stops the part's own handler from running.
+    stopBaseUI(e)
     setPress((n) => n + 1)
     setShaking(true)
     setHeld(true)
   }
-  // The trigger takes it as `render`, not as an asChild child: shadcn's Base UI rewrite drops an asChild whose child is
-  // an expression, which would draw the trigger's own button round this one.
+  // The trigger draws the control itself (`render`), so no button of the trigger's own goes round it.
   const control = React.cloneElement(children, {
     "aria-disabled": true,
     "aria-describedby": id,
     "data-locked": "",
     onClick: block,
     onKeyDown: (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " ") block(e)
+      if (e.key === "Enter" || e.key === " " || (opensPopup(e) && (e.key === "ArrowDown" || e.key === "ArrowUp"))) block(e)
+    },
+    // Base UI's Select and Menu triggers open on the press itself, before the click: their handler is stopped there. The
+    // press goes on otherwise (focus, and other layers' outside-press), and the click that follows shows the reason.
+    onPointerDown: (e: React.PointerEvent) => {
+      if (opensPopup(e)) stopBaseUI(e)
+      else children.props.onPointerDown?.(e)
+    },
+    onMouseDown: (e: React.MouseEvent) => {
+      if (opensPopup(e)) stopBaseUI(e)
+      else children.props.onMouseDown?.(e)
     },
   })
 
@@ -111,6 +157,13 @@ function Locked({
     <span
       ref={box}
       data-slot="locked"
+      // A Base UI checkbox, switch or radio keeps its state in a hidden <input> beside it, and that input takes the
+      // control's `id`: a label pointing at it, or wrapping it, clicks the input, not the control. Cancelling that click
+      // here, before it reaches the input, leaves the control unchanged (Base UI ignores a change whose click was
+      // cancelled), whether it came from a label, a radio group's arrow keys, or anything else.
+      onClickCapture={(e) => {
+        if (e.target instanceof HTMLInputElement && e.target.matches(hiddenInputs)) e.preventDefault()
+      }}
       onAnimationEnd={(e) => {
         if (e.target === e.currentTarget) setShaking(false)
       }}
@@ -121,7 +174,8 @@ function Locked({
       {inline ? (
         control
       ) : (
-        <Tooltip open={shown || held} onOpenChange={setShown}>
+        // The reason already describes the control (the sr-only text below), so the tooltip doesn't describe it again.
+        <Tooltip open={shown || held} onOpenChange={setShown} describes={false}>
           <TooltipTrigger render={control} />
           <TooltipContent>{reason}</TooltipContent>
         </Tooltip>

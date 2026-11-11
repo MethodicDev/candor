@@ -85,7 +85,7 @@ function Reasoning({
       <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-0.5 inline-flex items-center gap-1.5 rounded-md py-0.5 pe-1.5 text-xs text-muted-foreground outline-none cd-tint hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80">
         <Brain aria-hidden className={cn("size-3.5", thinking && "text-accent-text")} />
         {thinking ? <ShimmerLabel className="text-xs" startedAt={startedAt}>{t("thinking")}</ShimmerLabel> : summary}
-        <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3 cd-reveal-turn group-data-[state=open]/reasoning:[transform:rotate(90deg)]" />
+        <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3 cd-reveal-turn group-data-open/reasoning:[transform:rotate(90deg)]" />
       </CollapsibleTrigger>
       <CollapsibleContent style={turnMotion}>
         <ol className="mt-2 ms-1.5 flex flex-col gap-3 border-s ps-4">

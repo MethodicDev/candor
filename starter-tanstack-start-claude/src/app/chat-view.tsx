@@ -53,7 +53,7 @@ export function ChatView() {
           <p className="text-sm text-muted-foreground">
             Ask the agent about your to-do list. It reads the list on its own and asks you before it adds anything.
           </p>
-          <PromptSuggestions suggestions={suggestions} onChoose={(s) => composer.onChange(s.text)} />
+          <PromptSuggestions suggestions={suggestions} onChoose={(s) => composer.onValueChange(s.text)} />
         </div>
       }
       footer={

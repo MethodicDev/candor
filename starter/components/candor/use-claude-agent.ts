@@ -233,7 +233,7 @@ export function useClaudeAgent(options: UseClaudeAgentOptions) {
     },
     composer: {
       value,
-      onChange: setValue,
+      onValueChange: setValue,
       state: composerState,
       references,
       onReferencesChange: setReferences,

@@ -26,8 +26,8 @@ export const promptSuggestionsStrings = {
 function PromptSuggestions({
   suggestions,
   onChoose,
-  label: labelProp,
-  loading = false,
+  title,
+  busy = false,
   variant = "chips",
   className,
 }: {
@@ -35,24 +35,24 @@ function PromptSuggestions({
   suggestions: PromptSuggestion[]
   /** Called with the chosen one; put it in the composer to edit rather than sending it. */
   onChoose: (suggestion: PromptSuggestion) => void
-  /** The heading above the suggestions; "Try asking" by default. */
-  label?: string | undefined
+  /** The heading above the suggestions, also their accessible name; "Try asking" by default. */
+  title?: string | undefined
   /** Shows placeholders while suggestions load. */
-  loading?: boolean | undefined
+  busy?: boolean | undefined
   /** Compact chips, or larger cards for an empty thread. */
   variant?: "chips" | "cards" | undefined
   className?: string | undefined
 }) {
   const t = useStrings("promptSuggestions", promptSuggestionsStrings)
-  const label = labelProp ?? t("label")
-  if (!loading && suggestions.length === 0) return null
+  const label = title ?? t("label")
+  if (!busy && suggestions.length === 0) return null
   return (
     <section data-slot="prompt-suggestions" aria-label={label} className={cn("flex flex-col gap-2", className)}>
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Sparkles aria-hidden className="size-3" /> {label}
       </p>
       <div className={cn(variant === "cards" ? "grid gap-2 sm:grid-cols-2" : "flex flex-wrap gap-1.5")}>
-        {loading
+        {busy
           ? Array.from({ length: variant === "cards" ? 4 : 3 }, (_, i) => (
               <Skeleton key={i} className={variant === "cards" ? "h-16 rounded-xl" : "h-8 w-44 rounded-lg"} />
             ))

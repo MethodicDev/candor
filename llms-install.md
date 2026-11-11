@@ -14,7 +14,7 @@ npx candor-ui add thread message composer
 ```
 
 `init --yes` adds the `@candor` registry to `components.json`, the theme and its import, and sets up shadcn if the
-project has none (Radix, shadcn's nova preset, no questions). `add` copies the named items into folders of their own:
+project has none (Base UI, shadcn's nova preset, no questions). `add` copies the named items into folders of their own:
 primitives in `@/components/candor/ui/…`, libraries and types in `@/lib/candor/…`, everything else in
 `@/components/candor/…` (for example `@/components/candor/thread`). Import from those paths. shadcn's own primitives in
 `@/components/ui/…` stay the app's.

@@ -161,7 +161,7 @@ client providers file. Event handlers and helpers exported from client modules (
 ## Make it the product's own
 
 - Override colour and type tokens in a CSS file imported after `candor.css` (shadcn names such as `--primary`,
-  plus Candor's `--cd-*` and status pairs like `--success-weak` / `--success-text`), for every theme you support.
+  plus Candor's `--cd-*` and status pairs like `--cd-success-weak` / `--cd-success-text`), for every theme you support.
 - `LocaleProvider`'s `nouns` sets the app's words ("project", "workspace"); `EntityKindsProvider` and `AgentRolesProvider`
   register its entity types and agent roles. Policy (who may do what, why something is locked) stays in the app and
   arrives as props.

@@ -8,7 +8,7 @@ The tokens Candor UI's components are drawn with, and how to build the screens a
 
 ## Colour roles
 
-Colour roles use shadcn's variable names where shadcn has one (`--primary`, `--background`, `--muted-foreground`), so shadcn components already in an app pick them up, and the same form for Candor's additions (`--sunken`, `--chrome`, `--success-weak`). Each is also a Tailwind colour: `bg-sunken`, `text-muted-foreground`, `border-border-strong`. Values are OKLCH, so a role keeps its lightness when its hue changes.
+Colour roles use shadcn's variable names where shadcn has one (`--primary`, `--background`, `--muted-foreground`), so shadcn components already in an app pick them up, and Candor's own roles take the `--cd-` prefix, so an app's own tokens can't collide with them (`--cd-sunken`, `--cd-chrome`, `--cd-success-weak`). Each is also a Tailwind colour: `bg-sunken`, `text-muted-foreground`, `border-border-strong`. Values are OKLCH, so a role keeps its lightness when its hue changes. Before 4.0 Candor's own roles had no prefix (`--sunken`, `--warning`) and the chart series were `--series-1` to `--series-6`; nothing reads those names now, so a brand file that sets them changes nothing. [Upgrading to 4.0](https://candor.themethodic.com/upgrading-to-4#tokens-cd-prefix) lists each rename, `npx candor-ui migrate tokens` makes them, and `npx candor-ui theme check` reports an old name as an error.
 
 ### Grounds
 
@@ -19,8 +19,8 @@ What things sit on. Choose by depth and job, not by taste: the page, a surface o
 | `--background` | The page. | oklch(0.985 0.002 262) | oklch(0.16 0.006 265) | oklch(1 0 0) |
 | `--card` | A card or `Surface` on the page. | oklch(1 0 0) | oklch(0.195 0.007 265) | oklch(1 0 0) |
 | `--popover` | Menus, popovers, dialogs and anything that floats above the page. | oklch(1 0 0) | oklch(0.215 0.008 265) | oklch(1 0 0) |
-| `--sunken` | A well set into a surface: code, logs, query text, read-only values. | oklch(0.972 0.003 262) | oklch(0.14 0.006 265) | oklch(0.975 0 0) |
-| `--chrome` | The app's frame: the sidebar, headers and bars around the work. | oklch(0.976 0.003 262) | oklch(0.175 0.007 265) | oklch(0.97 0 0) |
+| `--cd-sunken` | A well set into a surface: code, logs, query text, read-only values. | oklch(0.972 0.003 262) | oklch(0.14 0.006 265) | oklch(0.975 0 0) |
+| `--cd-chrome` | The app's frame: the sidebar, headers and bars around the work. | oklch(0.976 0.003 262) | oklch(0.175 0.007 265) | oklch(0.97 0 0) |
 | `--muted` | A quiet ground: secondary buttons, chips, tags, folded turns. | oklch(0.955 0.004 262) | oklch(0.25 0.008 265) | oklch(0.94 0 0) |
 | `--accent` | The hover and pressed ground of rows, menu items and tabs. shadcn's name; it is a grey, not the brand colour. | oklch(0.945 0.006 262) | oklch(0.27 0.009 265) | oklch(0.92 0 0) |
 
@@ -32,15 +32,15 @@ Every text role passes contrast on every ground above.
 | --- | --- | --- | --- | --- |
 | `--foreground` | Body text and headings. | oklch(0.21 0.014 265) | oklch(0.95 0.004 265) | oklch(0.1 0 0) |
 | `--muted-foreground` | Secondary text: labels, metadata, descriptions, the status word beside a dot. | oklch(0.46 0.016 265) | oklch(0.74 0.012 265) | oklch(0.27 0.01 265) |
-| `--faint-foreground` | The quietest text that still passes contrast: timestamps, placeholders, idle and queued marks. | oklch(0.52 0.012 265) | oklch(0.66 0.012 265) | oklch(0.33 0.01 265) |
-| `--text-provisional` | Text that says a value isn't verified yet: a provisional source, an unchecked claim. | oklch(0.48 0.11 60) | oklch(0.84 0.1 75) | oklch(0.36 0.09 60) |
+| `--cd-faint-foreground` | The quietest text that still passes contrast: timestamps, placeholders, idle and queued marks. | oklch(0.52 0.012 265) | oklch(0.66 0.012 265) | oklch(0.33 0.01 265) |
+| `--cd-text-provisional` | Text that says a value isn't verified yet: a provisional source, an unchecked claim. | oklch(0.48 0.11 60) | oklch(0.84 0.1 75) | oklch(0.36 0.09 60) |
 
 ### Edges and focus
 
 | Role | For | Light | Dark | High contrast |
 | --- | --- | --- | --- | --- |
 | `--border` | Hairlines: card edges, dividers, table rules. | oklch(0.915 0.005 262) | oklch(0.285 0.008 265) | oklch(0.45 0.01 265) |
-| `--border-strong` | An edge that must be seen on its own: a hovered field, a rail's dot, a selected outline. | oklch(0.85 0.007 262) | oklch(0.36 0.01 265) | oklch(0.3 0.01 265) |
+| `--cd-border-strong` | An edge that must be seen on its own: a hovered field, a rail's dot, a selected outline. | oklch(0.85 0.007 262) | oklch(0.36 0.01 265) | oklch(0.3 0.01 265) |
 | `--input` | The edge of a text field or control; passes edge contrast on card. | oklch(0.62 0.01 262) | oklch(0.5 0.012 265) | oklch(0.3 0.01 265) |
 | `--ring` | The focus ring, drawn at 80% opacity and checked at that opacity on every surface a control sits on. | oklch(0.55 0.19 262) | oklch(0.68 0.15 262) | oklch(0.4 0.2 262) |
 
@@ -52,50 +52,50 @@ The brand hue. One primary action per view; everything else is quieter.
 | --- | --- | --- | --- | --- |
 | `--primary` | The one primary action in a view, links and selection. | oklch(0.53 0.19 262) | oklch(0.68 0.15 262) | oklch(0.4 0.2 262) |
 | `--primary-foreground` | Text on primary. | oklch(1 0 0) | oklch(0.16 0.02 262) | oklch(1 0 0) |
-| `--primary-hover` | Primary while hovered. | oklch(0.48 0.19 262) | oklch(0.74 0.13 262) | oklch(0.33 0.18 262) |
-| `--accent-weak` | A tinted ground for emphasis without alarm: the selected item, an accent `Surface`, an agent's badge. | oklch(0.95 0.03 262) | oklch(0.29 0.06 262) | oklch(0.93 0.035 262) |
-| `--accent-text` | Text on accent-weak, card or sunken; also syntax keywords and function names. | oklch(0.45 0.18 262) | oklch(0.8 0.11 262) | oklch(0.33 0.17 262) |
+| `--cd-primary-hover` | Primary while hovered. | oklch(0.48 0.19 262) | oklch(0.74 0.13 262) | oklch(0.33 0.18 262) |
+| `--cd-accent-weak` | A tinted ground for emphasis without alarm: the selected item, an accent `Surface`, an agent's badge. | oklch(0.95 0.03 262) | oklch(0.29 0.06 262) | oklch(0.93 0.035 262) |
+| `--cd-accent-text` | Text on accent-weak, card or sunken; also syntax keywords and function names. | oklch(0.45 0.18 262) | oklch(0.8 0.11 262) | oklch(0.33 0.17 262) |
 
 ### Status
 
-4 status hues (`destructive`, `warning`, `success`, `attention`), each in the same parts: `--<hue>` the solid (a dot, a bar, a solid button), `--<hue>-weak` a tinted ground, `--<hue>-text` text on that ground or on card, and `--on-<hue>` text on the solid where the kit uses the hue as a solid behind text (destructive and success). Never colour alone: the status word sits beside the dot.
+4 status hues (`destructive`, `warning`, `success`, `attention`), each in the same parts: `--cd-<hue>` the solid (a dot, a bar, a solid button; `--destructive` keeps shadcn's name), `--cd-<hue>-weak` a tinted ground, `--cd-<hue>-text` text on that ground or on card, and `--cd-on-<hue>` text on the solid where the kit uses the hue as a solid behind text (destructive and success). Never colour alone: the status word sits beside the dot.
 
 | Role | For | Light | Dark | High contrast |
 | --- | --- | --- | --- | --- |
 | `--destructive` | Failure and removal: a failed run, a destructive button, removed lines in a diff. | oklch(0.55 0.2 27) | oklch(0.66 0.19 25) | oklch(0.42 0.18 27) |
-| `--destructive-weak` | Tinted ground for a failure or a destructive choice. | oklch(0.962 0.024 27) | oklch(0.28 0.06 25) | oklch(0.962 0.024 27) |
-| `--destructive-text` | Text on destructive-weak or card. | oklch(0.47 0.17 27) | oklch(0.8 0.12 25) | oklch(0.36 0.15 27) |
-| `--on-destructive` | Text on the destructive solid. | oklch(1 0 0) | oklch(0.16 0.02 25) | oklch(1 0 0) |
-| `--warning` | Needs a person, or care: a run waiting on someone, production in scope, the Needs-you badge. | oklch(0.77 0.15 75) | oklch(0.8 0.14 80) | oklch(0.42 0.1 60) |
-| `--warning-weak` | Tinted ground for something that needs a person. | oklch(0.968 0.045 90) | oklch(0.29 0.05 75) | oklch(0.968 0.045 90) |
-| `--warning-text` | Text on warning-weak, card or sunken; also syntax properties, tags and types. | oklch(0.46 0.1 60) | oklch(0.86 0.11 85) | oklch(0.34 0.08 60) |
-| `--success` | Done and verified: a succeeded run, a passed check, added lines, verified reasoning. | oklch(0.53 0.13 155) | oklch(0.7 0.14 155) | oklch(0.38 0.1 155) |
-| `--success-weak` | Tinted ground for something done or verified. | oklch(0.962 0.035 155) | oklch(0.27 0.05 155) | oklch(0.962 0.035 155) |
-| `--success-text` | Text on success-weak, card or sunken; also syntax strings. | oklch(0.43 0.1 155) | oklch(0.82 0.11 155) | oklch(0.32 0.08 155) |
-| `--on-success` | Text on the success solid. | oklch(1 0 0) | oklch(0.16 0.02 155) | oklch(1 0 0) |
-| `--attention` | Something to look at that is neither good nor bad: an agent's question, work from outside, a mention. | oklch(0.56 0.2 300) | oklch(0.7 0.16 300) | oklch(0.38 0.18 300) |
-| `--attention-weak` | Tinted ground for something that needs a look. | oklch(0.962 0.03 300) | oklch(0.29 0.06 300) | oklch(0.962 0.03 300) |
-| `--attention-text` | Text on attention-weak or sunken; also syntax numbers and variables. | oklch(0.47 0.18 300) | oklch(0.82 0.11 300) | oklch(0.33 0.16 300) |
+| `--cd-destructive-weak` | Tinted ground for a failure or a destructive choice. | oklch(0.962 0.024 27) | oklch(0.28 0.06 25) | oklch(0.962 0.024 27) |
+| `--cd-destructive-text` | Text on destructive-weak or card. | oklch(0.47 0.17 27) | oklch(0.8 0.12 25) | oklch(0.36 0.15 27) |
+| `--cd-on-destructive` | Text on the destructive solid. | oklch(1 0 0) | oklch(0.16 0.02 25) | oklch(1 0 0) |
+| `--cd-warning` | Needs a person, or care: a run waiting on someone, production in scope, the Needs-you badge. | oklch(0.77 0.15 75) | oklch(0.8 0.14 80) | oklch(0.42 0.1 60) |
+| `--cd-warning-weak` | Tinted ground for something that needs a person. | oklch(0.968 0.045 90) | oklch(0.29 0.05 75) | oklch(0.968 0.045 90) |
+| `--cd-warning-text` | Text on warning-weak, card or sunken; also syntax properties, tags and types. | oklch(0.46 0.1 60) | oklch(0.86 0.11 85) | oklch(0.34 0.08 60) |
+| `--cd-success` | Done and verified: a succeeded run, a passed check, added lines, verified reasoning. | oklch(0.53 0.13 155) | oklch(0.7 0.14 155) | oklch(0.38 0.1 155) |
+| `--cd-success-weak` | Tinted ground for something done or verified. | oklch(0.962 0.035 155) | oklch(0.27 0.05 155) | oklch(0.962 0.035 155) |
+| `--cd-success-text` | Text on success-weak, card or sunken; also syntax strings. | oklch(0.43 0.1 155) | oklch(0.82 0.11 155) | oklch(0.32 0.08 155) |
+| `--cd-on-success` | Text on the success solid. | oklch(1 0 0) | oklch(0.16 0.02 155) | oklch(1 0 0) |
+| `--cd-attention` | Something to look at that is neither good nor bad: an agent's question, work from outside, a mention. | oklch(0.56 0.2 300) | oklch(0.7 0.16 300) | oklch(0.38 0.18 300) |
+| `--cd-attention-weak` | Tinted ground for something that needs a look. | oklch(0.962 0.03 300) | oklch(0.29 0.06 300) | oklch(0.962 0.03 300) |
+| `--cd-attention-text` | Text on attention-weak or sunken; also syntax numbers and variables. | oklch(0.47 0.18 300) | oklch(0.82 0.11 300) | oklch(0.33 0.16 300) |
 
 ### Conversation
 
 | Role | For | Light | Dark | High contrast |
 | --- | --- | --- | --- | --- |
-| `--surface-agent` | The ground of an agent's message. | oklch(1 0 0) | oklch(0.195 0.007 265) | oklch(1 0 0) |
-| `--surface-user` | The ground of the person's message, lightly tinted with the accent hue. | oklch(0.952 0.022 262) | oklch(0.27 0.035 262) | oklch(0.93 0.03 262) |
+| `--cd-surface-agent` | The ground of an agent's message. | oklch(1 0 0) | oklch(0.195 0.007 265) | oklch(1 0 0) |
+| `--cd-surface-user` | The ground of the person's message, lightly tinted with the accent hue. | oklch(0.952 0.022 262) | oklch(0.27 0.035 262) | oklch(0.93 0.03 262) |
 
 ### Charts
 
-6 categorical series, checked for colour-vision deficiency in every theme; `--chart-1` to `--chart-5` are shadcn's names for the first 5. A chart never relies on them alone: every Candor chart has a legend, labels and a table view.
+6 categorical series, checked for colour-vision deficiency in every theme: `--chart-1` to `--chart-5` are shadcn's names, so an app's own chart colours reach Candor's charts too, and `--cd-chart-6` is Candor's sixth. A chart never relies on them alone: every Candor chart has a legend, labels and a table view.
 
 | Role | Light | Dark | High contrast |
 | --- | --- | --- | --- |
-| `--series-1` | #2a78d6 | #3987e5 | #1c5cab |
-| `--series-2` | #eb6834 | #d95926 | #b9461b |
-| `--series-3` | #1baf7a | #199e70 | #0b7a5c |
-| `--series-4` | #eda100 | #c98500 | #946000 |
-| `--series-5` | #e87ba4 | #d55181 | #a8325f |
-| `--series-6` | #008300 | #008300 | #006400 |
+| `--chart-1` | #2a78d6 | #3987e5 | #1c5cab |
+| `--chart-2` | #eb6834 | #d95926 | #b9461b |
+| `--chart-3` | #1baf7a | #199e70 | #0b7a5c |
+| `--chart-4` | #eda100 | #c98500 | #946000 |
+| `--chart-5` | #e87ba4 | #d55181 | #a8325f |
+| `--cd-chart-6` | #008300 | #008300 | #006400 |
 
 ## Type
 
@@ -287,19 +287,19 @@ To re-token for a brand, override after the import, by role, in every theme you 
 /* Your brand, after Candor's defaults. Keep each role's job; change its value. */
 :root {
   --primary: <your brand colour>;
-  --primary-hover: <a step darker>;
+  --cd-primary-hover: <a step darker>;
   --ring: var(--primary);
   --cd-font: "Your Sans", system-ui, sans-serif;
   --cd-radius-button: var(--cd-radius-md);
 }
 [data-theme="dark"] {
   --primary: <your brand colour, lighter, for dark grounds>;
-  --primary-hover: <a step lighter>;
+  --cd-primary-hover: <a step lighter>;
 }
 ```
 
 - Change a role, not a use: every component reads the role, so one override is consistent everywhere.
-- Keep the status pairs together: a new `--success` needs a `--success-weak` it sits on and a `--success-text` that passes on it. Keep the 4 status hues distinguishable from each other and from the primary.
+- Keep the status pairs together: a new `--cd-success` needs a `--cd-success-weak` it sits on and a `--cd-success-text` that passes on it. Keep the 4 status hues distinguishable from each other and from the primary.
 - Check contrast after you change a colour. Candor checks its own pairings before writing the CSS; it can't check yours.
 - Point `--cd-font` at your typeface rather than restyling components; keep `--cd-font-mono` monospaced.
 - Change density with `data-density` before changing sizes.

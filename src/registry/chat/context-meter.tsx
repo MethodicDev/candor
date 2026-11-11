@@ -30,7 +30,7 @@ const kindColor: Record<ContextSegment["kind"], string> = {
   knowledge: "var(--chart-2)",
   thread: "var(--chart-4)",
   tools: "var(--chart-3)",
-  files: "var(--faint-foreground)",
+  files: "var(--cd-faint-foreground)",
 }
 
 function k(n: number, format: (n: number, options?: Intl.NumberFormatOptions) => string, thousands: (n: string) => string) {
@@ -91,7 +91,7 @@ function ContextMeter({
             cy="9"
             r={r}
             fill="none"
-            stroke={warn ? "var(--warning)" : "var(--primary)"}
+            stroke={warn ? "var(--cd-warning)" : "var(--primary)"}
             strokeWidth="2.5"
             strokeDasharray={`${pct * c} ${c}`}
             strokeLinecap="round"

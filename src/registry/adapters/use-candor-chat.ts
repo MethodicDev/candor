@@ -52,7 +52,7 @@ export function useCandorChat(chat: UseChatHelpers<UIMessage>, options: Omit<Fro
     error: chat.error?.message,
     composer: {
       value,
-      onChange: setValue,
+      onValueChange: setValue,
       state,
       references,
       onReferencesChange: setReferences,

@@ -75,7 +75,7 @@ function Summary({
   return (
     <Collapsible className="group/summary">
       <CollapsibleTrigger className="relative after:absolute after:inset-x-0 after:-inset-y-1 inline-flex items-center gap-1 text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 rounded-sm">
-        <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3 cd-reveal-turn group-data-[state=open]/summary:[transform:rotate(90deg)]" /> {t("showAsText")}
+        <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3 cd-reveal-turn group-data-open/summary:[transform:rotate(90deg)]" /> {t("showAsText")}
       </CollapsibleTrigger>
       <CollapsibleContent style={turnMotion}>
         <p className="mt-1.5 rounded-md bg-sunken px-3 py-2 text-sm whitespace-pre-wrap">{text}</p>

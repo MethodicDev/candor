@@ -39,7 +39,17 @@ function ActionButton({
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger render={<button type="button" aria-label={label} aria-pressed={pressed} onClick={onClick} className="flex size-(--cd-control-h-xs,1.75rem) items-center justify-center rounded-md text-faint-foreground cd-tint outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 aria-pressed:text-accent-text [&_svg]:size-3.5" />}>{children}</TooltipTrigger>
+      <TooltipTrigger render={
+        <button
+          type="button"
+          aria-label={label}
+          aria-pressed={pressed}
+          onClick={onClick}
+          className="flex size-(--cd-control-h-xs,1.75rem) items-center justify-center rounded-md text-faint-foreground cd-tint outline-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80 aria-pressed:text-accent-text [&_svg]:size-3.5"
+        >
+          {children}
+        </button>
+      } />
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
   )

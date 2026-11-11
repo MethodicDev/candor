@@ -2,7 +2,7 @@
   "name": "candor-starter-tanstack-start-claude",
   "version": "0.1.0",
   "candor": {
-    "kitVersion": "3.0.0"
+    "kitVersion": "4.0.0"
   },
   "private": true,
   "type": "module",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.3.318",
+    "@base-ui/react": "^1.9.0",
     "@fontsource-variable/inter": "^5.3.0",
     "@tanstack/react-router": "^1.170.0",
     "@tanstack/react-start": "^1.169.0",
@@ -21,7 +22,6 @@
     "cn": "^0.5.2",
     "lucide-react": "^1.67.0",
     "nitro": "3.0.261103-rc",
-    "radix-ui": "^1.8.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "shadcn": "^4.23.0",

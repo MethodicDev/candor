@@ -15,7 +15,7 @@ endpoint when you have one.
   server would. Ask it about your to-do list and it reads the list; ask it to add a task and it waits for your OK first.
   It isn't a model: its replies are fixed text, and the page says so.
 
-> Generated from Candor UI 3.0.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+> Generated from Candor UI 4.0.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
 
 ## Get started
 
@@ -71,7 +71,7 @@ src/app/chat-view.tsx       the chat: Thread, Message, Composer, PermissionPromp
 src/app/scripted-agent.ts   the in-browser AG-UI agent used when VITE_AGENT_URL is empty: delete it once you have a real one
 src/app/tool-title.ts       plain-words titles for the demo agent's tools
 src/components/candor/      Candor components, installed from the registry (ui/ holds its primitives)
-src/components/ui/          the starter's own primitives (shadcn's, and the copies 2.x Candor installed there)
+src/components/ui/          the starter's own primitives (shadcn's)
 src/lib/candor/             Candor's shared types and helpers
 src/styles/candor.css       Candor's theme (light, dark and high contrast)
 ```

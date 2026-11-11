@@ -107,7 +107,7 @@ function LeavingChip({ onDone, children }: { onDone: () => void; children: React
  */
 function Composer({
   value,
-  onChange,
+  onValueChange,
   onSubmit,
   onStop,
   state = "ready",
@@ -132,7 +132,7 @@ function Composer({
   /** The text in the box. */
   value: string
   /** Called with the new text as the person types. */
-  onChange: (value: string) => void
+  onValueChange: (value: string) => void
   /** Called on send with the text and the entities mentioned. */
   onSubmit: (value: string, references: EntityRef[]) => void
   /** Shown as Stop while a reply is streaming. */
@@ -250,7 +250,7 @@ function Composer({
     const caret = el?.selectionStart ?? value.length
     const next = value.slice(0, trigger.start) + text + value.slice(caret)
     pendingCaret.current = trigger.start + text.length
-    onChange(next)
+    onValueChange(next)
     setTrigger(null)
     el?.focus()
   }
@@ -464,7 +464,7 @@ function Composer({
           disabled={Boolean(locked)}
           placeholder={locked ? undefined : placeholder}
           onChange={(e) => {
-            onChange(e.target.value)
+            onValueChange(e.target.value)
             requestAnimationFrame(syncTrigger)
           }}
           onKeyDown={onKeyDown}
@@ -518,7 +518,7 @@ function Composer({
                 }}
               />
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger render={
                   <button
                     type="button"
                     aria-label={t("attachFiles")}
@@ -528,7 +528,7 @@ function Composer({
                   >
                     <Paperclip className="size-4" />
                   </button>
-                </TooltipTrigger>
+                } />
                 <TooltipContent>{t("attachFiles")}</TooltipContent>
               </Tooltip>
             </>

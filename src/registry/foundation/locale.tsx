@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Direction } from "radix-ui"
+import { DirectionProvider } from "@base-ui/react/direction-provider"
 import {
   fill,
   nounDefaults,
@@ -89,7 +89,7 @@ function LocaleProvider({
   timeZone?: string | undefined
   /**
    * Overrides by component name, e.g. `{ thread: { jumpToLatest: "…" } }`; any left out stay English. Nested providers
-   * merge. One exception to the name: ChangeDiff's strings go under `metadataDiff`, its name before 3.0.
+   * merge.
    */
   strings?: StringOverrides | undefined
   /**
@@ -123,7 +123,7 @@ function LocaleProvider({
   }, [parent, nextLocale, locale, timeZone, dir, stringsKey, nounsKey])
   return (
     <LocaleContext.Provider value={value}>
-      <Direction.Provider dir={value.dir}>{children}</Direction.Provider>
+      <DirectionProvider direction={value.dir}>{children}</DirectionProvider>
     </LocaleContext.Provider>
   )
 }

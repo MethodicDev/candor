@@ -37,7 +37,7 @@ function ActionButton({
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger render={
         <button
           type="button"
           aria-label={label}
@@ -47,7 +47,7 @@ function ActionButton({
         >
           {children}
         </button>
-      </TooltipTrigger>
+      } />
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
   )
