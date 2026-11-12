@@ -13,6 +13,7 @@ const openMotion = motion("popover", "open", "overlay")
 /** The element a PopoverAnchor names, which PopoverContent positions against instead of the trigger. */
 const AnchorContext = React.createContext<{ anchor: HTMLElement | null; setAnchor: (el: HTMLElement | null) => void } | null>(null)
 
+/** A small panel that opens beside a trigger to show content or a control without leaving the page. */
 function Popover({ onOpenChange, children, ...props }: PopoverPrimitive.Root.Props) {
   const layer = useLayerRoot(onOpenChange)
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null)

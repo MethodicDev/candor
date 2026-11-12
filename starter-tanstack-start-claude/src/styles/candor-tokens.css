@@ -386,6 +386,17 @@
     animation-name: none !important;
   }
 }
+/* A panel's width changing to one the person chose with a control (a click), never while it follows a drag. */
+@utility cd-reveal-width {
+  --cd-reveal-l: min(var(--cd-m-reveal, var(--cd-motion-reveal, var(--cd-motion-preset))), var(--cd-motion-cap));
+  --cd-reveal-t: calc(var(--cd-m-reveal-dur, var(--cd-motion-reveal-dur, 200ms)) * var(--cd-motion-speed) * min(var(--cd-reveal-l), 1));
+  transition-property: width, inline-size;
+  transition-duration: var(--cd-reveal-t);
+  transition-timing-function: var(--cd-m-reveal-ease, var(--cd-motion-reveal-ease, var(--cd-ease)));
+  @variant calm {
+    transition-property: none !important;
+  }
+}
 /* A disclosure's chevron turning with its content. */
 @utility cd-reveal-turn {
   --cd-reveal-l: min(var(--cd-m-reveal, var(--cd-motion-reveal, var(--cd-motion-preset))), var(--cd-motion-cap));
@@ -398,7 +409,7 @@
   }
 }
 
-/* arrive: something new after the first draw rises in (or fades, or pops). */
+/* arrive: something new after the first draw, or arriving as the page draws when it is motion for show, rises in (or fades, or pops). */
 @utility cd-arrive {
   --cd-arrive-l: min(var(--cd-m-arrive, var(--cd-motion-arrive, var(--cd-motion-preset))), var(--cd-motion-cap));
   --cd-arrive-t: calc(var(--cd-m-arrive-dur, var(--cd-motion-arrive-dur, 240ms)) * var(--cd-motion-speed) * min(var(--cd-arrive-l), 1));
@@ -455,11 +466,14 @@
   }
 }
 
-/* fill: a bar or ring moving between measured values (a transition on its width, dash or scale). */
+/*
+ * fill: a bar or ring moving between measured values (a transition on its width, dash or scale), or a chart's shape
+ * moving from its old values to its new ones (an SVG path's d, where the browser can move it; elsewhere it snaps).
+ */
 @utility cd-fill {
   --cd-fill-l: min(var(--cd-m-fill, var(--cd-motion-fill, var(--cd-motion-preset))), var(--cd-motion-cap));
   --cd-fill-t: calc(var(--cd-m-fill-dur, var(--cd-motion-fill-dur, 360ms)) * var(--cd-motion-speed) * min(var(--cd-fill-l), 1));
-  transition-property: width, inline-size, height, block-size, scale, stroke-dasharray, stroke-dashoffset, stroke, background-color;
+  transition-property: width, inline-size, height, block-size, scale, stroke-dasharray, stroke-dashoffset, stroke, background-color, d;
   transition-duration: var(--cd-fill-t);
   transition-timing-function: var(--cd-m-fill-ease, var(--cd-motion-fill-ease, var(--cd-ease)));
   @variant calm {

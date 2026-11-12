@@ -2,6 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useFormat } from "@/components/candor/locale"
 import { motion } from "@/lib/candor/motion"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 // Re-exported for code that imported it from here; it lives in a module without "use client" so the server can call it.
 import { formatElapsed } from "@/lib/candor/format-elapsed"
 
@@ -33,7 +34,7 @@ function StreamingText({
       aria-busy={streaming}
       className={cn("whitespace-pre-wrap text-[0.9375rem] leading-relaxed text-foreground", className)}
     >
-      {text}
+      {neutralizeBidi(text)}
       {streaming && (
         <span
           aria-hidden

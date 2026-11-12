@@ -7,7 +7,7 @@ import type { RunStatus } from "@/lib/candor/status"
  * own by a brand file. The rule the layer keeps: **a theme tunes how a change looks, never when it happens**. The
  * trigger stays in the component (a class added at an honest moment); this file only builds the chain of CSS
  * variables the family utility in `candor.css` reads, and the two hooks that decide "seen settling" and "arrived after
- * the first draw".
+ * the first draw". `arrive` also covers content arriving as the page draws, when that is motion for show.
  *
  * Precedence, highest first: the OS's reduced-motion setting (the calm level), then the app's `data-motion`
  * (`none`, `calm`, `subtle`, `expressive`), then the brand file's `--cd-motion-*` values, then the defaults below.
@@ -105,7 +105,7 @@ export const motionFamilies = {
     calm: "Snaps to its measured size.",
   },
   arrive: {
-    reports: "Something new, added after the first draw.",
+    reports: "Something new, added after the first draw, or arriving as the page draws when it is motion for show.",
     spatial: true,
     essential: false,
     dur: { default: 240, min: 150, max: 300 },
@@ -443,8 +443,8 @@ export type MotionMode = "full" | "calm" | "none"
 /**
  * The person's setting where `el` is: `none` under `data-motion="none"`, `calm` under the OS's reduced-motion setting
  * or `data-motion="calm"`, else `full`. `none` or `calm` anywhere above wins (the same reach as the CSS variants), the
- * OS setting can't be raised by the app, and values that aren't Candor's (Radix writes its own `data-motion` on menu
- * panels) are ignored.
+ * OS setting can't be raised by the app, and values that aren't Candor's are ignored (an app's own Radix menus, beside
+ * Candor's Base UI ones, write `data-motion` on their panels for the direction they opened from).
  */
 export function motionMode(el: Element | null | undefined): MotionMode {
   if (el?.closest('[data-motion="none"]')) return "none"

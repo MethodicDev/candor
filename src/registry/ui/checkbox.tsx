@@ -18,6 +18,7 @@ const tickMotion = motion("checkbox", "tick", "mark")
  */
 type CheckedState = boolean | "indeterminate"
 
+/** A box that is checked, unchecked or indeterminate, for one choice the person makes. */
 function Checkbox({
   className,
   checked,

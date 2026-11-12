@@ -6,6 +6,7 @@ import { useCopy } from "@/lib/candor/use-copy"
 import { tokenize } from "@/lib/candor/highlight"
 
 import { useStrings, type Translate } from "@/components/candor/locale"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 
 /** Payload's fixed words; override them under `payload` in LocaleProvider's `strings`. */
 export const payloadStrings = {
@@ -14,6 +15,8 @@ export const payloadStrings = {
   copyFailed: "Couldn’t copy",
   shell: "Shell",
   text: "Text",
+  /** Between the language and the title in the caption ("JSON · The query I ran"). */
+  titleSeparator: " · ",
 }
 
 // Language names are the same in every language; only the generic ones ("Shell", "Text") come from the strings table.
@@ -41,15 +44,15 @@ const languageLabel = (lang: string, t: Translate<typeof payloadStrings>) => {
  */
 function Payload({
   language,
-  text,
-  title,
+  text: given,
+  title: givenTitle,
   bare = false,
   highlight,
   className,
 }: {
   /** Shown as the label, e.g. json, sql, python. Never executed or highlighted as HTML. */
   language: PayloadLanguage
-  /** The code or query, shown as text. */
+  /** The code or query, shown as text. Bidi control characters are shown as marks (`neutralizeBidi`), and copied so. */
   text: string
   /** What it is, e.g. "The query I ran". Not shown when `bare`. */
   title?: string | undefined
@@ -62,6 +65,9 @@ function Payload({
   const { state, copy } = useCopy()
   const t = useStrings("payload", payloadStrings)
   const syntax = highlight === undefined ? undefined : highlight ? "highlight" : "off"
+  // A model's or a tool's text: no control character reorders what is read, on screen or once copied.
+  const text = neutralizeBidi(given)
+  const title = neutralizeBidi(givenTitle)
   const code = <Code text={text} language={language} />
   if (bare) {
     return (
@@ -76,8 +82,13 @@ function Payload({
     <figure data-slot="payload" data-language={language} data-syntax={syntax} className={cn("overflow-hidden rounded-lg border bg-sunken", className)}>
       <figcaption className="flex items-center justify-between gap-2 border-b px-3 py-1.5">
         <span className="truncate text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">{languageLabel(language, t)}</span>
-          {title && <span> · {title}</span>}
+          <span className="font-medium text-foreground">{neutralizeBidi(languageLabel(language, t))}</span>
+          {title && (
+            <span>
+              {t("titleSeparator")}
+              <bdi>{title}</bdi>
+            </span>
+          )}
         </span>
         <button
           type="button"

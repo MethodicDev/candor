@@ -140,22 +140,25 @@ toast you can race.
 - Right: `Deleting prod-eu removes the connection, its 14 schedules and 3 months of run history. The history can't be
   recovered. Type prod-eu to confirm.` The Delete button is locked, and says why, until the text matches.
 
-## 9. Motion follows the outcome
+## 9. Motion never says something false
 
-**Why.** Motion is a claim about what happened. A tick that appears before the clipboard answers, or a bar that fills
-before the work is done, teaches people that the interface's signals mean nothing; and a decorative flourish on a
-button teaches them that motion means nothing either.
+**Why.** Motion that reports something is a claim about what happened. A tick that appears before the clipboard
+answers, or a bar that fills before the work is done, teaches people that the interface's signals mean nothing. Motion
+that only makes the interface feel alive claims nothing, and that is the brand's choice.
 
-**Do.** Animate a change after it happened: draw the tick when the write resolved, fill the rail to the step that
-finished, sweep a meter to the value that was measured. Leave a state that was already final when the screen drew
-still. Keep the trigger in the component and let a theme change only how the change looks.
+**Do.** Animate a reported change after it happened: draw the tick when the write resolved, fill the rail to the step
+that finished, sweep a meter to the value that was measured, turn a spinner only while work runs. Motion for show, such
+as content arriving as a page loads, a card lifting under the pointer or a chart drawing in, is welcome if it says
+nothing false: it doesn't look like a status, a measurement or a result that isn't so, it never hides content or holds
+back input, and every number a person can read when it ends is the measured one. Keep the trigger of a reporting
+animation in the component and let a theme change only how the change looks.
 
 Sort every animation into a kind of change. Candor has fourteen families: `reveal` (content opens to its measured
-size), `arrive` (something new after the first draw), `pop` (a chip or mark added or removed), `mark` (a tick or cross
+size), `arrive` (something new appearing: added while the page is open, or content arriving as a page loads, for show), `pop` (a chip or mark added or removed), `mark` (a tick or cross
 when a result settles), `fill` (a bar or ring between measured values), `value` (a number or word changing in place),
 `move` (a thing changing place), `overlay` (a dialog, sheet or menu), `press` (a press registered), `tint` (hover,
 focus, selected), `refuse` (a locked control pressed), `attention` (something new waits on the person), `live` (work
-being heard from) and `clock` (real time passing). If an animation fits none of them it probably decorates.
+being heard from) and `clock` (real time passing). Motion for show uses the family whose change it draws (`arrive` for content arriving on load, `tint` for a hover).
 
 Each family comes in a closed set of variants, named ways of drawing the same change. A brand or a product can pick a
 variant, a duration and a size, or turn a family off, and that is all: it never decides when something moves. A brand

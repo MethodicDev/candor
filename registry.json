@@ -680,6 +680,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/locale",
         "@candor/motion",
@@ -721,6 +722,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/collapsible",
         "@candor/degraded-panel",
         "@candor/locale",
@@ -776,6 +778,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/locale",
         "@candor/popover",
@@ -916,6 +919,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/locale",
         "@candor/tokens",
@@ -1037,6 +1041,7 @@
       "description": "A message's typed blocks (paragraphs, lists, code, tool calls, cards), rendered as text, never as markdown or HTML.",
       "registryDependencies": [
         "@candor/attachment-preview",
+        "@candor/bidi",
         "@candor/card-registry",
         "@candor/chat",
         "@candor/citation",
@@ -1164,6 +1169,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/highlight",
         "@candor/locale",
@@ -1206,6 +1212,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/button",
         "@candor/locale",
         "@candor/motion",
@@ -1259,6 +1266,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/locale",
         "@candor/motion",
@@ -1341,6 +1349,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/collapsible",
         "@candor/locale",
@@ -1502,6 +1511,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/collapsible",
         "@candor/locale",
@@ -1522,6 +1532,40 @@
       ],
       "categories": [
         "chat"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bidi",
+      "type": "registry:lib",
+      "description": "Text from a model or a tool, safe to show: each bidi control character (U+202A to U+202E, U+2066 to U+2069) is replaced by a visible mark naming it, such as `[U+202E]`.",
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/foundation/bidi.ts",
+          "type": "registry:lib",
+          "target": "@lib/candor/bidi.ts"
+        }
+      ],
+      "categories": [
+        "foundation"
       ],
       "meta": {
         "tier": "free",
@@ -2326,6 +2370,7 @@
       "type": "registry:component",
       "description": "Text that is still arriving.",
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/format-elapsed",
         "@candor/locale",
         "@candor/motion",

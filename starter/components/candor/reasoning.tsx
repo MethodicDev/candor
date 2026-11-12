@@ -8,6 +8,7 @@ import type { ReasoningEntry } from "@/lib/candor/chat"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/candor/ui/collapsible"
 
 import { useStrings } from "@/components/candor/locale"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 import { motion, useArrived } from "@/lib/candor/motion"
 
 /**
@@ -30,6 +31,8 @@ export const reasoningStrings = {
   reasoning: "Reasoning",
   steps: { one: "{count} step", other: "{count} steps" },
   assumedCount: "{count} assumed",
+  /** Between the parts of the folded summary line ("Reasoning · 6s · 3 steps"). */
+  summarySeparator: " · ",
   thinking: "Thinking",
   evidence: "Evidence:",
   assumption: "Assumption:",
@@ -77,8 +80,8 @@ function Reasoning({
   const assumed = entries.filter((e) => e.basis === "assumed").length
   const summary = thinking ? null : (
     <>
-      {t("reasoning")}{thoughtFor && <> · {thoughtFor}</>} · {t("steps", { count: entries.length })}
-      {assumed > 0 && <span className="text-warning-text"> · {t("assumedCount", { count: assumed })}</span>}
+      {t("reasoning")}{thoughtFor && <>{t("summarySeparator")}{thoughtFor}</>}{t("summarySeparator")}{t("steps", { count: entries.length })}
+      {assumed > 0 && <span className="text-warning-text">{t("summarySeparator")}{t("assumedCount", { count: assumed })}</span>}
     </>
   )
 
@@ -95,12 +98,12 @@ function Reasoning({
             <li key={e.id} style={arriveMotion} className={cn("relative", arrived(e.id) && "cd-arrive")}>
               <span aria-hidden className="absolute top-1.5 -start-[1.2rem] size-1.5 rounded-full bg-border-strong" />
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <p className="text-sm font-medium">{e.title}</p>
+                <p className="text-sm font-medium"><bdi>{neutralizeBidi(e.title)}</bdi></p>
                 <span className={cn("rounded-xs px-1 text-2xs font-medium", basisTone[e.basis])}>{t(e.basis)}</span>
               </div>
-              {e.body && <p className="mt-0.5 text-sm text-muted-foreground">{e.body}</p>}
+              {e.body && <p className="mt-0.5 text-sm text-muted-foreground">{neutralizeBidi(e.body)}</p>}
               <p className="mt-1 text-xs text-faint-foreground">
-                {e.basis === "verified" ? <>{t("evidence")} {e.evidence}</> : <>{t("assumption")} {e.assumption}</>}
+                {e.basis === "verified" ? <>{t("evidence")} <bdi>{neutralizeBidi(e.evidence)}</bdi></> : <>{t("assumption")} <bdi>{neutralizeBidi(e.assumption)}</bdi></>}
               </p>
             </li>
           ))}

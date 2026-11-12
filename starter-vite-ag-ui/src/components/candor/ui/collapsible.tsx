@@ -10,6 +10,7 @@ import { motion } from "@/lib/candor/motion"
  */
 const openMotion = motion("collapsible", "open", "reveal")
 
+/** One section that opens and closes to show or hide its content, controlled by a trigger. */
 function Collapsible({ className, ...props }: Omit<CollapsiblePrimitive.Root.Props, "className"> & { className?: string | undefined }) {
   return <CollapsiblePrimitive.Root data-slot="collapsible" className={className} {...props} />
 }

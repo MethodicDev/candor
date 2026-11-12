@@ -62,6 +62,7 @@ function moveBetweenHeadings(event: React.KeyboardEvent<HTMLDivElement>) {
 
 const asList = (value: string | string[] | undefined) => (value === undefined ? undefined : Array.isArray(value) ? value : value ? [value] : [])
 
+/** A list of sections that each open and close to show or hide their content, with one or several open at a time. */
 function Accordion({
   type,
   collapsible = false,

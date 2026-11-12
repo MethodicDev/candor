@@ -41,6 +41,8 @@ export const messageStrings = {
   editedBy: "Edited by {name} before sending",
   /** The line a streaming reply shows before anything of it has arrived. Not "Thinking": nothing says the model is yet. */
   working: "Working",
+  /** Between the parts of a meta line: a name and its time, a model and its cost. */
+  metaSeparator: " · ",
 }
 
 /**
@@ -140,7 +142,7 @@ function Message({
               {author.name ?? t("you")}
               {message.createdAt && (
                 <>
-                  {" · "}
+                  {t("metaSeparator")}
                   <RelativeTime date={message.createdAt} format={timeFormat} />
                 </>
               )}
@@ -308,7 +310,8 @@ function MessageAttribution({
   attribution?: MessageData["attribution"] | undefined
   className?: string | undefined
 }) {
-  const meta = [attribution?.model, attribution?.cost].filter(Boolean).join(" · ")
+  const t = useStrings("message", messageStrings)
+  const meta = [attribution?.model, attribution?.cost].filter(Boolean).join(t("metaSeparator"))
   if (!meta) return null
   return (
     <p data-slot="message-attribution" className={cn("text-xs text-faint-foreground", className)}>
@@ -357,7 +360,7 @@ function MessageFooter({
   const t = useStrings("message", messageStrings)
   const streaming = message.status === "streaming"
   const settled = !streaming && message.status !== "failed"
-  const meta = [message.attribution?.model, message.attribution?.cost].filter(Boolean).join(" · ")
+  const meta = [message.attribution?.model, message.attribution?.cost].filter(Boolean).join(t("metaSeparator"))
   return (
     <div data-slot="message-footer" className={cn("flex flex-col gap-3 empty:hidden", className)}>
       {message.status === "interrupted" && (
@@ -382,7 +385,7 @@ function MessageFooter({
           {t(reviewedBy.edited ? "editedBy" : "checkedBy", { name: reviewedBy.name })}
           {reviewedBy.at && (
             <>
-              {" · "}
+              {t("metaSeparator")}
               <RelativeTime date={reviewedBy.at} format={timeFormat} />
             </>
           )}

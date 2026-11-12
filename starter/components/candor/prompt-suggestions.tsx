@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import type { PromptSuggestion } from "@/lib/candor/chat"
 import { Skeleton } from "@/components/candor/ui/skeleton"
 import { useStrings } from "@/components/candor/locale"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 import { motion } from "@/lib/candor/motion"
 
 /**
@@ -65,7 +66,7 @@ function PromptSuggestions({
                   style={pressMotion}
                   className="group/suggestion flex items-start justify-between gap-3 rounded-xl border bg-card p-3 text-start text-sm cd-press outline-none hover:border-border-strong hover:shadow-raised focus-visible:ring-[3px] focus-visible:ring-ring/80"
                 >
-                  <span>{s.text}</span>
+                  <bdi>{neutralizeBidi(s.text)}</bdi>
                   <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-faint-foreground cd-tint group-hover/suggestion:text-accent-text" />
                 </button>
               ) : (
@@ -75,7 +76,7 @@ function PromptSuggestions({
                   onClick={() => onChoose(s)}
                   className="rounded-lg border bg-card px-(--cd-control-px,0.75rem) py-(--cd-item-py,0.375rem) text-sm text-muted-foreground cd-tint outline-none hover:border-border-strong hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80"
                 >
-                  {s.text}
+                  <bdi>{neutralizeBidi(s.text)}</bdi>
                 </button>
               )
             )}

@@ -10,6 +10,7 @@ import { useStatusLabel } from "@/lib/candor/status"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/candor/ui/collapsible"
 import { Payload } from "@/components/candor/payload"
 import { useStrings } from "@/components/candor/locale"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 import { motion } from "@/lib/candor/motion"
 
 /**
@@ -56,6 +57,8 @@ function ToolCall({
   const statusLabel = useStatusLabel()
   const failed = call.status === "failed"
   const [open, setOpen] = React.useState(failed)
+  // The title, the tool's name and the error come from the agent or the tool: no control character reorders them.
+  const title = neutralizeBidi(call.title)
   const hasDetail = Boolean(call.input || call.output || call.error || call.approval?.note || call.approval?.originalInput)
 
   return (
@@ -66,7 +69,7 @@ function ToolCall({
       >
         <StepMark status={call.status} />
         <span className="min-w-0 flex-1 truncate text-sm">
-          {call.status === "running" ? <ShimmerLabel className="font-normal">{call.title}</ShimmerLabel> : call.title}
+          <bdi>{call.status === "running" ? <ShimmerLabel className="font-normal">{title}</ShimmerLabel> : title}</bdi>
           <span className="sr-only"> — {statusLabel(call.status)}</span>
         </span>
         {call.approval?.originalInput !== undefined && (
@@ -79,7 +82,7 @@ function ToolCall({
             {t("approvedAutomatically")}
           </span>
         )}
-        <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline">{call.tool}</code>
+        <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline"><bdi>{neutralizeBidi(call.tool)}</bdi></code>
         {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{call.duration}</span>}
         {hasDetail && (
           <ChevronRight
@@ -92,11 +95,11 @@ function ToolCall({
       <CollapsibleContent style={openMotion}>
         <div className="mt-1 mb-2 ms-[1.375rem] flex flex-col gap-2 border-s ps-3.5">
           {call.error && (
-            <p className="rounded-md bg-destructive-weak px-2.5 py-1.5 text-xs text-destructive-text">{call.error}</p>
+            <p className="rounded-md bg-destructive-weak px-2.5 py-1.5 text-xs text-destructive-text">{neutralizeBidi(call.error)}</p>
           )}
           {call.approval?.note && (
             <p className="text-xs text-muted-foreground">
-              {call.approval.by === "automatic" ? t("approvedAutomatically") : t("approvedByPerson")}: {call.approval.note}
+              {call.approval.by === "automatic" ? t("approvedAutomatically") : t("approvedByPerson")}: <bdi>{neutralizeBidi(call.approval.note)}</bdi>
             </p>
           )}
           {call.approval?.originalInput !== undefined && <p className="text-xs text-muted-foreground">{t("editedNote")}</p>}

@@ -12,6 +12,7 @@ import { Payload } from "@/registry/chat/payload"
 import { AttachmentList } from "@/registry/chat/attachment-preview"
 import { ToolCallGroup } from "@/registry/chat/tool-call"
 import { useStrings } from "@/registry/foundation/locale"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 
 /** MessageContent's fixed words; override them under `messageContent` in LocaleProvider's `strings`. */
 export const messageContentStrings = {
@@ -64,7 +65,8 @@ function Provisional({ nodes, reason, notVerified }: { nodes: InlineNode[]; reas
 
 /**
  * Inline nodes. Every string here may come from a model or the user's system, so it is
- * only ever rendered as a React text child: no markdown parsing, no HTML.
+ * only ever rendered as a React text child: no markdown parsing, no HTML, and no bidi control characters
+ * (`neutralizeBidi` marks them).
  */
 function Inline({
   nodes,
@@ -79,25 +81,25 @@ function Inline({
       {nodes.map((n, i) => {
         switch (n.kind) {
           case "text":
-            return <React.Fragment key={i}>{n.text}</React.Fragment>
+            return <React.Fragment key={i}>{neutralizeBidi(n.text)}</React.Fragment>
           case "strong":
-            return <strong key={i} className="font-semibold">{n.text}</strong>
+            return <strong key={i} className="font-semibold">{neutralizeBidi(n.text)}</strong>
           case "em":
-            return <em key={i}>{n.text}</em>
+            return <em key={i}>{neutralizeBidi(n.text)}</em>
           case "code":
             return (
               <code key={i} className="rounded-xs bg-muted px-1 py-px font-mono text-[0.88em]">
-                {n.text}
+                <bdi>{neutralizeBidi(n.text)}</bdi>
               </code>
             )
           case "measured":
             return (
-              <span key={i} title={n.source ? t("measuredFrom", { source: n.source }) : t("measured")} className="font-medium tabular-nums text-foreground">
-                {n.text}
-              </span>
+              <bdi key={i} title={n.source ? t("measuredFrom", { source: neutralizeBidi(n.source) }) : t("measured")} className="font-medium tabular-nums text-foreground">
+                {neutralizeBidi(n.text)}
+              </bdi>
             )
           case "provisional":
-            return <Provisional key={i} nodes={n.nodes} reason={n.reason ?? t("provisional")} notVerified={t("notVerified")} />
+            return <Provisional key={i} nodes={n.nodes} reason={neutralizeBidi(n.reason) ?? t("provisional")} notVerified={t("notVerified")} />
           case "citation":
             return <Citation key={i} source={ctx.sources.get(n.sourceId)} />
           case "entity":
@@ -115,7 +117,7 @@ function Inline({
                 }}
                 className="font-medium text-accent-text underline-offset-2 hover:underline"
               >
-                {n.text}
+                {neutralizeBidi(n.text)}
               </a>
             )
         }
@@ -143,7 +145,7 @@ function Block({
         </p>
       )
     case "plain":
-      return <p className="whitespace-pre-wrap break-words">{block.text}</p>
+      return <p className="whitespace-pre-wrap break-words">{neutralizeBidi(block.text)}</p>
     case "heading": {
       // Levels are relative to the message: the thread page owns h1 and h2.
       // Blocks can arrive as JSON, so an out-of-range level is clamped rather than trusted.
@@ -172,7 +174,7 @@ function Block({
     case "tools":
       return <ToolCallGroup calls={block.calls} />
     case "degraded":
-      return <DegradedPanel reason={block.reason} missing={block.missing} />
+      return <DegradedPanel reason={neutralizeBidi(block.reason)} missing={neutralizeBidi(block.missing)} />
     case "card":
       return <RegistryCard name={block.card} props={block.props} summary={block.summary} />
     case "attachments":
@@ -223,8 +225,12 @@ function MessageContent({
   )
 }
 
-/** Plain text of a message, for copy. Citations become [n]; entities their API name. */
+/** Plain text of a message, for copy. Citations become [n]; entities their API name. Bidi controls are marked, as on screen. */
 export function blocksToText(blocks: MessageBlock[], sources: MessageSource[] = []): string {
+  return neutralizeBidi(rawText(blocks, sources))
+}
+
+function rawText(blocks: MessageBlock[], sources: MessageSource[]): string {
   const marker = new Map(sources.map((s) => [s.id, s.marker]))
   const inline = (nodes: InlineNode[]): string =>
     nodes

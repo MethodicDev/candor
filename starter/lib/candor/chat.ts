@@ -38,7 +38,7 @@ export type MessageAuthor =
 /**
  * What kind of thing an entity is: "record", "table", "workflow"… Any string;
  * the app registers each kind's icon and noun (see EntityKindsProvider), and
- * presets cover common systems (e.g. Salesforce).
+ * presets cover the kinds of the systems an app commonly works with.
  */
 export type EntityKind = string
 

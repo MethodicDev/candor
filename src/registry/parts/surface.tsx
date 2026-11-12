@@ -30,6 +30,7 @@ const surfaceVariants = cva("relative text-card-foreground", {
   defaultVariants: { tone: "plain", radius: "xl", pad: "md" },
 })
 
+/** A container with Candor's card colours, border, radius and padding, for grouping content that isn't a card with a header. */
 function Surface({
   className,
   tone,

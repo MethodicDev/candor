@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import type { MessageSource, SourceKind } from "@/registry/foundation/chat"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
 import { useStrings, type Translate } from "@/registry/foundation/locale"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 
 /** Citation's fixed words; override them under `citation` in LocaleProvider's `strings`. */
 export const citationStrings = {
@@ -37,6 +38,14 @@ const builtInKinds = ["document", "web", "query", "data", "code", "workflow", "k
 type BuiltInKind = (typeof builtInKinds)[number]
 const isBuiltIn = (kind: string): kind is BuiltInKind => (builtInKinds as readonly string[]).includes(kind)
 
+/** A source's words as they're shown: its label, origin and excerpt come from a tool or a model, so no control character reorders them. */
+const shown = (source: MessageSource): MessageSource => ({
+  ...source,
+  label: neutralizeBidi(source.label),
+  origin: neutralizeBidi(source.origin),
+  snippet: neutralizeBidi(source.snippet),
+})
+
 const kindOf = (kind: SourceKind, t: Translate<typeof citationStrings>) => {
   const info = sourceKinds[kind]
   if (!info) return { Icon: FileText, noun: t("source") }
@@ -44,12 +53,13 @@ const kindOf = (kind: SourceKind, t: Translate<typeof citationStrings>) => {
 }
 
 function SourceDetail({
-  source,
+  source: given,
 }: {
   /** The source this marker points to; without it the marker says it's unknown. */
   source: MessageSource
 }) {
   const t = useStrings("citation", citationStrings)
+  const source = shown(given)
   const { Icon, noun } = kindOf(source.kind, t)
   return (
     <div className="flex flex-col gap-2">
@@ -84,7 +94,7 @@ function SourceDetail({
  * when a citation number or chip takes keyboard focus.
  */
 function Citation({
-  source,
+  source: given,
   marker,
 }: {
   /** The source this marker points to; without it the marker says it's unknown. */
@@ -93,6 +103,7 @@ function Citation({
   marker?: number | undefined
 }) {
   const t = useStrings("citation", citationStrings)
+  const source = given && shown(given)
   if (!source) {
     return <sup data-slot="citation" className="text-faint-foreground">[{marker ?? "?"}]</sup>
   }
@@ -134,7 +145,8 @@ function SourceList({
   return (
     <div data-slot="source-list" className={cn("flex flex-wrap items-center gap-1.5", className)}>
       <span className="me-0.5 text-xs text-faint-foreground">{t("sources")}</span>
-      {[...sources]
+      {sources
+        .map(shown)
         .sort((a, b) => a.marker - b.marker)
         .map((s) => {
           const { Icon } = kindOf(s.kind, t)
@@ -150,9 +162,9 @@ function SourceList({
                 >
                   <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-sm bg-muted px-1 text-2xs font-semibold tabular-nums">{s.marker}</span>
                   <Icon aria-hidden className="mt-0.5 size-3 shrink-0" />{" "}
-                  <span data-slot="source-label" className="min-w-0 [overflow-wrap:anywhere]">
+                  <bdi data-slot="source-label" className="min-w-0 [overflow-wrap:anywhere]">
                     {s.label}
-                  </span>
+                  </bdi>
                 </button>
               } />
               <PopoverContent align="start" aria-label={t("sourceLabel", { marker: s.marker, label: s.label })} className="w-80 max-w-[calc(100vw-2rem)] p-3">

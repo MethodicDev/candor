@@ -7,6 +7,7 @@ import { motion } from "@/lib/candor/motion"
  */
 const loadingMotion = motion("skeleton", "loading", "live", { dur: 2000 })
 
+/** A grey placeholder shaped like the content that is loading, which pulses while it waits. */
 function Skeleton({ className, style, ...props }: React.ComponentProps<"div">) {
   return (
     <div

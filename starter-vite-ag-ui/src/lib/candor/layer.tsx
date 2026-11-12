@@ -16,8 +16,17 @@ import * as React from "react"
  *                dialog's transform doesn't squeeze a Candor dialog or move a list away from its trigger. In a dialog
  *                that clips (a max height and `overflow-y: auto`, say), the dialog's box would clip the host and its
  *                scroll would carry it, so the host is shown in the top layer instead (a manual `popover`): still
- *                inside the dialog for its focus trap and outside click, but drawn over the viewport, unclipped. A
- *                layer of another library opened from inside that host is drawn under it, as it isn't in the top layer.
+ *                inside the dialog for its focus trap and outside click, but drawn over the viewport, unclipped.
+ *   raising      A layer of another library opened from inside such a host (the app's Radix menu in a Candor dialog)
+ *                portals to `<body>`, or to a container of the app's own, which the top layer is drawn over. While a
+ *                host is in the top layer, each layer of another library added anywhere in `<body>` (outside other
+ *                layers) is shown in the top layer too, above the host, with the styles the top layer's popover rules
+ *                changed put back as they were. A host shown in the top layer again after it was lowered puts the
+ *                layers raised before it back above it.
+ *   Tab          Base UI's modal popups keep Tab inside with focus guards placed just outside the popup, which move
+ *                focus back in on the next animation frame, so for that frame focus sits on a guard outside the dialog
+ *                (KIT-83, Base UI 1.9.0's FloatingFocusManager). `wrapTab` on a modal popup's keydown moves focus from
+ *                its last stop to its first (and back with Shift) in the same task, so a guard is never reached.
  *   Escape       Radix dismisses its top layer from a document capture listener and calls `preventDefault()`; Base UI
  *                closes its own top layer too, so one Escape closed both. `useLayerRoot` ignores an Escape another
  *                library already handled. While a Candor layer is open in a host, Candor claims Escape first (before
@@ -31,6 +40,48 @@ export const layerClass = "pointer-events-auto"
 
 /** The attribute on a layer host. A layer opened from inside a host portals into the same host. */
 export const LAYER_HOST = "data-candor-layer-host"
+
+/** What can take focus with Tab: Base UI's focus guards, removed controls and hidden ones are left out below. */
+const TABBABLE =
+  'a[href], area[href], button, input:not([type="hidden"]), select, textarea, iframe, summary, audio[controls], video[controls], [contenteditable=""], [contenteditable="true"], [tabindex]'
+
+/** The stops Tab visits in `root`, in order: tabbable, enabled, shown and not a Base UI focus guard. */
+function tabStops(root: HTMLElement): HTMLElement[] {
+  return [...root.querySelectorAll<HTMLElement>(TABBABLE)].filter(
+    (el) =>
+      el.tabIndex >= 0 &&
+      !el.hasAttribute("data-base-ui-focus-guard") &&
+      !(el as HTMLButtonElement).disabled &&
+      !el.closest("[inert]") &&
+      el.getClientRects().length > 0 &&
+      getComputedStyle(el).visibility !== "hidden" &&
+      // One radio of a group is a stop: the checked one, else the first.
+      !(el instanceof HTMLInputElement && el.type === "radio" && el.name && !el.checked && root.querySelector(`input[type="radio"][name="${CSS.escape(el.name)}"]:checked`))
+  )
+}
+
+/**
+ * On a modal popup's `onKeyDown`: Tab from its last stop goes to its first, and Shift+Tab from its first (or from the
+ * popup itself) to its last, in the same task. Base UI's own wrap goes through a focus guard outside the popup and a
+ * frame later; this one never leaves the popup. Keys from a layer opened inside it (portalled elsewhere in the DOM) are
+ * left to that layer.
+ */
+export function wrapTab(event: React.KeyboardEvent<HTMLElement>) {
+  // Option+Tab is how Safari reaches every control, so Alt is let through.
+  if (event.key !== "Tab" || event.defaultPrevented || event.ctrlKey || event.metaKey) return
+  const popup = event.currentTarget
+  const from = event.target as Node
+  if (!popup.contains(from)) return
+  const stops = tabStops(popup)
+  const first = stops[0]
+  const last = stops[stops.length - 1]
+  const to = !first ? popup : event.shiftKey ? (from === first || from === popup ? last : undefined) : from === last ? first : undefined
+  if (!to) return
+  event.preventDefault()
+  // A foreign dialog around it (Radix's focus scope) would wrap to its own first stop: the popup's wrap is the one.
+  event.stopPropagation()
+  to.focus()
+}
 
 /** The shape of Base UI's change details that the Escape guard reads. */
 type OpenChangeDetails = { reason?: string | undefined; event?: Event | undefined; trigger?: Element | undefined; cancel: () => void }
@@ -125,6 +176,11 @@ export function layerHostFor(from: Element | null | undefined): HTMLElement | nu
   })
   dialog.appendChild(host)
   const topLayer = typeof host.showPopover === "function"
+  const lower = () => {
+    if (host.matches(":popover-open")) host.hidePopover()
+    host.removeAttribute("popover")
+    raiseAbove(host, false)
+  }
   const clips = () => {
     const style = getComputedStyle(dialog)
     return style.overflowX !== "visible" || style.overflowY !== "visible"
@@ -136,15 +192,15 @@ export function layerHostFor(from: Element | null | undefined): HTMLElement | nu
       if (!host.matches(":popover-open")) {
         host.popover = "manual"
         host.showPopover()
+        raiseAbove(host, true)
+        // Shown again after it was lowered: the layers raised while it was up were opened above it, so they go back on top.
+        reraise()
       }
       host.style.left = "0px"
       host.style.top = "0px"
       return
     }
-    if (topLayer && host.hasAttribute("popover")) {
-      if (host.matches(":popover-open")) host.hidePopover()
-      host.removeAttribute("popover")
-    }
+    if (topLayer && host.hasAttribute("popover")) lower()
     // The dialog's transform is the host's containing block: offset the host by the dialog's position so it covers the
     // viewport, and follow the dialog as it moves or animates in.
     const box = dialog.getBoundingClientRect()
@@ -160,6 +216,7 @@ export function layerHostFor(from: Element | null | undefined): HTMLElement | nu
   hosts.set(host, {
     users: 0,
     stop: () => {
+      raiseAbove(host, false)
       observer?.disconnect()
       window.removeEventListener("resize", place)
       dialog.removeEventListener("animationend", place)
@@ -167,6 +224,111 @@ export function layerHostFor(from: Element | null | undefined): HTMLElement | nu
     },
   })
   return host
+}
+
+/**
+ * Hosts in the top layer now, what watches `<body>` for other libraries' layers while there are any, and the layers it
+ * raised (in the order they were raised).
+ */
+const raising = { hosts: new Set<HTMLElement>(), watcher: null as MutationObserver | null, raised: new Set<HTMLElement>() }
+
+/** Counts a host in or out of the top layer; while one is in it, other libraries' new layers are raised above it. */
+function raiseAbove(host: HTMLElement, inTopLayer: boolean) {
+  if (inTopLayer) raising.hosts.add(host)
+  else raising.hosts.delete(host)
+  if (raising.hosts.size > 0 && !raising.watcher && typeof MutationObserver !== "undefined") {
+    raising.watcher = new MutationObserver((records) => {
+      for (const record of records) for (const node of record.addedNodes) if (node instanceof HTMLElement && isPortalled(node) && isForeignLayer(node)) raise(node)
+    })
+    // The whole of <body>: an app can portal its layers into a container of its own, not only into <body>.
+    raising.watcher.observe(document.body, { childList: true, subtree: true })
+  } else if (raising.hosts.size === 0 && raising.watcher) {
+    raising.watcher.disconnect()
+    raising.watcher = null
+    // Kept while they are open: a host shown in the top layer again puts them back above it.
+    for (const el of raising.raised) if (!el.isConnected || !el.matches(":popover-open")) raising.raised.delete(el)
+  }
+}
+
+/**
+ * Whether an element just added somewhere in `<body>` stands where a portal puts a layer: in `<body>` itself, or in a
+ * container of the app's that isn't inside a layer (another library's, one already in the top layer, a Candor host or
+ * Base UI's portal). Content a layer draws inside itself, and anything inside the dialog that holds a host, is left alone.
+ */
+function isPortalled(el: HTMLElement): boolean {
+  const parent = el.parentElement
+  if (!parent) return false
+  if (parent === document.body) return true
+  if (parent.closest(`${FOREIGN_LAYER},[data-state],[popover],[${LAYER_HOST}],[data-base-ui-portal]`)) return false
+  for (const host of raising.hosts) if (host.parentElement?.contains(el)) return false
+  return true
+}
+
+/**
+ * Whether an element just added to `<body>` is a layer of another library: one of its dialogs, menus, lists or popper
+ * wrappers, or a part Radix marks open or closed that a portal puts over the page (a dialog's overlay: in `<body>`
+ * itself, or fixed to the viewport in the app's own container). A part marked open or closed elsewhere, such as a
+ * tooltip's trigger the page shows behind a dialog, is the page's own and isn't raised. Base UI's portals, Candor's
+ * hosts and anything already a popover are left alone.
+ */
+function isForeignLayer(el: HTMLElement): boolean {
+  if (el.hasAttribute(LAYER_HOST) || el.hasAttribute("popover") || el.closest("[data-base-ui-portal]")) return false
+  if (el.matches(FOREIGN_LAYER) || el.querySelector(FOREIGN_LAYER) !== null) return true
+  return el.hasAttribute("data-state") && (el.parentElement === document.body || getComputedStyle(el).position === "fixed")
+}
+
+/** What the top layer's popover rules set (inset, size, margin, border, padding, overflow, colours, position). */
+const POPOVER_STYLES = [
+  "position",
+  ...["top", "right", "bottom", "left", "width", "height"],
+  ...["top", "right", "bottom", "left"].flatMap((side) => [`margin-${side}`, `padding-${side}`, `border-${side}-style`, `border-${side}-width`, `border-${side}-color`]),
+  "overflow-x",
+  "overflow-y",
+  "color",
+  "background-color",
+]
+/** Of those, the ones a stylesheet sets as lengths that the browser reports resolved: put back as `auto`. */
+const SIZED = new Set(["top", "right", "bottom", "left", "width", "height"])
+
+/**
+ * Shows another library's layer in the top layer, above the hosts there, as a manual popover. Every style the popover
+ * rules changed is put back as it was (the library's own and the app's styles win over those rules where they set a
+ * value; what they leave unset would otherwise turn into the popover's border, padding and inset). It leaves the top
+ * layer when the library removes it.
+ */
+function raise(el: HTMLElement) {
+  if (typeof el.showPopover !== "function") return
+  const before = getComputedStyle(el)
+  const was = POPOVER_STYLES.map((name) => before.getPropertyValue(name))
+  el.setAttribute("popover", "manual")
+  try {
+    el.showPopover()
+  } catch {
+    el.removeAttribute("popover")
+    return
+  }
+  const now = getComputedStyle(el)
+  POPOVER_STYLES.forEach((name, i) => {
+    if (now.getPropertyValue(name) !== was[i]) el.style.setProperty(name, SIZED.has(name) ? "auto" : was[i]!)
+  })
+  raising.raised.add(el)
+}
+
+/**
+ * Puts the layers raised earlier, and still open, back on top of the top layer in the order they were raised: a host
+ * shown again was drawn above them. Focus inside one stays where it was.
+ */
+function reraise() {
+  for (const el of [...raising.raised]) {
+    if (!el.isConnected || !el.matches(":popover-open")) {
+      raising.raised.delete(el)
+      continue
+    }
+    const focused = document.activeElement
+    el.hidePopover()
+    el.showPopover()
+    if (focused instanceof HTMLElement && el.contains(focused) && document.activeElement !== focused) focused.focus({ preventScroll: true })
+  }
 }
 
 /** The layers of other libraries that can sit above a Candor layer and take Escape for themselves. */

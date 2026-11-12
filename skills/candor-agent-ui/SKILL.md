@@ -46,9 +46,10 @@ Each is expanded with examples in `references/honesty-rules.md`.
    strings. Nothing the model writes becomes a name or a system message.
 8. **Say what can and can't be undone.** Before a destructive action: what it removes, whether it comes back, how and
    for how long. After an undo or restore: what it did not undo.
-9. **Motion follows the outcome.** An animation reports a change that happened; it never predicts or decorates one. A
-   success mark is drawn after the result settles, progress fills only to what was measured, a state that was already
-   final when the screen drew does not animate, and the OS's reduced-motion setting wins. Give each animation a kind
+9. **Motion never says something false.** An animation that reports a change waits for it: a success mark is drawn
+   after the result settles, a spinner turns only while work runs, progress fills only as far as the work has gone,
+   and the OS's reduced-motion setting wins. Motion for show (content arriving on load, a card lifting under the
+   pointer, a chart drawing in) is fine when it says nothing false and never hides content. Give each animation a kind
    of change (Candor names fourteen motion families, listed in `references/honesty-rules.md`) and let a theme change how
    it looks, never when it plays.
 

@@ -4,6 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useFormat } from "@/registry/foundation/locale"
 import { motion } from "@/registry/foundation/motion"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 // Re-exported for code that imported it from here; it lives in a module without "use client" so the server can call it.
 import { formatElapsed } from "@/registry/foundation/format-elapsed"
 
@@ -35,7 +36,7 @@ function StreamingText({
       aria-busy={streaming}
       className={cn("whitespace-pre-wrap text-[0.9375rem] leading-relaxed text-foreground", className)}
     >
-      {text}
+      {neutralizeBidi(text)}
       {streaming && (
         <span
           aria-hidden

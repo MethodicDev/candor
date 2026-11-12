@@ -5,6 +5,7 @@ import { File, FileArchive, FileCode, FileImage, FileSpreadsheet, FileText, Musi
 import { cn } from "@/lib/utils"
 import { useFormat, useStrings, type Formatter, type Translate } from "@/components/candor/locale"
 import type { Attachment } from "@/lib/candor/chat"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 import { motion } from "@/lib/candor/motion"
 
 /** The upload bar moving between measured byte counts: 2.2's 300 ms. */
@@ -75,6 +76,8 @@ function AttachmentChip({
   const t = useStrings("attachmentPreview", attachmentPreviewStrings)
   const fmt = useFormat()
   const thumb = thumbnail(a)
+  // A file's name can come from a model or a tool: no bidi control reorders it.
+  const name = neutralizeBidi(a.name)
   return (
     <span
       data-slot="attachment-chip"
@@ -82,12 +85,12 @@ function AttachmentChip({
       className={cn("relative inline-flex max-w-56 items-center gap-1.5 overflow-hidden rounded-md border bg-card py-1 pe-1 ps-2 text-xs", a.error && "border-destructive/50", className)}
     >
       {thumb ? <img src={thumb} alt="" className="size-4 shrink-0 rounded-xs object-cover" /> : <Paperclip aria-hidden className="size-3 shrink-0 text-muted-foreground" />}
-      <span className="truncate">{a.name}</span>
+      <bdi className="truncate">{name}</bdi>
       <span className={cn("shrink-0 tabular-nums", a.error ? "text-destructive-text" : "text-faint-foreground")}>
         {a.error ? a.error : a.progress !== undefined ? fmt.number(Math.round(a.progress * 100) / 100, { style: "percent" }) : formatFileSize(a.size, fmt.number, t)}
       </span>
       {onRemove && (
-        <button type="button" aria-label={t("remove", { name: a.name })} onClick={() => onRemove(a.id)} className="relative after:absolute after:-inset-1 rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
+        <button type="button" aria-label={t("remove", { name })} onClick={() => onRemove(a.id)} className="relative after:absolute after:-inset-1 rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
           <X className="size-3" />
         </button>
       )}
@@ -116,6 +119,7 @@ function AttachmentPreview({
   const fmt = useFormat()
   const thumb = thumbnail(a)
   const size = formatFileSize(a.size, fmt.number, t)
+  const name = neutralizeBidi(a.name)
   const body = (
     <>
       {thumb ? (
@@ -126,7 +130,7 @@ function AttachmentPreview({
         </span>
       )}
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm">{a.name}</span>
+        <bdi className="block truncate text-sm">{name}</bdi>
         {(size || a.error) && <span className={cn("block text-xs tabular-nums", a.error ? "text-destructive-text" : "text-faint-foreground")}>{a.error ?? size}</span>}
       </span>
     </>
@@ -136,7 +140,7 @@ function AttachmentPreview({
     <button
       type="button"
       data-slot="attachment-preview"
-      aria-label={t("open", { name: a.name })}
+      aria-label={t("open", { name })}
       onClick={() => onOpen(a)}
       className={cn(frame, "outline-none cd-tint hover:border-border-strong focus-visible:ring-[3px] focus-visible:ring-ring/80")}
     >

@@ -2,7 +2,7 @@
   "name": "candor-starter-vite-ag-ui",
   "version": "0.1.0",
   "candor": {
-    "kitVersion": "4.0.2"
+    "kitVersion": "4.1.0"
   },
   "private": true,
   "type": "module",

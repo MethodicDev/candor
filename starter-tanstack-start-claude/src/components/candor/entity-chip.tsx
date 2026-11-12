@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import type { EntityRef } from "@/lib/candor/chat"
 import { useStrings } from "@/components/candor/locale"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 
 /** EntityChip's fixed words; override them under `entityChip` in LocaleProvider's `strings`. */
 export const entityChipStrings = {
@@ -126,14 +127,15 @@ function EntityChip({
 }) {
   const { Icon, noun } = useEntityKinds()(entity.kind)
   const t = useStrings("entityChip", entityChipStrings)
-  const shown = entity.label ?? entity.name
-  const title = entity.location
-    ? t("titleIn", { noun, name: entity.name, location: entity.location })
-    : t("title", { noun, name: entity.name })
+  // The name, label and location can come from a model or the user's system: no control character reorders them.
+  const name = neutralizeBidi(entity.name)
+  const location = neutralizeBidi(entity.location)
+  const shown = neutralizeBidi(entity.label) ?? name
+  const title = location ? t("titleIn", { noun, name, location }) : t("title", { noun, name })
   const body = (
     <>
       <Icon aria-hidden className="size-3 shrink-0 text-muted-foreground" />
-      <span className="truncate">{shown}</span>
+      <bdi className="truncate">{shown}</bdi>
       <span className="sr-only"> ({title})</span>
     </>
   )

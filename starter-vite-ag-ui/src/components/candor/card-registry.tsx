@@ -2,7 +2,8 @@ import * as React from "react"
 import { ChevronRight, LayoutTemplate } from "lucide-react"
 import { DegradedPanel } from "@/components/candor/degraded-panel"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/candor/ui/collapsible"
-import { useStrings } from "@/components/candor/locale"
+import { place, useStrings } from "@/components/candor/locale"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 import { motion } from "@/lib/candor/motion"
 
 /**
@@ -78,7 +79,7 @@ function Summary({
         <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3 cd-reveal-turn group-data-open/summary:[transform:rotate(90deg)]" /> {t("showAsText")}
       </CollapsibleTrigger>
       <CollapsibleContent style={turnMotion}>
-        <p className="mt-1.5 rounded-md bg-sunken px-3 py-2 text-sm whitespace-pre-wrap">{text}</p>
+        <p className="mt-1.5 rounded-md bg-sunken px-3 py-2 text-sm whitespace-pre-wrap">{neutralizeBidi(text)}</p>
       </CollapsibleContent>
     </Collapsible>
   )
@@ -106,9 +107,9 @@ function RegistryCard({
   const def = cards[name]
   if (!def) {
     return (
-      <div data-slot="card-registry" data-card={name} data-state="unknown" className="flex flex-col gap-1.5 rounded-lg border border-dashed px-3 py-2.5">
+      <div data-slot="card-registry" data-card={neutralizeBidi(name)} data-state="unknown" className="flex flex-col gap-1.5 rounded-lg border border-dashed px-3 py-2.5">
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <LayoutTemplate aria-hidden className="size-3.5" /> {t("unknown", { name })}
+          <LayoutTemplate aria-hidden className="size-3.5" /> <span>{place(t("unknown", { name: "{name}" }), { name: <bdi>{neutralizeBidi(name)}</bdi> })}</span>
         </p>
         <Summary text={summary} />
       </div>

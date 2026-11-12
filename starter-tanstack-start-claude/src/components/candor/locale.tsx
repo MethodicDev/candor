@@ -71,6 +71,7 @@ export function directionOf(locale: string | undefined): TextDirection {
   }
 }
 
+/** Sets the language, text direction, time zone, interface strings and nouns for everything inside it, so each Candor component reads its words and formats its dates and numbers from one place. */
 function LocaleProvider({
   locale,
   dir,

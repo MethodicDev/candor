@@ -1,3 +1,10 @@
+/*
+ * This starter's own crossSite() and crossSiteRefused(). The starter is MIT and builds without Candor's Premium blocks,
+ * so it keeps a copy rather than importing them. The Premium version is crossSite() in the server foundation, which
+ * any Premium block installs at `lib/candor/candor-server.ts` (`@/lib/candor/candor-server`); once a Premium block is
+ * installed, the routes can import that one instead. Candor tests this copy against the foundation's on the same requests, so the two
+ * decide alike and a fix to one reaches both.
+ */
 const origins = (list: string | undefined) =>
   (list ?? "")
     .split(",")

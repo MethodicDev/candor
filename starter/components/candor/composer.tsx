@@ -7,7 +7,7 @@ import type { Attachment, ComposerScope, EntityRef, MentionOption, SlashCommand 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/candor/ui/tooltip"
 import { EntityChip, useEntityKinds } from "@/components/candor/entity-chip"
 import { AttachmentChip } from "@/components/candor/attachment-preview"
-import { useStrings } from "@/components/candor/locale"
+import { place, useStrings } from "@/components/candor/locale"
 import { motion, useArrived, useLeaving } from "@/lib/candor/motion"
 
 /**
@@ -45,6 +45,12 @@ export const composerStrings = {
   hintNewLine: "new line",
   hintMention: "mention",
   hintCommand: "command",
+  /** In the keyboard hint: the key, then what it does; `{keys}` is the key and `{action}` its hint. */
+  hintItem: "{keys} {action}",
+  /** In the keyboard hint: between one key's entry and the next. */
+  hintSeparator: " · ",
+  /** The scope chip: `{name}` is the environment's name, `{detail}` "Production" or the scope's detail. */
+  scopeChip: "{name} · {detail}",
   stop: "Stop",
   send: "Send",
   dropFiles: "Drop files to attach",
@@ -550,7 +556,7 @@ function Composer({
             >
               {production ? <TriangleAlert aria-hidden className="size-3 shrink-0" /> : <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-success" />}
               <span className="truncate">
-                {scope.environment} · {production ? t("production") : (scope.detail ?? t("nonProduction"))}
+                {t("scopeChip", { name: scope.environment, detail: production ? t("production") : (scope.detail ?? t("nonProduction")) })}
               </span>
             </button>
           )}
@@ -558,17 +564,19 @@ function Composer({
           {hints && (
             // Only what this composer can do: @ and / are named only when there's something for them to offer.
             <span className="ms-auto hidden text-2xs text-faint-foreground @lg:inline">
-              <kbd className="font-sans">↵</kbd> {t("hintSend")} · <kbd className="font-sans">⇧↵</kbd> {t("hintNewLine")}
+              {place(t("hintItem"), { keys: <kbd className="font-sans">↵</kbd>, action: t("hintSend") })}
+              {t("hintSeparator")}
+              {place(t("hintItem"), { keys: <kbd className="font-sans">⇧↵</kbd>, action: t("hintNewLine") })}
               {mentions.length > 0 && (
                 <>
-                  {" · "}
-                  <kbd className="font-sans">@</kbd> {t("hintMention")}
+                  {t("hintSeparator")}
+                  {place(t("hintItem"), { keys: <kbd className="font-sans">@</kbd>, action: t("hintMention") })}
                 </>
               )}
               {commands.length > 0 && (
                 <>
-                  {" · "}
-                  <kbd className="font-sans">/</kbd> {t("hintCommand")}
+                  {t("hintSeparator")}
+                  {place(t("hintItem"), { keys: <kbd className="font-sans">/</kbd>, action: t("hintCommand") })}
                 </>
               )}
             </span>

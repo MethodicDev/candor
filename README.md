@@ -15,7 +15,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 73 free items (version 4.0.2), the skill and plugins for coding
+This repo is the source of Candor UI's 74 free items (version 4.1.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -53,7 +53,7 @@ Typical and Honest switch; the others go to [Principles](https://candor.themetho
 - **[Reasoning is believed, not verified](https://candor.themethodic.com/principles#reasoning-is-believed)**: Reasoning is shown as the model's own account and marked as unchecked; evidence is shown as evidence.
 - **[The agent is always named, by the app](https://candor.themethodic.com/principles#agents-are-named)**: Every agent message names its agent from the app's data, never from model output.
 - **[Say what can and can't be undone](https://candor.themethodic.com/honest-vs-typical#restore-that-missed-a-shell-change)**: Destructive actions say what they remove and whether it can be brought back.
-- **[Motion follows the outcome](https://candor.themethodic.com/honest-vs-typical#tick-before-the-clipboard-answered)**: A success mark is drawn after the result settles; motion reports a change and never predicts one.
+- **[Motion never says something false](https://candor.themethodic.com/honest-vs-typical#tick-before-the-clipboard-answered)**: A success mark is drawn after the result settles; motion reports a change and never predicts one.
 
 ## Install
 
@@ -115,6 +115,18 @@ MethodicDev/candor`, then `claude plugin install candor-ui@candor` (or, in a ses
 MethodicDev/candor`, then `copilot plugin install candor-ui@candor`. VS Code installs `candor-ui` from this repo's URL;
 Cursor reads `.cursor-plugin/marketplace.json`; the Codex package is `plugins/codex/candor-ui`.
 
+Each tool reads its manifest from a folder it names, which is why the top of this repository has several dot-folders.
+GitHub Copilot CLI looks only at the root, `.plugin/`, `.github/plugin/` and `.claude-plugin/`, so its manifest can't
+move under `plugins/` with the packages.
+
+| Folder | Read by | What it holds |
+|---|---|---|
+| `.claude-plugin/` | Claude Code | the marketplace and the plugin, which is this repository |
+| `.cursor-plugin/` | Cursor | the marketplace, listing `plugins/cursor/candor-ui` |
+| `.github/plugin/` | GitHub Copilot CLI and VS Code | the marketplace, listing `plugins/vscode/candor-ui` |
+| `.mcp/` | the MCP registry | `server.json`, the docs MCP server's entry |
+| `plugins/` | Codex, Cursor, VS Code | one package per tool, each with the skill and the MCP server's settings |
+
 The MCP server at https://candor.themethodic.com/mcp serves docs and component suggestions only: read-only, no key,
 never paid source. `.mcp/server.json` describes it for the MCP registry. Agents can also read
 https://candor.themethodic.com/llms.txt.
@@ -137,7 +149,7 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 
 ## What's here
 
-73 free items, each with a docs page that has its props and live examples. Install any of them by name:
+74 free items, each with a docs page that has its props and live examples. Install any of them by name:
 `npx candor-ui add <name>`.
 
 | Area | What it's for | Items |
@@ -150,11 +162,11 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 | **Themes** (6) | The default theme and 5 gallery themes: colours, type, radius and motion as CSS variables, in light, dark and high contrast. | [`tokens`](https://candor.themethodic.com/docs/tokens), [`theme`](https://candor.themethodic.com/docs/theme), [`theme-slate`](https://candor.themethodic.com/docs/theme-slate), [`theme-paper`](https://candor.themethodic.com/docs/theme-paper), [`theme-console`](https://candor.themethodic.com/docs/theme-console), [`theme-signal`](https://candor.themethodic.com/docs/theme-signal) |
 
 <details>
-<summary>Shared helpers and fonts (18)</summary>
+<summary>Shared helpers and fonts (19)</summary>
 
-**Shared types and helpers** (15): Types and pure functions the components share.
+**Shared types and helpers** (16): Types and pure functions the components share.
 
-[`chat`](https://candor.themethodic.com/docs/chat), [`fill-strings`](https://candor.themethodic.com/docs/fill-strings), [`format-elapsed`](https://candor.themethodic.com/docs/format-elapsed), [`highlight`](https://candor.themethodic.com/docs/highlight), [`know`](https://candor.themethodic.com/docs/know), [`layer`](https://candor.themethodic.com/docs/layer), [`locale`](https://candor.themethodic.com/docs/locale), [`mcp-input`](https://candor.themethodic.com/docs/mcp-input), [`motion`](https://candor.themethodic.com/docs/motion), [`safe-markdown`](https://candor.themethodic.com/docs/safe-markdown), [`sound`](https://candor.themethodic.com/docs/sound), [`status`](https://candor.themethodic.com/docs/status), [`use-copy`](https://candor.themethodic.com/docs/use-copy), [`use-shortcut`](https://candor.themethodic.com/docs/use-shortcut), [`use-virtual-list`](https://candor.themethodic.com/docs/use-virtual-list)
+[`bidi`](https://candor.themethodic.com/docs/bidi), [`chat`](https://candor.themethodic.com/docs/chat), [`fill-strings`](https://candor.themethodic.com/docs/fill-strings), [`format-elapsed`](https://candor.themethodic.com/docs/format-elapsed), [`highlight`](https://candor.themethodic.com/docs/highlight), [`know`](https://candor.themethodic.com/docs/know), [`layer`](https://candor.themethodic.com/docs/layer), [`locale`](https://candor.themethodic.com/docs/locale), [`mcp-input`](https://candor.themethodic.com/docs/mcp-input), [`motion`](https://candor.themethodic.com/docs/motion), [`safe-markdown`](https://candor.themethodic.com/docs/safe-markdown), [`sound`](https://candor.themethodic.com/docs/sound), [`status`](https://candor.themethodic.com/docs/status), [`use-copy`](https://candor.themethodic.com/docs/use-copy), [`use-shortcut`](https://candor.themethodic.com/docs/use-shortcut), [`use-virtual-list`](https://candor.themethodic.com/docs/use-virtual-list)
 
 **Fonts** (3): Self-hosted, and optional: without one the theme uses the system font.
 
@@ -169,8 +181,8 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
-| Free (this repo) | $0, MIT | 73 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 293 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Free (this repo) | $0, MIT | 74 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
+| Pro | $149, one person | All 295 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 

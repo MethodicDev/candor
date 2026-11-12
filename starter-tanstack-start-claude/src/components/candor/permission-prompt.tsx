@@ -1,7 +1,8 @@
 import * as React from "react"
 import { Info, Pencil, ShieldAlert, ShieldQuestion } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useStrings } from "@/components/candor/locale"
+import { place, useStrings } from "@/components/candor/locale"
+import { escapeBidiJson, neutralizeBidi } from "@/lib/candor/bidi"
 import { Payload } from "@/components/candor/payload"
 import { Button } from "@/components/candor/ui/button"
 import { motion } from "@/lib/candor/motion"
@@ -58,6 +59,8 @@ export const permissionPromptStrings = {
   scopeLocal: "in this project, on this computer",
   scopeProject: "in this project, for everyone on it",
   scopeUser: "for you, in every project",
+  /** Between a "don't ask again" rule and where it's kept ("Allow Bash(ls:*) · for this session"). */
+  scopeSeparator: " · ",
   allow: "Allow",
   allowEdited: "Allow as edited",
   deny: "Deny",
@@ -118,6 +121,46 @@ export type PermissionAnswer = {
   answers?: { questionId: string; choice?: string[] | undefined; text?: string | undefined }[] | undefined
 }
 
+/**
+ * What PermissionPrompt gives `jsonEditor`, the field the person edits the input in. It is a part of CodeEditor's own
+ * props, so a Pro app can pass `CodeEditor` as it is; any component that takes them will do.
+ */
+export type PermissionJsonEditorProps = {
+  /** The input as JSON text, as the person has it. */
+  value: string
+  /** Called with the new text on each edit. */
+  onValueChange: (value: string) => void
+  /** The text's language, for its colours: always "json". */
+  language: string
+  /** The field's name, from the prompt's strings ("Input, as JSON"). */
+  label: string
+  /** While the text isn't a JSON object, what's wrong, in the prompt's words. The field shows it and is marked invalid. */
+  error?: { message: string; line?: number | undefined } | undefined
+  /** The most lines tall it grows before it scrolls. */
+  maxLines?: number | undefined
+}
+
+/**
+ * The request's words as they're shown. Its title, reason, questions and the rest come from the agent or its tools, so
+ * no bidi control character reorders them. The input itself is left exact: it's what Allow sends, and Payload marks
+ * the controls where it shows it.
+ */
+const shownRequest = (request: PermissionRequest): PermissionRequest => ({
+  ...request,
+  tool: neutralizeBidi(request.tool),
+  title: neutralizeBidi(request.title),
+  description: neutralizeBidi(request.description),
+  reason: neutralizeBidi(request.reason),
+  blockedPath: neutralizeBidi(request.blockedPath),
+  mcpServer: request.mcpServer && { name: neutralizeBidi(request.mcpServer.name), source: neutralizeBidi(request.mcpServer.source) },
+  questions: request.questions?.map((q) => ({
+    ...q,
+    prompt: neutralizeBidi(q.prompt),
+    tag: neutralizeBidi(q.tag),
+    options: q.options.map((o) => ({ ...o, label: neutralizeBidi(o.label), detail: neutralizeBidi(o.detail) })),
+  })),
+})
+
 const modeKeys: Record<string, keyof typeof permissionPromptStrings> = {
   default: "modeDefault",
   acceptEdits: "modeAcceptEdits",
@@ -128,6 +171,7 @@ const modeKeys: Record<string, keyof typeof permissionPromptStrings> = {
 }
 
 const json = (v: unknown) => (typeof v === "string" ? v : JSON.stringify(v, null, 2))
+
 
 /** What a press lands on when the person is doing something else, rather than clicking around the prompt. */
 const INTERACTIVE =
@@ -169,6 +213,7 @@ function PermissionPrompt({
   onDeny,
   busy = false,
   headingLevel = 3,
+  jsonEditor,
   className,
 }: {
   /** The waiting request. */
@@ -187,14 +232,20 @@ function PermissionPrompt({
   busy?: boolean | undefined
   /** The level of the prompt's heading, to fit under the page's own headings without skipping a level. Defaults to 3. */
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  /**
+   * The field the input is edited in, when `editable`. Left out, it is a plain text field. Pass `CodeEditor` (Pro) for
+   * line numbers, the JSON's colours, Tab to indent and the error read out with the field. The input is shown through
+   * Payload either way until the person chooses to edit it.
+   */
+  jsonEditor?: React.ComponentType<PermissionJsonEditorProps> | undefined
   className?: string | undefined
 }) {
   // Keyed by the request, so an edit, a ticked rule or an answer never carries over to the next request.
-  return <PromptBody key={request.id} {...{ request, mode, suggestions, editable: editable && request.editable !== false, onAllow, onDeny, busy, headingLevel, className }} />
+  return <PromptBody key={request.id} {...{ request, mode, suggestions, editable: editable && request.editable !== false, onAllow, onDeny, busy, headingLevel, jsonEditor, className }} />
 }
 
 function PromptBody({
-  request,
+  request: given,
   mode,
   suggestions,
   editable,
@@ -202,6 +253,7 @@ function PromptBody({
   onDeny,
   busy,
   headingLevel,
+  jsonEditor: JsonEditor,
   className,
 }: {
   request: PermissionRequest
@@ -212,13 +264,17 @@ function PromptBody({
   onDeny: () => void
   busy: boolean
   headingLevel: 1 | 2 | 3 | 4 | 5 | 6
+  jsonEditor?: React.ComponentType<PermissionJsonEditorProps> | undefined
   className?: string | undefined
 }) {
   const t = useStrings("permissionPrompt", permissionPromptStrings)
+  const request = React.useMemo(() => shownRequest(given), [given])
   const id = React.useId()
   const original = React.useMemo(() => json(request.input ?? {}), [request.input])
+  // The field shows each control escaped (`\u202E`): visible, and it parses back to the input exactly.
+  const escaped = escapeBidiJson(original)
   const [editing, setEditing] = React.useState(false)
-  const [draft, setDraft] = React.useState(original)
+  const [draft, setDraft] = React.useState(escaped)
   const [ticked, setTicked] = React.useState<number[]>([])
   const [answers, setAnswers] = React.useState<Record<string, { choice: string[]; text: string; other: boolean }>>({})
   const edited = editing ? parseObject(draft) : null
@@ -265,8 +321,8 @@ function PromptBody({
   const word = (s: PermissionSuggestion) => {
     const key = { allow: "ruleAllow", deny: "ruleDeny", ask: "ruleAsk", remove: "ruleRemove", mode: "setMode", directories: "directories", other: "other" }[s.action] as keyof typeof permissionPromptStrings
     const scope = s.scope && ({ session: "scopeSession", local: "scopeLocal", project: "scopeProject", user: "scopeUser" } as Record<string, keyof typeof permissionPromptStrings>)[s.scope]
-    const what = s.action === "mode" && modeKeys[s.what] ? t(modeKeys[s.what]!) : s.what
-    return { text: t(key, { what, mode: what }), scope: scope ? t(scope) : s.scope }
+    const what = s.action === "mode" && modeKeys[s.what] ? t(modeKeys[s.what]!) : neutralizeBidi(s.what)
+    return { text: t(key, { what, mode: what }), scope: scope ? t(scope) : neutralizeBidi(s.scope) }
   }
 
   const answered = (q: PermissionQuestion) => {
@@ -322,7 +378,9 @@ function PromptBody({
           <Heading className="font-semibold leading-snug">{questions ? t("questions") : title}</Heading>
           {request.description && <p className="mt-0.5 text-muted-foreground">{request.description}</p>}
         </div>
-        <code className="shrink-0 font-mono text-2xs text-muted-foreground">{request.tool}</code>
+        <code className="shrink-0 font-mono text-2xs text-muted-foreground">
+          <bdi>{request.tool}</bdi>
+        </code>
       </header>
 
       <dl className="flex flex-col gap-1.5 px-3.5 pt-2.5 text-sm">
@@ -341,9 +399,9 @@ function PromptBody({
       </dl>
       {(request.blockedPath || request.agentId || request.mcpServer) && (
         <ul className="mt-1.5 flex flex-col gap-0.5 px-3.5 text-xs text-muted-foreground">
-          {request.blockedPath && <li>{t("blockedPath", { path: request.blockedPath })}</li>}
+          {request.blockedPath && <li>{place(t("blockedPath", { path: "{path}" }), { path: <bdi>{request.blockedPath}</bdi> })}</li>}
           {request.agentId && <li>{t("subagent")}</li>}
-          {request.mcpServer && <li>{t("server", { name: request.mcpServer.name, source: request.mcpServer.source })}</li>}
+          {request.mcpServer && <li>{place(t("server", { name: "{name}", source: "{source}" }), { name: <bdi>{request.mcpServer.name}</bdi>, source: <bdi>{request.mcpServer.source}</bdi> })}</li>}
         </ul>
       )}
 
@@ -355,13 +413,13 @@ function PromptBody({
               <fieldset key={q.id} className="flex flex-col gap-1.5">
                 <legend className="mb-1 font-medium">
                   {q.tag && <span className="me-1.5 rounded-xs bg-muted px-1 text-2xs font-medium text-muted-foreground">{q.tag}</span>}
-                  {q.prompt}
+                  <bdi>{q.prompt}</bdi>
                 </legend>
                 {q.options.map((o) => (
                   <label key={o.id} className="flex min-h-(--cd-control-h-2xs,1.5rem) items-start gap-(--cd-control-gap,0.5rem)">
                     <input type={q.multiple ? "checkbox" : "radio"} name={`${id}-${q.id}`} checked={a?.choice.includes(o.id) ?? false} onChange={() => choose(q, o.id)} className="mt-0.5 size-4 accent-[var(--primary)]" />
                     <span>
-                      {o.label}
+                      <bdi>{o.label}</bdi>
                       {o.detail && <span className="block text-xs text-muted-foreground">{o.detail}</span>}
                     </span>
                   </label>
@@ -391,31 +449,41 @@ function PromptBody({
         <div className="flex flex-col gap-2 px-3.5 py-3">
           {editing ? (
             <>
-              <label htmlFor={`${id}-edit`} className="text-xs font-medium text-muted-foreground">
-                {t("editLabel")}
-              </label>
-              <textarea
-                id={`${id}-edit`}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                spellCheck={false}
-                rows={Math.min(12, draft.split("\n").length + 1)}
-                aria-invalid={invalid || undefined}
-                aria-describedby={`${id}-changes`}
-                className="block w-full resize-y rounded-md border border-input bg-card px-(--cd-control-px-sm,0.625rem) py-(--cd-item-py,0.375rem) font-mono text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30 aria-invalid:border-destructive"
-              />
+              {JsonEditor ? (
+                // The app's editor names itself from the label and shows the error, read out with the field.
+                <JsonEditor value={draft} onValueChange={setDraft} language="json" label={t("editLabel")} error={invalid ? { message: t("editInvalid") } : undefined} maxLines={12} />
+              ) : (
+                <>
+                  <label htmlFor={`${id}-edit`} className="text-xs font-medium text-muted-foreground">
+                    {t("editLabel")}
+                  </label>
+                  <textarea
+                    id={`${id}-edit`}
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    spellCheck={false}
+                    rows={Math.min(12, draft.split("\n").length + 1)}
+                    aria-invalid={invalid || undefined}
+                    aria-describedby={`${id}-changes`}
+                    className="block w-full resize-y rounded-md border border-input bg-card px-(--cd-control-px-sm,0.625rem) py-(--cd-item-py,0.375rem) font-mono text-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30 aria-invalid:border-destructive"
+                  />
+                </>
+              )}
               <div id={`${id}-changes`} role="status" className="text-xs">
                 {invalid ? (
-                  <p className="text-destructive-text">{t("editInvalid")}</p>
+                  // The app's editor shows this itself, with the field.
+                  JsonEditor ? null : (
+                    <p className="text-destructive-text">{t("editInvalid")}</p>
+                  )
                 ) : changedKeys.length ? (
                   <div className="flex flex-col gap-1">
                     <p className="text-muted-foreground">{t("changed")}</p>
                     <ul className="flex flex-col gap-1">
                       {changedKeys.map((k) => (
                         <li key={k} className="grid gap-0.5 font-mono">
-                          <span className="text-muted-foreground">{k}</span>
-                          {k in proposed! && <span className="rounded-xs bg-destructive-weak/60 px-1 line-through">{json(proposed![k])}</span>}
-                          {k in edited! && <span className="rounded-xs bg-success-weak/70 px-1">{json(edited![k])}</span>}
+                          <bdi className="text-muted-foreground">{neutralizeBidi(k)}</bdi>
+                          {k in proposed! && <bdi className="rounded-xs bg-destructive-weak/60 px-1 line-through">{neutralizeBidi(json(proposed![k]))}</bdi>}
+                          {k in edited! && <bdi className="rounded-xs bg-success-weak/70 px-1">{neutralizeBidi(json(edited![k]))}</bdi>}
                         </li>
                       ))}
                     </ul>
@@ -424,7 +492,7 @@ function PromptBody({
                   <p className="text-muted-foreground">{t("unchanged")}</p>
                 )}
               </div>
-              <Button size="sm" variant="ghost" className="self-start" onClick={() => (setEditing(false), setDraft(original))}>
+              <Button size="sm" variant="ghost" className="self-start" onClick={() => (setEditing(false), setDraft(escaped))}>
                 {t("cancelEdit")}
               </Button>
             </>
@@ -457,7 +525,12 @@ function PromptBody({
                     />
                     <span>
                       <span className="font-mono text-xs">{w.text}</span>
-                      {w.scope && <span className="text-muted-foreground"> · {w.scope}</span>}
+                      {w.scope && (
+                        <span className="text-muted-foreground">
+                          {t("scopeSeparator")}
+                          {w.scope}
+                        </span>
+                      )}
                       {s.action === "mode" && (s.what === "bypassPermissions" || s.what === "auto") && (
                         <span className="mt-0.5 flex items-start gap-1 text-xs text-warning-text">
                           <ShieldAlert aria-hidden className="mt-px size-3.5 shrink-0" />
