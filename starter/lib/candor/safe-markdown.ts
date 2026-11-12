@@ -13,14 +13,30 @@ const fenceLanguage = (lang: string): PayloadLanguage => (lang === "json" ? "jso
 /**
  * Reads model text as safe markdown: paragraphs, lists and fenced code. Never HTML. `#` lines are bold paragraphs
  * unless `headings` is set, when `#`, `##` and `###` (and deeper, as level 3) become heading blocks.
+ *
+ * A lone newline inside a paragraph is a space, as CommonMark reads it, unless `breaks` is set (as GFM's breaks option,
+ * for writing apps whose agents break lines on purpose): then it stays in the paragraph's text as "\n", a line break,
+ * and a blank line still starts a new paragraph. The text stays text either way; such a paragraph is marked `breaks`, and
+ * the renderer shows its "\n" as line breaks.
  */
-export function markdownBlocks(text: string, { headings = false }: { headings?: boolean | undefined } = {}): MessageBlock[] {
+export function markdownBlocks(
+  text: string,
+  {
+    headings = false,
+    breaks = false,
+  }: {
+    /** `#` lines become heading blocks (levels 1 to 3) rather than bold paragraphs. Defaults to false. */
+    headings?: boolean | undefined
+    /** A lone newline inside a paragraph stays a line break ("\n" in its text) rather than a space. Defaults to false. */
+    breaks?: boolean | undefined
+  } = {}
+): MessageBlock[] {
   const blocks: MessageBlock[] = []
   const lines = text.replace(/\r\n/g, "\n").split("\n")
   let para: string[] = []
   let list: { ordered: boolean; items: string[] } | null = null
   const flushPara = () => {
-    if (para.length) blocks.push({ kind: "paragraph", nodes: inline(para.join(" ")) })
+    if (para.length) blocks.push({ kind: "paragraph", nodes: inline(para.join(breaks ? "\n" : " ")), ...(breaks && para.length > 1 ? { breaks: true as const } : {}) })
     para = []
   }
   const flushList = () => {

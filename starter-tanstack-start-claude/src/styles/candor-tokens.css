@@ -838,7 +838,6 @@
   [role="option"][aria-selected="true"],
   [role="gridcell"][aria-selected="true"],
   [role="treeitem"][aria-selected="true"],
-  [data-slot="command-item"][data-selected="true"],
   [role="tab"][aria-selected="true"],
   [data-slot="tabs-trigger"][data-active],
   [role="radio"][aria-checked="true"]:not([data-slot="radio-group-item"]),

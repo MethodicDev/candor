@@ -140,7 +140,15 @@ export type ToolCall = {
 export type PayloadLanguage = string
 
 export type MessageBlock =
-  | { kind: "paragraph"; nodes: InlineNode[] }
+  | {
+      kind: "paragraph"
+      nodes: InlineNode[]
+      /**
+       * The "\n" in its text are line breaks, drawn as such: set by `markdownBlocks(text, { breaks: true })` on a
+       * paragraph it joined from several lines. Left out, a "\n" is drawn as a space, as HTML draws it.
+       */
+      breaks?: true | undefined
+    }
   /**
    * Text exactly as someone typed it: line breaks and spacing kept, nothing parsed. For a person's own words, so
    * `*this*` stays `*this*` and a pasted list keeps its lines.

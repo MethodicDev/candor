@@ -72,6 +72,7 @@ function ContextMeter({
   const c = 2 * Math.PI * r
   // The sweep is a transition, so it runs only for a value that changed after the first one was drawn.
   const [drawn, setDrawn] = React.useState(false)
+  // oxlint-disable-next-line react/set-state-in-effect -- a mount flag: the sweep may animate only for a value that arrives after the first one was drawn, which takes a render after mount
   React.useEffect(() => setDrawn(true), [])
   const percent = fmt.number(Math.round(pct * 100) / 100, { style: "percent" })
   const percentChanges = useSettled(percent, changed)

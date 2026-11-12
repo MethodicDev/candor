@@ -15,7 +15,11 @@ endpoint when you have one.
   server would. Ask it about your to-do list and it reads the list; ask it to add a task and it waits for your OK first.
   It isn't a model: its replies are fixed text, and the page says so.
 
-> Generated from Candor UI 4.2.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+> Generated from Candor UI 4.3.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+
+## Try it first
+
+This starter is built and hosted, with its scripted agent, at https://candor.themethodic.com/try. Nothing to install.
 
 ## Get started
 

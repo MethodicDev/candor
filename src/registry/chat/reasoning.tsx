@@ -75,7 +75,12 @@ function Reasoning({
   // An entry added while the reasoning is on screen rises in; the ones it drew with are still.
   const arrived = useArrived(React.useMemo(() => entries.map((e) => e.id), [entries]))
   const [open, setOpen] = React.useState(thinking)
-  React.useEffect(() => setOpen(thinking), [thinking])
+  // It opens when thinking starts and closes when it ends, but stays as the person set it between the two.
+  const [wasThinking, setWasThinking] = React.useState(thinking)
+  if (thinking !== wasThinking) {
+    setWasThinking(thinking)
+    setOpen(thinking)
+  }
 
   const assumed = entries.filter((e) => e.basis === "assumed").length
   const summary = thinking ? null : (

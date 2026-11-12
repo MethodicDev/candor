@@ -39,6 +39,9 @@ const opensPopup = (e: React.SyntheticEvent) => {
 const stopBaseUI = (e: React.SyntheticEvent) =>
   (e as React.SyntheticEvent & { preventBaseUIHandler?: (() => void) | undefined }).preventBaseUIHandler?.()
 
+/** The wrapper without a reason: no box of its own, so the control is laid out as if the wrapper weren't there. */
+const unlockedStyle: React.CSSProperties = { display: "contents" }
+
 /** The hidden inputs Base UI draws beside a checkbox, switch or radio. */
 const hiddenInputs = 'input[type="checkbox"], input[type="radio"]'
 
@@ -69,6 +72,14 @@ type Lockable = React.ReactElement<{
  * reason (the tooltip is held open, the printed reason is emphasised) and,
  * under data-motion="expressive" only, shakes it briefly; with reduced motion
  * or the default subtle preset, only the reason is shown.
+ *
+ * The control sits in the same place whether or not there is a reason, so it
+ * isn't drawn anew when one comes or goes: focus and a screen reader's place
+ * stay on it. Without a reason its wrapper (`data-slot="locked"`, with
+ * `data-unlocked`) is `display: contents`, so the page is laid out as if it
+ * weren't there; a parent's CSS that selects its own children (`> *`,
+ * `:first-child`) meets the wrapper, not the control, so select
+ * `[data-slot=locked] > *` as well.
  */
 function Locked({
   reason,
@@ -80,8 +91,12 @@ function Locked({
   reason?: string | null | undefined
   /** Print the reason under the control instead of in a tooltip. */
   inline?: boolean | undefined
+  /** The one control to lock, as a single element (a button, a trigger, a checkbox): Locked adds its props to it. */
   children: Lockable
-  /** Classes for the wrapper around the control and its reason. Without a reason there is no wrapper, so they go on the control itself. */
+  /**
+   * Classes for the wrapper around the control and its reason. Without a reason the wrapper is `display: contents`
+   * (it has no box), so they go on the control itself.
+   */
   className?: string | undefined
 }) {
   const id = React.useId()
@@ -121,9 +136,6 @@ function Locked({
     return () => document.removeEventListener("reset", onReset, true)
   }, [reason])
 
-  // No wrapper without a reason: the classes it would have had go on the control, so a layout class isn't lost.
-  if (!reason) return className ? React.cloneElement(children, { className: cn(children.props.className, className) }) : children
-
   const block = (e: React.SyntheticEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -133,68 +145,81 @@ function Locked({
     setShaking(true)
     setHeld(true)
   }
-  // The trigger draws the control itself (`render`), so no button of the trigger's own goes round it.
-  const control = React.cloneElement(children, {
-    "aria-disabled": true,
-    // The reason joins whatever already describes the control (a hint, an error), rather than replacing it.
-    "aria-describedby": [children.props["aria-describedby"], id].filter(Boolean).join(" "),
-    "data-locked": "",
-    onClick: block,
-    onKeyDown: (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " " || (opensPopup(e) && (e.key === "ArrowDown" || e.key === "ArrowUp"))) block(e)
-    },
-    // Base UI's Select and Menu triggers open on the press itself, before the click: their handler is stopped there. The
-    // press goes on otherwise (focus, and other layers' outside-press), and the click that follows shows the reason.
-    onPointerDown: (e: React.PointerEvent) => {
-      if (opensPopup(e)) stopBaseUI(e)
-      else children.props.onPointerDown?.(e)
-    },
-    onMouseDown: (e: React.MouseEvent) => {
-      if (opensPopup(e)) stopBaseUI(e)
-      else children.props.onMouseDown?.(e)
-    },
-  })
+  // The same element either way, so the control is never drawn anew when a reason comes or goes: focus, and a screen
+  // reader's place, stay on it. Without a reason only the classes the wrapper would have had are added (a layout class
+  // isn't lost); its own handlers and description pass through untouched.
+  const control = reason
+    ? React.cloneElement(children, {
+        "aria-disabled": true,
+        // The reason joins whatever already describes the control (a hint, an error), rather than replacing it.
+        "aria-describedby": [children.props["aria-describedby"], id].filter(Boolean).join(" "),
+        "data-locked": "",
+        onClick: block,
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " " || (opensPopup(e) && (e.key === "ArrowDown" || e.key === "ArrowUp"))) block(e)
+        },
+        // Base UI's Select and Menu triggers open on the press itself, before the click: their handler is stopped there.
+        // The press goes on otherwise (focus, and other layers' outside-press), and the click that follows shows the reason.
+        onPointerDown: (e: React.PointerEvent) => {
+          if (opensPopup(e)) stopBaseUI(e)
+          else children.props.onPointerDown?.(e)
+        },
+        onMouseDown: (e: React.MouseEvent) => {
+          if (opensPopup(e)) stopBaseUI(e)
+          else children.props.onMouseDown?.(e)
+        },
+      })
+    : className
+      ? React.cloneElement(children, { className: cn(children.props.className, className) })
+      : children
 
   return (
+    // The wrapper is always drawn, so the tree doesn't change shape when a reason comes or goes. Without a reason it is
+    // `display: contents`: the page is laid out as if it weren't there.
     <span
       ref={box}
       data-slot="locked"
+      data-unlocked={reason ? undefined : ""}
       // A Base UI checkbox, switch or radio keeps its state in a hidden <input> beside it, and that input takes the
       // control's `id`: a label pointing at it, or wrapping it, clicks the input, not the control. Cancelling that click
       // here, before it reaches the input, leaves the control unchanged (Base UI ignores a change whose click was
       // cancelled), whether it came from a label, a radio group's arrow keys, or anything else.
       onClickCapture={(e) => {
-        if (e.target instanceof HTMLInputElement && e.target.matches(hiddenInputs)) e.preventDefault()
+        if (reason && e.target instanceof HTMLInputElement && e.target.matches(hiddenInputs)) e.preventDefault()
       }}
       onAnimationEnd={(e) => {
         if (e.target === e.currentTarget) setShaking(false)
       }}
-      data-pressed={held ? "" : undefined}
-      style={refuseMotion}
-      className={cn("relative inline-flex flex-col items-start gap-1.5", shaking && "cd-refuse", className)}
+      data-pressed={reason && held ? "" : undefined}
+      // Inline rather than a class, so it holds whatever CSS the page has.
+      style={reason ? refuseMotion : unlockedStyle}
+      className={reason ? cn("relative inline-flex flex-col items-start gap-1.5", shaking && "cd-refuse", className) : undefined}
     >
       {inline ? (
         control
       ) : (
-        // The reason already describes the control (the sr-only text below), so the tooltip doesn't describe it again.
-        <Tooltip open={shown || held} onOpenChange={setShown} describes={false}>
+        // Always here, disabled without a reason, so the control keeps its place in the tree. The reason already
+        // describes the control (the sr-only text below), so the tooltip doesn't describe it again.
+        <Tooltip open={reason ? shown || held : false} onOpenChange={setShown} describes={false} disabled={!reason}>
           <TooltipTrigger render={control} />
-          <TooltipContent>{reason}</TooltipContent>
+          {reason ? <TooltipContent>{reason}</TooltipContent> : null}
         </Tooltip>
       )}
-      <span
-        id={id}
-        data-slot="locked-reason"
-        style={reasonMotion}
-        className={cn(
-          "items-center gap-1 text-xs text-muted-foreground cd-tint",
-          inline ? "inline-flex" : "sr-only",
-          held && "text-foreground"
-        )}
-      >
-        <LockKeyhole aria-hidden className="size-3" />
-        {reason}
-      </span>
+      {reason ? (
+        <span
+          id={id}
+          data-slot="locked-reason"
+          style={reasonMotion}
+          className={cn(
+            "items-center gap-1 text-xs text-muted-foreground cd-tint",
+            inline ? "inline-flex" : "sr-only",
+            held && "text-foreground"
+          )}
+        >
+          <LockKeyhole aria-hidden className="size-3" />
+          {reason}
+        </span>
+      ) : null}
     </span>
   )
 }

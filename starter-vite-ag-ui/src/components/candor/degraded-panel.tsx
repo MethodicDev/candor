@@ -12,8 +12,11 @@ const spinMotion = motion("degraded-panel", "busy", "live", { dur: 1000 })
 
 /** DegradedPanel's fixed words; override them under `degradedPanel` in LocaleProvider's `strings`. */
 export const degradedPanelStrings = {
+  /** Before what the person won't see. */
   missing: "Missing:",
+  /** The retry button. */
   retry: "Retry",
+  /** The retry button while a retry is under way. */
   retrying: "Retrying",
 }
 
@@ -28,6 +31,7 @@ function DegradedPanel({
   onRetry,
   busy = false,
   variant = "block",
+  live = true,
   className,
 }: {
   /** What went wrong, in a sentence. */
@@ -40,13 +44,19 @@ function DegradedPanel({
   busy?: boolean | undefined
   /** A boxed panel, or one line inside other content. */
   variant?: "block" | "inline" | undefined
+  /**
+   * Whether the panel is a live region (`role="status"`), so a screen reader reads it when it appears. Left out, true.
+   * Set it false only where something else already announces the failure, so it isn't read twice.
+   */
+  live?: boolean | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("degradedPanel", degradedPanelStrings)
   return (
     <div
       data-slot="degraded-panel"
-      role="status"
+      role={live ? "status" : undefined}
       className={cn(
         "flex gap-2.5 text-sm",
         variant === "block" ? "items-start rounded-lg border border-warning/40 bg-warning-weak/60 p-3" : "items-center",

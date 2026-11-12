@@ -54,6 +54,8 @@ export const composerStrings = {
   stop: "Stop",
   send: "Send",
   dropFiles: "Drop files to attach",
+  /** The name of the row of mentioned records and attached files above the text box. */
+  tray: "Attached to this message",
 }
 
 export type ComposerState =
@@ -112,6 +114,9 @@ function LeavingChip({ onDone, children }: { onDone: () => void; children: React
  * (`{ kind: "held", reason }`) keeps typing open and says why sending waits.
  * `textareaRef` focuses the box from outside, e.g. after a new project starts.
  * An @ option can say its state, or that it can't be used now and why.
+ * Mentioned records and attached files sit above the box in a group named
+ * "Attached to this message"; removing one moves focus to the chip after it,
+ * the one before when it was the last, or the box when none is left.
  */
 function Composer({
   value,
@@ -188,6 +193,7 @@ function Composer({
   textareaRef?: React.Ref<HTMLTextAreaElement> | undefined
   /** The send button's shape: "square" (the default, rounded corners) or "round". */
   sendShape?: "square" | "round" | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
   const kindOf = useEntityKinds()
@@ -201,7 +207,8 @@ function Composer({
   const [dragDepth, setDragDepth] = React.useState(0)
   const fileInput = React.useRef<HTMLInputElement>(null)
   const [trigger, setTrigger] = React.useState<Trigger | null>(null)
-  const [active, setActive] = React.useState(0)
+  // The highlighted option, for the trigger it was chosen under: a new trigger, or a changed query, starts at the top.
+  const [picked, setPicked] = React.useState<{ for: string | null; index: number }>({ for: null, index: 0 })
 
   // Chips added after the composer first drew pop in; chips just removed pop out as inert ghosts, then go. Chips there
   // at first render are drawn still: nothing moves for a state the reader already had.
@@ -233,7 +240,9 @@ function Composer({
   }, [trigger, commands, mentions, references])
 
   const menuOpen = trigger !== null && items.length > 0
-  React.useEffect(() => setActive(0), [trigger?.query, trigger?.char])
+  const triggerKey = trigger ? `${trigger.char}${trigger.query}` : null
+  const active = picked.for === triggerKey ? picked.index : 0
+  const setActive = (next: (current: number) => number) => setPicked({ for: triggerKey, index: next(active) })
 
   const syncTrigger = () => {
     const el = textarea.current
@@ -241,23 +250,49 @@ function Composer({
     setTrigger(findTrigger(el.value, el.selectionStart))
   }
 
-  // Where the caret goes once a replaced value renders. Applied in a layout
-  // effect on that render, so keystrokes typed afterwards are never moved.
-  const pendingCaret = React.useRef<number | null>(null)
+  // Where the caret goes once a replaced value renders, with the value and references it was set against. Applied in a
+  // layout effect on the render where either has changed, so keystrokes typed afterwards are never moved.
+  const pendingCaret = React.useRef<{ at: number; value: string; references: EntityRef[] } | null>(null)
   React.useLayoutEffect(() => {
     const el = textarea.current
-    if (el && pendingCaret.current !== null) {
-      el.setSelectionRange(pendingCaret.current, pendingCaret.current)
-      pendingCaret.current = null
+    const pending = pendingCaret.current
+    if (!el || !pending || (pending.value === value && pending.references === references)) return
+    el.setSelectionRange(pending.at, pending.at)
+    pendingCaret.current = null
+  })
+
+  // A chip removed while focus is in it takes focus with it: once it has gone, focus goes to the chip that took its
+  // place, the one before it when it was the last, or the text box when none is left. Never to the page.
+  const tray = React.useRef<HTMLDivElement>(null)
+  const removing = React.useRef<{ el: Element; index: number } | null>(null)
+  const trayControls = () =>
+    Array.from(tray.current?.querySelectorAll<HTMLElement>("button, [tabindex]") ?? []).filter((el) => !el.closest("[data-leaving]"))
+  const keepFocus = () => {
+    const from = document.activeElement
+    const index = from ? trayControls().findIndex((el) => el === from) : -1
+    removing.current = from && index >= 0 ? { el: from, index } : null
+  }
+  React.useLayoutEffect(() => {
+    const was = removing.current
+    if (!was) return
+    if (was.el.isConnected) {
+      // Still there (the app hasn't removed it yet, or kept it): wait while it has focus, else let it be.
+      if (document.activeElement !== was.el) removing.current = null
+      return
     }
-  }, [value, references])
+    removing.current = null
+    const focused = document.activeElement
+    if (focused && focused !== document.body) return
+    const left = trayControls()
+    ;(left[was.index] ?? left[was.index - 1] ?? textarea.current)?.focus()
+  })
 
   const replaceTrigger = (text: string) => {
     if (!trigger) return
     const el = textarea.current
     const caret = el?.selectionStart ?? value.length
     const next = value.slice(0, trigger.start) + text + value.slice(caret)
-    pendingCaret.current = trigger.start + text.length
+    pendingCaret.current = { at: trigger.start + text.length, value, references }
     onValueChange(next)
     setTrigger(null)
     el?.focus()
@@ -380,7 +415,7 @@ function Composer({
                     e.preventDefault()
                     choose(item)
                   }}
-                  onMouseMove={() => setActive(i)}
+                  onMouseMove={() => setActive(() => i)}
                   className={cn("flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm aria-selected:bg-accent", unavailable ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer")}
                 >
                   {item.type === "command" ? (
@@ -435,12 +470,15 @@ function Composer({
         )}
       >
         {(references.length > 0 || attachments.length > 0 || referenceMotion.leaving.length > 0 || attachmentMotion.leaving.length > 0) && (
-          <div className="flex flex-wrap gap-1.5 px-3 pt-3">
+          <div ref={tray} role="group" aria-label={t("tray")} data-slot="composer-tray" className="flex flex-wrap gap-1.5 px-3 pt-3">
             {references.map((r) => (
               <EntityChip
                 key={referenceKey(r)}
                 entity={r}
-                onRemove={(e) => onReferencesChange?.(references.filter((x) => x !== e))}
+                onRemove={(e) => {
+                  keepFocus()
+                  onReferencesChange?.(references.filter((x) => x !== e))
+                }}
                 style={chipMotion}
                 className={cn(referenceArrived(referenceKey(r)) && "cd-pop")}
               />
@@ -451,7 +489,17 @@ function Composer({
               </LeavingChip>
             ))}
             {attachments.map((a) => (
-              <AttachmentChip key={a.id} attachment={a} onRemove={onRemoveAttachment} style={chipMotion} className={cn(attachmentArrived(a.id) && "cd-pop")} />
+              <AttachmentChip
+                key={a.id}
+                attachment={a}
+                onRemove={
+                  onRemoveAttachment &&
+                  ((removed) => {
+                    keepFocus()
+                    onRemoveAttachment(removed)
+                  })
+                }
+                style={chipMotion} className={cn(attachmentArrived(a.id) && "cd-pop")} />
             ))}
             {attachmentMotion.leaving.map((a) => (
               <LeavingChip key={`leaving:${a.id}`} onDone={() => attachmentMotion.left(a)}>

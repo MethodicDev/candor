@@ -289,6 +289,7 @@ function PromptBody({
   const denyRef = React.useRef<HTMLButtonElement>(null)
   React.useEffect(() => {
     if (request.defaultToNo) denyRef.current?.focus()
+  // oxlint-disable-next-line react/exhaustive-effect-dependencies -- request.id re-runs the focus for the next request even when defaultToNo is the same
   }, [request.id, request.defaultToNo])
 
   // A press on inert space outside every prompt, while it waits, nudges it rather than dismissing anything.

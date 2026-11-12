@@ -544,6 +544,7 @@ export async function attachClaudeAgentRun(
         wake()
       })
       try {
+        // oxlint-disable-next-line eslint/no-unmodified-loop-condition -- signal is aborted from outside the loop (the request's), which the rule can't see
         while (!signal?.aborted) {
           dirty = false
           const page = await runs.read(runId, next)

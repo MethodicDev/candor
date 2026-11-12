@@ -4,6 +4,7 @@
 
 [![Starters](https://github.com/MethodicDev/candor/actions/workflows/starters.yml/badge.svg)](https://github.com/MethodicDev/candor/actions/workflows/starters.yml)
 [![npm: candor-ui](https://img.shields.io/npm/v/candor-ui?label=candor-ui)](https://www.npmjs.com/package/candor-ui)
+[![npm downloads: candor-ui](https://img.shields.io/npm/dm/candor-ui?label=downloads)](https://www.npmjs.com/package/candor-ui)
 [![Licence: MIT](https://img.shields.io/github/license/MethodicDev/candor)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/MethodicDev/candor)](https://github.com/MethodicDev/candor/releases)
 
@@ -15,7 +16,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 74 free items (version 4.2.0), the skill and plugins for coding
+This repo is the source of Candor UI's 74 free items (version 4.3.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -24,6 +25,10 @@ behind the kit's after a release that changed only Pro items; the CLI, `candor-u
 [changelog](https://candor.themethodic.com/changelog) says which release changed what.
 
 ## Try it in a minute, no key
+
+Try it with no key and no install: **https://candor.themethodic.com/try**. It is the Vite starter below, built and running in your browser.
+
+To run it yourself:
 
 ```bash
 npx degit MethodicDev/candor/starter-vite-ag-ui my-app
@@ -137,7 +142,7 @@ Starter apps with a working agent chat built from these components (3 of them). 
 
 | Folder | Stack | Agent |
 |---|---|---|
-| `starter-vite-ag-ui/` | Vite and React, no server | a scripted one in the page (no key; see above), or any AG-UI agent (LangGraph, CrewAI…) |
+| `starter-vite-ag-ui/` | Vite and React, no server ([try it](https://candor.themethodic.com/try)) | a scripted one in the page (no key; see above), or any AG-UI agent (LangGraph, CrewAI…) |
 | `starter/` | Next.js 16 | Vercel AI SDK at `/`, Claude Agent SDK at `/claude` (needs an Anthropic API key) |
 | `starter-tanstack-start-claude/` | TanStack Start | Claude Agent SDK (needs an Anthropic API key) |
 
@@ -182,7 +187,7 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
 | Free (this repo) | $0, MIT | 74 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 318 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Pro | $149, one person | All 335 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 

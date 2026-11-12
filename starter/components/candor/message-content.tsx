@@ -140,7 +140,7 @@ function Block({
   switch (block.kind) {
     case "paragraph":
       return (
-        <p>
+        <p className={block.breaks ? "whitespace-pre-line" : undefined}>
           <Inline nodes={block.nodes} />
         </p>
       )

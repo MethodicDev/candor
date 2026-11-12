@@ -94,7 +94,8 @@ function Tooltip({
 
 /**
  * The control the tooltip describes. While the tooltip is open, the control is described by it (`aria-describedby`, after
- * any description of the control's own), as a screen reader expects.
+ * any description of the control's own), as a screen reader expects. A control given through `render` keeps its own
+ * `data-slot`; only the trigger's own button has `data-slot="tooltip-trigger"`.
  */
 function TooltipTrigger({ className, render, ...props }: Omit<TooltipPrimitive.Trigger.Props, "className"> & { className?: string | undefined }) {
   // The provider's delay, so a trigger doesn't fall back to Base UI's own 600 ms.
@@ -110,7 +111,9 @@ function TooltipTrigger({ className, render, ...props }: Omit<TooltipPrimitive.T
       : render
   return (
     <TooltipPrimitive.Trigger
-      data-slot="tooltip-trigger"
+      // A control handed over through `render` (a Button, a Switch, a Locked control) keeps its own `data-slot`: the
+      // theme and the forced-colour rules find it by that. Only the trigger's own button is the tooltip's.
+      {...(React.isValidElement(render) ? null : { "data-slot": "tooltip-trigger" })}
       delay={timing?.delay}
       closeDelay={timing?.closeDelay}
       className={className}

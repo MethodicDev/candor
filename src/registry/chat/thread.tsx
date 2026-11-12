@@ -184,6 +184,7 @@ function Thread({
 
   // Open at the anchor once, when it first appears.
   const anchored = React.useRef(false)
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- runs after every render on purpose: it waits for the thread's content to exist, then does its work once (anchored)
   React.useLayoutEffect(() => {
     if (!anchoring || anchored.current || !content.current?.childElementCount) return
     anchored.current = true
