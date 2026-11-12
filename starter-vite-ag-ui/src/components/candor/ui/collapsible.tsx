@@ -15,6 +15,7 @@ function Collapsible({ className, ...props }: Omit<CollapsiblePrimitive.Root.Pro
   return <CollapsiblePrimitive.Root data-slot="collapsible" className={className} {...props} />
 }
 
+/** The button that opens and closes a `Collapsible`. It reports its state to screen readers. */
 function CollapsibleTrigger({ className, ...props }: Omit<CollapsiblePrimitive.Trigger.Props, "className"> & { className?: string | undefined }) {
   return <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" className={className} {...props} />
 }

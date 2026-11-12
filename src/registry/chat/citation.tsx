@@ -52,6 +52,7 @@ const kindOf = (kind: SourceKind, t: Translate<typeof citationStrings>) => {
   return isBuiltIn(kind) ? { ...info, noun: t(kind) } : info
 }
 
+/** The detail of one source behind a `Citation`: its title, where it is from and the passage used. */
 function SourceDetail({
   source: given,
 }: {

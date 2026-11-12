@@ -121,17 +121,64 @@ export function useLayerRoot<D extends OpenChangeDetails>(onOpenChange?: ((open:
   return { anchor, onOpenChange: handle }
 }
 
-/** Gives `LayerPortal`s below the element their layer opened from (`useLayerRoot`'s `anchor`). */
+/** How many dialog-family roots (Dialog, Sheet, Drawer, AlertDialog) are around this point of the tree. */
+const DialogDepth = React.createContext(0)
+/** Whether the nearest dialog-family root around this point is modal (`modal` true, Base UI's default). */
+const DialogModal = React.createContext(true)
+
+/**
+ * Gives `LayerPortal`s below the element their layer opened from (`useLayerRoot`'s `anchor`), and, for a dialog-family
+ * root, tells the dialogs inside it that they are nested (`useNestedDialog`).
+ */
 export function LayerRoot({
   anchor,
+  dialog = false,
+  modal = true,
   children,
 }: {
   /** The ref `useLayerRoot` returns as `anchor`: the trigger the layer last opened from, or the event's target. */
   anchor: React.RefObject<Element | null>
+  /** The root is a dialog's, a sheet's, a drawer's or an alert dialog's, so a dialog opened inside it is nested. */
+  dialog?: boolean | undefined
+  /**
+   * The dialog root's `modal`, when `dialog`: only a modal one (true, the default) blocks the page outside it, so only
+   * a modal nested dialog draws the backdrop that catches an outside click.
+   */
+  modal?: boolean | "trap-focus" | undefined
   /** The layer's root and its parts. */
   children?: React.ReactNode | undefined
 }) {
-  return <LayerAnchor.Provider value={anchor}>{children}</LayerAnchor.Provider>
+  const depth = React.useContext(DialogDepth)
+  const outerModal = React.useContext(DialogModal)
+  return (
+    <DialogDepth.Provider value={dialog ? depth + 1 : depth}>
+      <DialogModal.Provider value={dialog ? modal === true : outerModal}>
+        <LayerAnchor.Provider value={anchor}>{children}</LayerAnchor.Provider>
+      </DialogModal.Provider>
+    </DialogDepth.Provider>
+  )
+}
+
+/**
+ * Whether the dialog whose parts call this is a modal one opened inside another dialog, sheet, drawer or alert dialog.
+ * Base UI draws no backdrop for a nested dialog, so a click outside it lands on the outer one's backdrop and closes
+ * neither (KIT-45); the nested one draws a transparent backdrop of its own (`nestedBackdrop`), which takes the click and
+ * closes it alone, as Radix and the APG dialog pattern do. A nested dialog with `modal={false}` or `"trap-focus"`
+ * leaves the page outside it usable, so it is false there: a backdrop would catch the clicks meant for the outer one.
+ */
+export function useNestedDialog(): boolean {
+  const depth = React.useContext(DialogDepth)
+  const modal = React.useContext(DialogModal)
+  return depth > 1 && modal
+}
+
+/**
+ * The props for a dialog-family overlay: for a nested dialog (`useNestedDialog`), Base UI's `forceRender` and a
+ * transparent background, so the outer dialog's backdrop still dims the page once and an outside click closes only the
+ * innermost dialog; else nothing.
+ */
+export function nestedBackdrop(nested: boolean): { forceRender?: boolean | undefined; className?: string | undefined } {
+  return nested ? { forceRender: true, className: "bg-transparent" } : {}
 }
 
 /** Live hosts: how many open layers use each, and how to stop following its dialog. */
@@ -394,6 +441,8 @@ function enterHost(host: HTMLElement): () => void {
 function HostUse({ host, anchor }: { host: React.RefObject<HTMLElement | null>; anchor: React.RefObject<Element | null> | null }) {
   React.useEffect(() => {
     const used = host.current
+    // The ref is read here, not in the cleanup: the trigger the layer opened from, which the cleanup gives focus back to.
+    const trigger = anchor?.current
     if (!used) return
     const leave = enterHost(used)
     return () => {
@@ -402,7 +451,7 @@ function HostUse({ host, anchor }: { host: React.RefObject<HTMLElement | null>; 
       // the focused element is removed, and in WebKit that can come after Base UI has given focus back.
       const dialog = used.parentElement
       setTimeout(() => {
-        const to = anchor?.current
+        const to = trigger
         const lost = document.activeElement === document.body || document.activeElement === dialog
         if (lost && to instanceof HTMLElement && to.isConnected && dialog?.contains(to)) to.focus()
       }, 0)

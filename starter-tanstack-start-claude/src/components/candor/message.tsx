@@ -78,6 +78,7 @@ function Message({
   timeFormat,
   density = "default",
   bareCode,
+  nameShownAbove,
   className,
 }: {
   /** The message: author, status, blocks, and optional reasoning, sources and attribution. */
@@ -114,6 +115,15 @@ function Message({
   density?: "default" | "compact" | undefined
   /** Code and other payload blocks without their frame (Payload's `bare`). */
   bareCode?: boolean | undefined
+  /**
+   * The agent's or teammate's name is already shown above the thread (a panel titled with the agent, a one-to-one
+   * chat), so the header leaves it out of sight: screen readers still hear it, and the specialty or team and the time
+   * stay. A header left with nothing to show isn't drawn. A person's own messages are unchanged. Set it only on the
+   * messages of the one agent or teammate the panel names, never in a thread with several agents or across a hand-off,
+   * where the name is how a reader tells who wrote each message.
+   */
+  nameShownAbove?: boolean | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
   const { author } = message
@@ -166,7 +176,7 @@ function Message({
           <UserRound className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} timeFormat={timeFormat} density={density} />
+          <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} timeFormat={timeFormat} density={density} nameShownAbove={nameShownAbove} />
           <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} className="mt-1" />
         </div>
       </article>
@@ -188,7 +198,7 @@ function Message({
     >
       <AgentAvatar agent={agent} className="mt-px" />
       <div className="min-w-0 flex-1">
-        <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} timeFormat={timeFormat} density={density} />
+        <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} timeFormat={timeFormat} density={density} nameShownAbove={nameShownAbove} />
         <div className="mt-1 flex flex-col gap-3">
           <MessageBody message={message} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />
           <MessageFooter
@@ -215,6 +225,7 @@ function MessageHeader({
   createdAt,
   timeFormat,
   density = "default",
+  nameShownAbove = false,
   children,
   className,
 }: {
@@ -228,13 +239,31 @@ function MessageHeader({
   timeFormat?: "relative" | DateStyle | undefined
   /** "compact": a 12px name in a 24px row. Defaults to "default" (14px in 28px). */
   density?: "default" | "compact" | undefined
+  /**
+   * The name is already shown above the thread: it leaves the row but stays for screen readers. With no detail, time
+   * or children either, no row is drawn, only the name for screen readers.
+   */
+  nameShownAbove?: boolean | undefined
   /** Anything else for the row, after the time (a badge, a menu). */
   children?: React.ReactNode | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
+  if (nameShownAbove && !detail && !createdAt && (children === undefined || children === null || children === false)) {
+    return (
+      <span data-slot="message-header" data-name-shown-above="" className="sr-only">
+        {name}
+      </span>
+    )
+  }
   return (
-    <header data-slot="message-header" data-density={density} className={cn("flex items-center gap-2", density === "compact" ? "h-6" : "h-7", className)}>
-      <span className={cn("font-semibold", density === "compact" ? "text-xs" : "text-sm")}>{name}</span>
+    <header
+      data-slot="message-header"
+      data-density={density}
+      data-name-shown-above={nameShownAbove ? "" : undefined}
+      className={cn("flex items-center gap-2", density === "compact" ? "h-6" : "h-7", className)}
+    >
+      <span className={cn(nameShownAbove ? "sr-only" : "font-semibold", !nameShownAbove && (density === "compact" ? "text-xs" : "text-sm"))}>{name}</span>
       {detail && <span className={cn("truncate text-muted-foreground", density === "compact" ? "text-2xs" : "text-xs")}>{detail}</span>}
       {createdAt && (
         <span className={cn("text-faint-foreground", density === "compact" ? "text-2xs" : "text-xs")}>
@@ -270,6 +299,7 @@ function MessageBody({
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
   /** Code and other payload blocks without their frame. */
   bareCode?: boolean | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("message", messageStrings)
@@ -306,6 +336,7 @@ function MessageAttribution({
 }: {
   /** The service's measured values; nothing shows when both are absent. */
   attribution?: MessageData["attribution"] | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("message", messageStrings)
@@ -353,6 +384,7 @@ function MessageFooter({
   actions?: false | React.ReactNode | undefined
   /** How the reviewer's time shows: "relative" (the default) or an absolute "time", "date" or "datetime". */
   timeFormat?: "relative" | DateStyle | undefined
+  /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("message", messageStrings)

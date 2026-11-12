@@ -60,7 +60,8 @@ type Lockable = React.ReactElement<{
  * Wrap any single control. With a `reason`, the control stays focusable but is
  * marked `aria-disabled`, its activation is blocked (click, Enter, Space, and
  * for a Select's or Menu's trigger the press and ArrowDown or ArrowUp), and
- * it is described by the reason — so keyboard and screen-reader users reach
+ * it is described by the reason, after anything that already describes it
+ * (its own `aria-describedby` is kept) — so keyboard and screen-reader users reach
  * the explanation on the control itself. A checkbox, switch or radio inside
  * doesn't change by any other route either: not by a click on its label, a
  * radio group's arrow keys, or a form reset. The reason shows as a tooltip, or
@@ -135,7 +136,8 @@ function Locked({
   // The trigger draws the control itself (`render`), so no button of the trigger's own goes round it.
   const control = React.cloneElement(children, {
     "aria-disabled": true,
-    "aria-describedby": id,
+    // The reason joins whatever already describes the control (a hint, an error), rather than replacing it.
+    "aria-describedby": [children.props["aria-describedby"], id].filter(Boolean).join(" "),
     "data-locked": "",
     onClick: block,
     onKeyDown: (e: React.KeyboardEvent) => {

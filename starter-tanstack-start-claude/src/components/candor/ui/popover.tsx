@@ -28,6 +28,7 @@ function Popover({ onOpenChange, children, ...props }: PopoverPrimitive.Root.Pro
   )
 }
 
+/** The button that opens a `Popover`. */
 function PopoverTrigger({ className, ...props }: Omit<PopoverPrimitive.Trigger.Props, "className"> & { className?: string | undefined }) {
   return <PopoverPrimitive.Trigger data-slot="popover-trigger" className={className} {...props} />
 }
@@ -35,6 +36,7 @@ function PopoverTrigger({ className, ...props }: Omit<PopoverPrimitive.Trigger.P
 /** Where the popup sits against its trigger (or a PopoverAnchor): the props Base UI's Positioner takes. */
 type Placement = Pick<PopoverPrimitive.Positioner.Props, "side" | "sideOffset" | "align" | "alignOffset" | "collisionPadding" | "sticky">
 
+/** The floating panel a `Popover` shows, for a small form or a few details. */
 function PopoverContent({
   className,
   style,
@@ -97,15 +99,18 @@ function PopoverAnchor({ ref, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+/** The top of a `PopoverContent`: its title and description. */
 function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="popover-header" className={cn("flex flex-col gap-1 text-sm", className)} {...props} />
 }
 
+/** The heading of a `Popover`. */
 function PopoverTitle({ className, ...props }: Omit<PopoverPrimitive.Title.Props, "className"> & { className?: string | undefined }) {
   // A div, as before Base UI, so a popover's title doesn't join the page's heading outline; it still names the popup.
   return <PopoverPrimitive.Title data-slot="popover-title" render={<div />} className={cn("font-medium", className)} {...props} />
 }
 
+/** The line under a `PopoverTitle` saying what the `Popover` is for. */
 function PopoverDescription({ className, ...props }: Omit<PopoverPrimitive.Description.Props, "className"> & { className?: string | undefined }) {
   return <PopoverPrimitive.Description data-slot="popover-description" className={cn("text-muted-foreground", className)} {...props} />
 }

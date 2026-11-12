@@ -119,6 +119,7 @@ function TooltipTrigger({ className, render, ...props }: Omit<TooltipPrimitive.T
   )
 }
 
+/** The short label a `Tooltip` shows on hover or focus. It repeats what the control's name already says and holds no action. */
 function TooltipContent({
   className,
   style,
