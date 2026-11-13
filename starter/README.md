@@ -19,7 +19,7 @@ before it adds to it.
 
 Without `ANTHROPIC_API_KEY` the pages say so instead of showing the chat. The key is only read on the server.
 
-> Generated from Candor UI 5.1.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
+> Generated from Candor UI 5.2.0: the Candor files in this starter are that release's. What changed since is in the [changelog](https://candor.themethodic.com/changelog).
 
 ## Get started
 

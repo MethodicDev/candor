@@ -168,7 +168,7 @@ function Message({
       <article
         data-slot="message"
         data-role="person"
-        aria-label={author.team ? t("personLabel", { name: author.name, team: author.team }) : author.name}
+        aria-label={author.team ? t("personLabel", { name: neutralizeBidi(author.name), team: neutralizeBidi(author.team) }) : neutralizeBidi(author.name)}
         style={arriveMotion}
         className={cn("flex gap-3 data-[arrived]:cd-arrive", className)}
       >
@@ -192,7 +192,7 @@ function Message({
       data-role="agent"
       data-status={message.status}
       aria-busy={streaming}
-      aria-label={t("agentLabel", { name: agent.name, noun: roleOf(agent.role).noun })}
+      aria-label={t("agentLabel", { name: neutralizeBidi(agent.name), noun: roleOf(agent.role).noun })}
       style={arriveMotion}
       className={cn("group/message flex gap-3 data-[arrived]:cd-arrive", className)}
     >

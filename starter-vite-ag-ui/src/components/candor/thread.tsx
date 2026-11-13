@@ -22,8 +22,8 @@ function animationMs(el: Element | null): number | undefined {
 }
 
 /**
- * @motion arrive:jump The Jump to latest control fades in when the person scrolls up from the bottom and goes when
- * they return. It is not shown for a thread that has no messages.
+ * @motion arrive:jump The Jump to latest control fades in when the person scrolls up from the bottom, or when the view
+ * is left short of it, and goes when they return. It is not shown for a thread that has no messages.
  */
 const jumpMotion = motion("thread", "jump", "arrive", { dur: 150 })
 /**
@@ -31,6 +31,33 @@ const jumpMotion = motion("thread", "jump", "arrive", { dur: 150 })
  * arrives, then is still. Nothing pulses at the bottom, where the new message is already in view.
  */
 const arrivalMotion = motion("thread", "arrival", "attention")
+
+/** How close to the bottom counts as at it, in pixels. */
+const AT_BOTTOM_PX = 48
+/** How long a reader's input stays theirs: a scroll upward within this long of it is the reader's, in milliseconds. */
+const READER_INPUT_MS = 1000
+/** Whether the scroller shows its last pixels, give or take AT_BOTTOM_PX. */
+function atBottom(el: HTMLElement) {
+  return el.scrollHeight - el.scrollTop - el.clientHeight < AT_BOTTOM_PX
+}
+/** What the scroll rule compares between one scroll or resize and the next. */
+interface View {
+  top: number
+  height: number
+  client: number
+  /** Where the column's last element starts in it: it moves when content above it changes size, not when the view scrolls. */
+  newest: number
+}
+function viewOf(el: HTMLElement, column: HTMLElement | null): View {
+  const last = column?.lastElementChild
+  const newest = column && last ? last.getBoundingClientRect().top - column.getBoundingClientRect().top : 0
+  return { top: el.scrollTop, height: el.scrollHeight, client: el.clientHeight, newest }
+}
+/** A field that takes the keys itself, so ArrowUp or Home there moves a caret, not the thread. */
+function editable(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false
+  return target.isContentEditable || target.matches("input, textarea, select")
+}
 
 /** Thread's fixed words; override them under `thread` in LocaleProvider's `strings`. */
 export const threadStrings = {
@@ -40,8 +67,11 @@ export const threadStrings = {
 
 /**
  * The scrolling message column. It follows new content while you're at the
- * bottom and stops following the moment you scroll up to read, offering a
- * "Jump to latest" button instead. Pass `empty` for the first-run state and
+ * bottom and stops following the moment the view moves up by anything but
+ * layout (a wheel, a touch, a key, the scrollbar, find in page, a screen
+ * reader, or your app scrolling `scrollerRef`), offering a "Jump to latest"
+ * button instead; content that grows, shrinks or moves on its own never stops it. The button shows whenever the view is
+ * short of the bottom. Pass `empty` for the first-run state and
  * the composer as `footer`.
  *
  * For long histories, `virtualize` renders only the messages in or near view
@@ -84,7 +114,7 @@ function Thread({
    * Ignored with `virtualize`, where it may not be rendered yet.
    */
   anchor?: string | undefined
-  /** The scrolling element, for your own scroll handling. */
+  /** The scrolling element, for your own scroll handling. Scrolling it up stops the thread following, as the reader scrolling does; scrolling it to the bottom starts it again. */
   scrollerRef?: React.Ref<HTMLDivElement> | undefined
   /** Files or other data dropped on the thread. Dragging over it is allowed only when this is given. */
   onDrop?: ((event: React.DragEvent<HTMLDivElement>) => void) | undefined
@@ -111,6 +141,15 @@ function Thread({
     },
     [smooth]
   )
+
+  // Following turns the browser's scroll anchoring off on the scroller (overflow-anchor: none), and leaving turns it
+  // back on, so an unpinned reader keeps their place as content above them changes. Set here as well as in the render,
+  // so it holds from the moment the thread pins, not from its next commit.
+  const follow = React.useCallback((on: boolean) => {
+    pinnedRef.current = on
+    setPinned(on)
+    scroller.current?.style.setProperty("overflow-anchor", on ? "none" : "")
+  }, [])
 
   // A new message while the reader is scrolled up: the Jump to latest control pulses once for each arrival, even when
   // the messages sit inside a wrapper component or a fragment. A second arrival while it still pulses restarts it.
@@ -192,38 +231,153 @@ function Thread({
       return
     }
     // The anchor isn't in the thread: open at the bottom and follow, as without one.
-    pinnedRef.current = true
-    setPinned(true)
+    follow(true)
     toBottom()
   })
 
-  React.useEffect(() => {
-    const el = content.current
-    if (!el) return
-    const observer = new ResizeObserver(() => {
-      if (pinnedRef.current) toBottom()
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [toBottom])
-
-  // Scroll events arrive a frame late, after streaming content may already have
-  // grown the column, so distance from the bottom alone would read growth as
-  // the reader scrolling away. Only an actual move up unpins.
-  const lastTop = React.useRef(0)
-  const onScroll = () => {
+  // Whether the view is short of the bottom, decided only after a resize or a scroll has been handled (so after a
+  // resize's own toBottom), so Jump to latest never flashes while content streams in at the bottom.
+  const [short, setShort] = React.useState(false)
+  // After Jump to latest, until the glide reaches the bottom: the view is on its way down, so the control goes at once.
+  const gliding = React.useRef(false)
+  const settle = React.useCallback(() => {
     const el = scroller.current
     if (!el) return
-    const top = el.scrollTop
-    const atBottom = el.scrollHeight - top - el.clientHeight < 48
-    if (atBottom) {
-      pinnedRef.current = true
-      setPinned(true)
-    } else if (top < lastTop.current - 2) {
-      pinnedRef.current = false
-      setPinned(false)
+    const away = !atBottom(el)
+    if (!away) gliding.current = false
+    setShort(away && !gliding.current)
+  }, [])
+
+  // Only someone scrolling leaves the bottom; layout never does. Each scroll event and each resize compares the view
+  // with the last one seen. While the thread follows, anchoring is off, so layout can lower scrollTop only by
+  // clamping it: the content getting shorter or the view taller, never by more than the sizes changed. So a fall is
+  // layout only up to what the content's own change since the last look explains (how much the content's height, the
+  // view's height and where the newest element sits in the column moved, in either direction; A-61's trace, recorded
+  // with anchoring on, falls 25 px as the content grows 32). A larger fall is a scroll, whatever made it: a wheel, a
+  // key with focus anywhere, find in page, a screen reader, autoscroll, or the app through scrollerRef, during
+  // streaming or not. It unpins. A fall that is layout keeps the thread pinned and takes it back down, in whichever
+  // order the scroll event and the resize come. The reader's own input (a wheel or a touch moving up, a key that
+  // scrolls up, a drag on the scrollbar, focus moving above the view) makes even a small fall theirs. Scrolling to the
+  // bottom by any means pins again.
+  const readerAt = React.useRef(Number.NEGATIVE_INFINITY)
+  const dragging = React.useRef(false)
+  const seen = React.useRef<View | null>(null)
+  const judge = React.useCallback(
+    (scrolled: boolean) => {
+      const el = scroller.current
+      if (!el) return
+      const now = viewOf(el, content.current)
+      const before = seen.current
+      seen.current = now
+      if (scrolled && atBottom(el)) {
+        follow(true)
+        return
+      }
+      if (!before || !pinnedRef.current) return
+      const fall = before.top - now.top
+      if (fall <= 2) return
+      const explained = Math.abs(now.height - before.height) + Math.abs(now.client - before.client) + Math.abs(now.newest - before.newest)
+      if (fall > explained + 2 || dragging.current || Date.now() - readerAt.current < READER_INPUT_MS) {
+        follow(false)
+        return
+      }
+      // Layout left the view short: back to the bottom now, not at the next resize, which may not come.
+      toBottom()
+      seen.current = viewOf(el, content.current)
+    },
+    [follow, toBottom]
+  )
+
+  React.useEffect(() => {
+    const el = content.current
+    const view = scroller.current
+    if (!el) return
+    // The column growing or shrinking, or the scroller itself changing height (a composer that grows below it).
+    const observer = new ResizeObserver(() => {
+      judge(false)
+      if (pinnedRef.current && scroller.current) {
+        toBottom()
+        seen.current = viewOf(scroller.current, content.current)
+      }
+      settle()
+    })
+    observer.observe(el)
+    if (view) observer.observe(view)
+    return () => observer.disconnect()
+  }, [toBottom, settle, judge])
+
+  React.useEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    const moved = () => {
+      readerAt.current = Date.now()
+      gliding.current = false
     }
-    lastTop.current = top
+    // Whether the last press on the page was in the thread: keys pressed with focus nowhere (on body) then scroll it.
+    let pressedIn = false
+    let touchY: number | null = null
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY < 0) moved()
+    }
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0]?.clientY ?? null
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY
+      if (y === undefined) return
+      // A finger moving down drags the content down: the view moves up.
+      if (touchY !== null && y > touchY) moved()
+      touchY = y
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || editable(e.target)) return
+      const target = e.target
+      const ours = target instanceof Node && el.contains(target)
+      const nowhere = target === document.body || target === document.documentElement
+      if (!ours && !(nowhere && pressedIn)) return
+      if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "Home" || (e.key === " " && e.shiftKey)) moved()
+    }
+    const onPress = (e: PointerEvent) => {
+      pressedIn = e.target instanceof Node && el.contains(e.target)
+      // On the scroller itself, outside the column: its scrollbar, or the margin beside the messages. Any other press
+      // ends a drag whose release the page never got.
+      dragging.current = e.target === el
+    }
+    const release = () => {
+      dragging.current = false
+    }
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target
+      if (!(target instanceof Element) || target === el) return
+      // Focus on something above the view: the browser scrolls up to it, for the reader.
+      if (target.getBoundingClientRect().top < el.getBoundingClientRect().top) moved()
+    }
+    const passive = { passive: true }
+    el.addEventListener("wheel", onWheel, passive)
+    el.addEventListener("touchstart", onTouchStart, passive)
+    el.addEventListener("touchmove", onTouchMove, passive)
+    el.addEventListener("focusin", onFocusIn)
+    // A drag on the scrollbar ends with a release, or at the latest when its scroll does.
+    el.addEventListener("scrollend", release)
+    document.addEventListener("keydown", onKeyDown)
+    document.addEventListener("pointerdown", onPress, true)
+    window.addEventListener("pointerup", release)
+    window.addEventListener("pointercancel", release)
+    return () => {
+      el.removeEventListener("wheel", onWheel)
+      el.removeEventListener("touchstart", onTouchStart)
+      el.removeEventListener("touchmove", onTouchMove)
+      el.removeEventListener("focusin", onFocusIn)
+      el.removeEventListener("scrollend", release)
+      document.removeEventListener("keydown", onKeyDown)
+      document.removeEventListener("pointerdown", onPress, true)
+      window.removeEventListener("pointerup", release)
+      window.removeEventListener("pointercancel", release)
+    }
+  }, [])
+  const onScroll = () => {
+    judge(true)
+    settle()
   }
 
   const hasMessages = React.Children.count(children) > 0
@@ -256,6 +410,7 @@ function Thread({
               : undefined
           }
           onBlur={virtualize ? (e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && setFocused(null) : undefined}
+          style={pinned ? { overflowAnchor: "none" } : undefined}
           className="h-full scroll-pb-14 overflow-y-auto overscroll-contain"
         >
           <div
@@ -283,7 +438,7 @@ function Thread({
             )}
           </div>
         </div>
-        {!pinned && hasMessages && (
+        {(!pinned || short) && hasMessages && (
           // The entrance is the wrapper's, so the pulse on the button never replays it.
           <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive">
             <button
@@ -295,8 +450,9 @@ function Thread({
               }}
               data-arrived={arrived ? "" : undefined}
               onClick={() => {
-                pinnedRef.current = true
-                setPinned(true)
+                follow(true)
+                gliding.current = true
+                setShort(false)
                 toBottom("smooth")
               }}
               style={arrivalMotion}

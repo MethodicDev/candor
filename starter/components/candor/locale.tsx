@@ -288,9 +288,10 @@ function useFormat(): Formatter {
  * `{name}` becomes that node, so translators can move it within the sentence and it keeps its styling. A placeholder
  * named like one of the app's nouns (`{account}`, `{environment}`) is filled with the noun by `t` unless it is given, so
  * pass it through to keep it for `place`: `place(t("typeToConfirm", { account: "{account}" }), { account: <b>…</b> })`.
+ * Only the nodes' own names count: `{constructor}` or `{toString}` in a translation stays as written.
  */
 export function place(text: string, nodes: Record<string, React.ReactNode>): React.ReactNode[] {
-  return text.split(/\{(\w+)\}/).map((part, i) => (i % 2 ? <React.Fragment key={i}>{part in nodes ? nodes[part] : `{${part}}`}</React.Fragment> : part))
+  return text.split(/\{(\w+)\}/).map((part, i) => (i % 2 ? <React.Fragment key={i}>{Object.hasOwn(nodes, part) ? nodes[part] : `{${part}}`}</React.Fragment> : part))
 }
 
 /** Looks up one string by key and fills its placeholders, the app's nouns among them; `count` also picks the plural form. */

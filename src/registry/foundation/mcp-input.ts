@@ -242,7 +242,7 @@ export const mcpInputWords = {
 /** The words, with any you pass in place of the defaults. */
 export type McpInputWords = Partial<typeof mcpInputWords>
 
-const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m))
+const fill = (s: string, vars: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (m, k: string) => (Object.hasOwn(vars, k) ? String(vars[k]) : m))
 
 /** The id of "Leave unanswered" on a choice the server doesn't require; no enum value or "true"/"false" can clash with it. */
 const SKIP = "\u0000skip"

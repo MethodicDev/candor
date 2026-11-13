@@ -75,6 +75,11 @@ type Lockable = React.ReactElement<{
  * under data-motion="expressive" only, shakes it briefly; with reduced motion
  * or the default subtle preset, only the reason is shown.
  *
+ * Under the app's own `TooltipProvider`, the tooltip is in the app's group: on
+ * hover it opens after that provider's `delay` (none if it sets none), and moving
+ * from one tooltip to the next skips the delay. With no provider above, it opens
+ * at once on hover. A press shows it at once either way.
+ *
  * The control sits in the same place whether or not there is a reason, so it
  * isn't drawn anew when one comes or goes: focus and a screen reader's place
  * stay on it. Without a reason its wrapper (`data-slot="locked"`, with

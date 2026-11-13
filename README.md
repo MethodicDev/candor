@@ -16,7 +16,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 74 free items (version 5.1.0), the skill and plugins for coding
+This repo is the source of Candor UI's 74 free items (version 5.2.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -187,7 +187,7 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
 | Free (this repo) | $0, MIT | 74 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 376 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Pro | $149, one person | All 377 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 
