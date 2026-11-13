@@ -1,5 +1,5 @@
 import type { UIMessage } from "ai"
-import type { AgentIdentity, Message, MessageBlock, MessageSource, MessageStatus, ReasoningEntry, ToolCall, ToolSource } from "@/lib/candor/chat"
+import type { AgentIdentity, MessageData, MessageBlock, MessageSource, MessageStatus, ReasoningEntry, ToolCallData, ToolSource } from "@/lib/candor/chat"
 import type { RunStatus } from "@/lib/candor/status"
 import { inline, markdownBlocks, plainBlocks } from "@/lib/candor/safe-markdown"
 
@@ -46,19 +46,19 @@ export type FromAiSdkOptions = {
 }
 
 /** Convert a whole useChat message list. */
-export function fromAiSdkMessages(messages: UIMessage[], options: FromAiSdkOptions): Message[] {
+export function fromAiSdkMessages(messages: UIMessage[], options: FromAiSdkOptions): MessageData[] {
   const lastAssistant = messages.findLastIndex((m) => m.role === "assistant")
   return messages.map((m, i) => fromAiSdkMessage(m, { ...options, last: i === lastAssistant }))
 }
 
 /** Convert one message. `last` marks the reply the chat status applies to. */
-export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions & { last?: boolean | undefined }): Message {
+export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions & { last?: boolean | undefined }): MessageData {
   const blocks: MessageBlock[] = []
   const reasoning: ReasoningEntry[] = []
   const sources: MessageSource[] = []
   const toolSources: Omit<ToolSource, "key">[] = []
   const toolSourceKeys = new Set<string>()
-  let tools: ToolCall[] | null = null
+  let tools: ToolCallData[] | null = null
   const flushTools = () => {
     if (tools?.length) blocks.push({ kind: "tools", calls: tools })
     tools = null
@@ -113,7 +113,7 @@ export function fromAiSdkMessage(message: UIMessage, options: FromAiSdkOptions &
   flushTools()
   for (const [i, found] of toolSources.entries()) sources.push({ ...found, id: `${message.id}-tool-s${i + 1}`, marker: sources.length + 1 })
 
-  const author: Message["author"] = message.role === "assistant" ? { role: "agent", agent: options.agent } : message.role === "user" ? { role: "user" } : { role: "system" }
+  const author: MessageData["author"] = message.role === "assistant" ? { role: "agent", agent: options.agent } : message.role === "user" ? { role: "user" } : { role: "system" }
 
   return {
     id: message.id,
@@ -166,7 +166,7 @@ const toolStatus = (p: ToolPart): RunStatus => {
   }
 }
 
-function toolCall(p: ToolPart, options: FromAiSdkOptions): ToolCall {
+function toolCall(p: ToolPart, options: FromAiSdkOptions): ToolCallData {
   const tool = p.toolName ?? p.type.replace(/^tool-/, "")
   const status = toolStatus(p)
   return {

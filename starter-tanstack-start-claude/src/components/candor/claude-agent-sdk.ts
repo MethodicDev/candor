@@ -1,5 +1,5 @@
 import type { PermissionResult, PermissionUpdate, SDKMessage } from "@anthropic-ai/claude-agent-sdk"
-import type { AgentIdentity, EntityRef, InlineNode, Message, MessageBlock, MessageSource, ReasoningEntry, ToolCall, ToolSource } from "@/lib/candor/chat"
+import type { AgentIdentity, EntityRef, InlineNode, MessageData, MessageBlock, MessageSource, ReasoningEntry, ToolCallData, ToolSource } from "@/lib/candor/chat"
 import { markdownBlocks, plainBlocks } from "@/lib/candor/safe-markdown"
 
 /*
@@ -153,7 +153,7 @@ export type FromClaudeAgentOptions = {
 export type ClaudeRecalledMemory = { path: string; scope: "personal" | "team" | "organization"; content?: string | undefined }
 
 export type ClaudeAgentState = {
-  messages: Message[]
+  messages: MessageData[]
   /** Tool calls waiting on a person, oldest first. Empty once the request has ended. */
   approvals: ClaudeApproval[]
   /** Send it back with the next message to continue the same session (the SDK's `resume`). */
@@ -179,7 +179,7 @@ type Reply = {
   id: string
   parts: Part[]
   reasoning: ReasoningEntry[]
-  tools: Map<string, ToolCall>
+  tools: Map<string, ToolCallData>
   /** Text and thinking still streaming, by content block index. */
   live: Map<number, { kind: "text" | "thinking"; text: string }>
   result?: { ok: boolean; error?: string | undefined; cost?: number | undefined } | undefined
@@ -198,7 +198,7 @@ type Reply = {
  * Pure, so it can run on every render; useClaudeAgent calls it for you.
  */
 export function fromClaudeAgentEvents(events: AgentEvent[], options: FromClaudeAgentOptions): ClaudeAgentState {
-  const messages: Message[] = []
+  const messages: MessageData[] = []
   const approvals = new Map<string, ClaudeApproval>()
   // Assigned inside `current`, which TypeScript can't follow, so it's typed by assertion.
   let reply = null as Reply | null
@@ -220,7 +220,7 @@ export function fromClaudeAgentEvents(events: AgentEvent[], options: FromClaudeA
     return reply
   }
   // Lines that arrived while a reply was still going: shown after it, so one turn stays one reply.
-  let afterReply: Message[] = []
+  let afterReply: MessageData[] = []
   const close = (last: boolean) => {
     if (reply) {
       messages.push(render(reply, { ...options, model, last }))
@@ -232,7 +232,7 @@ export function fromClaudeAgentEvents(events: AgentEvent[], options: FromClaudeA
   }
   // A line the adapter adds between replies: the app's own words, drawn like any system message.
   const systemLine = (id: string, text: string) => {
-    const line: Message = { id, author: { role: "system" }, status: "complete", blocks: plainBlocks(text) }
+    const line: MessageData = { id, author: { role: "system" }, status: "complete", blocks: plainBlocks(text) }
     if (reply) afterReply.push(line)
     else messages.push(line)
   }
@@ -418,7 +418,7 @@ function addBlock(r: Reply, block: ContentBlock, options: FromClaudeAgentOptions
     // With the SDK's default display, thinking arrives empty; there's nothing to show then.
     if (block.thinking.trim()) r.reasoning.push(reasoningEntry(`${r.id}-r${r.reasoning.length}`, block.thinking, false))
   } else if (block.type === "tool_use" || block.type === "server_tool_use" || block.type === "mcp_tool_use") {
-    const call: ToolCall = { id: block.id, tool: block.name, title: options.toolTitle?.(block.name, block.input) ?? block.name, status: "running", input: json(block.input) }
+    const call: ToolCallData = { id: block.id, tool: block.name, title: options.toolTitle?.(block.name, block.input) ?? block.name, status: "running", input: json(block.input) }
     r.tools.set(block.id, call)
     r.inputs.set(block.id, block.input)
     r.parts.push({ kind: "tool", id: block.id })
@@ -442,7 +442,7 @@ function addBlock(r: Reply, block: ContentBlock, options: FromClaudeAgentOptions
   }
 }
 
-function render(r: Reply, o: FromClaudeAgentOptions & { model?: string | undefined; last: boolean }): Message {
+function render(r: Reply, o: FromClaudeAgentOptions & { model?: string | undefined; last: boolean }): MessageData {
   const open = o.last && o.running
   const parts = [...r.parts]
   const reasoning = [...r.reasoning]
@@ -456,7 +456,7 @@ function render(r: Reply, o: FromClaudeAgentOptions & { model?: string | undefin
 
   const ended = !open && !r.result?.ok
   const blocks: MessageBlock[] = []
-  let calls: ToolCall[] = []
+  let calls: ToolCallData[] = []
   const flush = () => {
     if (calls.length) blocks.push({ kind: "tools", calls })
     calls = []

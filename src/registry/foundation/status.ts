@@ -30,9 +30,6 @@ export const statusStrings = {
   skipped: "Skipped",
 } satisfies Record<RunStatus, string>
 
-/** English status labels. Kept for compatibility; components use `useStatusLabel()` so they follow the locale. */
-export const statusLabel: Record<RunStatus, string> = statusStrings
-
 /** A status's label in the current locale: `const label = useStatusLabel(); label("running")`. */
 export function useStatusLabel(): (status: RunStatus) => string {
   const t = useStrings("status", statusStrings)

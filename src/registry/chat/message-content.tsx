@@ -28,9 +28,11 @@ type Ctx = {
   onNavigate?: ((to: string) => void) | undefined
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
   bareCode?: boolean | undefined
+  /** The level a model's top heading (`#`) is drawn at; deeper ones go one level down each, to 6. */
+  headingLevel: 1 | 2 | 3 | 4 | 5 | 6
 }
 
-const ContentContext = React.createContext<Ctx>({ sources: new Map() })
+const ContentContext = React.createContext<Ctx>({ sources: new Map(), headingLevel: 3 })
 
 /**
  * A claim the agent hasn't verified. Its reason shows in a tooltip, and describes the claim to screen readers whether
@@ -136,7 +138,7 @@ function Block({
 }: {
   block: MessageBlock
 }) {
-  const { bareCode } = React.useContext(ContentContext)
+  const { bareCode, headingLevel } = React.useContext(ContentContext)
   switch (block.kind) {
     case "paragraph":
       return (
@@ -147,10 +149,11 @@ function Block({
     case "plain":
       return <p className="whitespace-pre-wrap break-words">{neutralizeBidi(block.text)}</p>
     case "heading": {
-      // Levels are relative to the message: the thread page owns h1 and h2.
-      // Blocks can arrive as JSON, so an out-of-range level is clamped rather than trusted.
+      // Levels are relative to the content: a `#` is drawn at `headingLevel` (h3 in a thread, whose page owns h1 and
+      // h2), and each deeper one a level below, to h6. Blocks can arrive as JSON, so an out-of-range level is clamped
+      // rather than trusted.
       const level = Math.min(Math.max(Math.round(block.level) || 1, 1), 3) as 1 | 2 | 3
-      const H = (["h3", "h4", "h5"] as const)[level - 1]!
+      const H = `h${Math.min(headingLevel + level - 1, 6)}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6"
       return (
         <H className={cn("font-semibold tracking-tight text-foreground", level === 1 ? "mt-1 text-lg" : level === 2 ? "mt-1 text-base" : "text-sm")}>
           <Inline nodes={block.nodes} />
@@ -194,6 +197,7 @@ function MessageContent({
   onNavigate,
   onOpenAttachment,
   bareCode,
+  headingLevel = 3,
   className,
 }: {
   /** The reply as typed blocks: paragraphs, lists, payloads, tool calls, cards, attachments. */
@@ -208,11 +212,17 @@ function MessageContent({
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
   /** Code and other payload blocks without their frame and title bar (Payload's `bare`). */
   bareCode?: boolean | undefined
+  /**
+   * The level a model's top heading (`#`) is drawn at, to fit the page's outline; `##` and `###` go one and two levels
+   * below it, to 6. Defaults to 3, under a thread page's `<h1>` and `<h2>`. It reads no `HeadingScope`: pass the level
+   * below the heading the content sits under.
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
   className?: string | undefined
 }) {
   const ctx = React.useMemo(
-    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment, bareCode }),
-    [sources, onOpenEntity, onNavigate, onOpenAttachment, bareCode]
+    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment, bareCode, headingLevel }),
+    [sources, onOpenEntity, onNavigate, onOpenAttachment, bareCode, headingLevel]
   )
   return (
     <ContentContext.Provider value={ctx}>

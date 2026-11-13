@@ -7,7 +7,7 @@ import type { PayloadLanguage } from "@/lib/candor/chat"
 import { useCopy } from "@/lib/candor/use-copy"
 import { tokenize } from "@/lib/candor/highlight"
 
-import { useStrings, type Translate } from "@/components/candor/locale"
+import { useFormat, useStrings, type Translate } from "@/components/candor/locale"
 import { neutralizeBidi } from "@/lib/candor/bidi"
 
 /** Payload's fixed words; override them under `payload` in LocaleProvider's `strings`. */
@@ -17,8 +17,6 @@ export const payloadStrings = {
   copyFailed: "Couldn’t copy",
   shell: "Shell",
   text: "Text",
-  /** Between the language and the title in the caption ("JSON · The query I ran"). */
-  titleSeparator: " · ",
 }
 
 // Language names are the same in every language; only the generic ones ("Shell", "Text") come from the strings table.
@@ -66,6 +64,8 @@ function Payload({
 }) {
   const { state, copy } = useCopy()
   const t = useStrings("payload", payloadStrings)
+  // Between the language and the title in the caption ("JSON · The query I ran").
+  const { separator } = useFormat()
   const syntax = highlight === undefined ? undefined : highlight ? "highlight" : "off"
   // A model's or a tool's text: no control character reorders what is read, on screen or once copied.
   const text = neutralizeBidi(given)
@@ -87,7 +87,7 @@ function Payload({
           <span className="font-medium text-foreground">{neutralizeBidi(languageLabel(language, t))}</span>
           {title && (
             <span>
-              {t("titleSeparator")}
+              {separator}
               <bdi>{title}</bdi>
             </span>
           )}

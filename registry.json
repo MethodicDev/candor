@@ -300,6 +300,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -340,6 +351,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -379,6 +401,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -418,6 +451,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -476,6 +520,17 @@
               "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
               "\\bcomposer\\.onChange\\b"
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -533,6 +588,17 @@
               "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
               "\\bcomposer\\.onChange\\b"
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -586,6 +652,17 @@
               "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
               "\\bcomposer\\.onChange\\b"
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -626,6 +703,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -668,6 +756,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -710,6 +809,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -766,6 +876,17 @@
             "find": [
               "import\\s*(?:type\\s*)?\\{[^}]*\\bCard\\b[^}]*\\}\\s*from\\s*[\"'][^\"']*card-registry[\"']"
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -808,6 +929,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -824,6 +956,7 @@
         "@candor/chat",
         "@candor/entity-chip",
         "@candor/locale",
+        "@candor/locked",
         "@candor/motion",
         "@candor/tokens",
         "@candor/tooltip",
@@ -868,6 +1001,59 @@
               "<(?:Composer|DictationButton|PermissionMode|MemoryMode|InstructionsEditor|ModelSettings|ModelPicker|MessageBranches|ColumnMapper|RunScrubber|SoundSetting|CodeEditor|ReviewLadder)\\b[^>]*\\bonChange=",
               "\\bcomposer\\.onChange\\b"
             ]
+          },
+          {
+            "id": "strings-separator",
+            "in": "5.0.0",
+            "change": "The \" · \" between parts is one string, `locale.separator`, read through `useFormat().separator` and `useFormat().join`, where eleven items each had a key for it (`message.metaSeparator`, `composer.hintSeparator`, `reasoning.summarySeparator` …) and about forty typed it. SubscoreCard's `separator` and TableScrubberMap's `kindSeparator`, which joined lists, are removed: a list follows the locale's list format (`useFormat().list`). Strings that held the separator at their start or in their middle no longer do (`integrationConnect.connectedSince` is `since {when}`, `membersTable.invitedBy` is `Invited by {name}`, `columnMapper.suggested` is `Suggested`, with `percentSure` beside it, and the others the changelog lists): Candor joins the parts. Four that held it between parts are removed: `reconcileTable.summary` (now `openCount`, `resolvedCount` and `matchedCount`), `evalScorecard.passedFailed` (`passedCount`, `failedCount`), `reviewQueue.progress` (`position`, `gradedCount`) and `dataTable.aggregateLine` (nothing to translate).",
+            "breaks": "An override of a removed key isn't read any more: the separator is whatever `locale.separator` says. Nothing fails to compile, since `StringOverrides` takes any key, so `migrate strings-keys` is what finds it.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` moves an override of one of the eleven keys to `strings.locale.separator` and removes the old keys; where two give different values, it leaves them and lists them for you to choose one. It lists an override of `subscoreCard.separator` or `tableScrubberMap.kindSeparator`, which has nothing to move to, and of `reconcileTable.summary`, `evalScorecard.passedFailed`, `reviewQueue.progress` or `dataTable.aggregateLine`, with the keys that say it now. An override of a string that no longer holds the separator, written with its own \" · \", shows it twice: take the mark out. The codemod lists one that still has it.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\b(?:meta|hint|scope|summary|title|count|mark|domain)Separator\\s*:"
+            ]
+          },
+          {
+            "id": "strings-sentences",
+            "in": "5.0.0",
+            "change": "Sentences that were built by joining strings and numbers in code are one string each, with `{placeholders}`, so a translation can put the words in its own order; numbers go through the locale's formatter. The keys they replace are removed: `scheduleEditor.announceNext` (say it with `announceRule` and `announceRuleAlone`) and the others the changelog lists by item. Some keys stay but no longer fill a placeholder, since Candor joins that part on with `locale.separator`: `environmentPromotion.requestedBy`, `promoted` and `declined`, and `escalation.sentLine` and `acknowledged` (`{when}`); `blastRadius.group` and `awayDigest.group` (`{count}`); `taskTray.started` (`{status}`); and `membersTable.invitedBy` (`{expires}`, now `expiresIn`). Five sentences have new keys that replace none, so nothing is removed: `modelKey.keyFor`, `progressButton.measuredFailed` and `failedWithFiles`, `runTree.verdictNote` and `presence.hereStale`.",
+            "breaks": "An override of a removed key isn't read any more: the item says the sentence in English until you translate its new key. Nothing fails to compile, since `StringOverrides` takes any key, so `migrate strings-keys` is what lists it. An override of a kept key that still has its dropped placeholder shows it as written (`{when}` on screen), with its own \" · \" beside Candor's. A translated app also says the five new keys' sentences in English (ModelKey's field label for one provider, ProgressButton's description and announcement with failed files, RunTree's verdict note, Presence's stale summary) until you translate them; no codemod lists those, since no key was removed.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` lists each override of a removed key with the key that says the sentence now and its placeholders. Translate that key: your words can't be moved for you, since the sentence is different. It also lists an override of a kept key that still has its dropped placeholder or a \" · \": take them out. Translate the five new keys too, where your app is translated.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\bannounceNext\\s*:"
+            ]
+          },
+          {
+            "id": "locked-not-disabled",
+            "in": "5.0.0",
+            "change": "A control that waits on something (a save on its way, a condition not yet met) stays focusable and is `aria-disabled`, with the reason, through `Locked`, where it was natively `disabled`; a press does nothing until it can be used. A ToolCall or SearchTrace row that has finished with nothing behind it, which can never open, is text rather than a button.",
+            "breaks": "A test that checks such a control with `toBeDisabled()` fails, since it isn't `disabled`, and one that finds a finished ToolCall or SearchTrace row with no details as a button finds none. For a person nothing is pressed that wasn't before, and the control can be reached and says why it waits.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "In a test, check `aria-disabled=\"true\"` (`toHaveAttribute(\"aria-disabled\", \"true\")`) in place of `toBeDisabled()`, and find a finished ToolCall or SearchTrace row with no details by its text. Nothing changes in the app's code.",
+            "codemod": null,
+            "find": [
+              "\\btoBeDisabled\\(\\)"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -907,6 +1093,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -948,6 +1145,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -989,6 +1197,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1031,6 +1250,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1093,6 +1323,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1106,6 +1347,7 @@
       ],
       "registryDependencies": [
         "@candor/agent-avatar",
+        "@candor/bidi",
         "@candor/chat",
         "@candor/citation",
         "@candor/degraded-panel",
@@ -1157,6 +1399,31 @@
             "find": [
               "[\"']?\\bmessage[\"']?\\s*:\\s*\\{[^{}]*[\"']?\\bthinking[\"']?\\s*:"
             ]
+          },
+          {
+            "id": "strings-separator",
+            "in": "5.0.0",
+            "change": "The \" · \" between parts is one string, `locale.separator`, read through `useFormat().separator` and `useFormat().join`, where eleven items each had a key for it (`message.metaSeparator`, `composer.hintSeparator`, `reasoning.summarySeparator` …) and about forty typed it. SubscoreCard's `separator` and TableScrubberMap's `kindSeparator`, which joined lists, are removed: a list follows the locale's list format (`useFormat().list`). Strings that held the separator at their start or in their middle no longer do (`integrationConnect.connectedSince` is `since {when}`, `membersTable.invitedBy` is `Invited by {name}`, `columnMapper.suggested` is `Suggested`, with `percentSure` beside it, and the others the changelog lists): Candor joins the parts. Four that held it between parts are removed: `reconcileTable.summary` (now `openCount`, `resolvedCount` and `matchedCount`), `evalScorecard.passedFailed` (`passedCount`, `failedCount`), `reviewQueue.progress` (`position`, `gradedCount`) and `dataTable.aggregateLine` (nothing to translate).",
+            "breaks": "An override of a removed key isn't read any more: the separator is whatever `locale.separator` says. Nothing fails to compile, since `StringOverrides` takes any key, so `migrate strings-keys` is what finds it.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` moves an override of one of the eleven keys to `strings.locale.separator` and removes the old keys; where two give different values, it leaves them and lists them for you to choose one. It lists an override of `subscoreCard.separator` or `tableScrubberMap.kindSeparator`, which has nothing to move to, and of `reconcileTable.summary`, `evalScorecard.passedFailed`, `reviewQueue.progress` or `dataTable.aggregateLine`, with the keys that say it now. An override of a string that no longer holds the separator, written with its own \" · \", shows it twice: take the mark out. The codemod lists one that still has it.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\b(?:meta|hint|scope|summary|title|count|mark|domain)Separator\\s*:"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1200,6 +1467,31 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "strings-separator",
+            "in": "5.0.0",
+            "change": "The \" · \" between parts is one string, `locale.separator`, read through `useFormat().separator` and `useFormat().join`, where eleven items each had a key for it (`message.metaSeparator`, `composer.hintSeparator`, `reasoning.summarySeparator` …) and about forty typed it. SubscoreCard's `separator` and TableScrubberMap's `kindSeparator`, which joined lists, are removed: a list follows the locale's list format (`useFormat().list`). Strings that held the separator at their start or in their middle no longer do (`integrationConnect.connectedSince` is `since {when}`, `membersTable.invitedBy` is `Invited by {name}`, `columnMapper.suggested` is `Suggested`, with `percentSure` beside it, and the others the changelog lists): Candor joins the parts. Four that held it between parts are removed: `reconcileTable.summary` (now `openCount`, `resolvedCount` and `matchedCount`), `evalScorecard.passedFailed` (`passedCount`, `failedCount`), `reviewQueue.progress` (`position`, `gradedCount`) and `dataTable.aggregateLine` (nothing to translate).",
+            "breaks": "An override of a removed key isn't read any more: the separator is whatever `locale.separator` says. Nothing fails to compile, since `StringOverrides` takes any key, so `migrate strings-keys` is what finds it.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` moves an override of one of the eleven keys to `strings.locale.separator` and removes the old keys; where two give different values, it leaves them and lists them for you to choose one. It lists an override of `subscoreCard.separator` or `tableScrubberMap.kindSeparator`, which has nothing to move to, and of `reconcileTable.summary`, `evalScorecard.passedFailed`, `reviewQueue.progress` or `dataTable.aggregateLine`, with the keys that say it now. An override of a string that no longer holds the separator, written with its own \" · \", shows it twice: take the mark out. The codemod lists one that still has it.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\b(?:meta|hint|scope|summary|title|count|mark|domain)Separator\\s*:"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1215,6 +1507,7 @@
         "@candor/bidi",
         "@candor/button",
         "@candor/locale",
+        "@candor/locked",
         "@candor/motion",
         "@candor/payload",
         "@candor/tokens",
@@ -1253,6 +1546,56 @@
               "type-check"
             ],
             "migration": "Nothing for a level you pass. Widen your own type where the type check asks, or narrow the value before you pass it on. No codemod: there is nothing to rename.",
+            "codemod": null
+          },
+          {
+            "id": "heading-default",
+            "in": "5.0.0",
+            "change": "Every item that draws a heading takes `headingLevel` (1 to 6) and, without it, draws its top heading one level below the nearest `HeadingScope`, else at `<h2>`, so a page's outline skips no level. Dialogs, sheets, drawers, alert dialogs, settings sections, dashboard tiles and artifact panels set a scope over their content. `PageHeader` and `EmailLayout` stay at `<h1>`; the free `PermissionPrompt` and `PageState` default to `<h2>` and read no scope.",
+            "breaks": "Where you don't pass `headingLevel`, a heading can be a different level than in 4.x: most that were `<h3>` or `<h4>` are `<h2>` outside a scope. It looks the same; a test or an outline check that expects 4.x's level sees the change.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate headings` lists each use without `headingLevel`, with the level it drew in 4.x, and changes nothing. Where your page or a test needs that level, pass `headingLevel={n}`; or wrap a section in `<HeadingScope level={n}>` (lib/candor/heading-scope) so the items in it sit one level below.",
+            "codemod": "headings"
+          },
+          {
+            "id": "strings-separator",
+            "in": "5.0.0",
+            "change": "The \" · \" between parts is one string, `locale.separator`, read through `useFormat().separator` and `useFormat().join`, where eleven items each had a key for it (`message.metaSeparator`, `composer.hintSeparator`, `reasoning.summarySeparator` …) and about forty typed it. SubscoreCard's `separator` and TableScrubberMap's `kindSeparator`, which joined lists, are removed: a list follows the locale's list format (`useFormat().list`). Strings that held the separator at their start or in their middle no longer do (`integrationConnect.connectedSince` is `since {when}`, `membersTable.invitedBy` is `Invited by {name}`, `columnMapper.suggested` is `Suggested`, with `percentSure` beside it, and the others the changelog lists): Candor joins the parts. Four that held it between parts are removed: `reconcileTable.summary` (now `openCount`, `resolvedCount` and `matchedCount`), `evalScorecard.passedFailed` (`passedCount`, `failedCount`), `reviewQueue.progress` (`position`, `gradedCount`) and `dataTable.aggregateLine` (nothing to translate).",
+            "breaks": "An override of a removed key isn't read any more: the separator is whatever `locale.separator` says. Nothing fails to compile, since `StringOverrides` takes any key, so `migrate strings-keys` is what finds it.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` moves an override of one of the eleven keys to `strings.locale.separator` and removes the old keys; where two give different values, it leaves them and lists them for you to choose one. It lists an override of `subscoreCard.separator` or `tableScrubberMap.kindSeparator`, which has nothing to move to, and of `reconcileTable.summary`, `evalScorecard.passedFailed`, `reviewQueue.progress` or `dataTable.aggregateLine`, with the keys that say it now. An override of a string that no longer holds the separator, written with its own \" · \", shows it twice: take the mark out. The codemod lists one that still has it.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\b(?:meta|hint|scope|summary|title|count|mark|domain)Separator\\s*:"
+            ]
+          },
+          {
+            "id": "locked-not-disabled",
+            "in": "5.0.0",
+            "change": "A control that waits on something (a save on its way, a condition not yet met) stays focusable and is `aria-disabled`, with the reason, through `Locked`, where it was natively `disabled`; a press does nothing until it can be used. A ToolCall or SearchTrace row that has finished with nothing behind it, which can never open, is text rather than a button.",
+            "breaks": "A test that checks such a control with `toBeDisabled()` fails, since it isn't `disabled`, and one that finds a finished ToolCall or SearchTrace row with no details as a button finds none. For a person nothing is pressed that wasn't before, and the control can be reached and says why it waits.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "In a test, check `aria-disabled=\"true\"` (`toHaveAttribute(\"aria-disabled\", \"true\")`) in place of `toBeDisabled()`, and find a finished ToolCall or SearchTrace row with no details by its text. Nothing changes in the app's code.",
+            "codemod": null,
+            "find": [
+              "\\btoBeDisabled\\(\\)"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
             "codemod": null
           }
         ]
@@ -1337,6 +1680,17 @@
             "find": [
               "<PromptSuggestions\\b[^>]*\\blabel="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1381,6 +1735,31 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "strings-separator",
+            "in": "5.0.0",
+            "change": "The \" · \" between parts is one string, `locale.separator`, read through `useFormat().separator` and `useFormat().join`, where eleven items each had a key for it (`message.metaSeparator`, `composer.hintSeparator`, `reasoning.summarySeparator` …) and about forty typed it. SubscoreCard's `separator` and TableScrubberMap's `kindSeparator`, which joined lists, are removed: a list follows the locale's list format (`useFormat().list`). Strings that held the separator at their start or in their middle no longer do (`integrationConnect.connectedSince` is `since {when}`, `membersTable.invitedBy` is `Invited by {name}`, `columnMapper.suggested` is `Suggested`, with `percentSure` beside it, and the others the changelog lists): Candor joins the parts. Four that held it between parts are removed: `reconcileTable.summary` (now `openCount`, `resolvedCount` and `matchedCount`), `evalScorecard.passedFailed` (`passedCount`, `failedCount`), `reviewQueue.progress` (`position`, `gradedCount`) and `dataTable.aggregateLine` (nothing to translate).",
+            "breaks": "An override of a removed key isn't read any more: the separator is whatever `locale.separator` says. Nothing fails to compile, since `StringOverrides` takes any key, so `migrate strings-keys` is what finds it.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` moves an override of one of the eleven keys to `strings.locale.separator` and removes the old keys; where two give different values, it leaves them and lists them for you to choose one. It lists an override of `subscoreCard.separator` or `tableScrubberMap.kindSeparator`, which has nothing to move to, and of `reconcileTable.summary`, `evalScorecard.passedFailed`, `reviewQueue.progress` or `dataTable.aggregateLine`, with the keys that say it now. An override of a string that no longer holds the separator, written with its own \" · \", shows it twice: take the mark out. The codemod lists one that still has it.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\b(?:meta|hint|scope|summary|title|count|mark|domain)Separator\\s*:"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1418,6 +1797,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1458,6 +1848,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1499,6 +1900,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1515,6 +1927,7 @@
         "@candor/chat",
         "@candor/collapsible",
         "@candor/locale",
+        "@candor/locked",
         "@candor/motion",
         "@candor/payload",
         "@candor/status",
@@ -1546,6 +1959,31 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "locked-not-disabled",
+            "in": "5.0.0",
+            "change": "A control that waits on something (a save on its way, a condition not yet met) stays focusable and is `aria-disabled`, with the reason, through `Locked`, where it was natively `disabled`; a press does nothing until it can be used. A ToolCall or SearchTrace row that has finished with nothing behind it, which can never open, is text rather than a button.",
+            "breaks": "A test that checks such a control with `toBeDisabled()` fails, since it isn't `disabled`, and one that finds a finished ToolCall or SearchTrace row with no details as a button finds none. For a person nothing is pressed that wasn't before, and the control can be reached and says why it waits.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "In a test, check `aria-disabled=\"true\"` (`toHaveAttribute(\"aria-disabled\", \"true\")`) in place of `toBeDisabled()`, and find a finished ToolCall or SearchTrace row with no details by its text. Nothing changes in the app's code.",
+            "codemod": null,
+            "find": [
+              "\\btoBeDisabled\\(\\)"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1580,6 +2018,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1630,6 +2079,32 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "types-data",
+            "in": "5.0.0",
+            "change": "The six data types are named for what they hold: `Message` and `ToolCall` (lib/candor/chat), `ApprovalRequest` and `ResultTable` (lib/candor/work), `Finding` (lib/candor/data) and `RunReceipt` (lib/candor/ops) are `MessageData`, `ToolCallData`, `ApprovalRequestData`, `ResultTableData`, `FindingData` and `RunReceiptData`, as `@candor-ui/react` already named them. The old names aren't kept.",
+            "breaks": "An import of an old name from lib/candor fails the type check (`has no exported member 'Message'`). Imports from `@candor-ui/react` don't change.",
+            "at": [
+              "type-check",
+              "imports"
+            ],
+            "migration": "`npx candor-ui migrate types-data` renames each import and its uses in your files; an import you aliased (`Message as M`) keeps its local name. It lists a re-export from a file of yours, and a file that already has its own `MessageData`, for you to change.",
+            "codemod": "types-data",
+            "find": [
+              "\\bimport\\b[^;]*\\b(?:Message|ToolCall|ApprovalRequest|ResultTable|Finding|RunReceipt)\\b[^;]*\\bfrom\\s+[\"'][^\"']*candor/(?:chat|work|data|ops)(?:\\.[cm]?[jt]sx?)?[\"']"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1664,6 +2139,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1698,6 +2184,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1732,6 +2229,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1768,6 +2276,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1802,6 +2321,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1866,6 +2396,31 @@
             ],
             "migration": "Keep importing `TextDirection` and `directionOf` from Candor's locale file. If your own code uses Radix's `Direction`, import it from `radix-ui` there.",
             "codemod": null
+          },
+          {
+            "id": "strings-separator",
+            "in": "5.0.0",
+            "change": "The \" · \" between parts is one string, `locale.separator`, read through `useFormat().separator` and `useFormat().join`, where eleven items each had a key for it (`message.metaSeparator`, `composer.hintSeparator`, `reasoning.summarySeparator` …) and about forty typed it. SubscoreCard's `separator` and TableScrubberMap's `kindSeparator`, which joined lists, are removed: a list follows the locale's list format (`useFormat().list`). Strings that held the separator at their start or in their middle no longer do (`integrationConnect.connectedSince` is `since {when}`, `membersTable.invitedBy` is `Invited by {name}`, `columnMapper.suggested` is `Suggested`, with `percentSure` beside it, and the others the changelog lists): Candor joins the parts. Four that held it between parts are removed: `reconcileTable.summary` (now `openCount`, `resolvedCount` and `matchedCount`), `evalScorecard.passedFailed` (`passedCount`, `failedCount`), `reviewQueue.progress` (`position`, `gradedCount`) and `dataTable.aggregateLine` (nothing to translate).",
+            "breaks": "An override of a removed key isn't read any more: the separator is whatever `locale.separator` says. Nothing fails to compile, since `StringOverrides` takes any key, so `migrate strings-keys` is what finds it.",
+            "at": [
+              "render"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` moves an override of one of the eleven keys to `strings.locale.separator` and removes the old keys; where two give different values, it leaves them and lists them for you to choose one. It lists an override of `subscoreCard.separator` or `tableScrubberMap.kindSeparator`, which has nothing to move to, and of `reconcileTable.summary`, `evalScorecard.passedFailed`, `reviewQueue.progress` or `dataTable.aggregateLine`, with the keys that say it now. An override of a string that no longer holds the separator, written with its own \" · \", shows it twice: take the mark out. The codemod lists one that still has it.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\b(?:meta|hint|scope|summary|title|count|mark|domain)Separator\\s*:"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1900,6 +2455,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1935,6 +2501,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -1970,6 +2547,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2004,6 +2592,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2039,6 +2638,32 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "strings-compat-exports",
+            "in": "5.0.0",
+            "change": "The English exports kept for compatibility are removed: `statusLabel` (lib/candor/status), `environmentLabel` (lib/candor/team), `approvalStateLabel` (approval-request), `reviewLevels` (review-ladder) and `standardCards` (standard-cards). SessionList's `statusLabel` prop is a different thing and stays.",
+            "breaks": "An import of one fails the type check and the build.",
+            "at": [
+              "type-check",
+              "imports"
+            ],
+            "migration": "`npx candor-ui migrate strings-keys` rewrites `standardCards` used inside a component to `const standardCards = useStandardCards()` at its top, and lists the others with what to use: `useStatusLabel()`, EnvironmentBand's strings (`production`, `nonProduction`) joined by `useFormat().join`, `useStrings(\"approvalRequest\", approvalRequestStrings)` and `useStrings(\"reviewLadder\", reviewLadderStrings)`. Each follows the locale, where the export was English.",
+            "codemod": "strings-keys",
+            "find": [
+              "\\bimport\\b[^;]*\\b(?:statusLabel|environmentLabel|approvalStateLabel|reviewLevels|standardCards)\\b[^;]*\\bfrom\\b"
+            ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2073,6 +2698,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2107,6 +2743,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2141,6 +2788,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2182,6 +2840,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2249,6 +2918,17 @@
               "<DegradedPanel\\b[^>]*\\bretrying(?:=|[\\s/>])",
               "<ChartFrame\\b[^>]*\\brefreshing(?:=|[\\s/>])"
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2284,6 +2964,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2322,6 +3013,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2362,6 +3064,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2401,6 +3114,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2439,6 +3163,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2478,6 +3213,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2520,6 +3266,17 @@
             ],
             "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
             "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2593,6 +3350,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2650,6 +3418,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2723,6 +3502,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2795,6 +3585,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2867,6 +3668,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2938,6 +3750,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -2997,6 +3820,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -3070,6 +3904,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -3143,6 +3988,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -3197,6 +4053,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -3270,6 +4137,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -3342,6 +4220,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }
@@ -3415,6 +4304,17 @@
               "\\bon(Open|Close)AutoFocus=",
               "data-\\[state="
             ]
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
           }
         ]
       }

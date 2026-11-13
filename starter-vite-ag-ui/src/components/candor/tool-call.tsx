@@ -3,9 +3,10 @@ import { ChevronRight, Wrench } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { StepMark } from "@/components/candor/step-list"
 import { ShimmerLabel } from "@/components/candor/streaming-text"
-import type { ToolCall as ToolCallData } from "@/lib/candor/chat"
+import type { ToolCallData } from "@/lib/candor/chat"
 import { useStatusLabel } from "@/lib/candor/status"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/candor/ui/collapsible"
+import { Locked } from "@/components/candor/locked"
 import { Payload } from "@/components/candor/payload"
 import { useFormat, useStrings } from "@/components/candor/locale"
 import { neutralizeBidi } from "@/lib/candor/bidi"
@@ -31,6 +32,8 @@ const changeTest: SettledTest<string> = { settled: () => true, over: () => false
 
 /** ToolCall's fixed words; override them under `toolCall` in LocaleProvider's `strings`. */
 export const toolCallStrings = {
+  /** Why the row can't be opened while the call is still going with nothing behind it yet; once it has finished, the row is text. */
+  lockedNoDetail: "This call has no details to show.",
   input: "Input",
   output: "Output",
   calls: { one: "{count} tool call", other: "{count} tool calls" },
@@ -93,42 +96,56 @@ function ToolCall({
   // The title, the tool's name and the error come from the agent or the tool: no control character reorders them.
   const title = neutralizeBidi(call.title)
   const hasDetail = Boolean(call.input || call.output || call.error || call.approval?.note || call.approval?.originalInput)
+  // A call that has finished gains nothing more to show; one still going may (KIT-231's Locked says it waits).
+  const finished = call.status === "succeeded" || call.status === "failed" || call.status === "cancelled" || call.status === "skipped"
+
+  const row = (
+    <>
+      <StepMark status={call.status} />
+      {/* The title keeps at least 8rem; on a narrow row the meta after it wraps to a line of its own, at the end. */}
+      <span className="min-w-[min(8rem,100%)] flex-1 basis-0 truncate text-sm">
+        <bdi>{call.status === "running" ? <ShimmerLabel className="font-normal">{title}</ShimmerLabel> : title}</bdi>
+        <span className="sr-only"> — {statusLabel(call.status)}</span>
+      </span>
+      <span data-slot="tool-call-meta" className="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-x-2.5 gap-y-0.5">
+        {call.lines && Number.isFinite(call.lines.added) && Number.isFinite(call.lines.removed) && <LineCounts lines={call.lines} />}
+        {call.approval?.originalInput !== undefined && (
+          <span data-slot="tool-call-edited" className="shrink-0 rounded-xs bg-warning-weak px-1 text-2xs text-warning-text">
+            {t("editedBeforeRun")}
+          </span>
+        )}
+        {call.approval?.by === "automatic" && (
+          <span data-slot="tool-call-approval" className="shrink-0 rounded-xs bg-muted px-1 text-2xs text-muted-foreground">
+            {t("approvedAutomatically")}
+          </span>
+        )}
+        <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline"><bdi>{neutralizeBidi(call.tool)}</bdi></code>
+        {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{call.duration}</span>}
+        {hasDetail && (
+          <ChevronRight
+            aria-hidden
+            style={openMotion}
+            className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground cd-reveal-turn group-data-open/tool:[transform:rotate(90deg)]"
+          />
+        )}
+      </span>
+    </>
+  )
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call" data-status={call.status} className={cn("group/tool", className)}>
-      <CollapsibleTrigger
-        disabled={!hasDetail}
-        className="flex w-full flex-wrap items-center gap-x-2.5 gap-y-0.5 rounded-md px-1.5 py-1 text-start outline-none cd-tint enabled:hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80"
-      >
-        <StepMark status={call.status} />
-        {/* The title keeps at least 8rem; on a narrow row the meta after it wraps to a line of its own, at the end. */}
-        <span className="min-w-[min(8rem,100%)] flex-1 basis-0 truncate text-sm">
-          <bdi>{call.status === "running" ? <ShimmerLabel className="font-normal">{title}</ShimmerLabel> : title}</bdi>
-          <span className="sr-only"> — {statusLabel(call.status)}</span>
-        </span>
-        <span data-slot="tool-call-meta" className="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-x-2.5 gap-y-0.5">
-          {call.lines && Number.isFinite(call.lines.added) && Number.isFinite(call.lines.removed) && <LineCounts lines={call.lines} />}
-          {call.approval?.originalInput !== undefined && (
-            <span data-slot="tool-call-edited" className="shrink-0 rounded-xs bg-warning-weak px-1 text-2xs text-warning-text">
-              {t("editedBeforeRun")}
-            </span>
-          )}
-          {call.approval?.by === "automatic" && (
-            <span data-slot="tool-call-approval" className="shrink-0 rounded-xs bg-muted px-1 text-2xs text-muted-foreground">
-              {t("approvedAutomatically")}
-            </span>
-          )}
-          <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline"><bdi>{neutralizeBidi(call.tool)}</bdi></code>
-          {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{call.duration}</span>}
-          {hasDetail && (
-            <ChevronRight
-              aria-hidden
-              style={openMotion}
-              className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground cd-reveal-turn group-data-open/tool:[transform:rotate(90deg)]"
-            />
-          )}
-        </span>
-      </CollapsibleTrigger>
+      {/* Finished with nothing behind it, the row is text, not a control: it would never open, so it isn't a tab stop. */}
+      {hasDetail || !finished ? (
+        <Locked reason={hasDetail ? undefined : t("lockedNoDetail")} className="w-full">
+          <CollapsibleTrigger className={cn("flex w-full flex-wrap items-center gap-x-2.5 gap-y-0.5 rounded-md px-1.5 py-1 text-start outline-none cd-tint focus-visible:ring-[3px] focus-visible:ring-ring/80", hasDetail && "hover:bg-accent")}>
+            {row}
+          </CollapsibleTrigger>
+        </Locked>
+      ) : (
+        <div data-slot="tool-call-row" className="flex w-full flex-wrap items-center gap-x-2.5 gap-y-0.5 rounded-md px-1.5 py-1 text-start">
+          {row}
+        </div>
+      )}
       <CollapsibleContent style={openMotion}>
         <div className="mt-1 mb-2 ms-[1.375rem] flex flex-col gap-2 border-s ps-3.5">
           {call.error && (
@@ -159,6 +176,7 @@ function ToolCallGroup({
   className?: string | undefined
 }) {
   const t = useStrings("toolCall", toolCallStrings)
+  const { separator } = useFormat()
   const done = calls.filter((c) => c.status === "succeeded").length
   const failed = calls.filter((c) => c.status === "failed").length
   const running = calls.some((c) => c.status === "running")
@@ -180,9 +198,9 @@ function ToolCallGroup({
         <Wrench aria-hidden className="size-3.5" />
         <span className="flex-1">
           {t("calls", { count: calls.length })}
-          {done > 0 && ` · ${t("done", { count: done })}`}
-          {failed > 0 && <span className="text-destructive-text"> · {t("failed", { count: failed })}</span>}
-          {running && ` · ${t("working")}`}
+          {done > 0 && separator + t("done", { count: done })}
+          {failed > 0 && <span className="text-destructive-text">{separator + t("failed", { count: failed })}</span>}
+          {running && separator + t("working")}
         </span>
         <ChevronRight aria-hidden style={groupMotion} className="rtl:-scale-x-100 size-3.5 cd-reveal-turn group-data-open/tools:[transform:rotate(90deg)]" />
       </CollapsibleTrigger>

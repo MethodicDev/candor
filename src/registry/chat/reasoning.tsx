@@ -7,7 +7,7 @@ import { ShimmerLabel } from "@/registry/parts/streaming-text"
 import type { ReasoningEntry } from "@/registry/foundation/chat"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
 
-import { useStrings } from "@/registry/foundation/locale"
+import { useFormat, useStrings } from "@/registry/foundation/locale"
 import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { motion, useArrived } from "@/registry/foundation/motion"
 
@@ -31,8 +31,6 @@ export const reasoningStrings = {
   reasoning: "Reasoning",
   steps: { one: "{count} step", other: "{count} steps" },
   assumedCount: "{count} assumed",
-  /** Between the parts of the folded summary line ("Reasoning · 6s · 3 steps"). */
-  summarySeparator: " · ",
   thinking: "Thinking",
   evidence: "Evidence:",
   assumption: "Assumption:",
@@ -72,6 +70,8 @@ function Reasoning({
   className?: string | undefined
 }) {
   const t = useStrings("reasoning", reasoningStrings)
+  // Between the parts of the folded summary line ("Reasoning · 6s · 3 steps").
+  const { separator } = useFormat()
   // An entry added while the reasoning is on screen rises in; the ones it drew with are still.
   const arrived = useArrived(React.useMemo(() => entries.map((e) => e.id), [entries]))
   const [open, setOpen] = React.useState(thinking)
@@ -85,8 +85,8 @@ function Reasoning({
   const assumed = entries.filter((e) => e.basis === "assumed").length
   const summary = thinking ? null : (
     <>
-      {t("reasoning")}{thoughtFor && <>{t("summarySeparator")}{thoughtFor}</>}{t("summarySeparator")}{t("steps", { count: entries.length })}
-      {assumed > 0 && <span className="text-warning-text">{t("summarySeparator")}{t("assumedCount", { count: assumed })}</span>}
+      {t("reasoning")}{thoughtFor && <>{separator}{thoughtFor}</>}{separator}{t("steps", { count: entries.length })}
+      {assumed > 0 && <span className="text-warning-text">{separator}{t("assumedCount", { count: assumed })}</span>}
     </>
   )
 

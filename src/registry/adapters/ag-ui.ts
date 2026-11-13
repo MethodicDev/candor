@@ -1,5 +1,5 @@
 import { EventType, type ContentPart, type Event, type Interrupt, type JsonPatch, type Message as AgUiMessage, type TokenUsage } from "@ag-ui/core"
-import type { AgentIdentity, EntityRef, Message, MessageBlock, ReasoningEntry, ToolCall } from "@/registry/foundation/chat"
+import type { AgentIdentity, EntityRef, MessageData, MessageBlock, ReasoningEntry, ToolCallData } from "@/registry/foundation/chat"
 import type { RunStatus } from "@/registry/foundation/status"
 import { markdownBlocks, plainBlocks } from "@/registry/foundation/safe-markdown"
 import { formatElapsed } from "@/registry/foundation/format-elapsed"
@@ -135,7 +135,7 @@ export type AgUiActivity = {
 }
 
 export type AgUiState = {
-  messages: Message[]
+  messages: MessageData[]
   /** Interrupts waiting on a person, oldest first. Empty while a run is open; expired ones are left out. */
   approvals: AgUiApproval[]
   /** The thread the runs belong to. Send it back to continue the conversation. */
@@ -153,7 +153,7 @@ export type AgUiState = {
 
 type Part = { kind: "text"; id: string } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
 
-type Call = { id: string; tool: string; args: string; status: ToolCall["status"]; output?: string | undefined; error?: string | undefined; interruptId?: string | undefined }
+type Call = { id: string; tool: string; args: string; status: ToolCallData["status"]; output?: string | undefined; error?: string | undefined; interruptId?: string | undefined }
 
 type Reply = {
   id: string
@@ -178,7 +178,7 @@ type Reply = {
  */
 type Thought = { open: Map<string, { start: number | undefined; byMessage: boolean }>; ms: number; spans: number; unmeasured: boolean }
 
-type Turn = { user?: Message | undefined; reply?: Reply | undefined }
+type Turn = { user?: MessageData | undefined; reply?: Reply | undefined }
 
 /**
  * Turns AG-UI events into Candor messages, waiting approvals and usage.
@@ -415,7 +415,7 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
 
   const lastReply = turns.findLastIndex((t) => t.reply)
   const isOpen = (i: Interrupt) => !answers.has(i.id) && !expired(i, now)
-  const messages: Message[] = []
+  const messages: MessageData[] = []
   turns.forEach((t, i) => {
     if (t.user) messages.push(t.user)
     if (t.reply) messages.push(render(t.reply, { ...options, now, last: i === lastReply, open: open.filter(isOpen) }))
@@ -556,12 +556,12 @@ function applySnapshot(previous: Turn[], snapshot: AgUiMessage[]): Turn[] {
 
 /* ---------------------------------------------------------------- rendering */
 
-function render(r: Reply, o: FromAgUiOptions & { now: Date; last: boolean; open: Interrupt[] }): Message {
+function render(r: Reply, o: FromAgUiOptions & { now: Date; last: boolean; open: Interrupt[] }): MessageData {
   const live = o.last && !!o.running
   // A run that ended can't finish the tool calls it left running.
   const ended = !live
   const blocks: MessageBlock[] = []
-  let calls: ToolCall[] = []
+  let calls: ToolCallData[] = []
   const flush = () => {
     if (calls.length) blocks.push({ kind: "tools", calls })
     calls = []
@@ -597,9 +597,9 @@ function render(r: Reply, o: FromAgUiOptions & { now: Date; last: boolean; open:
   }
 }
 
-function toolCall(c: Call, o: FromAgUiOptions & { now: Date; open: Interrupt[] }, ended: boolean): ToolCall {
+function toolCall(c: Call, o: FromAgUiOptions & { now: Date; open: Interrupt[] }, ended: boolean): ToolCallData {
   const input = parseArgs(c.args)
-  const call: ToolCall = {
+  const call: ToolCallData = {
     id: c.id,
     tool: c.tool,
     title: o.toolTitle?.(c.tool, input) ?? c.tool,

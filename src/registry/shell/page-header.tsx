@@ -31,6 +31,7 @@ function PageHeader({
   tabs,
   activeTab,
   onTabChange,
+  headingLevel = 1,
   className,
 }: {
   /** What the page is, as its heading. */
@@ -47,9 +48,17 @@ function PageHeader({
   activeTab?: string | undefined
   /** Called with a view's id when its tab is chosen. */
   onTabChange?: ((id: string) => void) | undefined
+  /**
+   * The level of the title's heading. Defaults to 1: the title is the page's, so the page's content sits under it,
+   * which is where every other Candor heading's default of 2 puts it. Pass 2 where the app draws its own `<h1>` above
+   * (a product name in the banner, say). PageHeader reads no `HeadingScope`.
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  /** Classes for the header, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("pageHeader", pageHeaderStrings)
+  const Heading = `h${headingLevel}` as const
   return (
     <header data-slot="page-header" className={cn("shrink-0 border-b px-4 sm:px-6", tabs ? "pt-4" : "py-4", className)}>
       {breadcrumb && breadcrumb.length > 0 && (
@@ -72,7 +81,7 @@ function PageHeader({
       )}
       <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold tracking-tight">{title}</h1>
+          <Heading className="truncate text-lg font-semibold tracking-tight">{title}</Heading>
           {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}

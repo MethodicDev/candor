@@ -3,10 +3,11 @@
 import * as React from "react"
 import { Info, Pencil, ShieldAlert, ShieldQuestion } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { place, useStrings } from "@/registry/foundation/locale"
+import { useFormat, place, useStrings } from "@/registry/foundation/locale"
 import { escapeBidiJson, neutralizeBidi } from "@/registry/foundation/bidi"
 import { Payload } from "@/registry/chat/payload"
 import { Button } from "@/registry/ui/button"
+import { Locked } from "@/registry/ui/locked"
 import { motion } from "@/registry/foundation/motion"
 
 /** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
@@ -61,11 +62,15 @@ export const permissionPromptStrings = {
   scopeLocal: "in this project, on this computer",
   scopeProject: "in this project, for everyone on it",
   scopeUser: "for you, in every project",
-  /** Between a "don't ask again" rule and where it's kept ("Allow Bash(ls:*) · for this session"). */
-  scopeSeparator: " · ",
   allow: "Allow",
   allowEdited: "Allow as edited",
   deny: "Deny",
+  /** Why Allow and Deny can't be pressed while the answer is being sent. */
+  lockedBusy: "Sending your answer",
+  /** Why Allow can't be pressed while the edited input isn't a JSON object. */
+  lockedInvalid: "Fix the edited input first",
+  /** Why the answer can't be sent until every question has one. */
+  lockedUnanswered: "Answer every question first",
   answer: "Send answers",
   otherOption: "Other",
   otherLabel: "Your own answer to: {question}",
@@ -215,7 +220,7 @@ function PermissionPrompt({
   onAllow,
   onDeny,
   busy = false,
-  headingLevel = 3,
+  headingLevel = 2,
   jsonEditor,
   className,
 }: {
@@ -233,7 +238,11 @@ function PermissionPrompt({
   onDeny: () => void
   /** The answer is being sent: both buttons wait, and the waiting pulse stops. */
   busy?: boolean | undefined
-  /** The level of the prompt's heading, to fit under the page's own headings without skipping a level. Defaults to 3. */
+  /**
+   * The level of the prompt's heading, to fit under the page's own headings without skipping a level. Defaults to 2
+   * (3 before 5.0.0), right below the page's `<h1>`; pass 3 when the prompt sits under a section's `<h2>`. It reads
+   * no `HeadingScope`.
+   */
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
   /**
    * The field the input is edited in, when `editable`. Left out, it is a plain text field. Pass `CodeEditor` (Pro) for
@@ -271,6 +280,8 @@ function PromptBody({
   className?: string | undefined
 }) {
   const t = useStrings("permissionPrompt", permissionPromptStrings)
+  // Between a "don't ask again" rule and where it's kept ("Allow Bash(ls:*) · for this session").
+  const { separator } = useFormat()
   const request = React.useMemo(() => shownRequest(given), [given])
   const id = React.useId()
   const original = React.useMemo(() => json(request.input ?? {}), [request.input])
@@ -531,7 +542,7 @@ function PromptBody({
                       <span className="font-mono text-xs">{w.text}</span>
                       {w.scope && (
                         <span className="text-muted-foreground">
-                          {t("scopeSeparator")}
+                          {separator}
                           {w.scope}
                         </span>
                       )}
@@ -551,12 +562,16 @@ function PromptBody({
       )}
 
       <footer className="flex flex-wrap justify-end gap-2 border-t bg-sunken px-3.5 py-2">
-        <Button ref={denyRef} size="sm" variant="outline" onClick={onDeny} disabled={busy}>
-          {t("deny")}
-        </Button>
-        <Button size="sm" onClick={allow} disabled={busy || invalid || (questions ? !questions.every(answered) : false)} aria-busy={busy}>
-          {questions ? t("answer") : edited && changedKeys.length ? t("allowEdited") : t("allow")}
-        </Button>
+        <Locked reason={busy ? t("lockedBusy") : undefined}>
+          <Button ref={denyRef} size="sm" variant="outline" onClick={onDeny}>
+            {t("deny")}
+          </Button>
+        </Locked>
+        <Locked reason={busy ? t("lockedBusy") : invalid ? t("lockedInvalid") : questions && !questions.every(answered) ? t("lockedUnanswered") : undefined}>
+          <Button size="sm" onClick={allow} aria-busy={busy}>
+            {questions ? t("answer") : edited && changedKeys.length ? t("allowEdited") : t("allow")}
+          </Button>
+        </Locked>
       </footer>
     </section>
   )

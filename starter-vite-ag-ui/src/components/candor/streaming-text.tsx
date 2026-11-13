@@ -211,7 +211,7 @@ function ShimmerLabel({
     <span className={cn("text-sm font-medium", className)}>
       <span className="shimmer-text">{children}</span>
       {/* Seen, not read: it changes ten times a second, inside a button's name or a log a screen reader would re-read. */}
-      <span aria-hidden className="text-muted-foreground tabular-nums"> · {formatElapsed(elapsed, format)}</span>
+      <span aria-hidden className="text-muted-foreground tabular-nums">{format.separator}{formatElapsed(elapsed, format)}</span>
     </span>
   )
 }

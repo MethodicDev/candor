@@ -5,9 +5,10 @@ import { ArrowUp, LoaderCircle, Paperclip, Square, TriangleAlert } from "lucide-
 import { cn } from "@/lib/utils"
 import type { Attachment, ComposerScope, EntityRef, MentionOption, SlashCommand } from "@/registry/foundation/chat"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
+import { Locked } from "@/registry/ui/locked"
 import { EntityChip, useEntityKinds } from "@/registry/chat/entity-chip"
 import { AttachmentChip } from "@/registry/chat/attachment-preview"
-import { place, useStrings } from "@/registry/foundation/locale"
+import { useFormat, place, useStrings } from "@/registry/foundation/locale"
 import { motion, useArrived, useLeaving } from "@/registry/foundation/motion"
 
 /**
@@ -22,7 +23,7 @@ const chipMotion = motion("composer", "chip", "pop")
 const menuMotion = motion("composer", "menu", "overlay", { variant: "slide" })
 /**
  * @motion press:send Send and Stop shrink a little while they are held down and return when let go. A Send that is
- * disabled never moves, and under reduced motion neither changes size.
+ * locked never moves, and under reduced motion neither changes size.
  */
 const sendMotion = motion("composer", "send", "press", { amp: "0.9" })
 /**
@@ -41,16 +42,22 @@ export const composerStrings = {
   production: "Production",
   nonProduction: "Non-production",
   offline: "You’re offline. Your message will wait here.",
+  /** Why Send and Attach files can't be pressed while the box is locked or offline; the box says the reason itself. */
+  lockedUnavailable: "Not available right now",
+  /** Why Send can't be pressed while sending is held; the box says what it waits for. */
+  lockedHeld: "Sending waits",
+  /** Why Send can't be pressed with nothing written. */
+  lockedEmpty: "Write a message first",
+  /** Why Send can't be pressed while the message is on its way. */
+  lockedSending: "Sending your message",
+  /** Why Send can't be pressed while the reply is still arriving and the app gave no way to stop it. */
+  lockedStreaming: "The reply is still arriving",
   hintSend: "send",
   hintNewLine: "new line",
   hintMention: "mention",
   hintCommand: "command",
   /** In the keyboard hint: the key, then what it does; `{keys}` is the key and `{action}` its hint. */
   hintItem: "{keys} {action}",
-  /** In the keyboard hint: between one key's entry and the next. */
-  hintSeparator: " · ",
-  /** The scope chip: `{name}` is the environment's name, `{detail}` "Production" or the scope's detail. */
-  scopeChip: "{name} · {detail}",
   stop: "Stop",
   send: "Send",
   dropFiles: "Drop files to attach",
@@ -198,6 +205,8 @@ function Composer({
 }) {
   const kindOf = useEntityKinds()
   const t = useStrings("composer", composerStrings)
+  // In the keyboard hint, between one key's entry and the next.
+  const { separator } = useFormat()
   const placeholder = placeholderProp ?? t("placeholder")
   const label = labelProp ?? t("label")
   const id = React.useId()
@@ -221,7 +230,21 @@ function Composer({
   const locked = typeof state === "object" && state.kind !== "held" ? state : null
   const canAttach = Boolean(onAttach) && !locked
   const busy = state === "sending" || state === "streaming"
-  const canSend = !locked && !held && !busy && (value.trim().length > 0 || references.length > 0)
+  const hasContent = value.trim().length > 0 || references.length > 0
+  const canSend = !locked && !held && !busy && hasContent
+  // Why Send can't be pressed, in the order the person would meet it: the box is locked, sending is held, the message is on its way, nothing is written.
+  // The box's own reason (locked or held) is printed under it and describes the buttons too, so it is not said again.
+  const sendReason = locked
+    ? t("lockedUnavailable")
+    : held
+      ? t("lockedHeld")
+      : state === "sending"
+        ? t("lockedSending")
+        : state === "streaming"
+          ? t("lockedStreaming")
+          : !hasContent
+            ? t("lockedEmpty")
+            : undefined
 
   const items: MenuItem[] = React.useMemo(() => {
     if (!trigger) return []
@@ -321,6 +344,8 @@ function Composer({
   }
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // A locked box can be focused and read, but no key changes the message: Backspace keeps its chips.
+    if (locked) return
     if (menuOpen) {
       if (e.key === "ArrowDown") {
         e.preventDefault()
@@ -517,7 +542,9 @@ function Composer({
           id={id}
           rows={1}
           value={value}
-          disabled={Boolean(locked)}
+          // Read-only, not disabled: a locked box keeps focus and its text can be read and copied; the reason below describes it.
+          readOnly={Boolean(locked)}
+          aria-disabled={locked ? true : undefined}
           placeholder={locked ? undefined : placeholder}
           onChange={(e) => {
             onValueChange(e.target.value)
@@ -541,7 +568,7 @@ function Composer({
           aria-autocomplete="list"
           aria-describedby={locked ? `${id}-locked` : held ? `${id}-held` : undefined}
           className={cn(
-            "block max-h-60 min-h-12 w-full resize-none bg-transparent px-(--cd-row-px,1rem) pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground disabled:cursor-not-allowed",
+            "block max-h-60 min-h-12 w-full resize-none bg-transparent px-(--cd-row-px,1rem) pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground aria-disabled:cursor-not-allowed",
             locked && !value && "min-h-0 h-3 pt-3 pb-0"
           )}
         />
@@ -573,18 +600,20 @@ function Composer({
                   e.target.value = ""
                 }}
               />
-              <Tooltip>
-                <TooltipTrigger render={
-                  <button
-                    type="button"
-                    aria-label={t("attachFiles")}
-                    disabled={Boolean(locked)}
-                    onClick={() => fileInput.current?.click()}
-                    className="flex size-(--cd-control-h-sm,2rem) items-center justify-center rounded-lg text-muted-foreground cd-tint hover:bg-accent hover:text-foreground disabled:opacity-40"
-                  >
-                    <Paperclip className="size-4" />
-                  </button>
-                } />
+              {/* Disabled, not closed by `open`: the tooltip stays uncontrolled when the composer locks. Locked says why. */}
+              <Tooltip disabled={Boolean(locked)}>
+                <Locked reason={locked ? sendReason : undefined}>
+                  <TooltipTrigger aria-describedby={locked ? `${id}-locked` : undefined} render={
+                    <button
+                      type="button"
+                      aria-label={t("attachFiles")}
+                      onClick={() => fileInput.current?.click()}
+                      className="flex size-(--cd-control-h-sm,2rem) items-center justify-center rounded-lg text-muted-foreground cd-tint hover:bg-accent hover:text-foreground data-[locked]:cursor-not-allowed data-[locked]:opacity-40 data-[locked]:hover:bg-transparent data-[locked]:hover:text-muted-foreground"
+                    >
+                      <Paperclip className="size-4" />
+                    </button>
+                  } />
+                </Locked>
                 <TooltipContent>{t("attachFiles")}</TooltipContent>
               </Tooltip>
             </>
@@ -593,37 +622,39 @@ function Composer({
           {tools}
 
           {scope && (
-            <button
-              type="button"
+            // With nothing to open it is a label, not a button that does nothing.
+            <ScopeChip
               onClick={onScopeClick}
-              disabled={!onScopeClick}
               className={cn(
-                "inline-flex min-w-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs cd-tint enabled:hover:bg-accent",
-                production ? "bg-warning-weak text-warning-text enabled:hover:bg-warning-weak" : "text-muted-foreground"
+                "inline-flex min-w-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs cd-tint",
+                onScopeClick && "hover:bg-accent",
+                production ? "bg-warning-weak text-warning-text hover:bg-warning-weak" : "text-muted-foreground"
               )}
             >
               {production ? <TriangleAlert aria-hidden className="size-3 shrink-0" /> : <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-success" />}
               <span className="truncate">
-                {t("scopeChip", { name: scope.environment, detail: production ? t("production") : (scope.detail ?? t("nonProduction")) })}
+                <bdi>{scope.environment}</bdi>
+                {separator}
+                {production ? t("production") : <bdi>{scope.detail ?? t("nonProduction")}</bdi>}
               </span>
-            </button>
+            </ScopeChip>
           )}
 
           {hints && (
             // Only what this composer can do: @ and / are named only when there's something for them to offer.
             <span className="ms-auto hidden text-2xs text-faint-foreground @lg:inline">
               {place(t("hintItem"), { keys: <kbd className="font-sans">↵</kbd>, action: t("hintSend") })}
-              {t("hintSeparator")}
+              {separator}
               {place(t("hintItem"), { keys: <kbd className="font-sans">⇧↵</kbd>, action: t("hintNewLine") })}
               {mentions.length > 0 && (
                 <>
-                  {t("hintSeparator")}
+                  {separator}
                   {place(t("hintItem"), { keys: <kbd className="font-sans">@</kbd>, action: t("hintMention") })}
                 </>
               )}
               {commands.length > 0 && (
                 <>
-                  {t("hintSeparator")}
+                  {separator}
                   {place(t("hintItem"), { keys: <kbd className="font-sans">/</kbd>, action: t("hintCommand") })}
                 </>
               )}
@@ -641,21 +672,34 @@ function Composer({
               <Square className="size-3 fill-current" />
             </button>
           ) : (
-            <button
-              type="button"
-              aria-label={t("send")}
-              onClick={submit}
-              disabled={!canSend}
-              aria-busy={state === "sending"}
-              style={sendMotion}
-              className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-primary text-primary-foreground cd-press enabled:hover:bg-primary-hover disabled:opacity-30", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
-            >
-              {state === "sending" ? <LoaderCircle style={sendingMotion} className="size-4 cd-live-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
-            </button>
+            <Locked reason={sendReason} className={cn("ms-auto", hints && "@lg:ms-1")}>
+              <button
+                type="button"
+                aria-label={t("send")}
+                aria-describedby={locked ? `${id}-locked` : held ? `${id}-held` : undefined}
+                onClick={submit}
+                aria-busy={state === "sending"}
+                style={sendMotion}
+                className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-primary text-primary-foreground cd-press hover:bg-primary-hover data-[locked]:cursor-not-allowed data-[locked]:opacity-30 data-[locked]:hover:bg-primary data-[locked]:active:scale-100", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+              >
+                {state === "sending" ? <LoaderCircle style={sendingMotion} className="size-4 cd-live-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
+              </button>
+            </Locked>
           )}
         </div>
       </div>
     </div>
+  )
+}
+
+/** The environment chip: a button when the app gives it somewhere to go, otherwise just the label. */
+function ScopeChip({ onClick, className, children }: { onClick?: (() => void) | undefined; className: string; children: React.ReactNode }) {
+  return onClick ? (
+    <button type="button" onClick={onClick} className={className}>
+      {children}
+    </button>
+  ) : (
+    <span className={className}>{children}</span>
   )
 }
 

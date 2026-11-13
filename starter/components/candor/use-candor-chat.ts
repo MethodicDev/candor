@@ -2,7 +2,7 @@ import * as React from "react"
 import type { UIMessage } from "ai"
 import type { UseChatHelpers } from "@ai-sdk/react"
 import type { ComposerState } from "@/components/candor/composer"
-import type { EntityRef, Message } from "@/lib/candor/chat"
+import type { EntityRef, MessageData } from "@/lib/candor/chat"
 import { fromAiSdkMessages, type FromAiSdkOptions } from "@/components/candor/ai-sdk"
 
 export type PendingApproval = { id: string; toolCallId: string; tool: string; input: unknown; reason?: string | undefined }
@@ -24,7 +24,7 @@ export function useCandorChat(chat: UseChatHelpers<UIMessage>, options: Omit<Fro
   const [references, setReferences] = React.useState<EntityRef[]>([])
   const { agent, createdAt, toolTitle, summarize, sourcesFrom } = options
 
-  const messages: Message[] = React.useMemo(
+  const messages: MessageData[] = React.useMemo(
     () => fromAiSdkMessages(chat.messages, { agent, createdAt, toolTitle, summarize, sourcesFrom, chatStatus: chat.status }),
     [chat.messages, chat.status, agent, createdAt, toolTitle, summarize, sourcesFrom]
   )

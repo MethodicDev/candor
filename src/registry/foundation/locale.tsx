@@ -208,6 +208,32 @@ export type Formatter = {
   date: (date: Date | string | number, style?: DateStyle, options?: DateOptions | undefined) => string
   /** Items joined as the locale does: "A, B and C". */
   list: (items: string[], type?: "conjunction" | "disjunction") => string
+  /**
+   * The mark between the parts of one line ("Shop · Production", "Edited · 2 min ago"): `strings.locale.separator`,
+   * " · " unless the app sets another. Items that draw the parts as elements put it between them.
+   */
+  separator: string
+  /**
+   * The parts that have something in them (not empty, `null`, `undefined` or `false`), joined by `separator`:
+   * `join([kind, t("edited"), format.date(at)])`. For the kit's own words and formatted values only, never for text
+   * from a model, a tool or another person: that goes in its own `<bdi>` beside the separator, so it can't run into the
+   * words around it.
+   */
+  join: (parts: (string | null | undefined | false)[]) => string
+}
+
+/**
+ * The locale's own words: one, the mark between the parts of a line. Override it under `locale` in LocaleProvider's
+ * `strings` (`strings={{ locale: { separator: " | " } }}`); every Candor item reads it through `useFormat()`.
+ */
+export const localeStrings = {
+  separator: " · ",
+}
+
+/** `strings.locale.separator` when the app sets it as text, else the default. */
+function separatorOf(strings: StringOverrides): string {
+  const set = strings.locale?.separator
+  return typeof set === "string" ? set : localeStrings.separator
 }
 
 /**
@@ -241,8 +267,10 @@ function formatDate(
  * for dates) on the provider to render the final text on the server.
  */
 function useFormat(): Formatter {
-  const { locale, timeZone } = React.useContext(LocaleContext)
+  const { locale, timeZone, strings } = React.useContext(LocaleContext)
   const hydrated = useHydrated()
+  // Read from the overrides directly, as useStrings would: useStrings itself formats its numbers with this hook.
+  const separator = separatorOf(strings)
   return React.useMemo(() => {
     const tag = locale ?? (hydrated ? undefined : "en-US")
     return {
@@ -250,8 +278,10 @@ function useFormat(): Formatter {
       number: (n, options) => new Intl.NumberFormat(tag, options).format(n),
       date: (value, style = "datetime", options) => formatDate(value, style, options, { tag, locale, timeZone, hydrated }),
       list: (items, type = "conjunction") => new Intl.ListFormat(tag, { style: "long", type }).format(items),
+      separator,
+      join: (parts) => parts.filter((p): p is string => typeof p === "string" && p !== "").join(separator),
     }
-  }, [locale, timeZone, hydrated])
+  }, [locale, timeZone, hydrated, separator])
 }
 
 

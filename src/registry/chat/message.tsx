@@ -7,14 +7,15 @@ import { DegradedPanel } from "@/registry/parts/degraded-panel"
 import { RelativeTime } from "@/registry/parts/relative-time"
 import { ShimmerLabel } from "@/registry/parts/streaming-text"
 import type { DateStyle } from "@/registry/foundation/locale"
-import type { Attachment, EntityRef, Message as MessageData } from "@/registry/foundation/chat"
+import type { Attachment, EntityRef, MessageData } from "@/registry/foundation/chat"
 import { AgentAvatar, useAgentRoles } from "@/registry/chat/agent-avatar"
 import { SourceList } from "@/registry/chat/citation"
 import { blocksToText, MessageContent } from "@/registry/chat/message-content"
 import { MessageActions, type Rating } from "@/registry/chat/message-actions"
 import { Reasoning } from "@/registry/chat/reasoning"
 import { ThreadEvent } from "@/registry/chat/thread-event"
-import { useStrings } from "@/registry/foundation/locale"
+import { useFormat, useStrings } from "@/registry/foundation/locale"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { motion } from "@/registry/foundation/motion"
 
 /**
@@ -41,8 +42,6 @@ export const messageStrings = {
   editedBy: "Edited by {name} before sending",
   /** The line a streaming reply shows before anything of it has arrived. Not "Thinking": nothing says the model is yet. */
   working: "Working",
-  /** Between the parts of a meta line: a name and its time, a model and its cost. */
-  metaSeparator: " · ",
 }
 
 /**
@@ -131,6 +130,7 @@ function Message({
   const { author } = message
   const roleOf = useAgentRoles()
   const t = useStrings("message", messageStrings)
+  const format = useFormat()
 
   if (author.role === "system") {
     return (
@@ -152,7 +152,7 @@ function Message({
               {author.name ?? t("you")}
               {message.createdAt && (
                 <>
-                  {t("metaSeparator")}
+                  {format.separator}
                   <RelativeTime date={message.createdAt} format={timeFormat} />
                 </>
               )}
@@ -331,6 +331,16 @@ function MessageBody({
   )
 }
 
+/**
+ * The model and the cost, as the service named and measured them, each in its own `<bdi>` with the locale's separator
+ * between (" · "); null when neither is set.
+ */
+function attributionLine(attribution: MessageData["attribution"], separator: string): React.ReactNode[] | null {
+  const parts = [attribution?.model, attribution?.cost].filter((part): part is string => !!part)
+  if (parts.length === 0) return null
+  return parts.flatMap((part, i) => [...(i > 0 ? [separator] : []), <bdi key={i}>{neutralizeBidi(part)}</bdi>])
+}
+
 /** Model and cost, on a line of their own: what the actions row shows, for when it's hidden or replaced. */
 function MessageAttribution({
   attribution,
@@ -341,8 +351,7 @@ function MessageAttribution({
   /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
-  const t = useStrings("message", messageStrings)
-  const meta = [attribution?.model, attribution?.cost].filter(Boolean).join(t("metaSeparator"))
+  const meta = attributionLine(attribution, useFormat().separator)
   if (!meta) return null
   return (
     <p data-slot="message-attribution" className={cn("text-xs text-faint-foreground", className)}>
@@ -392,7 +401,8 @@ function MessageFooter({
   const t = useStrings("message", messageStrings)
   const streaming = message.status === "streaming"
   const settled = !streaming && message.status !== "failed"
-  const meta = [message.attribution?.model, message.attribution?.cost].filter(Boolean).join(t("metaSeparator"))
+  const format = useFormat()
+  const meta = attributionLine(message.attribution, format.separator)
   return (
     <div data-slot="message-footer" className={cn("flex flex-col gap-3 empty:hidden", className)}>
       {message.status === "interrupted" && (
@@ -417,7 +427,7 @@ function MessageFooter({
           {t(reviewedBy.edited ? "editedBy" : "checkedBy", { name: reviewedBy.name })}
           {reviewedBy.at && (
             <>
-              {t("metaSeparator")}
+              {format.separator}
               <RelativeTime date={reviewedBy.at} format={timeFormat} />
             </>
           )}
@@ -432,7 +442,7 @@ function MessageFooter({
           onRetry={onRetry}
           rating={rating}
           onRate={onRate}
-          meta={meta || undefined}
+          meta={meta ?? undefined}
           className="-ms-1.5 opacity-100 cd-tint sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100"
         />
       )}

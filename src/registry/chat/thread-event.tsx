@@ -4,7 +4,7 @@ import * as React from "react"
 import { Info, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RelativeTime } from "@/registry/parts/relative-time"
-import type { DateStyle } from "@/registry/foundation/locale"
+import { useFormat, type DateStyle } from "@/registry/foundation/locale"
 
 /**
  * A quiet, centred line in a thread for something that happened rather than something said: "Sam joined", "Switched
@@ -35,6 +35,8 @@ function ThreadEvent({
   children: React.ReactNode
   className?: string | undefined
 } & Omit<React.ComponentProps<"div">, "children">) {
+  // Between the line and its time, centred; the row's gap spaces it.
+  const { separator } = useFormat()
   return (
     <div
       data-slot="thread-event"
@@ -50,7 +52,7 @@ function ThreadEvent({
           <RelativeTime date={at} format={timeFormat} className="ms-auto shrink-0 tabular-nums" />
         ) : (
           <>
-            <span aria-hidden>·</span>
+            <span aria-hidden>{separator}</span>
             <RelativeTime date={at} format={timeFormat} />
           </>
         ))}

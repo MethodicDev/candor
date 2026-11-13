@@ -107,7 +107,7 @@ export type ReasoningEntry =
 
 /* ---------------------------------------------------------------- tool calls */
 
-export type ToolCall = {
+export type ToolCallData = {
   id: string
   /** The tool's name, for people who want it: "metadata.describe". */
   tool: string
@@ -163,7 +163,7 @@ export type MessageBlock =
   | { kind: "heading"; level: 1 | 2 | 3; nodes: InlineNode[] }
   | { kind: "list"; ordered?: boolean | undefined; items: InlineNode[][] }
   | { kind: "payload"; language: PayloadLanguage; text: string; title?: string | undefined }
-  | { kind: "tools"; calls: ToolCall[] }
+  | { kind: "tools"; calls: ToolCallData[] }
   /** Something the agent could not do, and what is missing because of it. */
   | { kind: "degraded"; reason: string; missing?: string | undefined }
   /**
@@ -179,7 +179,7 @@ export type MessageBlock =
 
 export type MessageStatus = "streaming" | "complete" | "interrupted" | "failed"
 
-export type Message = {
+export type MessageData = {
   id: string
   author: MessageAuthor
   /** When it was sent. Absent when the source doesn't say; then no time is shown. */

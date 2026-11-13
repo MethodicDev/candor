@@ -42,6 +42,7 @@ function PageState({
   secondary,
   requestId,
   Icon,
+  headingLevel = 2,
   className,
 }: {
   /** empty, no-match, error, unavailable or offline; sets the icon, and an error or offline is announced. */
@@ -58,16 +59,23 @@ function PageState({
   requestId?: string | undefined
   /** Replaces the kind's icon. */
   Icon?: LucideIcon | undefined
+  /**
+   * The level of the title's heading, to fit the page's outline: 2 by default, right below the page's `<h1>`; 3 where
+   * the state stands in for a section under an `<h2>`. The size stays the same at any level.
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  /** Classes for the state, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("pageState", pageStateStrings)
   const Glyph = Icon ?? kindIcon[kind]
+  const Heading = `h${headingLevel}` as const
   return (
     <div data-slot="page-state" data-kind={kind} role={kind === "error" || kind === "offline" ? "alert" : undefined} className={cn("flex flex-1 flex-col items-center justify-center px-6 py-16 text-center", className)}>
       <span className={cn("mb-4 flex size-11 items-center justify-center rounded-xl", kind === "error" || kind === "offline" ? "bg-destructive-weak text-destructive-text" : "bg-muted text-muted-foreground")}>
         <Glyph aria-hidden className="size-5" />
       </span>
-      <h2 className="text-base font-semibold">{title}</h2>
+      <Heading className="text-base font-semibold">{title}</Heading>
       {detail && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{detail}</p>}
       {requestId && (
         <div className="mt-4 w-full max-w-xs text-start">
@@ -98,6 +106,7 @@ function PageSkeleton({ variant = "list", label, className }: {
   variant?: "list" | "detail" | undefined
   /** What's loading, announced to screen readers. Defaults to "Loading". */
   label?: string | undefined
+  /** Classes for the skeleton, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("pageState", pageStateStrings)
@@ -146,7 +155,7 @@ export type ListStateWords = { loading: string; empty: string; error: string }
  * underneath. An error offers Try again only when the list was given `onRetry`. Every list with a `state` prop draws
  * it through this, so they all look and read the same.
  */
-function ListStateView({ state, words, emptyAction, onRetry, children, className }: {
+function ListStateView({ state, words, emptyAction, onRetry, headingLevel, children, className }: {
   /** The list's state; undefined shows the rows. */
   state?: ListState | undefined
   /** The list's own words for loading, empty and error. */
@@ -155,8 +164,14 @@ function ListStateView({ state, words, emptyAction, onRetry, children, className
   emptyAction?: { label: string; onClick: () => void } | undefined
   /** Shows Try again under an error; called when it's pressed. Pass it only when it loads the list again. */
   onRetry?: (() => void) | undefined
+  /**
+   * The level of the empty or error title's heading, passed to PageState: 2 by default. A list under its own heading
+   * passes one below it.
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
   /** The rows. */
   children?: React.ReactNode | undefined
+  /** Classes for the state, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("pageState", pageStateStrings)
@@ -175,6 +190,7 @@ function ListStateView({ state, words, emptyAction, onRetry, children, className
       title={state.kind === "error" ? words.error : words.empty}
       detail={state.reason}
       action={state.kind === "empty" ? emptyAction : onRetry && { label: t("retry"), onClick: onRetry }}
+      headingLevel={headingLevel}
       className={cn("flex-none py-10", className)}
     />
   )

@@ -6,7 +6,7 @@ import { Message } from "@/components/candor/message"
 import { PermissionPrompt } from "@/components/candor/permission-prompt"
 import { PromptSuggestions } from "@/components/candor/prompt-suggestions"
 import { Thread } from "@/components/candor/thread"
-import type { Message as MessageData } from "@/lib/candor/chat"
+import type { MessageData } from "@/lib/candor/chat"
 import { toolTitle } from "@/app/_lib/tool-title"
 
 /** What either adapter hook returns (useCandorChat or useClaudeAgent): this view works with both. */
