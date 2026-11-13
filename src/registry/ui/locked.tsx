@@ -3,7 +3,8 @@
 import * as React from "react"
 import { LockKeyhole } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/registry/ui/tooltip"
 import { motion } from "@/registry/foundation/motion"
 
 /** The running animation's duration on `el`, in milliseconds (its longest, if there are several); undefined when it can't be read. */
@@ -107,6 +108,9 @@ function Locked({
   const [shaking, setShaking] = React.useState(false)
   const [held, setHeld] = React.useState(false)
   const box = React.useRef<HTMLSpanElement>(null)
+  // The tooltip's trigger is tied to it by a handle, not by sitting inside it: the control isn't inside Locked's tooltip,
+  // so an app's own TooltipTrigger in its place still finds the app's Tooltip.
+  const [tip] = React.useState(() => TooltipPrimitive.createHandle())
   React.useEffect(() => {
     if (press === 0) return
     // The shake ends when its animation does (onAnimationEnd below). This timer is only the fallback for when no
@@ -198,12 +202,15 @@ function Locked({
       {inline ? (
         control
       ) : (
-        // Always here, disabled without a reason, so the control keeps its place in the tree. The reason already
-        // describes the control (the sr-only text below), so the tooltip doesn't describe it again.
-        <Tooltip open={reason ? shown || held : false} onOpenChange={setShown} describes={false} disabled={!reason}>
-          <TooltipTrigger render={control} />
-          {reason ? <TooltipContent>{reason}</TooltipContent> : null}
-        </Tooltip>
+        // Always here, so the control keeps its place in the tree. Without a reason the trigger hands back the control as
+        // it is (no id, attributes or handlers of its own), and the tooltip, beside it rather than around it, is closed.
+        // The reason already describes the control (the sr-only text below), so the tooltip doesn't describe it again.
+        <TooltipProvider>
+          <TooltipTrigger handle={tip} disabled={!reason} render={reason ? control : () => control} />
+          <Tooltip handle={tip} open={reason ? shown || held : false} onOpenChange={setShown} describes={false} disabled={!reason}>
+            {reason ? <TooltipContent>{reason}</TooltipContent> : null}
+          </Tooltip>
+        </TooltipProvider>
       )}
       {reason ? (
         <span

@@ -2947,6 +2947,7 @@
       "type": "registry:component",
       "description": "The honest-state rule: a control that cannot be used says why.",
       "dependencies": [
+        "@base-ui/react@^1.9.0",
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [

@@ -55,11 +55,21 @@ function markPressPoint(event: React.PointerEvent<HTMLElement>) {
 }
 
 /**
+ * A press without a pointer (Enter or Space, or a click a key or assistive technology made, whose `detail` is 0) has no
+ * point in the box: the last pointer press's point is cleared, so the ripple grows from the middle.
+ */
+function clearPressPoint(el: HTMLElement) {
+  el.style.removeProperty("--cd-press-x")
+  el.style.removeProperty("--cd-press-y")
+}
+
+/**
  * A button in Candor's theme. It is a native `<button>` (in a form it submits unless given `type="button"`), or the
  * element `render` names, drawn with the button's styles and props.
  *
  * When a pointer presses it, the button notes where, as `--cd-press-x` and `--cd-press-y` in its own style (the point
- * in its box, in pixels), for the Pro motion-drawings item's press ripple to grow from. Nothing in the free CSS reads
+ * in its box, in pixels), for the Pro motion-drawings item's press ripple to grow from. A press from the keyboard (Enter
+ * or Space) or a click with no pointer clears them, so that ripple grows from the middle. Nothing in the free CSS reads
  * them, so the button looks and behaves as it did without them.
  */
 function Button({
@@ -70,6 +80,8 @@ function Button({
   render,
   nativeButton: _nativeButton,
   onPointerDown,
+  onKeyDown,
+  onClick,
   ref,
   ...props
 }: React.ComponentProps<"button"> &
@@ -98,6 +110,14 @@ function Button({
       onPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => {
         markPressPoint(event)
         onPointerDown?.(event)
+      },
+      onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => {
+        if (event.key === "Enter" || event.key === " ") clearPressPoint(event.currentTarget)
+        onKeyDown?.(event)
+      },
+      onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (event.detail === 0) clearPressPoint(event.currentTarget)
+        onClick?.(event)
       },
       style: { ...pressMotion, ...style },
       className: cn(buttonVariants({ variant, size, className })),

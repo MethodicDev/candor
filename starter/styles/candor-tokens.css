@@ -837,7 +837,10 @@
  *   a selected row, option, tree item or command item, a chosen tab or segment (the small radio groups drawn as
  *   buttons), the current page or item, and a pressed toggle or chip (filters, ratings, view switches): an inset
  *   outline;
- *   a checked checkbox, radio and switch: drawn the way the system draws its own, in Highlight.
+ *   a checked checkbox, radio and switch: drawn the way the system draws its own, in Highlight;
+ *   a progress bar whose total isn't known (4.5): a Highlight band on a Canvas track edged in CanvasText, so it still
+ *   says that work is going on, and never a full bar, which would read as done;
+ *   a measured progress bar (4.5): its filled part in Highlight on the same track, as the system would draw its own.
  *
  * Only system colour keywords are used, so they follow whichever contrast theme the person picked.
  */
@@ -895,5 +898,30 @@
   }
   [data-slot="switch"][data-checked] [data-slot="switch-thumb"] {
     background-color: HighlightText;
+  }
+
+  /*
+   * The pulsing bar is a gradient the system would drop. The band fades out to the track at both ends, as the theme
+   * draws it, so it never reads as a filled bar. The Pro motion-drawings item's bars draw their own band over it.
+   */
+  [data-slot="progress"][data-indeterminate] {
+    forced-color-adjust: none;
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+  }
+  [data-slot="progress"][data-indeterminate] > [data-slot="progress-indicator"] {
+    background-color: Canvas;
+    background-image: linear-gradient(90deg, Canvas 0%, Highlight 50%, Canvas 100%);
+    opacity: 1;
+  }
+
+  /* A measured bar's filled part is a background the system would turn into Canvas, the track's colour. */
+  [data-slot="progress"]:not([data-indeterminate]) {
+    forced-color-adjust: none;
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+  }
+  [data-slot="progress"]:not([data-indeterminate]) > [data-slot="progress-indicator"] {
+    background-color: Highlight;
   }
 }
