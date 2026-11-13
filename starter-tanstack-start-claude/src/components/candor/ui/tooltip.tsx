@@ -109,8 +109,9 @@ function TooltipTrigger({ className, render, ...props }: Omit<TooltipPrimitive.T
       : render
   return (
     <TooltipPrimitive.Trigger
-      // A control handed over through `render` (a Button, a Switch, a Locked control) keeps its own `data-slot`: the
-      // theme and the forced-colour rules find it by that. Only the trigger's own button is the tooltip's.
+      // A control handed over through `render` (a Button, a Switch) keeps its own `data-slot`: the theme and the
+      // forced-colour rules find it by that. Only the trigger's own button is the tooltip's. (Locked goes around a
+      // trigger, never in `render`: it passes on nothing the trigger gives it.)
       {...(React.isValidElement(render) ? null : { "data-slot": "tooltip-trigger" })}
       delay={timing?.delay}
       closeDelay={timing?.closeDelay}

@@ -1,7 +1,7 @@
 {
   "name": "candor-ui",
   "displayName": "Candor UI",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "Build agent product UIs with Candor UI, a shadcn/ui registry of React components for agents that do real work. Installs the candor-ui skill (which component fits which job, the adapters, the honesty rules) and the candor MCP server, which serves Candor's docs and component suggestions only: read-only, no key, never paid source.",
   "author": {
     "name": "Methodic LLC",

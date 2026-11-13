@@ -9,9 +9,9 @@ import type { ToolCall as ToolCallData } from "@/lib/candor/chat"
 import { useStatusLabel } from "@/lib/candor/status"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/candor/ui/collapsible"
 import { Payload } from "@/components/candor/payload"
-import { useStrings } from "@/components/candor/locale"
+import { useFormat, useStrings } from "@/components/candor/locale"
 import { neutralizeBidi } from "@/lib/candor/bidi"
-import { motion } from "@/lib/candor/motion"
+import { motion, useSettled, type SettledTest } from "@/lib/candor/motion"
 
 /**
  * @motion reveal:open A call's detail opens to its full height when the person opens it, and the chevron turns with
@@ -23,6 +23,13 @@ const openMotion = motion("tool-call", "open", "reveal")
  * with it; closing reverses both. Under reduced motion it snaps open or shut.
  */
 const groupMotion = motion("tool-call", "group-open", "reveal")
+/**
+ * @motion value:lines A call's line counts ("+12 −3") crossfade to the new numbers when they change while the call is
+ * on screen. Counts a call arrives with are shown still.
+ */
+const linesMotion = motion("tool-call", "lines", "value")
+/** Every change of the counts counts. */
+const changeTest: SettledTest<string> = { settled: () => true, over: () => false }
 
 /** ToolCall's fixed words; override them under `toolCall` in LocaleProvider's `strings`. */
 export const toolCallStrings = {
@@ -37,13 +44,41 @@ export const toolCallStrings = {
   editedBeforeRun: "Edited before it ran",
   editedNote: "A person changed the input before allowing it. Input is what ran.",
   proposed: "As the agent proposed it",
+  /** The lines a call added, read out: `{count}` in the locale. */
+  linesAdded: { one: "{count} line added", other: "{count} lines added" },
+  /** The lines a call removed, read out, after the lines added. */
+  linesRemoved: "{count} removed",
+}
+
+/**
+ * The lines a call changed, "+12 −3", in the success and destructive colours with their signs, so colour never carries
+ * it alone; read out as "12 lines added, 3 removed".
+ */
+function LineCounts({ lines }: { lines: { added: number; removed: number } }) {
+  const t = useStrings("toolCall", toolCallStrings)
+  const fmt = useFormat()
+  const added = Math.max(0, Math.floor(lines.added))
+  const removed = Math.max(0, Math.floor(lines.removed))
+  const changes = useSettled(`${added}/${removed}`, changeTest)
+  return (
+    <span key={`${added}/${removed}`} data-slot="tool-call-lines" style={linesMotion} className={cn("shrink-0 font-mono text-2xs tabular-nums", changes > 0 && "cd-value")}>
+      <span aria-hidden>
+        <span className="text-success-text">+{fmt.number(added)}</span> <span className="text-destructive-text">−{fmt.number(removed)}</span>
+      </span>
+      <span className="sr-only">
+        {t("linesAdded", { count: added })}, {t("linesRemoved", { count: removed })}
+      </span>
+    </span>
+  )
 }
 
 /**
  * One tool call as a compact row: what it did in plain words, its status, and
  * how long it took. Expands to the input and output. A failed call opens by
  * default and leads with its error. A call that finishes while on screen draws
- * its tick or cross; one that arrives finished is drawn still.
+ * its tick or cross; one that arrives finished is drawn still. A call that
+ * edited files and says how many lines (`lines`) shows "+12 −3" after its
+ * title, read out as "12 lines added, 3 removed".
  */
 function ToolCall({
   call,
@@ -65,32 +100,36 @@ function ToolCall({
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call" data-status={call.status} className={cn("group/tool", className)}>
       <CollapsibleTrigger
         disabled={!hasDetail}
-        className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-1 text-start outline-none cd-tint enabled:hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80"
+        className="flex w-full flex-wrap items-center gap-x-2.5 gap-y-0.5 rounded-md px-1.5 py-1 text-start outline-none cd-tint enabled:hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80"
       >
         <StepMark status={call.status} />
-        <span className="min-w-0 flex-1 truncate text-sm">
+        {/* The title keeps at least 8rem; on a narrow row the meta after it wraps to a line of its own, at the end. */}
+        <span className="min-w-[min(8rem,100%)] flex-1 basis-0 truncate text-sm">
           <bdi>{call.status === "running" ? <ShimmerLabel className="font-normal">{title}</ShimmerLabel> : title}</bdi>
           <span className="sr-only"> — {statusLabel(call.status)}</span>
         </span>
-        {call.approval?.originalInput !== undefined && (
-          <span data-slot="tool-call-edited" className="shrink-0 rounded-xs bg-warning-weak px-1 text-2xs text-warning-text">
-            {t("editedBeforeRun")}
-          </span>
-        )}
-        {call.approval?.by === "automatic" && (
-          <span data-slot="tool-call-approval" className="shrink-0 rounded-xs bg-muted px-1 text-2xs text-muted-foreground">
-            {t("approvedAutomatically")}
-          </span>
-        )}
-        <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline"><bdi>{neutralizeBidi(call.tool)}</bdi></code>
-        {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{call.duration}</span>}
-        {hasDetail && (
-          <ChevronRight
-            aria-hidden
-            style={openMotion}
-            className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground cd-reveal-turn group-data-open/tool:[transform:rotate(90deg)]"
-          />
-        )}
+        <span data-slot="tool-call-meta" className="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-x-2.5 gap-y-0.5">
+          {call.lines && Number.isFinite(call.lines.added) && Number.isFinite(call.lines.removed) && <LineCounts lines={call.lines} />}
+          {call.approval?.originalInput !== undefined && (
+            <span data-slot="tool-call-edited" className="shrink-0 rounded-xs bg-warning-weak px-1 text-2xs text-warning-text">
+              {t("editedBeforeRun")}
+            </span>
+          )}
+          {call.approval?.by === "automatic" && (
+            <span data-slot="tool-call-approval" className="shrink-0 rounded-xs bg-muted px-1 text-2xs text-muted-foreground">
+              {t("approvedAutomatically")}
+            </span>
+          )}
+          <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline"><bdi>{neutralizeBidi(call.tool)}</bdi></code>
+          {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{call.duration}</span>}
+          {hasDetail && (
+            <ChevronRight
+              aria-hidden
+              style={openMotion}
+              className="rtl:-scale-x-100 size-3.5 shrink-0 text-faint-foreground cd-reveal-turn group-data-open/tool:[transform:rotate(90deg)]"
+            />
+          )}
+        </span>
       </CollapsibleTrigger>
       <CollapsibleContent style={openMotion}>
         <div className="mt-1 mb-2 ms-[1.375rem] flex flex-col gap-2 border-s ps-3.5">

@@ -3,6 +3,7 @@
 import { CircleAlert, RotateCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/registry/ui/button"
+import { Locked } from "@/registry/ui/locked"
 import { useStrings } from "@/registry/foundation/locale"
 import { motion } from "@/registry/foundation/motion"
 
@@ -20,6 +21,8 @@ export const degradedPanelStrings = {
   retry: "Retry",
   /** The retry button while a retry is under way. */
   retrying: "Retrying",
+  /** Why Retry can't be pressed while a retry is under way. */
+  retryingLocked: "Already retrying",
 }
 
 /**
@@ -42,7 +45,7 @@ function DegradedPanel({
   missing?: React.ReactNode | undefined
   /** Shows a Retry button that calls this. */
   onRetry?: (() => void) | undefined
-  /** The retry is under way: the button is disabled, its icon turns, and it says it is retrying. */
+  /** The retry is under way: the button says why it can't be pressed again (`aria-disabled`, not `disabled`), its icon turns, and it says it is retrying. */
   busy?: boolean | undefined
   /** A boxed panel, or one line inside other content. */
   variant?: "block" | "inline" | undefined
@@ -71,9 +74,11 @@ function DegradedPanel({
         {missing && <p className="mt-0.5 text-xs text-muted-foreground">{t("missing")} {missing}</p>}
       </div>
       {onRetry && (
-        <Button size="xs" variant="outline" onClick={onRetry} disabled={busy} aria-busy={busy} className="shrink-0">
-          <RotateCw style={spinMotion} className={cn(busy && "cd-live-spin")} /> {busy ? t("retrying") : t("retry")}
-        </Button>
+        <Locked reason={busy ? t("retryingLocked") : null} className="shrink-0">
+          <Button size="xs" variant="outline" onClick={onRetry} aria-busy={busy} className="shrink-0">
+            <RotateCw style={spinMotion} className={cn(busy && "cd-live-spin")} /> {busy ? t("retrying") : t("retry")}
+          </Button>
+        </Locked>
       )}
     </div>
   )

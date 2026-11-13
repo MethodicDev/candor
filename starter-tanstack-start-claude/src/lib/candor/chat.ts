@@ -123,6 +123,11 @@ export type ToolCall = {
   /** Required when status is "failed": what went wrong, in a sentence. */
   error?: string | undefined
   /**
+   * The lines it changed, when it edited files and the tool counted them: shown as "+12 −3". Left out when the tool
+   * doesn't say; never estimated. New in 4.4.
+   */
+  lines?: { added: number; removed: number } | undefined
+  /**
    * Who let it run, when it needed a go-ahead: a person, or something automatic (a policy, a classifier, a rule).
    * `note` is why, in the source's words. Left out when it needed none or the source doesn't say.
    */

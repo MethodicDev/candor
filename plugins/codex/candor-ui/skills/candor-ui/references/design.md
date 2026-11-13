@@ -182,7 +182,7 @@ Who decides, from the strongest: `data-motion="none"` on `<html>` or any contain
 | `press` | A press registered. | 150 ms (80–200) | standard (standard) | `-scale` 0.96 | (fixed) | Doesn't scale; the colour still answers. |
 | `tint` | Hover, focus, selected, a drop target: a colour or opacity change. | 150 ms (0–200) | standard (standard, inout) | — | (fixed) | Colour and opacity only, up to 150 ms. |
 | `refuse` | A locked control was pressed: the reason is shown, and under expressive it shakes. | 360 ms (200–500) | standard (standard) | `-distance` 3px | (fixed) | No shake; the reason's colour still changes. |
-| `attention` | Something new waits on the person: a ring that grows and fades. | 900 ms (600–1600) | standard (standard) | `-count` 1 | (fixed) | One ring that fades without growing, up to 150 ms. |
+| `attention` | Something new waits on the person: a ring that grows and fades. | 900 ms (600–1600) | standard (standard) | `-count` 1 | (fixed); Pro drawings | One ring that fades without growing, up to 150 ms. |
 | `live` | Work that is being heard from: a dot's pulse, a caret, a spinner, a shimmer, a skeleton. | 1600 ms (1000–3000) | standard (standard, inout, linear) | — | (fixed) | Still, with its word. |
 | `clock` | Real time passing: a hold, a deadline, a replay. Painted from the clock. | From the clock | linear (linear) | — | (fixed) | Steps instead of gliding; never off. |
 
@@ -229,6 +229,9 @@ Nothing is fetched until a sound plays: a page with sound off, or on with no eve
 | --- | --- | --- |
 | `--cd-thread-width` | 48rem | The message column's width; also the longest comfortable measure for reading. |
 | `--cd-sidebar-width` | 16rem | The app sidebar's width. |
+| `--cd-canvas` | var(--background) | AppLayout's app frame: the inset page's ground. |
+| `--cd-canvas-border` | var(--border) | The hairline where the page meets the frame's chrome. |
+| `--cd-canvas-radius` | var(--cd-radius-xl) | The page's corner where the frame's two arms meet. |
 
 ## Density
 
@@ -273,7 +276,7 @@ The size of controls and rows. Heights run on one ladder (`2xs`, `xs`, `sm`, non
 
 ## Naming, and making it your own
 
-`--cd-*` is Candor's own namespace: 56 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets, widths, and the sizes of controls and rows. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
+`--cd-*` is Candor's own namespace: 59 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets, widths, and the sizes of controls and rows. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
 
 The quickest way is the free theme builder at https://candor.themethodic.com/theme-builder: it takes the brand's colours, sets type, shape, motion and sound, checks every pairing in every theme, and downloads `candor-brand.css` (the overrides, imported straight after `candor.css`) and `candor-theme.json` (the same values as design tokens, with each check's ratio). It runs in the browser and the theme is never sent anywhere; if you give it a font's address and press to load it, your browser fetches the font from that host, which sees the request, and an exported file with a font `@import` does the same in your app. Check the result with `npx candor-ui theme check` from the project root (it reads the CSS file named in components.json and the files that file imports). Writing the overrides by hand works the same way:
 

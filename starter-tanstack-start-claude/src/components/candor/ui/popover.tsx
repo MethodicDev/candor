@@ -28,9 +28,14 @@ function Popover({ onOpenChange, children, ...props }: PopoverPrimitive.Root.Pro
   )
 }
 
-/** The button that opens a `Popover`. */
-function PopoverTrigger({ className, ...props }: Omit<PopoverPrimitive.Trigger.Props, "className"> & { className?: string | undefined }) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" className={className} {...props} />
+/**
+ * The button that opens a `Popover`. A control handed over through `render` (a Button) keeps its own `data-slot`, so the
+ * theme and the forced-colour rules still find it; only the trigger's own button is `popover-trigger`. To lock it, put
+ * `Locked` around the trigger, not in `render`: `<Locked reason={…}><PopoverTrigger render={<Button />} /></Locked>`.
+ * `Locked` passes on nothing the trigger gives it, so in `render` the button would never open the popover.
+ */
+function PopoverTrigger({ className, render, ...props }: Omit<PopoverPrimitive.Trigger.Props, "className"> & { className?: string | undefined }) {
+  return <PopoverPrimitive.Trigger {...(React.isValidElement(render) ? null : { "data-slot": "popover-trigger" })} className={className} render={render} {...props} />
 }
 
 /** Where the popup sits against its trigger (or a PopoverAnchor): the props Base UI's Positioner takes. */

@@ -89,6 +89,11 @@
   --cd-row-px: 1rem;
   --cd-row-py: 0.5rem;
   --cd-cell-px: 0.5rem;
+
+  /* AppLayout's app frame: the page's inset canvas, set into the L of the navigation and the banner (which are --sidebar). Flat: the canvas on var(--sidebar), the border transparent, the radius 0. Sunken: the canvas on var(--cd-sunken) with --sidebar on var(--card). */
+  --cd-canvas: var(--background);
+  --cd-canvas-border: var(--border);
+  --cd-canvas-radius: var(--cd-radius-xl);
 }
 [data-theme="dark"] {
   --cd-shadow: oklch(0 0 0 / 0.35);
@@ -218,6 +223,7 @@
 @property --cd-m-attention-dur { syntax: "*"; inherits: false; }
 @property --cd-m-attention-ease { syntax: "*"; inherits: false; }
 @property --cd-m-attention-amp { syntax: "*"; inherits: false; }
+@property --cd-m-attention-variant { syntax: "*"; inherits: false; }
 @property --cd-m-live { syntax: "*"; inherits: false; }
 @property --cd-m-live-dur { syntax: "*"; inherits: false; }
 @property --cd-m-live-ease { syntax: "*"; inherits: false; }
@@ -628,12 +634,16 @@
   }
 }
 
-/* attention: something new waits on the person. A ring that grows and fades, --cd-motion-…-count times. */
+/*
+ * attention: something new waits on the person. A ring that grows and fades, --cd-motion-…-count times. The ring is
+ * its one free word; the Pro motion-drawings item adds drawings a brand names with -variant (4.4), so the variant
+ * chain falls back to the ring and nothing changes without a brand value. Its calm form stays the ring's.
+ */
 @utility cd-attention {
   --cd-attention-l: min(var(--cd-m-attention, var(--cd-motion-attention, var(--cd-motion-preset))), var(--cd-motion-cap));
   /* Not scaled by the speed token: count × duration must stay under five seconds (WCAG 2.2.2). */
   --cd-attention-t: calc(var(--cd-m-attention-dur, var(--cd-motion-attention-dur, 900ms)) * min(var(--cd-attention-l), 1));
-  animation: cd-ring var(--cd-attention-t) var(--cd-m-attention-ease, var(--cd-motion-attention-ease, var(--cd-ease))) var(--cd-m-attention-amp, var(--cd-motion-attention-count, 1));
+  animation: var(--cd-m-attention-variant, var(--cd-motion-attention-variant, cd-ring)) var(--cd-attention-t) var(--cd-m-attention-ease, var(--cd-motion-attention-ease, var(--cd-ease))) var(--cd-m-attention-amp, var(--cd-motion-attention-count, 1));
   @variant calm {
     animation-name: cd-ring-calm !important;
     animation-duration: min(var(--cd-attention-t), 150ms) !important;

@@ -44,8 +44,23 @@ const buttonVariants = cva(
 )
 
 /**
+ * Where a pointer pressed the button, in its own box: `--cd-press-x` and `--cd-press-y` on the button, for the Pro
+ * motion-drawings item's press ripple. Set only by a press the person made; nothing in the free CSS reads them.
+ */
+function markPressPoint(event: React.PointerEvent<HTMLElement>) {
+  const el = event.currentTarget
+  const box = el.getBoundingClientRect()
+  el.style.setProperty("--cd-press-x", `${Math.round(event.clientX - box.left)}px`)
+  el.style.setProperty("--cd-press-y", `${Math.round(event.clientY - box.top)}px`)
+}
+
+/**
  * A button in Candor's theme. It is a native `<button>` (in a form it submits unless given `type="button"`), or the
  * element `render` names, drawn with the button's styles and props.
+ *
+ * When a pointer presses it, the button notes where, as `--cd-press-x` and `--cd-press-y` in its own style (the point
+ * in its box, in pixels), for the Pro motion-drawings item's press ripple to grow from. Nothing in the free CSS reads
+ * them, so the button looks and behaves as it did without them.
  */
 function Button({
   className,
@@ -54,6 +69,7 @@ function Button({
   size = "default",
   render,
   nativeButton: _nativeButton,
+  onPointerDown,
   ref,
   ...props
 }: React.ComponentProps<"button"> &
@@ -79,6 +95,10 @@ function Button({
       "data-variant": variant,
       "data-size": size,
       ...props,
+      onPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => {
+        markPressPoint(event)
+        onPointerDown?.(event)
+      },
       style: { ...pressMotion, ...style },
       className: cn(buttonVariants({ variant, size, className })),
     },

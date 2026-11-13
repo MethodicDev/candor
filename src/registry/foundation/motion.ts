@@ -88,6 +88,12 @@ export type MotionFamilySpec = {
   readonly variants: readonly [string, ...string[]]
   /** What the calm level (reduced motion) does with it, in words. */
   readonly calm: string
+  /**
+   * Its utility plays a keyframe a brand can swap for a Pro drawing, though the family has one free word (attention's
+   * ring, from 4.4). Its chain carries a `-variant` that falls back to that word, so nothing changes without a brand
+   * value; it stays fixed in the free kit.
+   */
+  readonly drawable?: boolean | undefined
 }
 
 /** The family defaults. Durations, easings and amplitudes are 2.2's, so an app with no brand file looks the same. */
@@ -235,6 +241,7 @@ export const motionFamilies = {
     amp: { name: "count", default: "1", min: 1, max: 3, unit: "", subtle: 1 },
     variants: ["ring"],
     calm: "One ring that fades without growing, up to 150 ms.",
+    drawable: true,
   },
   live: {
     reports: "Work that is being heard from: a dot's pulse, a caret, a spinner, a shimmer, a skeleton.",
@@ -275,6 +282,13 @@ export type MotionVariant<F extends MotionFamily> = (typeof motionFamilies)[F]["
  * nothing. A later release that adds a second word turns the token on without a new name.
  */
 export const motionVariantIsFixed = (family: MotionFamily): boolean => motionFamilies[family].variants.length < 2
+
+/**
+ * True when a family's chain carries a `-variant`: it chooses between drawings, or (4.4, `drawable`) its one free word
+ * can be swapped for a drawing from the Pro motion-drawings item. Attention is both fixed and drawable: the free kit
+ * has only its ring, and `--cd-motion-attention-variant` falls back to `cd-ring`.
+ */
+export const motionHasVariant = (family: MotionFamily): boolean => !motionVariantIsFixed(family) || (motionFamilies[family] as MotionFamilySpec).drawable === true
 
 /**
  * The CSS value a variant is written as. CSS can only choose a drawing by keyframe name, so a variant's value is its
@@ -334,7 +348,7 @@ export function motion<F extends MotionFamily>(item: string, moment: string, fam
   if (spec.outDur) style[`${local}-out-dur`] = `var(${own}-out-dur, var(${fam}-out-dur, ${ms(defaults.outDur ?? spec.outDur.default)}))`
   if (spec.dur) style[`${local}-ease`] = `var(${own}-ease, var(${fam}-ease, ${motionEases[defaults.ease ?? spec.ease]}))`
   if (spec.amp) style[`${local}-amp`] = `var(${own}-${spec.amp.name}, var(${fam}-${spec.amp.name}, ${defaults.amp ?? spec.amp.default}))`
-  if (!motionVariantIsFixed(family)) {
+  if (motionHasVariant(family)) {
     const variant = motionVariantValue(defaults.variant ?? spec.variants[0])
     style[`${local}-variant`] = `var(${own}-variant, var(${fam}-variant, ${variant}))`
   }

@@ -2196,6 +2196,7 @@
       "registryDependencies": [
         "@candor/button",
         "@candor/locale",
+        "@candor/locked",
         "@candor/motion",
         "@candor/tokens",
         "utils"
