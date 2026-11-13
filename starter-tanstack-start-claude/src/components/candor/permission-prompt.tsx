@@ -204,6 +204,9 @@ function parseObject(text: string): Record<string, unknown> | null {
  * space outside it (the gesture that would dismiss a dialog) nudges it instead, so the person sees it is still
  * waiting. Both stop once the answer is being sent.
  *
+ * Its heading is an `<h2>` unless `headingLevel` says otherwise; it reads no `HeadingScope`, so inside a dialog (whose
+ * title is the `<h2>`) give it `headingLevel={3}`.
+ *
  * @motion attention:waiting While the decision waits, a ring pulses out from the shield three times and then is still.
  * It stops once the answer is being sent, and under calm it is one ring that fades.
  * @motion attention:nudge A press on inert space outside the prompt rings it once, so the person sees it is still waiting.
@@ -238,7 +241,14 @@ function PermissionPrompt({
   /**
    * The level of the prompt's heading, to fit under the page's own headings without skipping a level. Defaults to 2
    * (3 before 5.0.0), right below the page's `<h1>`; pass 3 when the prompt sits under a section's `<h2>`. It reads
-   * no `HeadingScope`.
+   * no `HeadingScope`, so in a dialog, whose title is an `<h2>`, pass 3 as well:
+   *
+   * ```tsx
+   * <DialogContent>
+   *   <DialogTitle>Approve a tool call</DialogTitle>
+   *   <PermissionPrompt request={request} headingLevel={3} onAllow={allow} onDeny={deny} />
+   * </DialogContent>
+   * ```
    */
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
   /**

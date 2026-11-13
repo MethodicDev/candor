@@ -136,8 +136,9 @@ type SliderProps = Omit<SliderPrimitive.Root.Props, "className" | "value" | "def
    * Why the slider can't be changed. With a reason it stays focusable but the pointer and arrow keys do nothing, it is
    * marked `aria-disabled` and described by the reason, and the reason is printed under it. Without one the slider is
    * normal. Use this rather than `disabled`, which takes the slider out of the tab order and says nothing.
+   * `null` or left out: unlocked.
    */
-  locked?: string | undefined
+  locked?: string | null | undefined
   /**
    * A name for each thumb, in order (a range has two: "Lowest price", "Highest price"). A thumb without one takes
    * `aria-label`; give them in the app's language.

@@ -650,6 +650,14 @@
     animation-iteration-count: 1 !important;
   }
 }
+/*
+ * The nudge of a dialog, sheet, drawer or responsive dialog (MOT-51) is an empty span laid over the window, drawn only
+ * by its ring (an outline). An attention drawing that moves or swells what it is on (the Pro cd-jolt, cd-beat), set
+ * family-wide or for the moment, would play on the span and show nothing, so the nudge keeps the ring.
+ */
+[data-slot="dialog-nudge"] {
+  --cd-m-attention-variant: cd-ring !important;
+}
 /* A prompt that was clicked around instead of answered: refuse's shake (expressive only) and one attention ring. */
 @utility cd-nudge {
   --cd-refuse-l: min(var(--cd-m-refuse, var(--cd-motion-refuse, var(--cd-motion-preset))), var(--cd-motion-cap));
@@ -923,5 +931,19 @@
   }
   [data-slot="progress"]:not([data-indeterminate]) > [data-slot="progress-indicator"] {
     background-color: Highlight;
+  }
+
+  /*
+   * An indicator the app gives Progress as children (MOT-63) is drawn on the same adjusted track, so it is forced the
+   * same way, whatever its own classes: Highlight for a measured fill, the fading band while the total is unknown.
+   */
+  [data-slot="progress"]:not([data-indeterminate]) > :not([data-slot="progress-indicator"]) {
+    background-color: Highlight;
+    background-image: none;
+  }
+  [data-slot="progress"][data-indeterminate] > :not([data-slot="progress-indicator"]) {
+    background-color: Canvas;
+    background-image: linear-gradient(90deg, Canvas 0%, Highlight 50%, Canvas 100%);
+    opacity: 1;
   }
 }

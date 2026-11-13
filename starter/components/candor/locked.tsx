@@ -4,7 +4,7 @@ import * as React from "react"
 import { LockKeyhole } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/candor/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useTooltipProviderAbove } from "@/components/candor/ui/tooltip"
 import { motion } from "@/lib/candor/motion"
 
 /** The running animation's duration on `el`, in milliseconds (its longest, if there are several); undefined when it can't be read. */
@@ -63,7 +63,8 @@ type Lockable = React.ReactElement<{
  *
  * Wrap any single control. With a `reason`, the control stays focusable but is
  * marked `aria-disabled`, its activation is blocked (click, Enter, Space, and
- * for a Select's or Menu's trigger the press and ArrowDown or ArrowUp), and
+ * for a Select's or Menu's trigger the press and ArrowDown or ArrowUp; every
+ * other key still reaches the control's own `onKeyDown`), and
  * it is described by the reason, after anything that already describes it
  * (its own `aria-describedby` is kept) — so keyboard and screen-reader users reach
  * the explanation on the control itself. A checkbox, switch or radio inside
@@ -101,6 +102,7 @@ function Locked({
   className?: string | undefined
 }) {
   const id = React.useId()
+  const providerAbove = useTooltipProviderAbove()
   // The tooltip as hover and focus drive it, and a press, which holds the reason open and shakes (when expressive).
   // `press` counts presses so a second one restarts both timers.
   const [shown, setShown] = React.useState(false)
@@ -159,8 +161,11 @@ function Locked({
         "aria-describedby": [children.props["aria-describedby"], id].filter(Boolean).join(" "),
         "data-locked": "",
         onClick: block,
+        // Only the keys that would use the control are blocked; every other key reaches the control's own handler, so
+        // Escape still cancels, Tab still moves on and a roving item's arrows still move.
         onKeyDown: (e: React.KeyboardEvent) => {
           if (e.key === "Enter" || e.key === " " || (opensPopup(e) && (e.key === "ArrowDown" || e.key === "ArrowUp"))) block(e)
+          else children.props.onKeyDown?.(e)
         },
         // Base UI's Select and Menu triggers open on the press itself, before the click: their handler is stopped there.
         // The press goes on otherwise (focus, and other layers' outside-press), and the click that follows shows the reason.
@@ -177,6 +182,14 @@ function Locked({
       ? React.cloneElement(children, { className: cn(children.props.className, className) })
       : children
 
+  const tooltip = (
+    <>
+      <TooltipTrigger handle={tip} disabled={!reason} render={reason ? control : () => control} />
+      <Tooltip handle={tip} open={reason ? shown || held : false} onOpenChange={setShown} describes={false} disabled={!reason}>
+        {reason ? <TooltipContent>{reason}</TooltipContent> : null}
+      </Tooltip>
+    </>
+  )
   return (
     // The wrapper is always drawn, so the tree doesn't change shape when a reason comes or goes. Without a reason it is
     // `display: contents`: the page is laid out as if it weren't there.
@@ -205,12 +218,9 @@ function Locked({
         // Always here, so the control keeps its place in the tree. Without a reason the trigger hands back the control as
         // it is (no id, attributes or handlers of its own), and the tooltip, beside it rather than around it, is closed.
         // The reason already describes the control (the sr-only text below), so the tooltip doesn't describe it again.
-        <TooltipProvider>
-          <TooltipTrigger handle={tip} disabled={!reason} render={reason ? control : () => control} />
-          <Tooltip handle={tip} open={reason ? shown || held : false} onOpenChange={setShown} describes={false} disabled={!reason}>
-            {reason ? <TooltipContent>{reason}</TooltipContent> : null}
-          </Tooltip>
-        </TooltipProvider>
+        // Under the app's TooltipProvider it is drawn bare, in the app's group, so moving between locked controls skips the
+        // delay; with none above, inside its own. That depends on the tree, never on a setting, so it is stable.
+        providerAbove ? tooltip : <TooltipProvider>{tooltip}</TooltipProvider>
       )}
       {reason ? (
         <span

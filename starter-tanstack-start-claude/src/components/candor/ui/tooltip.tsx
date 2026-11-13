@@ -47,6 +47,15 @@ function TooltipProvider({
   )
 }
 
+/**
+ * Whether a TooltipProvider is above. `Locked` draws its tooltip bare under one, so it joins that group (moving from
+ * one tooltip to the next still skips the delay), and inside its own provider when there is none. The answer depends
+ * on the tree, not on any setting, so a setting that arrives later never changes what is drawn.
+ */
+function useTooltipProviderAbove(): boolean {
+  return React.useContext(HasProvider) !== null
+}
+
 // The open tooltip's id, for its trigger's `aria-describedby`; null while it is closed. Base UI doesn't link the two.
 const Describes = React.createContext<string | null>(null)
 
@@ -172,4 +181,4 @@ function TooltipContent({
   )
 }
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, useTooltipProviderAbove }

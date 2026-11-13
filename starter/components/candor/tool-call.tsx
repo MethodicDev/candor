@@ -34,7 +34,7 @@ const changeTest: SettledTest<string> = { settled: () => true, over: () => false
 
 /** ToolCall's fixed words; override them under `toolCall` in LocaleProvider's `strings`. */
 export const toolCallStrings = {
-  /** Why the row can't be opened while the call is still going with nothing behind it yet; once it has finished, the row is text. */
+  /** Why the row can't be opened while the call is still going with nothing behind it yet; once it has finished, the row is text (after focus has left it). */
   lockedNoDetail: "This call has no details to show.",
   input: "Input",
   output: "Output",
@@ -76,12 +76,21 @@ function LineCounts({ lines }: { lines: { added: number; removed: number } }) {
 }
 
 /**
+ * A count a tool could have given: finite and not negative. A negative or missing number isn't a count of lines, so the
+ * row draws no counts rather than "+0" (unknown stays unknown, KIT-159).
+ */
+function isCount(n: number): boolean {
+  return Number.isFinite(n) && n >= 0
+}
+
+/**
  * One tool call as a compact row: what it did in plain words, its status, and
  * how long it took. Expands to the input and output. A failed call opens by
  * default and leads with its error. A call that finishes while on screen draws
  * its tick or cross; one that arrives finished is drawn still. A call that
  * edited files and says how many lines (`lines`) shows "+12 −3" after its
- * title, read out as "12 lines added, 3 removed".
+ * title, read out as "12 lines added, 3 removed"; a count that isn't a
+ * number of lines (negative or not finite) draws no counts.
  */
 function ToolCall({
   call,
@@ -100,6 +109,9 @@ function ToolCall({
   const hasDetail = Boolean(call.input || call.output || call.error || call.approval?.note || call.approval?.originalInput)
   // A call that has finished gains nothing more to show; one still going may (KIT-231's Locked says it waits).
   const finished = call.status === "succeeded" || call.status === "failed" || call.status === "cancelled" || call.status === "skipped"
+  // Whether focus is on the row's button. A row that finishes with nothing to show while focus is on it keeps its
+  // (locked) button until focus leaves, so focus never falls to the page (KIT-245).
+  const [focused, setFocused] = React.useState(false)
 
   const row = (
     <>
@@ -110,7 +122,7 @@ function ToolCall({
         <span className="sr-only"> — {statusLabel(call.status)}</span>
       </span>
       <span data-slot="tool-call-meta" className="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-x-2.5 gap-y-0.5">
-        {call.lines && Number.isFinite(call.lines.added) && Number.isFinite(call.lines.removed) && <LineCounts lines={call.lines} />}
+        {call.lines && isCount(call.lines.added) && isCount(call.lines.removed) && <LineCounts lines={call.lines} />}
         {call.approval?.originalInput !== undefined && (
           <span data-slot="tool-call-edited" className="shrink-0 rounded-xs bg-warning-weak px-1 text-2xs text-warning-text">
             {t("editedBeforeRun")}
@@ -136,10 +148,10 @@ function ToolCall({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-slot="tool-call" data-status={call.status} className={cn("group/tool", className)}>
-      {/* Finished with nothing behind it, the row is text, not a control: it would never open, so it isn't a tab stop. */}
-      {hasDetail || !finished ? (
+      {/* Finished with nothing behind it, the row is text, not a control: it would never open, so it isn't a tab stop. Focus on it when it finishes stays on the locked button until it leaves. */}
+      {hasDetail || !finished || focused ? (
         <Locked reason={hasDetail ? undefined : t("lockedNoDetail")} className="w-full">
-          <CollapsibleTrigger className={cn("flex w-full flex-wrap items-center gap-x-2.5 gap-y-0.5 rounded-md px-1.5 py-1 text-start outline-none cd-tint focus-visible:ring-[3px] focus-visible:ring-ring/80", hasDetail && "hover:bg-accent")}>
+          <CollapsibleTrigger onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} className={cn("flex w-full flex-wrap items-center gap-x-2.5 gap-y-0.5 rounded-md px-1.5 py-1 text-start outline-none cd-tint focus-visible:ring-[3px] focus-visible:ring-ring/80", hasDetail && "hover:bg-accent")}>
             {row}
           </CollapsibleTrigger>
         </Locked>
