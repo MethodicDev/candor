@@ -16,7 +16,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 76 free items (version 6.0.0), the skill and plugins for coding
+This repo is the source of Candor UI's 76 free items (version 6.1.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -64,7 +64,7 @@ Typical and Honest switch; the others go to [Principles](https://candor.themetho
 
 ```bash
 npx candor-ui@latest init
-npx candor-ui@3 add thread message composer
+npx candor-ui@4 add thread message composer
 ```
 
 `candor-ui init` adds the `@candor` registry to `components.json` and the theme to your CSS; in a project without
@@ -155,7 +155,7 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 ## What's here
 
 76 free items, each with a docs page that has its props and live examples. Install any of them by name:
-`npx candor-ui@3 add <name>`.
+`npx candor-ui@4 add <name>`.
 
 | Area | What it's for | Items |
 |---|---|---|
@@ -187,7 +187,7 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
 | Free (this repo) | $0, MIT | 76 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 389 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Pro | $149, one person | All 382 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 
@@ -197,7 +197,7 @@ says where, and what a refund does to it. Then, in your project:
 
 ```bash
 npx candor-ui key <your licence key>      # saves it to .env.local, checks it, and has the registry send it
-npx candor-ui@3 add approval-request     # a Pro item, installed like any other
+npx candor-ui@4 add approval-request     # a Pro item, installed like any other
 ```
 
 In CI, set `CANDOR_LICENSE_KEY` as a secret, so installs and `npx candor-ui verify` can read paid items. Installed code

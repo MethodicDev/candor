@@ -173,7 +173,7 @@ const compactedText = (trigger: "manual" | "auto") =>
     : "Earlier messages were summarised, as asked. The agent works from that summary now; the messages above are unchanged."
 const clearedText = "The conversation was cleared. The agent doesn’t see the messages above."
 
-type Part = { kind: "text"; text: string; cites?: string[] | undefined } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
+type Part = { kind: "text"; text: string; cites?: string[] | undefined; from?: object | undefined } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
 
 type Reply = {
   id: string
@@ -413,7 +413,7 @@ function addBlock(r: Reply, block: ContentBlock, options: FromClaudeAgentOptions
       const source = citationSource(c as Citation)
       return source ? [addSource(r, source)] : []
     })
-    r.parts.push({ kind: "text", text: block.text, cites: cites.length ? [...new Set(cites)] : undefined })
+    r.parts.push({ kind: "text", text: block.text, cites: cites.length ? [...new Set(cites)] : undefined, from: block })
   } else if (block.type === "thinking") {
     // With the SDK's default display, thinking arrives empty; there's nothing to show then.
     if (block.thinking.trim()) r.reasoning.push(reasoningEntry(`${r.id}-r${r.reasoning.length}`, block.thinking, false))
@@ -440,6 +440,22 @@ function addBlock(r: Reply, block: ContentBlock, options: FromClaudeAgentOptions
       }
     }
   }
+}
+
+/*
+ * The events are folded again on every render, and a reply reads events after its own (tool results, approvals, the
+ * run's result), so the reply as a whole isn't kept. What's kept is the costly part, each text block's markdown, by
+ * the SDK's content block it came from: while a reply streams, only its live text is read again.
+ */
+const parsedText = new WeakMap<object, { text: string; blocks: MessageBlock[] }>()
+
+/** `markdownBlocks(text)`, kept by the content block the text came from while its text is the same. */
+function parsed(text: string, from: object | undefined): MessageBlock[] {
+  const kept = from && parsedText.get(from)
+  if (kept && kept.text === text) return kept.blocks
+  const blocks = markdownBlocks(text)
+  if (from) parsedText.set(from, { text, blocks })
+  return blocks
 }
 
 function render(r: Reply, o: FromClaudeAgentOptions & { model?: string | undefined; last: boolean }): MessageData {
@@ -470,7 +486,7 @@ function render(r: Reply, o: FromClaudeAgentOptions & { model?: string | undefin
     }
     flush()
     if (p.kind === "card") blocks.push({ kind: "card", card: p.card, props: p.props, summary: p.summary })
-    else blocks.push(...withCitations(markdownBlocks(p.text), p.cites))
+    else blocks.push(...withCitations(parsed(p.text, p.from), p.cites))
   }
   flush()
 
@@ -523,7 +539,10 @@ const host = (url: string) => {
   }
 }
 
-/** Puts a text block's [n] markers at its end: after the last paragraph's, heading's or list item's words. */
+/**
+ * Puts a text block's [n] markers at its end: after the last paragraph's, heading's or list item's words. Code, a
+ * table or a quote is passed over, so a marker never sits inside code, a table's cell or the quoted words.
+ */
 function withCitations(blocks: MessageBlock[], cites: string[] | undefined): MessageBlock[] {
   if (!cites?.length) return blocks
   const marks: InlineNode[] = cites.map((sourceId) => ({ kind: "citation", sourceId }))

@@ -1354,6 +1354,18 @@
             ],
             "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
             "codemod": "headings"
+          },
+          {
+            "id": "message-block-kinds",
+            "in": "6.1.0",
+            "change": "`MessageBlock` gains two kinds: `table`, a GFM pipe table in model text, its cells inline text, and `quote`, `>` lines as inline text, one level. MessageContent draws them as a `<table>` that scrolls sideways and a `<blockquote>`, text only, never HTML. A fenced block whose language the highlighter knows is highlighted.",
+            "breaks": "A `switch` over a block's `kind` that ends in a `never` check fails the type check until it handles `table` and `quote` or has a default. Model text with a pipe table, `>` lines or a fenced block in a highlighted language draws differently: as a table, a quote and highlighted code, where 6.0 drew paragraphs and plain code.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Handle `table` and `quote` in a switch over a block's `kind`, or give it a default; from 6.1 a minor may add a kind, and `MessageBlock`'s doc comment says so. A model's pipe table now draws as a table, its > lines as a quote, and a fence in a language Payload highlights is highlighted in it when highlighting is on; check any CSS that matched those as paragraphs or plain code.",
+            "codemod": null
           }
         ]
       }
@@ -2167,6 +2179,18 @@
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
             "codemod": null
+          },
+          {
+            "id": "message-block-kinds",
+            "in": "6.1.0",
+            "change": "`MessageBlock` gains two kinds: `table`, a GFM pipe table in model text, its cells inline text, and `quote`, `>` lines as inline text, one level. MessageContent draws them as a `<table>` that scrolls sideways and a `<blockquote>`, text only, never HTML. A fenced block whose language the highlighter knows is highlighted.",
+            "breaks": "A `switch` over a block's `kind` that ends in a `never` check fails the type check until it handles `table` and `quote` or has a default. Model text with a pipe table, `>` lines or a fenced block in a highlighted language draws differently: as a table, a quote and highlighted code, where 6.0 drew paragraphs and plain code.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Handle `table` and `quote` in a switch over a block's `kind`, or give it a default; from 6.1 a minor may add a kind, and `MessageBlock`'s doc comment says so. A model's pipe table now draws as a table, its > lines as a quote, and a fence in a language Payload highlights is highlighted in it when highlighting is on; check any CSS that matched those as paragraphs or plain code.",
+            "codemod": null
           }
         ]
       }
@@ -2615,7 +2639,7 @@
     {
       "name": "mcp-input",
       "type": "registry:lib",
-      "description": "MCP's \"input required\" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.",
+      "description": "MCP's \"input required\" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for DecisionCard, and the person's answers become the `inputResponses` the client sends when it retries the call.",
       "registryDependencies": [
         "@candor/tokens"
       ],
@@ -2706,9 +2730,10 @@
     {
       "name": "safe-markdown",
       "type": "registry:lib",
-      "description": "Reads model text as safe markdown: paragraphs, lists and fenced code.",
+      "description": "Reads model text as safe markdown: paragraphs, lists, fenced code, pipe tables and quotes, never HTML.",
       "registryDependencies": [
         "@candor/chat",
+        "@candor/highlight",
         "@candor/tokens"
       ],
       "files": [
@@ -2744,6 +2769,18 @@
               "behaviour"
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
+          },
+          {
+            "id": "message-block-kinds",
+            "in": "6.1.0",
+            "change": "`MessageBlock` gains two kinds: `table`, a GFM pipe table in model text, its cells inline text, and `quote`, `>` lines as inline text, one level. MessageContent draws them as a `<table>` that scrolls sideways and a `<blockquote>`, text only, never HTML. A fenced block whose language the highlighter knows is highlighted.",
+            "breaks": "A `switch` over a block's `kind` that ends in a `never` check fails the type check until it handles `table` and `quote` or has a default. Model text with a pipe table, `>` lines or a fenced block in a highlighted language draws differently: as a table, a quote and highlighted code, where 6.0 drew paragraphs and plain code.",
+            "at": [
+              "type-check",
+              "render"
+            ],
+            "migration": "Handle `table` and `quote` in a switch over a block's `kind`, or give it a default; from 6.1 a minor may add a kind, and `MessageBlock`'s doc comment says so. A model's pipe table now draws as a table, its > lines as a quote, and a fence in a language Payload highlights is highlighted in it when highlighting is on; check any CSS that matched those as paragraphs or plain code.",
             "codemod": null
           }
         ]

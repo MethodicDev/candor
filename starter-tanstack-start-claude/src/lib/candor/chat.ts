@@ -144,6 +144,10 @@ export type ToolCallData = {
 /** The block's language, e.g. "json", "sql", "python", "text". Shown as a label; never executed or highlighted as HTML. */
 export type PayloadLanguage = string
 
+/**
+ * One block of a message. A minor version may add a kind (6.1.0 added `table` and `quote`), so a `switch` over `kind`
+ * needs a `default` branch: draw nothing, or the block's text, for a kind it doesn't know.
+ */
 export type MessageBlock =
   | {
       kind: "paragraph"
@@ -163,6 +167,27 @@ export type MessageBlock =
   | { kind: "heading"; level: 1 | 2 | 3; nodes: InlineNode[] }
   | { kind: "list"; ordered?: boolean | undefined; items: InlineNode[][] }
   | { kind: "payload"; language: PayloadLanguage; text: string; title?: string | undefined }
+  /** A quotation in model text (its `>` lines), as paragraphs of inline text. One level: nothing is nested in it. New in 6.1.0. */
+  | {
+      kind: "quote"
+      paragraphs: InlineNode[][]
+      /**
+       * The "\n" in its paragraphs' text are line breaks, drawn as such: set by `markdownBlocks(text, { breaks: true })`
+       * on a quote with a paragraph it joined from several lines. Left out, a "\n" is drawn as a space.
+       */
+      breaks?: true | undefined
+    }
+  /**
+   * A table from model text: a header row and body rows of cells, each cell inline text (text, strong, em, code; a
+   * link is its words and address, as everywhere). Every row has as many cells as the header. New in 6.1.0.
+   */
+  | {
+      kind: "table"
+      header: InlineNode[][]
+      rows: InlineNode[][][]
+      /** Each column's alignment, start and end as the text runs (so a right-to-left reply mirrors it); null for none. Left out when no column sets one. */
+      align?: ("start" | "center" | "end" | null)[] | undefined
+    }
   | { kind: "tools"; calls: ToolCallData[] }
   /** Something the agent could not do, and what is missing because of it. */
   | { kind: "degraded"; reason: string; missing?: string | undefined }

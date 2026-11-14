@@ -159,6 +159,8 @@ type Reply = {
   id: string
   parts: Part[]
   texts: Map<string, string>
+  /** The event or snapshot message each text was last added to from, so its markdown is read once (see `parsed`). */
+  textFrom: Map<string, object>
   /** Reasoning by message id, in arrival order. */
   reasoning: Map<string, string>
   tools: Map<string, Call>
@@ -290,10 +292,10 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
       }
       case EventType.TEXT_MESSAGE_START:
         if (e.role && e.role !== "assistant") skipped.add(e.messageId)
-        else addText(current(e.messageId), e.messageId, "")
+        else addText(current(e.messageId), e.messageId, "", e)
         break
       case EventType.TEXT_MESSAGE_CONTENT:
-        if (!skipped.has(e.messageId)) addText(current(e.messageId), e.messageId, e.delta)
+        if (!skipped.has(e.messageId)) addText(current(e.messageId), e.messageId, e.delta, e)
         break
       case EventType.TEXT_MESSAGE_CHUNK: {
         if ((e.role && e.role !== "assistant") || (e.messageId && skipped.has(e.messageId))) {
@@ -303,7 +305,7 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
         const r = current(e.messageId ?? `text-${turns.length}`)
         // A chunk without an id continues the last text message.
         const id = e.messageId ?? [...r.texts.keys()].at(-1) ?? `${r.id}-text`
-        addText(r, id, e.delta ?? "")
+        addText(r, id, e.delta ?? "", e)
         break
       }
       case EventType.TOOL_CALL_START:
@@ -439,7 +441,7 @@ export function fromAgUiEvents(events: AgUiEvent[], options: FromAgUiOptions): A
 
 /* ---------------------------------------------------------------- building a reply */
 
-const emptyReply = (id: string): Reply => ({ id, parts: [], texts: new Map(), reasoning: new Map(), tools: new Map(), thought: { open: new Map(), ms: 0, spans: 0, unmeasured: false } })
+const emptyReply = (id: string): Reply => ({ id, parts: [], texts: new Map(), textFrom: new Map(), reasoning: new Map(), tools: new Map(), thought: { open: new Map(), ms: 0, spans: 0, unmeasured: false } })
 
 /** Closes a reasoning span. One without both timestamps, or ending before it started, leaves the reply unmeasured. */
 function endSpan(t: Thought, id: string, end: number | undefined, byMessage: boolean) {
@@ -463,9 +465,10 @@ function thoughtFor(t: Thought, format: (ms: number) => string): string | undefi
 const english = { tag: "en-US", number: (n: number, options?: Intl.NumberFormatOptions) => new Intl.NumberFormat("en-US", options).format(n) }
 const elapsedInEnglish = (ms: number) => formatElapsed(ms, english)
 
-function addText(r: Reply, id: string, delta: string) {
+function addText(r: Reply, id: string, delta: string, from: object) {
   if (!r.texts.has(id)) r.parts.push({ kind: "text", id })
   r.texts.set(id, (r.texts.get(id) ?? "") + delta)
+  r.textFrom.set(id, from)
 }
 
 function addTool(r: Reply, id: string, tool: string): Call {
@@ -522,6 +525,7 @@ function applySnapshot(previous: Turn[], snapshot: AgUiMessage[]): Turn[] {
       if (m.content !== undefined) {
         if (!r.texts.has(m.id)) r.parts.push({ kind: "text", id: m.id })
         r.texts.set(m.id, m.content)
+        r.textFrom.set(m.id, m)
         seen.add(m.id)
       }
       for (const tc of m.toolCalls ?? []) {
@@ -547,7 +551,11 @@ function applySnapshot(previous: Turn[], snapshot: AgUiMessage[]): Turn[] {
   for (const { reply: r } of turns) {
     if (!r) continue
     r.parts = r.parts.filter((p) => p.kind === "card" || seen.has(p.id))
-    for (const id of r.texts.keys()) if (!seen.has(id)) r.texts.delete(id)
+    for (const id of r.texts.keys()) {
+      if (seen.has(id)) continue
+      r.texts.delete(id)
+      r.textFrom.delete(id)
+    }
     for (const id of r.reasoning.keys()) if (!seen.has(id)) r.reasoning.delete(id)
     for (const id of r.tools.keys()) if (!seen.has(id)) r.tools.delete(id)
   }
@@ -555,6 +563,23 @@ function applySnapshot(previous: Turn[], snapshot: AgUiMessage[]): Turn[] {
 }
 
 /* ---------------------------------------------------------------- rendering */
+
+/*
+ * The events are folded again on every render, and a reply reads events outside its own (a tool result or an answer
+ * found by id in any turn, the interrupts still open, a snapshot that rewrites the thread, the clock), so the reply as
+ * a whole isn't kept. What's kept is the costly part, each text's markdown, by the event (or snapshot message) its
+ * text was last added from, while its text is the same: as a reply streams, only the text that grew is read again.
+ */
+const parsedText = new WeakMap<object, { text: string; blocks: MessageBlock[] }>()
+
+/** `markdownBlocks(text)`, kept by the event the text was last added from while its text is the same. */
+function parsed(text: string, from: object | undefined): MessageBlock[] {
+  const kept = from && parsedText.get(from)
+  if (kept && kept.text === text) return kept.blocks
+  const blocks = markdownBlocks(text)
+  if (from) parsedText.set(from, { text, blocks })
+  return blocks
+}
 
 function render(r: Reply, o: FromAgUiOptions & { now: Date; last: boolean; open: Interrupt[] }): MessageData {
   const live = o.last && !!o.running
@@ -575,7 +600,7 @@ function render(r: Reply, o: FromAgUiOptions & { now: Date; last: boolean; open:
     if (p.kind === "card") blocks.push({ kind: "card", card: p.card, props: p.props, summary: p.summary })
     else {
       const text = r.texts.get(p.id) ?? ""
-      if (text.trim()) blocks.push(...markdownBlocks(text))
+      if (text.trim()) blocks.push(...parsed(text, r.textFrom.get(p.id)))
     }
   }
   flush()

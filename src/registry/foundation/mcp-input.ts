@@ -39,7 +39,7 @@ export type McpFieldSchema = {
 /**
  * MCP's "input required" results (spec 2026-07-28, multi round-trip requests) as Candor data: a server's form becomes
  * questions for ClarifyingQuestions, a plain confirmation or a link to open becomes a two-answer Decision for
- * ApprovalDecision, and the person's answers become the `inputResponses` the client sends when it retries the call.
+ * DecisionCard, and the person's answers become the `inputResponses` the client sends when it retries the call.
  * Requests it can't show (sampling, roots, anything newer) stay listed as not supported, never dropped.
  *
  * Pure functions on plain data, so they run in the browser or on the server, with any MCP client.
@@ -129,7 +129,7 @@ export type McpQuestion =
 export type McpQuestionAnswer = { questionId: string; choice?: string[] | undefined; text?: string | undefined }
 
 /**
- * A two-answer confirmation in ApprovalDecision's shape (`Decision`), defined here so this free file needs nothing
+ * A two-answer confirmation in DecisionCard's shape (`Decision`), defined here so this free file needs nothing
  * from a paid one. The choices' ids are "accept" and "decline", which is what the retry sends.
  */
 export type McpDecision = {
@@ -149,7 +149,7 @@ export type McpInputItem =
    * `mcpInputResponses` checks the answers against.
    */
   | { key: string; kind: "questions"; message: string; questions: McpQuestion[]; fields: Record<string, McpFieldSchema>; required: string[] }
-  /** A form with no fields: the server asks to go ahead. Answer it with ApprovalDecision. */
+  /** A form with no fields: the server asks to go ahead. Answer it with DecisionCard (`decision-review`). */
   | { key: string; kind: "confirm"; message: string; decision: McpDecision }
   /**
    * A page to open outside the client. Show the full `url` and its `host` before the person agrees, and open it only

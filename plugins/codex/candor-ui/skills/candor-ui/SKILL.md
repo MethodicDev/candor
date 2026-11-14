@@ -1,13 +1,15 @@
 ---
 name: candor-ui
-description: Build agent product UIs with Candor UI, a shadcn/ui registry of React components for agents that do real work - chat, tool calls, plans, approvals, diffs, run logs, traces, evals, admin and the app shell around them. Use when building or changing a React or Next.js interface for an AI agent, when the project's components.json lists the @candor registry, or when the user mentions Candor. Covers installing components, choosing the right one, wiring the Vercel AI SDK, Claude Agent SDK or AG-UI adapter, and the honesty rules every Candor screen follows.
+description: Build agent product UIs with Candor UI, a shadcn/ui registry of React components for agents that do real work - approvals, plans, diffs, run logs, chat and tool calls, traces and evals, and the app shell around them. Use when building or changing a React or Next.js interface for an AI agent, when the project's components.json lists the @candor registry, or when the user mentions Candor. Covers installing components, choosing the right one, wiring the Vercel AI SDK, Claude Agent SDK or AG-UI adapter, and the honesty rules every Candor screen follows.
 ---
 
 # Candor UI
 
-Candor UI is a shadcn/ui registry: components are copied into the project with the shadcn CLI and then belong to
-it. Every component takes plain, typed data, so it works with any model or backend; adapters map the Vercel AI SDK,
-the Claude Agent SDK and AG-UI onto that data.
+Candor UI is for agents that change real things: approvals, plans, diffs and run logs, with data that says how sure it
+is (a value is measured or provisional, a reasoning step verified or believed) and honesty rules every component
+keeps (`https://candor.themethodic.com/principles`). It is a shadcn/ui registry: components are copied into the project
+with the shadcn CLI and then belong to it. Every component takes plain, typed data, so it works with any model or
+backend; adapters map the Vercel AI SDK, the Claude Agent SDK and AG-UI onto that data.
 
 ## Set up and install
 
@@ -15,7 +17,7 @@ Use the `candor-ui` CLI; it wraps the shadcn CLI and keeps a lockfile so updates
 
 ```bash
 npx candor-ui@latest init --yes        # registry in components.json, the theme, its import; sets up shadcn if missing
-npx candor-ui@3 add thread message composer
+npx candor-ui@4 add thread message composer
 ```
 
 - **Where files land:** in folders of their own: `ui` primitives in `@/components/candor/ui/…`, libraries and types
@@ -88,8 +90,10 @@ the screen does, not by name similarity:
   `approval-queue` for decisions, `blast-radius` for what a change touches, `audit-log`, `type-to-confirm`,
   `permission-mode`, `checkpoint-list` and `restore-dialog` (a restore that says what it didn't undo),
   `ai-content-label`.
-- **Operating agents:** *ops*, *evals*, *admin* and *billing* hold traces, scorecards, permissions and usage.
-- **The app around it:** *shell* (layout, sidebar, command menu, session list) and *team*.
+- **Operating agents:** *ops* and *evals* hold traces, usage, scorecards and review queues.
+- **The app around it:** *shell* (layout, sidebar, command menu, session list).
+- **App scaffolding:** *billing*, *team*, *admin*, *charts* and *layout* are the screens every app has, in Candor's
+  theme. Not agent surfaces; the list puts them after the agent groups.
 
 Install only what the screen needs. Check an item's props in its docs page or its source after installing; don't
 guess them.

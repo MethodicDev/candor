@@ -20,14 +20,34 @@ export const payloadStrings = {
 }
 
 // Language names are the same in every language; only the generic ones ("Shell", "Text") come from the strings table.
-const knownLabels: Record<string, string> = { json: "JSON", xml: "XML", sql: "SQL", yaml: "YAML", html: "HTML", css: "CSS", js: "JavaScript", ts: "TypeScript", tsx: "TSX", python: "Python" }
-const translatedLabels: Record<string, "shell" | "text"> = { bash: "shell", sh: "shell", text: "text" }
+const knownLabels: Record<string, string> = {
+  json: "JSON",
+  xml: "XML",
+  sql: "SQL",
+  yaml: "YAML",
+  html: "HTML",
+  css: "CSS",
+  js: "JavaScript",
+  javascript: "JavaScript",
+  ts: "TypeScript",
+  typescript: "TypeScript",
+  tsx: "TSX",
+  python: "Python",
+  go: "Go",
+  rust: "Rust",
+  java: "Java",
+  kotlin: "Kotlin",
+  c: "C",
+  cpp: "C++",
+  csharp: "C#",
+}
+const translatedLabels: Record<string, "shell" | "text"> = { bash: "shell", sh: "shell", shell: "shell", zsh: "shell", text: "text" }
 
 /** "json" → "JSON", "python" → "Python", short unknown ones upper-cased ("hcl" → "HCL"). */
 const languageLabel = (lang: string, t: Translate<typeof payloadStrings>) => {
-  const key = translatedLabels[lang]
-  if (key) return t(key)
-  return knownLabels[lang] ?? (lang.length <= 4 ? lang.toUpperCase() : lang.charAt(0).toUpperCase() + lang.slice(1))
+  if (Object.hasOwn(translatedLabels, lang)) return t(translatedLabels[lang]!)
+  if (Object.hasOwn(knownLabels, lang)) return knownLabels[lang]!
+  return lang.length <= 4 ? lang.toUpperCase() : lang.charAt(0).toUpperCase() + lang.slice(1)
 }
 
 /**

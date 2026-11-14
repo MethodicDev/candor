@@ -20,6 +20,8 @@ export const messageContentStrings = {
   measuredFrom: "From the {environment}: {source}",
   notVerified: " (not verified)",
   provisional: "The agent hasn’t verified this against the {environment}.",
+  /** The name of the area a table from the model scrolls sideways in. */
+  table: "Table",
 }
 
 type Ctx = {
@@ -128,6 +130,50 @@ function Inline({
   )
 }
 
+const alignClass = { start: "text-start", center: "text-center", end: "text-end" } as const
+
+/** A cell's alignment class, from a column's alignment that may have come as JSON: anything else is the default. */
+const cellAlign = (align: readonly unknown[] | undefined, column: number) => {
+  const a = align?.[column]
+  return a === "start" || a === "center" || a === "end" ? alignClass[a] : "text-start"
+}
+
+/**
+ * A table from model text. It scrolls sideways inside its own area when it is wider than the message, so that area
+ * takes focus (keyboard users can scroll it) and has a name. Alignment is start, centre or end, so it mirrors in a
+ * right-to-left reply.
+ */
+function TableBlock({ block }: { block: Extract<MessageBlock, { kind: "table" }> }) {
+  const t = useStrings("messageContent", messageContentStrings)
+  return (
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+    <div data-slot="message-table" role="group" aria-label={t("table")} tabIndex={0} className="max-w-full overflow-x-auto rounded-md border outline-hidden focus-visible:ring-[3px] focus-visible:ring-ring/80">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b bg-muted/50">
+            {block.header.map((cell, c) => (
+              <th key={c} scope="col" className={cn("px-(--cd-cell-px,0.5rem) py-(--cd-row-py,0.5rem) font-semibold text-foreground", cellAlign(block.align, c))}>
+                <Inline nodes={cell} />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {block.rows.map((row, r) => (
+            <tr key={r} className="border-b last:border-b-0">
+              {row.map((cell, c) => (
+                <td key={c} className={cn("px-(--cd-cell-px,0.5rem) py-(--cd-row-py,0.5rem) align-top", cellAlign(block.align, c))}>
+                  <Inline nodes={cell} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function AttachmentBlock({ files }: { files: Attachment[] }) {
   const ctx = React.useContext(ContentContext)
   return <AttachmentList attachments={files} onOpen={ctx.onOpenAttachment} />
@@ -174,6 +220,18 @@ function Block({
     }
     case "payload":
       return <Payload language={block.language} text={block.text} title={block.title} bare={bareCode} />
+    case "table":
+      return <TableBlock block={block} />
+    case "quote":
+      return (
+        <blockquote data-slot="message-quote" className="flex flex-col gap-2 border-s-2 ps-3 text-muted-foreground">
+          {block.paragraphs.map((nodes, i) => (
+            <p key={i} className={block.breaks ? "whitespace-pre-line" : undefined}>
+              <Inline nodes={nodes} />
+            </p>
+          ))}
+        </blockquote>
+      )
     case "tools":
       return <ToolCallGroup calls={block.calls} />
     case "degraded":
@@ -182,6 +240,9 @@ function Block({
       return <RegistryCard name={block.card} props={block.props} summary={block.summary} />
     case "attachments":
       return <AttachmentBlock files={block.files} />
+    // A kind from a later version, in blocks stored or sent as JSON: nothing is drawn for it.
+    default:
+      return null
   }
 }
 
@@ -200,7 +261,7 @@ function MessageContent({
   headingLevel,
   className,
 }: {
-  /** The reply as typed blocks: paragraphs, lists, payloads, tool calls, cards, attachments. */
+  /** The reply as typed blocks: paragraphs, lists, tables, quotes, payloads, tool calls, cards, attachments. */
   blocks: MessageBlock[]
   /** Sources the blocks cite by marker. */
   sources?: MessageSource[] | undefined
@@ -242,6 +303,9 @@ export function blocksToText(blocks: MessageBlock[], sources: MessageSource[] = 
   return neutralizeBidi(rawText(blocks, sources))
 }
 
+const delimiters = { start: ":--", center: ":-:", end: "--:" } as const
+const delimiterOf = (a: unknown) => (a === "start" || a === "center" || a === "end" ? delimiters[a] : "---")
+
 function rawText(blocks: MessageBlock[], sources: MessageSource[]): string {
   const marker = new Map(sources.map((s) => [s.id, s.marker]))
   const inline = (nodes: InlineNode[]): string =>
@@ -271,6 +335,15 @@ function rawText(blocks: MessageBlock[], sources: MessageSource[]): string {
           return b.items.map((it, i) => `${b.ordered ? `${i + 1}.` : "-"} ${inline(it)}`).join("\n")
         case "payload":
           return b.text
+        case "quote":
+          // Each line of a paragraph its own `>` line, so a quote with line breaks copies as one quote.
+          return b.paragraphs.map((p) => inline(p).split("\n").map((line) => `> ${line}`).join("\n")).join("\n>\n")
+        case "table": {
+          // As a pipe table, which reads as one in plain text and reads back as one.
+          const row = (cells: InlineNode[][]) => `| ${cells.map((c) => inline(c).replace(/\|/g, "\\|")).join(" | ")} |`
+          const rule = `| ${b.header.map((_, i) => delimiterOf(b.align?.[i])).join(" | ")} |`
+          return [row(b.header), rule, ...b.rows.map(row)].join("\n")
+        }
         case "degraded":
           return b.reason
         case "card":
@@ -278,6 +351,9 @@ function rawText(blocks: MessageBlock[], sources: MessageSource[]): string {
         case "attachments":
           return b.files.map((f) => f.name).join("\n")
         case "tools":
+          return ""
+        // A kind from a later version: no text for it.
+        default:
           return ""
       }
     })

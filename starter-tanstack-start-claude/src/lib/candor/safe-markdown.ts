@@ -1,23 +1,78 @@
 import type { InlineNode, MessageBlock, PayloadLanguage } from "@/lib/candor/chat"
+import { canHighlight } from "@/lib/candor/highlight"
 
 /*
  * Model text → Candor blocks. Candor never renders model output as HTML or
  * markdown, so text is read as a small, safe subset of markdown (paragraphs,
- * lists, fenced code, `code`, **strong**, *em*) into typed blocks. Links
+ * lists, fenced code, pipe tables, quotes, `code`, **strong**, *em*) into typed blocks. Links
  * become plain text with the address in brackets: nothing from a model is
  * ever a clickable link. Every adapter uses this.
  */
 
-const fenceLanguage = (lang: string): PayloadLanguage => (lang === "json" ? "json" : lang === "xml" || lang === "html" ? "xml" : "text")
+/** A fence's other names for the languages Payload highlights, mapped to the one name it shows. */
+const fenceAliases: Record<string, PayloadLanguage> = {
+  py: "python",
+  ts: "typescript",
+  tsx: "typescript",
+  js: "javascript",
+  jsx: "javascript",
+  mjs: "javascript",
+  cjs: "javascript",
+  sh: "shell",
+  bash: "shell",
+  zsh: "shell",
+  console: "shell",
+  yml: "yaml",
+  html: "xml",
+  svg: "xml",
+  golang: "go",
+  rs: "rust",
+}
 
 /**
- * Reads model text as safe markdown: paragraphs, lists and fenced code. Never HTML. `#` lines are bold paragraphs
+ * A fence's language, lower-cased, with its common aliases mapped ("py" is "python", "ts" is "typescript"), so
+ * Payload can highlight it. A language the highlighter doesn't know is "text", drawn plain.
+ */
+const fenceLanguage = (word: string): PayloadLanguage => {
+  const lang = word.toLowerCase()
+  const named = Object.hasOwn(fenceAliases, lang) ? fenceAliases[lang]! : lang
+  return named !== "text" && canHighlight(named) ? named : "text"
+}
+
+/** Fence words for a dialect of a language Payload highlights, which its label ("TypeScript", "XML") doesn't name. */
+const fenceDialects = new Set(["tsx", "jsx", "html", "svg"])
+
+/**
+ * A fence's title: its own word when Payload's label doesn't already say it, so a recognised language is named once
+ * ("Python", not "Python · python"). A language drawn as plain text keeps its name ("Text · hcl"), and so does a
+ * dialect ("TypeScript · tsx").
+ */
+const fenceTitle = (word: string, language: PayloadLanguage): string | undefined => {
+  const lower = word.toLowerCase()
+  if (!word || lower === language) return undefined
+  return language === "text" || fenceDialects.has(lower) ? word : undefined
+}
+
+/**
+ * Reads model text as safe markdown: paragraphs, lists, fenced code, pipe tables and quotes. Never HTML. `#` lines are bold paragraphs
  * unless `headings` is set, when `#`, `##` and `###` (and deeper, as level 3) become heading blocks.
  *
- * A lone newline inside a paragraph is a space, as CommonMark reads it, unless `breaks` is set (as GFM's breaks option,
+ * A fenced block keeps its language, lower-cased and with common aliases mapped (`py` is "python", `ts` and `tsx`
+ * "typescript", `sh` "shell", `yml` "yaml"), so Payload highlights it when highlighting is on. A language Payload
+ * doesn't highlight is "text", drawn plain, with the fence's word as the block's title. A recognised language is named
+ * once, by Payload's label: the title is left out, but for a dialect the label doesn't name (`tsx`, `jsx`, `html`, `svg`).
+ *
+ * A GFM pipe table (a header row, a delimiter row such as `| --- | :-: |`, then body rows) becomes a table block of
+ * inline text cells, with each column's alignment. `\|` is a pipe inside a cell. A table whose rows don't all have as
+ * many cells as its header stays the paragraph it reads as without tables. New in 6.1.0.
+ *
+ * Consecutive `>` lines become a quote block, a blank `>` line starting a new paragraph in it; a `>` inside a quote is
+ * read as text, not as a quote within it. A quote's lines follow `breaks` as a paragraph's do. New in 6.1.0.
+ *
+ * A lone newline inside a paragraph (or a quote's) is a space, as CommonMark reads it, unless `breaks` is set (as GFM's breaks option,
  * for writing apps whose agents break lines on purpose): then it stays in the paragraph's text as "\n", a line break,
- * and a blank line still starts a new paragraph. The text stays text either way; such a paragraph is marked `breaks`, and
- * the renderer shows its "\n" as line breaks.
+ * and a blank line still starts a new paragraph. The text stays text either way; such a paragraph or quote is marked
+ * `breaks`, and the renderer shows its "\n" as line breaks.
  */
 export function markdownBlocks(
   text: string,
@@ -52,7 +107,24 @@ export function markdownBlocks(
       flushList()
       const body: string[] = []
       while (++i < lines.length && !/^\s*```\s*$/.test(lines[i]!)) body.push(lines[i]!)
-      blocks.push({ kind: "payload", language: fenceLanguage(fence[1]!.toLowerCase()), text: body.join("\n"), title: fence[1] || undefined })
+      const language = fenceLanguage(fence[1]!)
+      blocks.push({ kind: "payload", language, text: body.join("\n"), title: fenceTitle(fence[1]!, language) })
+      continue
+    }
+    if (/^\s*>/.test(line)) {
+      flushPara()
+      flushList()
+      // Consecutive `>` lines; a blank one starts a new paragraph. A deeper `>` is read as text.
+      const paragraphs: string[][] = [[]]
+      for (; i < lines.length && /^\s*>/.test(lines[i]!); i++) {
+        const quoted = lines[i]!.replace(/^\s*>\s?/, "").trim()
+        if (quoted) paragraphs.at(-1)!.push(quoted)
+        else if (paragraphs.at(-1)!.length) paragraphs.push([])
+      }
+      i--
+      const kept = paragraphs.filter((p) => p.length)
+      const read = kept.map((p) => inline(p.join(breaks ? "\n" : " ")))
+      if (read.length) blocks.push({ kind: "quote", paragraphs: read, ...(breaks && kept.some((p) => p.length > 1) ? { breaks: true as const } : {}) })
       continue
     }
     const item = /^\s*(?:([-*+])|(\d+)[.)])\s+(.*)$/.exec(line)
@@ -82,11 +154,79 @@ export function markdownBlocks(
       )
       continue
     }
-    para.push(line.replace(/^\s*>\s?/, "").trim())
+    const table = tableAt(lines, i)
+    if (table) {
+      flushPara()
+      blocks.push(table.block)
+      i = table.end - 1
+      continue
+    }
+    para.push(line.trim())
   }
   flushPara()
   flushList()
   return blocks
+}
+
+type Align = "start" | "center" | "end" | null
+
+/** A row's cells: split at each pipe that isn't escaped, without the row's outer pipes. `\|` is a pipe in a cell. Null without a pipe. */
+function cells(line: string): string[] | null {
+  let row = line.trim()
+  if (!/(?:^|[^\\])\|/.test(row)) return null
+  if (row.startsWith("|")) row = row.slice(1)
+  if (row.endsWith("|") && !row.endsWith("\\|")) row = row.slice(0, -1)
+  const out: string[] = []
+  let cell = ""
+  for (let i = 0; i < row.length; i++) {
+    if (row[i] === "\\" && row[i + 1] === "|") {
+      cell += "|"
+      i++
+    } else if (row[i] === "|") {
+      out.push(cell.trim())
+      cell = ""
+    } else cell += row[i]
+  }
+  out.push(cell.trim())
+  return out
+}
+
+/** A delimiter row's alignments (`---`, `:--`, `--:`, `:-:`), or null when the row isn't one. */
+function delimiter(line: string): Align[] | null {
+  const row = cells(line)
+  if (!row || !row.every((c) => /^:?-+:?$/.test(c))) return null
+  return row.map((c) => (c.startsWith(":") && c.endsWith(":") ? "center" : c.startsWith(":") ? "start" : c.endsWith(":") ? "end" : null))
+}
+
+/** A line that starts another block, and so ends a table: a list item, a heading, a fence or a quote. */
+const startsBlock = (line: string) => /^\s*(?:[-*+]\s|\d+[.)]\s|#{1,6}\s|```|>)/.test(line)
+
+/**
+ * A GFM pipe table starting at `lines[at]`: a header row, a delimiter row with as many cells, and the body rows up to
+ * a blank line, a line without a pipe or another block. Null when it isn't one, or when a row has more or fewer cells
+ * than the header: then the lines are read as they would be without tables, rather than guessed at. A last line with
+ * fewer cells is the row a stream hasn't finished: the table ends before it, and the line is read as a paragraph.
+ */
+function tableAt(lines: string[], at: number): { block: MessageBlock; end: number } | null {
+  const header = cells(lines[at]!)
+  const align = at + 1 < lines.length ? delimiter(lines[at + 1]!) : null
+  if (!header || !align || align.length !== header.length) return null
+  const rows: string[][] = []
+  let end = at + 2
+  for (; end < lines.length; end++) {
+    const line = lines[end]!
+    if (!line.trim() || startsBlock(line)) break
+    const row = cells(line)
+    if (!row) break
+    // The last line with fewer cells is the row still streaming: the table ends before it, so a table stays a table.
+    if (row.length < header.length && end === lines.length - 1) break
+    if (row.length !== header.length) return null
+    rows.push(row)
+  }
+  return {
+    block: { kind: "table", header: header.map(inline), rows: rows.map((r) => r.map(inline)), ...(align.some(Boolean) ? { align } : {}) },
+    end,
+  }
 }
 
 /** `code`, **strong**, *em* and links (as text). Everything else stays literal. */

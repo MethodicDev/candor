@@ -3,7 +3,7 @@ import type { UIMessage } from "ai"
 import type { UseChatHelpers } from "@ai-sdk/react"
 import type { ComposerState } from "@/registry/chat/composer"
 import type { EntityRef, MessageData } from "@/registry/foundation/chat"
-import { fromAiSdkMessages, type FromAiSdkOptions } from "@/registry/adapters/ai-sdk"
+import { fromAiSdkMessage, type FromAiSdkOptions } from "@/registry/adapters/ai-sdk"
 
 export type PendingApproval = { id: string; toolCallId: string; tool: string; input: unknown; reason?: string | undefined }
 
@@ -25,7 +25,7 @@ export function useCandorChat(chat: UseChatHelpers<UIMessage>, options: Omit<Fro
   const { agent, createdAt, toolTitle, summarize, sourcesFrom } = options
 
   const messages: MessageData[] = React.useMemo(
-    () => fromAiSdkMessages(chat.messages, { agent, createdAt, toolTitle, summarize, sourcesFrom, chatStatus: chat.status }),
+    () => convertMessages(chat.messages, { agent, createdAt, toolTitle, summarize, sourcesFrom, chatStatus: chat.status }),
     [chat.messages, chat.status, agent, createdAt, toolTitle, summarize, sourcesFrom]
   )
 
@@ -65,4 +65,30 @@ export function useCandorChat(chat: UseChatHelpers<UIMessage>, options: Omit<Fro
       },
     },
   }
+}
+
+/*
+ * While a reply streams, useChat gives a new message list for every chunk, but only the message that changed is a new
+ * object: the others keep their identity. So each message's conversion is kept, by the message object, with the
+ * options it was converted with, and used again while the message and every option are the same objects. A message
+ * converts on its own (its sources, tool results and approvals are all in its own parts); only its status reads the
+ * chat's, so the last reply is always converted again.
+ */
+type Converted = { options: Omit<FromAiSdkOptions, "chatStatus">; data: MessageData }
+const converted = new WeakMap<UIMessage, Converted>()
+
+const sameOptions = (a: Omit<FromAiSdkOptions, "chatStatus">, b: Omit<FromAiSdkOptions, "chatStatus">) =>
+  a.agent === b.agent && a.createdAt === b.createdAt && a.toolTitle === b.toolTitle && a.summarize === b.summarize && a.sourcesFrom === b.sourcesFrom
+
+/** `fromAiSdkMessages`, converting only the messages that changed since the last call. The output is the same. */
+function convertMessages(messages: UIMessage[], { chatStatus, ...options }: FromAiSdkOptions): MessageData[] {
+  const lastAssistant = messages.findLastIndex((m) => m.role === "assistant")
+  return messages.map((m, i) => {
+    if (i === lastAssistant) return fromAiSdkMessage(m, { ...options, chatStatus, last: true })
+    const kept = converted.get(m)
+    if (kept && sameOptions(kept.options, options)) return kept.data
+    const data = fromAiSdkMessage(m, { ...options, chatStatus, last: false })
+    converted.set(m, { options, data })
+    return data
+  })
 }
