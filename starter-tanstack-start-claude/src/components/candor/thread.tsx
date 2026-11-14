@@ -112,7 +112,9 @@ export const threadStrings = {
  *
  * While the reader is scrolled up, "Jump to latest" pulses once each time a
  * new message arrives (a child of the thread, or any element marked `data-slot="message"` inside it), then stays still; the jump itself scrolls smoothly
- * unless the OS asks for reduced motion or data-motion is "none".
+ * unless the OS asks for reduced motion or data-motion is "none". Something of your app's floating over the thread's
+ * foot can keep it clear: set `--cd-thread-jump-offset` (a length) on the thread or above it, and the button sits that
+ * much higher.
  */
 function Thread({
   children,
@@ -468,7 +470,9 @@ function Thread({
         </div>
         {(!pinned || short) && hasMessages && (
           // The entrance is the wrapper's, so the pulse on the button never replays it.
-          <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive">
+          // The bottom margin raises the pill by --cd-thread-jump-offset; unset, it is 0px and the pill sits at bottom-3,
+          // 5.3's class, which still follows the theme's spacing keys (KIT-348).
+          <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive mb-[var(--cd-thread-jump-offset,0px)]">
             <button
               type="button"
               ref={jump}

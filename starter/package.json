@@ -2,7 +2,7 @@
   "name": "candor-starter",
   "version": "0.1.0",
   "candor": {
-    "kitVersion": "5.3.0"
+    "kitVersion": "5.4.0"
   },
   "private": true,
   "scripts": {

@@ -16,7 +16,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 74 free items (version 5.3.0), the skill and plugins for coding
+This repo is the source of Candor UI's 74 free items (version 5.4.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who

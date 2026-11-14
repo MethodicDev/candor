@@ -4,6 +4,7 @@ import { useFormat, useStrings, type DateStyle } from "@/components/candor/local
 /** RelativeTime's fixed words; override them under `relativeTime` in LocaleProvider's `strings`. */
 export const relativeTimeStrings = {
   justNow: "just now",
+  unknown: "Time not known",
 }
 
 const units: [Intl.RelativeTimeFormatUnit, number][] = [
@@ -18,7 +19,7 @@ const units: [Intl.RelativeTimeFormatUnit, number][] = [
 
 /**
  * "5 minutes ago", "in 6 days", in the locale (the runtime's own when left out). `bare` drops the direction for tight
- * spaces: "5 minutes".
+ * spaces: "5 minutes". A date that can't be read gives "".
  */
 export function formatRelative(
   date: Date,
@@ -26,6 +27,8 @@ export function formatRelative(
   { locale, justNow = relativeTimeStrings.justNow, bare = false, numeric = "auto" }: { locale?: string | undefined; justNow?: string | undefined; bare?: boolean | undefined; numeric?: "auto" | "always" | undefined } = {}
 ) {
   const seconds = Math.round((date.getTime() - now.getTime()) / 1000)
+  // A date or clock that can't be read is not known: nothing to say, rather than a throw or "NaN seconds".
+  if (!Number.isFinite(seconds)) return ""
   if (Math.abs(seconds) < 10) return justNow
   for (const [unit, size] of units) {
     if (Math.abs(seconds) >= size || unit === "second") {
@@ -102,6 +105,14 @@ function RelativeTime({
   const current = useNow()
   const fmt = useFormat()
   const t = useStrings("relativeTime", relativeTimeStrings)
+  // A date that can't be read is unknown: say so, with no machine-readable time and no title, rather than throwing.
+  if (!Number.isFinite(d.getTime())) {
+    return (
+      <time data-slot="relative-time" className={className}>
+        {t("unknown")}
+      </time>
+    )
+  }
   const text =
     format !== "relative"
       ? fmt.date(d, format)
