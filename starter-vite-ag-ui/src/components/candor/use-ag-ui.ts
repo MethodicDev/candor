@@ -45,14 +45,19 @@ export function useAgUi(options: UseAgUiOptions) {
   const [error, setError] = React.useState<string>()
   const [value, setValue] = React.useState("")
   const [references, setReferences] = React.useState<EntityRef[]>([])
-  // Interrupts expire on the clock, not on an event; `now` moves when one does.
-  const [now, setNow] = React.useState(() => Date.now())
+  // Interrupts expire on the clock, not on an event; `now` moves when one does. The clock is read after mount, never
+  // in render: until then no time is known and nothing is judged expired (a render before mount holds no events).
+  const [now, setNow] = React.useState<number | null>(null)
+  React.useLayoutEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect -- the clock can only be read outside render, and before the first paint
+    setNow(Date.now())
+  }, [])
   const run = React.useRef<AbortController | null>(null)
   const client = React.useRef<HttpAgent | null>(null)
   const answers = React.useRef(new Map<string, { approved: boolean; reason?: string | undefined }>())
 
   const state = React.useMemo(
-    () => fromAgUiEvents(events, { agent, agents, toolTitle, running, now: new Date(now), initialState, formatDuration }),
+    () => fromAgUiEvents(events, { agent, agents, toolTitle, running, now: new Date(now ?? 0), initialState, formatDuration }),
     [events, agent, agents, toolTitle, running, now, initialState, formatDuration]
   )
 

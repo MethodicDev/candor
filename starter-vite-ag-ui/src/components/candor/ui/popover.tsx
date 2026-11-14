@@ -87,18 +87,43 @@ function PopoverContent({
   )
 }
 
+/** Gives `node` to one ref and returns what takes it back: a callback's own cleanup (React 19), or it called with `null`, or the object emptied. */
+function giveRef<T>(ref: React.Ref<T> | undefined, node: T | null): () => void {
+  if (typeof ref === "function") {
+    const cleanup = ref(node)
+    return typeof cleanup === "function" ? cleanup : () => ref(null)
+  }
+  if (!ref) return () => {}
+  ;(ref as React.RefObject<T | null>).current = node
+  return () => {
+    ;(ref as React.RefObject<T | null>).current = null
+  }
+}
+
+/**
+ * One callback ref that gives the element to the app's ref and to the item's own, the same function while neither
+ * changes, so React gives the element again only when one does: a ref the app passes after the first render takes over.
+ * Each may be an object, a callback (with or without React 19's cleanup) or `undefined`.
+ */
+function useMergedRef<T>(own: React.Ref<T> | undefined, app: React.Ref<T> | undefined): React.RefCallback<T> {
+  return React.useCallback(
+    (node: T | null) => {
+      const releases = [giveRef(own, node), giveRef(app, node)]
+      return () => releases.forEach((release) => release())
+    },
+    [own, app]
+  )
+}
+
 /** An element the popover is positioned against instead of its trigger. */
 function PopoverAnchor({ ref, ...props }: React.ComponentProps<"div">) {
   const context = React.useContext(AnchorContext)
   const setAnchor = context?.setAnchor
+  const setRef = useMergedRef<HTMLDivElement>(setAnchor, ref)
   return (
     <div
       data-slot="popover-anchor"
-      ref={(el) => {
-        setAnchor?.(el)
-        if (typeof ref === "function") ref(el)
-        else if (ref) ref.current = el
-      }}
+      ref={setRef}
       {...props}
     />
   )

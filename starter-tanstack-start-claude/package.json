@@ -2,7 +2,7 @@
   "name": "candor-starter-tanstack-start-claude",
   "version": "0.1.0",
   "candor": {
-    "kitVersion": "5.2.0"
+    "kitVersion": "5.3.0"
   },
   "private": true,
   "type": "module",

@@ -140,7 +140,7 @@ function EntityChip({
     </>
   )
   const base =
-    "inline-flex max-w-full items-center gap-1 rounded-sm border bg-card px-1.5 py-px align-baseline font-mono text-[0.92em] leading-[1.35] text-foreground"
+    "inline-flex max-w-full items-center gap-1 rounded-sm border bg-card px-1.5 py-px align-baseline font-[family-name:var(--cd-font-name,--theme(--font-mono))] text-[0.92em] leading-[1.35] text-foreground"
   return (
     <span data-slot="entity-chip" data-kind={entity.kind} title={title} style={style} className={cn("inline-flex max-w-full min-w-0 items-center sm:max-w-64", className)}>
       {onOpen ? (

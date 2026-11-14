@@ -36,6 +36,34 @@ const arrivalMotion = motion("thread", "arrival", "attention")
 const AT_BOTTOM_PX = 48
 /** How long a reader's input stays theirs: a scroll upward within this long of it is the reader's, in milliseconds. */
 const READER_INPUT_MS = 1000
+/** Gives `node` to one ref and returns what takes it back: a callback's own cleanup (React 19), or it called with `null`, or the object emptied. */
+function giveRef<T>(ref: React.Ref<T> | undefined, node: T | null): () => void {
+  if (typeof ref === "function") {
+    const cleanup = ref(node)
+    return typeof cleanup === "function" ? cleanup : () => ref(null)
+  }
+  if (!ref) return () => {}
+  ;(ref as React.RefObject<T | null>).current = node
+  return () => {
+    ;(ref as React.RefObject<T | null>).current = null
+  }
+}
+
+/**
+ * One callback ref that gives the element to the app's ref and to the item's own, the same function while neither
+ * changes, so React gives the element again only when one does: a ref the app passes after the first render takes over.
+ * Each may be an object, a callback (with or without React 19's cleanup) or `undefined`.
+ */
+function useMergedRef<T>(own: React.Ref<T> | undefined, app: React.Ref<T> | undefined): React.RefCallback<T> {
+  return React.useCallback(
+    (node: T | null) => {
+      const releases = [giveRef(own, node), giveRef(app, node)]
+      return () => releases.forEach((release) => release())
+    },
+    [own, app]
+  )
+}
+
 /** Whether the scroller shows its last pixels, give or take AT_BOTTOM_PX. */
 function atBottom(el: HTMLElement) {
   return el.scrollHeight - el.scrollTop - el.clientHeight < AT_BOTTOM_PX
@@ -128,7 +156,7 @@ function Thread({
   const anchoring = Boolean(anchor) && !virtualize
   const pinnedRef = React.useRef(!anchoring)
   const [pinned, setPinned] = React.useState(!anchoring)
-  React.useImperativeHandle(scrollerRef, () => scroller.current as HTMLDivElement, [])
+  const setScroller = useMergedRef<HTMLDivElement>(scroller, scrollerRef)
 
   // A smooth jump only when nothing asks for stillness: the OS setting (the calm level), data-motion="calm" or "none"
   // around the thread, or a brand that turned the scroll off.
@@ -398,7 +426,7 @@ function Thread({
     <div data-slot="thread" className={cn("flex min-h-0 flex-col", className)}>
       <div className="relative min-h-0 flex-1">
         <div
-          ref={scroller}
+          ref={setScroller}
           onScroll={onScroll}
           onDragOver={onDrop ? (e) => e.preventDefault() : undefined}
           onDrop={onDrop}

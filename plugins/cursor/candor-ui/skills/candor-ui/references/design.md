@@ -104,6 +104,7 @@ The brand hue. One primary action per view; everything else is quieter.
 | `--cd-font` | "Inter Variable", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif | Everything. Inter when the `font-inter` item is installed, else the system's sans-serif. |
 | `--cd-font-display` | "Inter Variable", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif | Headings (`h1` to `h4`), set at optical size 32 and weight `--cd-weight-heading`. |
 | `--cd-font-mono` | ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace | Code, queries, logs, keys. |
+| `--cd-font-name` | Unset | Names of things drawn beside code: a changed file's name and path, an entity chip. Unset, they draw as Tailwind's `font-mono` does: your theme's `--font-mono`, else `--cd-font-mono`. |
 
 The scale is a dense app scale: `--cd-text-sm` is the body default and `--cd-text-md` the comfortable one. Each step is also Tailwind's `text-<step>` with the line height below (`--cd-text-md` is `text-base`).
 

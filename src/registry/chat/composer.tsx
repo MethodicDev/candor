@@ -11,6 +11,34 @@ import { AttachmentChip } from "@/registry/chat/attachment-preview"
 import { useFormat, place, useStrings } from "@/registry/foundation/locale"
 import { motion, useArrived, useLeaving } from "@/registry/foundation/motion"
 
+/** Gives `node` to one ref and returns what takes it back: a callback's own cleanup (React 19), or it called with `null`, or the object emptied. */
+function giveRef<T>(ref: React.Ref<T> | undefined, node: T | null): () => void {
+  if (typeof ref === "function") {
+    const cleanup = ref(node)
+    return typeof cleanup === "function" ? cleanup : () => ref(null)
+  }
+  if (!ref) return () => {}
+  ;(ref as React.RefObject<T | null>).current = node
+  return () => {
+    ;(ref as React.RefObject<T | null>).current = null
+  }
+}
+
+/**
+ * One callback ref that gives the element to the app's ref and to the item's own, the same function while neither
+ * changes, so React gives the element again only when one does: a ref the app passes after the first render takes over.
+ * Each may be an object, a callback (with or without React 19's cleanup) or `undefined`.
+ */
+function useMergedRef<T>(own: React.Ref<T> | undefined, app: React.Ref<T> | undefined): React.RefCallback<T> {
+  return React.useCallback(
+    (node: T | null) => {
+      const releases = [giveRef(own, node), giveRef(app, node)]
+      return () => releases.forEach((release) => release())
+    },
+    [own, app]
+  )
+}
+
 /**
  * @motion pop:chip A mention or attachment chip pops in when the person adds one while writing, and a chip they
  * remove pops out. Chips that were there when the composer first drew, such as a restored draft, appear still.
@@ -211,7 +239,7 @@ function Composer({
   const label = labelProp ?? t("label")
   const id = React.useId()
   const textarea = React.useRef<HTMLTextAreaElement>(null)
-  React.useImperativeHandle(textareaRef, () => textarea.current as HTMLTextAreaElement, [])
+  const setTextarea = useMergedRef<HTMLTextAreaElement>(textarea, textareaRef)
   // Files dragged over the composer: a count of enter/leave pairs, since child elements fire their own.
   const [dragDepth, setDragDepth] = React.useState(0)
   const fileInput = React.useRef<HTMLInputElement>(null)
@@ -538,7 +566,7 @@ function Composer({
           {label}
         </label>
         <textarea
-          ref={textarea}
+          ref={setTextarea}
           id={id}
           rows={1}
           value={value}

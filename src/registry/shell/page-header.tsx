@@ -3,6 +3,7 @@
 import * as React from "react"
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { useStrings } from "@/registry/foundation/locale"
 
 /** PageHeader's fixed words; override them under `pageHeader` in LocaleProvider's `strings`. */
@@ -87,7 +88,7 @@ function PageHeader({
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </div>
       {tabs && tabs.length > 0 && (
-        <nav aria-label={t("views", { title })} className="-mb-px mt-3 flex gap-4 overflow-x-auto">
+        <nav aria-label={t("views", { title: neutralizeBidi(title) })} className="-mb-px mt-3 flex gap-4 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
