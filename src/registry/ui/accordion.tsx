@@ -5,6 +5,8 @@ import { ChevronDown } from "lucide-react"
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
 import { cn } from "@/lib/utils"
 import { motion } from "@/registry/foundation/motion"
+import type { HeadingLevel } from "@/registry/foundation/heading-level"
+import { useHeadingLevel } from "@/registry/foundation/heading-scope"
 
 const openMotion = motion("accordion", "open", "reveal")
 
@@ -104,10 +106,28 @@ function AccordionItem({ className, ...props }: Omit<AccordionPrimitive.Item.Pro
   return <AccordionPrimitive.Item data-slot="accordion-item" className={cn("border-b border-border last:border-b-0", className)} {...props} />
 }
 
-/** The heading that opens and closes its panel, with a chevron that turns over when open. Its children are the heading's text. */
-function AccordionTrigger({ className, children, ...props }: Omit<AccordionPrimitive.Trigger.Props, "className"> & { className?: string | undefined }) {
+/**
+ * The heading that opens and closes its panel, with a chevron that turns over when open. Its children are the heading's
+ * text. The button sits in a heading element (Base UI's `Accordion.Header`, drawn here, so the level is set here): one
+ * level below the nearest `HeadingScope`, else `<h2>`, unless `headingLevel` says otherwise. 5.x drew `<h3>` always.
+ */
+function AccordionTrigger({
+  className,
+  children,
+  headingLevel,
+  ...props
+}: Omit<AccordionPrimitive.Trigger.Props, "className"> & {
+  /** Classes for the trigger, merged with Candor's. */
+  className?: string | undefined
+  /**
+   * The level of the heading the trigger sits in. Left out, it is one below the nearest `HeadingScope`, else 2. Pass 3
+   * to keep 5.x's `<h3>`, or the level below the heading the accordion sits under when no scope is round it.
+   */
+  headingLevel?: HeadingLevel | undefined
+}) {
+  const Heading = `h${useHeadingLevel(headingLevel)}` as const
   return (
-    <AccordionPrimitive.Header className="flex">
+    <AccordionPrimitive.Header className="flex" render={<Heading />}>
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(

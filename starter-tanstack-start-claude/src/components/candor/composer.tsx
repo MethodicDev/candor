@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/candor/ui/
 import { Locked } from "@/components/candor/locked"
 import { EntityChip, useEntityKinds } from "@/components/candor/entity-chip"
 import { AttachmentChip } from "@/components/candor/attachment-preview"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 import { useFormat, place, useStrings } from "@/components/candor/locale"
 import { motion, useArrived, useLeaving } from "@/lib/candor/motion"
 
@@ -455,7 +456,7 @@ function Composer({
             const unavailable = item.type === "mention" ? item.option.unavailable : undefined
             return (
               <React.Fragment key={item.type === "command" ? item.command.id : item.option.id}>
-                {header && <p className="px-2 pt-2 pb-1 text-2xs font-medium text-faint-foreground">{header}</p>}
+                {header && <p className="px-2 pt-2 pb-1 text-2xs font-medium text-faint-foreground">{neutralizeBidi(header)}</p>}
                 <div
                   id={optionId(i)}
                   role="option"
@@ -471,9 +472,9 @@ function Composer({
                 >
                   {item.type === "command" ? (
                     <>
-                      <span className="font-mono text-xs text-accent-text">/{item.command.name}</span>
-                      {item.command.args && <span className="font-mono text-xs text-faint-foreground">{item.command.args}</span>}
-                      <span className="ms-auto truncate text-xs text-muted-foreground">{item.command.description}</span>
+                      <span className="font-mono text-xs text-accent-text">/<bdi>{neutralizeBidi(item.command.name)}</bdi></span>
+                      {item.command.args && <span className="font-mono text-xs text-faint-foreground">{neutralizeBidi(item.command.args)}</span>}
+                      <span className="ms-auto truncate text-xs text-muted-foreground">{neutralizeBidi(item.command.description)}</span>
                     </>
                   ) : (
                     <>
@@ -481,15 +482,15 @@ function Composer({
                         {Icon ? <Icon className="size-3.5" /> : <span className="text-xs">@</span>}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate">{item.option.label}</span>
+                        <span className="block truncate">{neutralizeBidi(item.option.label)}</span>
                         {unavailable ? (
                           <span data-slot="composer-unavailable" className="block text-2xs text-muted-foreground">
-                            {unavailable}
+                            {neutralizeBidi(unavailable)}
                           </span>
                         ) : (
                           (item.option.description ?? item.option.entity?.name) !== item.option.label &&
                           (item.option.description ?? item.option.entity?.name) && (
-                            <span className="block truncate font-mono text-2xs text-faint-foreground">{item.option.description ?? item.option.entity?.name}</span>
+                            <span className="block truncate font-mono text-2xs text-faint-foreground">{neutralizeBidi(item.option.description ?? item.option.entity?.name)}</span>
                           )
                         )}
                       </span>
@@ -502,7 +503,7 @@ function Composer({
                               item.option.status.tone === "success" ? "bg-success" : item.option.status.tone === "warning" ? "bg-warning" : "bg-faint-foreground"
                             )}
                           />
-                          {item.option.status.label}
+                          {neutralizeBidi(item.option.status.label)}
                         </span>
                       )}
                     </>
@@ -602,12 +603,12 @@ function Composer({
         />
         {locked && (
           <p id={`${id}-locked`} className="flex items-center gap-1.5 px-4 pb-1 text-sm text-muted-foreground">
-            {locked.kind === "offline" ? locked.reason ?? t("offline") : locked.reason}
+            {locked.kind === "offline" ? neutralizeBidi(locked.reason) ?? t("offline") : neutralizeBidi(locked.reason)}
           </p>
         )}
         {held && (
           <p id={`${id}-held`} data-slot="composer-held" className="px-4 pb-1 text-sm text-muted-foreground">
-            {held.reason}
+            {neutralizeBidi(held.reason)}
           </p>
         )}
 
@@ -661,9 +662,9 @@ function Composer({
             >
               {production ? <TriangleAlert aria-hidden className="size-3 shrink-0" /> : <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-success" />}
               <span className="truncate">
-                <bdi>{scope.environment}</bdi>
+                <bdi>{neutralizeBidi(scope.environment)}</bdi>
                 {separator}
-                {production ? t("production") : <bdi>{scope.detail ?? t("nonProduction")}</bdi>}
+                {production ? t("production") : <bdi>{neutralizeBidi(scope.detail) ?? t("nonProduction")}</bdi>}
               </span>
             </ScopeChip>
           )}

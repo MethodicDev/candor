@@ -83,7 +83,7 @@ function Reasoning({
   const assumed = entries.filter((e) => e.basis === "assumed").length
   const summary = thinking ? null : (
     <>
-      {t("reasoning")}{thoughtFor && <>{separator}{thoughtFor}</>}{separator}{t("steps", { count: entries.length })}
+      {t("reasoning")}{thoughtFor && <>{separator}<bdi>{neutralizeBidi(thoughtFor)}</bdi></>}{separator}{t("steps", { count: entries.length })}
       {assumed > 0 && <span className="text-warning-text">{separator}{t("assumedCount", { count: assumed })}</span>}
     </>
   )

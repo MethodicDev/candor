@@ -5,6 +5,7 @@ import { LockKeyhole } from "lucide-react"
 import { Slider as SliderPrimitive } from "@base-ui/react/slider"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/registry/foundation/locale"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 
 const lockedKeys = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"])
 
@@ -110,7 +111,7 @@ function Slider(allProps: SliderProps) {
       {isLocked ? (
         <p id={reasonId} data-slot="slider-reason" className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
           <LockKeyhole aria-hidden className="size-3" />
-          {locked}
+          <bdi>{neutralizeBidi(locked ?? "")}</bdi>
         </p>
       ) : null}
     </>

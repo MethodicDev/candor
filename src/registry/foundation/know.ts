@@ -97,8 +97,11 @@ export type ToolSetting = {
   /** What the tool can do to the environment. */
   effect: "read" | "write" | "deploy" | "outside"
   permission: ToolPermission
-  /** Permissions this tool can't take, with why. */
-  locked?: Partial<Record<ToolPermission, string | undefined>> | undefined
+  /**
+   * Permissions this tool can't take, with why: `{ always: "Your workspace asks before every deploy." }`. A permission
+   * left out, or `null`, is unlocked, as with every `locked` prop.
+   */
+  locked?: Partial<Record<ToolPermission, string | null | undefined>> | undefined
 }
 
 /* ---------------------------------------------------------------- agents */

@@ -11,6 +11,8 @@ import { AttachmentList } from "@/components/candor/attachment-preview"
 import { ToolCallGroup } from "@/components/candor/tool-call"
 import { useStrings } from "@/components/candor/locale"
 import { neutralizeBidi } from "@/lib/candor/bidi"
+import type { HeadingLevel } from "@/lib/candor/heading-level"
+import { belowLevel, useHeadingScope } from "@/lib/candor/heading-scope"
 
 /** MessageContent's fixed words; override them under `messageContent` in LocaleProvider's `strings`. */
 export const messageContentStrings = {
@@ -27,7 +29,7 @@ type Ctx = {
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
   bareCode?: boolean | undefined
   /** The level a model's top heading (`#`) is drawn at; deeper ones go one level down each, to 6. */
-  headingLevel: 1 | 2 | 3 | 4 | 5 | 6
+  headingLevel: HeadingLevel
 }
 
 const ContentContext = React.createContext<Ctx>({ sources: new Map(), headingLevel: 3 })
@@ -195,7 +197,7 @@ function MessageContent({
   onNavigate,
   onOpenAttachment,
   bareCode,
-  headingLevel = 3,
+  headingLevel,
   className,
 }: {
   /** The reply as typed blocks: paragraphs, lists, payloads, tool calls, cards, attachments. */
@@ -212,15 +214,17 @@ function MessageContent({
   bareCode?: boolean | undefined
   /**
    * The level a model's top heading (`#`) is drawn at, to fit the page's outline; `##` and `###` go one and two levels
-   * below it, to 6. Defaults to 3, under a thread page's `<h1>` and `<h2>`. It reads no `HeadingScope`: pass the level
-   * below the heading the content sits under.
+   * below it, to 6. Left out, it is one below the nearest `HeadingScope` (since 6.0.0), else 3, under a thread page's
+   * `<h1>` and `<h2>`.
    */
-  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  headingLevel?: HeadingLevel | undefined
   className?: string | undefined
 }) {
+  const scope = useHeadingScope()
+  const level = headingLevel !== undefined ? belowLevel(headingLevel, 0) : scope !== undefined ? belowLevel(scope) : 3
   const ctx = React.useMemo(
-    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment, bareCode, headingLevel }),
-    [sources, onOpenEntity, onNavigate, onOpenAttachment, bareCode, headingLevel]
+    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment, bareCode, headingLevel: level }),
+    [sources, onOpenEntity, onNavigate, onOpenAttachment, bareCode, level]
   )
   return (
     <ContentContext.Provider value={ctx}>

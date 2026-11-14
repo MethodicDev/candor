@@ -16,7 +16,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 74 free items (version 5.4.0), the skill and plugins for coding
+This repo is the source of Candor UI's 76 free items (version 6.0.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -64,7 +64,7 @@ Typical and Honest switch; the others go to [Principles](https://candor.themetho
 
 ```bash
 npx candor-ui@latest init
-npx candor-ui add thread message composer
+npx candor-ui@3 add thread message composer
 ```
 
 `candor-ui init` adds the `@candor` registry to `components.json` and the theme to your CSS; in a project without
@@ -154,8 +154,8 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 
 ## What's here
 
-74 free items, each with a docs page that has its props and live examples. Install any of them by name:
-`npx candor-ui add <name>`.
+76 free items, each with a docs page that has its props and live examples. Install any of them by name:
+`npx candor-ui@3 add <name>`.
 
 | Area | What it's for | Items |
 |---|---|---|
@@ -167,11 +167,11 @@ npx degit MethodicDev/candor/starter-tanstack-start-claude my-agent-app
 | **Themes** (6) | The default theme and 5 gallery themes: colours, type, radius and motion as CSS variables, in light, dark and high contrast. | [`tokens`](https://candor.themethodic.com/docs/tokens), [`theme`](https://candor.themethodic.com/docs/theme), [`theme-slate`](https://candor.themethodic.com/docs/theme-slate), [`theme-paper`](https://candor.themethodic.com/docs/theme-paper), [`theme-console`](https://candor.themethodic.com/docs/theme-console), [`theme-signal`](https://candor.themethodic.com/docs/theme-signal) |
 
 <details>
-<summary>Shared helpers and fonts (19)</summary>
+<summary>Shared helpers and fonts (21)</summary>
 
-**Shared types and helpers** (16): Types and pure functions the components share.
+**Shared types and helpers** (18): Types and pure functions the components share.
 
-[`bidi`](https://candor.themethodic.com/docs/bidi), [`chat`](https://candor.themethodic.com/docs/chat), [`fill-strings`](https://candor.themethodic.com/docs/fill-strings), [`format-elapsed`](https://candor.themethodic.com/docs/format-elapsed), [`highlight`](https://candor.themethodic.com/docs/highlight), [`know`](https://candor.themethodic.com/docs/know), [`layer`](https://candor.themethodic.com/docs/layer), [`locale`](https://candor.themethodic.com/docs/locale), [`mcp-input`](https://candor.themethodic.com/docs/mcp-input), [`motion`](https://candor.themethodic.com/docs/motion), [`safe-markdown`](https://candor.themethodic.com/docs/safe-markdown), [`sound`](https://candor.themethodic.com/docs/sound), [`status`](https://candor.themethodic.com/docs/status), [`use-copy`](https://candor.themethodic.com/docs/use-copy), [`use-shortcut`](https://candor.themethodic.com/docs/use-shortcut), [`use-virtual-list`](https://candor.themethodic.com/docs/use-virtual-list)
+[`bidi`](https://candor.themethodic.com/docs/bidi), [`chat`](https://candor.themethodic.com/docs/chat), [`fill-strings`](https://candor.themethodic.com/docs/fill-strings), [`format-elapsed`](https://candor.themethodic.com/docs/format-elapsed), [`heading-level`](https://candor.themethodic.com/docs/heading-level), [`heading-scope`](https://candor.themethodic.com/docs/heading-scope), [`highlight`](https://candor.themethodic.com/docs/highlight), [`know`](https://candor.themethodic.com/docs/know), [`layer`](https://candor.themethodic.com/docs/layer), [`locale`](https://candor.themethodic.com/docs/locale), [`mcp-input`](https://candor.themethodic.com/docs/mcp-input), [`motion`](https://candor.themethodic.com/docs/motion), [`safe-markdown`](https://candor.themethodic.com/docs/safe-markdown), [`sound`](https://candor.themethodic.com/docs/sound), [`status`](https://candor.themethodic.com/docs/status), [`use-copy`](https://candor.themethodic.com/docs/use-copy), [`use-shortcut`](https://candor.themethodic.com/docs/use-shortcut), [`use-virtual-list`](https://candor.themethodic.com/docs/use-virtual-list)
 
 **Fonts** (3): Self-hosted, and optional: without one the theme uses the system font.
 
@@ -186,7 +186,7 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
-| Free (this repo) | $0, MIT | 74 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
+| Free (this repo) | $0, MIT | 76 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
 | Pro | $149, one person | All 389 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
@@ -196,8 +196,8 @@ repeats the support each tier includes. Your key arrives in Polar's receipt emai
 says where, and what a refund does to it. Then, in your project:
 
 ```bash
-npx candor-ui key <your licence key>   # saves it to .env.local, checks it, and has the registry send it
-npx candor-ui add approval-request     # a Pro item, installed like any other
+npx candor-ui key <your licence key>      # saves it to .env.local, checks it, and has the registry send it
+npx candor-ui@3 add approval-request     # a Pro item, installed like any other
 ```
 
 In CI, set `CANDOR_LICENSE_KEY` as a secret, so installs and `npx candor-ui verify` can read paid items. Installed code

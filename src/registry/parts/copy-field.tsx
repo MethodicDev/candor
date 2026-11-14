@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { useCopy } from "@/registry/foundation/use-copy"
 import { useStrings } from "@/registry/foundation/locale"
 import { motion } from "@/registry/foundation/motion"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 
 /**
  * @motion pop:tick After the person copies, a tick (or a cross, if the browser refused the clipboard) pops in on the
@@ -48,7 +49,7 @@ function CopyField({
   const t = useStrings("copyField", copyFieldStrings)
   return (
     <div data-slot="copy-field" className={cn("flex flex-col gap-1", className)}>
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground">{neutralizeBidi(label)}</span>
       <button
         type="button"
         onClick={() => copy(value)}
@@ -63,7 +64,7 @@ function CopyField({
               : "whitespace-pre-wrap [overflow-wrap:anywhere]"
           )}
         >
-          {value}
+          {neutralizeBidi(value)}
         </code>{" "}
         <span aria-live="polite" data-copy={state} className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground group-hover/copy:text-foreground">
           {state === "copied" ? (

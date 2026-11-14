@@ -112,9 +112,12 @@ export const threadStrings = {
  *
  * While the reader is scrolled up, "Jump to latest" pulses once each time a
  * new message arrives (a child of the thread, or any element marked `data-slot="message"` inside it), then stays still; the jump itself scrolls smoothly
- * unless the OS asks for reduced motion or data-motion is "none". Something of your app's floating over the thread's
- * foot can keep it clear: set `--cd-thread-jump-offset` (a length) on the thread or above it, and the button sits that
- * much higher.
+ * unless the OS asks for reduced motion or data-motion is "none". The button sits above the phone's safe area
+ * (`env(safe-area-inset-bottom)`, 0 where there is none), so the home indicator never covers it. Something of your
+ * app's floating over the thread's foot can keep it clear: set `--cd-thread-jump-offset` (a length) on the thread or
+ * above it, and the button sits that much higher. To keep 5.x's place, set it to `calc(-1 * env(safe-area-inset-bottom, 0px))`.
+ * Set it to that negative inset too when the thread's foot isn't at the screen's edge, a Composer below it for one:
+ * the safe area is then below the Composer, and the button would otherwise sit that much higher than it needs to.
  */
 function Thread({
   children,
@@ -470,9 +473,9 @@ function Thread({
         </div>
         {(!pinned || short) && hasMessages && (
           // The entrance is the wrapper's, so the pulse on the button never replays it.
-          // The bottom margin raises the pill by --cd-thread-jump-offset; unset, it is 0px and the pill sits at bottom-3,
-          // 5.3's class, which still follows the theme's spacing keys (KIT-348).
-          <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive mb-[var(--cd-thread-jump-offset,0px)]">
+          // The bottom margin raises the pill above the phone's safe area (KIT-349, 6.0) and by --cd-thread-jump-offset
+          // (KIT-348); with neither, both are 0px and the pill sits at bottom-3, 5.3's class, on the theme's spacing keys.
+          <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive mb-[calc(env(safe-area-inset-bottom,0px)+var(--cd-thread-jump-offset,0px))]">
             <button
               type="button"
               ref={jump}

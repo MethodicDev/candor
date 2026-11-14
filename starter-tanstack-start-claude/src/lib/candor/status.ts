@@ -53,6 +53,21 @@ export function isTerminal(status: RunStatus) {
   return status === "succeeded" || status === "failed" || status === "cancelled" || status === "skipped"
 }
 
+/**
+ * What a list, table or chart is showing: its rows (ready), the shape of rows still coming (loading), nothing and why
+ * (empty), the rows it has with a note on what's missing (partial), or why it couldn't load (error). Lists without a
+ * `state` show their rows. Declared once here; page-state's `ListState` and the data module's `ListState` and
+ * `ChartState` are this type.
+ */
+export type ListState =
+  | { kind: "ready" }
+  | { kind: "loading" }
+  /** Nothing to show, and why. */
+  | { kind: "empty"; reason: string }
+  /** Some of it is missing. */
+  | { kind: "partial"; note: string }
+  | { kind: "error"; reason: string }
+
 /** The machine or worker a run is on, when the app can't reach it. */
 export type HostOffline = {
   /** The host's name as the app knows it: "Build runner 3", "Priya’s laptop". Left out, it's "The host". */

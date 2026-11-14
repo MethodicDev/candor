@@ -4,9 +4,13 @@ import * as React from "react"
 import { CircleAlert, Inbox, LockKeyhole, SearchX, WifiOff, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CopyField } from "@/registry/parts/copy-field"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { useStrings } from "@/registry/foundation/locale"
 import { Skeleton } from "@/registry/ui/skeleton"
 import { Button } from "@/registry/ui/button"
+import type { HeadingLevel } from "@/registry/foundation/heading-level"
+import { useHeadingLevel } from "@/registry/foundation/heading-scope"
+import type { ListState } from "@/registry/foundation/status"
 
 /** PageState's fixed words; override them under `pageState` in LocaleProvider's `strings`. */
 export const pageStateStrings = {
@@ -42,7 +46,7 @@ function PageState({
   secondary,
   requestId,
   Icon,
-  headingLevel = 2,
+  headingLevel,
   className,
 }: {
   /** empty, no-match, error, unavailable or offline; sets the icon, and an error or offline is announced. */
@@ -60,23 +64,24 @@ function PageState({
   /** Replaces the kind's icon. */
   Icon?: LucideIcon | undefined
   /**
-   * The level of the title's heading, to fit the page's outline: 2 by default, right below the page's `<h1>`; 3 where
-   * the state stands in for a section under an `<h2>`. The size stays the same at any level.
+   * The level of the title's heading, to fit the page's outline. Left out, it is one below the nearest `HeadingScope`
+   * (since 6.0.0), else 2, right below the page's `<h1>`; pass 3 where the state stands in for a section under an
+   * `<h2>` with no scope round it. The size stays the same at any level.
    */
-  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  headingLevel?: HeadingLevel | undefined
   /** Classes for the state, merged with Candor's. */
   className?: string | undefined
 }) {
   const t = useStrings("pageState", pageStateStrings)
   const Glyph = Icon ?? kindIcon[kind]
-  const Heading = `h${headingLevel}` as const
+  const Heading = `h${useHeadingLevel(headingLevel)}` as const
   return (
     <div data-slot="page-state" data-kind={kind} role={kind === "error" || kind === "offline" ? "alert" : undefined} className={cn("flex flex-1 flex-col items-center justify-center px-6 py-16 text-center", className)}>
       <span className={cn("mb-4 flex size-11 items-center justify-center rounded-xl", kind === "error" || kind === "offline" ? "bg-destructive-weak text-destructive-text" : "bg-muted text-muted-foreground")}>
         <Glyph aria-hidden className="size-5" />
       </span>
-      <Heading className="text-base font-semibold">{title}</Heading>
-      {detail && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{detail}</p>}
+      <Heading className="text-base font-semibold">{neutralizeBidi(title)}</Heading>
+      {detail && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{typeof detail === "string" ? neutralizeBidi(detail) : detail}</p>}
       {requestId && (
         <div className="mt-4 w-full max-w-xs text-start">
           <CopyField label={t("requestId")} value={requestId} />
@@ -86,12 +91,12 @@ function PageState({
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           {action && (
             <Button size="sm" onClick={action.onClick}>
-              {action.label}
+              <bdi>{neutralizeBidi(action.label)}</bdi>
             </Button>
           )}
           {secondary && (
             <Button size="sm" variant="ghost" onClick={secondary.onClick}>
-              {secondary.label}
+              <bdi>{neutralizeBidi(secondary.label)}</bdi>
             </Button>
           )}
         </div>
@@ -134,18 +139,6 @@ function PageSkeleton({ variant = "list", label, className }: {
   )
 }
 
-/**
- * What a list or table is showing: its rows (ready), the shape of rows still coming
- * (loading), nothing and why (empty), the rows it has with a note on what's missing (partial), or why it couldn't
- * load (error). Lists without a `state` show their rows.
- */
-export type ListState =
-  | { kind: "ready" }
-  | { kind: "loading" }
-  | { kind: "empty"; reason: string }
-  | { kind: "partial"; note: string }
-  | { kind: "error"; reason: string }
-
 /** The words a list shows for its `state`: what's loading, the empty title and the error title, in the list's own terms. */
 export type ListStateWords = { loading: string; empty: string; error: string }
 
@@ -165,10 +158,10 @@ function ListStateView({ state, words, emptyAction, onRetry, headingLevel, child
   /** Shows Try again under an error; called when it's pressed. Pass it only when it loads the list again. */
   onRetry?: (() => void) | undefined
   /**
-   * The level of the empty or error title's heading, passed to PageState: 2 by default. A list under its own heading
-   * passes one below it.
+   * The level of the empty or error title's heading, passed to PageState. Left out, it is one below the nearest
+   * `HeadingScope`, else 2. A list under its own heading with no scope round it passes one below that heading.
    */
-  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  headingLevel?: HeadingLevel | undefined
   /** The rows. */
   children?: React.ReactNode | undefined
   /** Classes for the state, merged with Candor's. */
@@ -179,7 +172,7 @@ function ListStateView({ state, words, emptyAction, onRetry, headingLevel, child
   if (state.kind === "partial")
     return (
       <>
-        <p data-slot="list-state-note" className="border-b px-4 py-2 text-xs text-warning-text">{state.note}</p>
+        <p data-slot="list-state-note" className="border-b px-4 py-2 text-xs text-warning-text">{neutralizeBidi(state.note)}</p>
         {children}
       </>
     )
@@ -197,3 +190,5 @@ function ListStateView({ state, words, emptyAction, onRetry, headingLevel, child
 }
 
 export { PageState, PageSkeleton, ListStateView }
+/** What a list or table is showing; the status module's `ListState`, exported here too as in 5.x. */
+export type { ListState }

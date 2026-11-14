@@ -10,7 +10,7 @@ From the project root (a React or Next.js app, with or without shadcn already se
 
 ```bash
 npx candor-ui@latest init --yes
-npx candor-ui add thread message composer
+npx candor-ui@3 add thread message composer
 ```
 
 `init --yes` adds the `@candor` registry to `components.json`, the theme and its import, and sets up shadcn if the

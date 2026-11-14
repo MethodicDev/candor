@@ -9,6 +9,8 @@ import { Payload } from "@/components/candor/payload"
 import { Button } from "@/components/candor/ui/button"
 import { Locked } from "@/components/candor/locked"
 import { motion } from "@/lib/candor/motion"
+import type { HeadingLevel } from "@/lib/candor/heading-level"
+import { useHeadingLevel } from "@/lib/candor/heading-scope"
 
 /** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
 function animationMs(el: Element | null): number | undefined {
@@ -206,8 +208,8 @@ function parseObject(text: string): Record<string, unknown> | null {
  * space outside it (the gesture that would dismiss a dialog) nudges it instead, so the person sees it is still
  * waiting. Both stop once the answer is being sent.
  *
- * Its heading is an `<h2>` unless `headingLevel` says otherwise; it reads no `HeadingScope`, so inside a dialog (whose
- * title is the `<h2>`) give it `headingLevel={3}`.
+ * Its heading is one level below the nearest `HeadingScope` (an `<h3>` in Candor's dialogs and sheets), else an `<h2>`,
+ * unless `headingLevel` says otherwise.
  *
  * @motion attention:waiting While the decision waits, a ring pulses out from the shield three times and then is still.
  * It stops once the answer is being sent, and under calm it is one ring that fades.
@@ -222,7 +224,7 @@ function PermissionPrompt({
   onAllow,
   onDeny,
   busy = false,
-  headingLevel = 2,
+  headingLevel,
   jsonEditor,
   className,
 }: {
@@ -241,18 +243,19 @@ function PermissionPrompt({
   /** The answer is being sent: both buttons wait, and the waiting pulse stops. */
   busy?: boolean | undefined
   /**
-   * The level of the prompt's heading, to fit under the page's own headings without skipping a level. Defaults to 2
-   * (3 before 5.0.0), right below the page's `<h1>`; pass 3 when the prompt sits under a section's `<h2>`. It reads
-   * no `HeadingScope`, so in a dialog, whose title is an `<h2>`, pass 3 as well:
+   * The level of the prompt's heading, to fit under the page's own headings without skipping a level. Left out, it
+   * is one below the nearest `HeadingScope` (since 6.0.0; 5.x drew 2 inside one too), else 2, right below the page's
+   * `<h1>`. Candor's dialogs and sheets set a scope of 2, so a prompt in one draws `<h3>`; in a section the app titles
+   * itself, wrap it in a scope or pass the level:
    *
    * ```tsx
-   * <DialogContent>
-   *   <DialogTitle>Approve a tool call</DialogTitle>
-   *   <PermissionPrompt request={request} headingLevel={3} onAllow={allow} onDeny={deny} />
-   * </DialogContent>
+   * <h2>Waiting on you</h2>
+   * <HeadingScope level={2}>
+   *   <PermissionPrompt request={request} onAllow={allow} onDeny={deny} />   // draws its heading as <h3>
+   * </HeadingScope>
    * ```
    */
-  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  headingLevel?: HeadingLevel | undefined
   /**
    * The field the input is edited in, when `editable`. Left out, it is a plain text field. Pass `CodeEditor` (Pro) for
    * line numbers, the JSON's colours, Tab to indent and the error read out with the field. The input is shown through
@@ -262,7 +265,8 @@ function PermissionPrompt({
   className?: string | undefined
 }) {
   // Keyed by the request, so an edit, a ticked rule or an answer never carries over to the next request.
-  return <PromptBody key={request.id} {...{ request, mode, suggestions, editable: editable && request.editable !== false, onAllow, onDeny, busy, headingLevel, jsonEditor, className }} />
+  const level = useHeadingLevel(headingLevel)
+  return <PromptBody key={request.id} {...{ request, mode, suggestions, editable: editable && request.editable !== false, onAllow, onDeny, busy, headingLevel: level, jsonEditor, className }} />
 }
 
 function PromptBody({
@@ -284,7 +288,7 @@ function PromptBody({
   onAllow: (answer: PermissionAnswer) => void
   onDeny: () => void
   busy: boolean
-  headingLevel: 1 | 2 | 3 | 4 | 5 | 6
+  headingLevel: HeadingLevel
   jsonEditor?: React.ComponentType<PermissionJsonEditorProps> | undefined
   className?: string | undefined
 }) {
@@ -417,7 +421,7 @@ function PromptBody({
         {mode && (
           <div className="flex gap-2">
             <dt className="shrink-0 text-muted-foreground">{t("mode")}</dt>
-            <dd data-slot="permission-mode">{modeKeys[mode] ? t(modeKeys[mode]!) : <code className="font-mono text-xs">{mode}</code>}</dd>
+            <dd data-slot="permission-mode">{modeKeys[mode] ? t(modeKeys[mode]!) : <code className="font-mono text-xs">{neutralizeBidi(mode)}</code>}</dd>
           </div>
         )}
       </dl>

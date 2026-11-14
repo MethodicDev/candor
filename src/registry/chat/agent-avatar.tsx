@@ -4,6 +4,7 @@ import * as React from "react"
 import { Bot, ClipboardList, CodeXml, Compass, FlaskConical, PenTool, ScanSearch, SearchCheck, Workflow, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AgentIdentity } from "@/registry/foundation/chat"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { useStrings } from "@/registry/foundation/locale"
 
 /** AgentAvatar's fixed words; override them under `agentAvatar` in LocaleProvider's `strings`. */
@@ -119,8 +120,8 @@ function AgentBadge({
   return (
     <span data-slot="agent-badge" className={cn("inline-flex min-w-0 items-center gap-2", className)}>
       <AgentAvatar agent={agent} size={size} />
-      <span className={cn("truncate font-medium", size === "sm" ? "text-xs" : "text-sm")}>{agent.name}</span>
-      <span className="sr-only">{t("roleAgent", { noun })}</span>
+      <span className={cn("truncate font-medium", size === "sm" ? "text-xs" : "text-sm")}>{neutralizeBidi(agent.name)}</span>
+      <span className="sr-only">{t("roleAgent", { noun: neutralizeBidi(noun) })}</span>
     </span>
   )
 }

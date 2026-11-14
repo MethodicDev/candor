@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { useStrings } from "@/registry/foundation/locale"
+import type { HeadingLevel } from "@/registry/foundation/heading-level"
 
 /** PageHeader's fixed words; override them under `pageHeader` in LocaleProvider's `strings`. */
 export const pageHeaderStrings = {
@@ -50,11 +51,12 @@ function PageHeader({
   /** Called with a view's id when its tab is chosen. */
   onTabChange?: ((id: string) => void) | undefined
   /**
-   * The level of the title's heading. Defaults to 1: the title is the page's, so the page's content sits under it,
-   * which is where every other Candor heading's default of 2 puts it. Pass 2 where the app draws its own `<h1>` above
-   * (a product name in the banner, say). PageHeader reads no `HeadingScope`.
+   * The level of the title's heading. Defaults to 1, inside a `HeadingScope` too: the title is the page's. PageHeader
+   * draws none of the page's content, so it sets no scope round it; the content sits under the `<h1>` already, since
+   * every Candor heading outside a scope is an `<h2>`. Pass 2 where the app draws its own `<h1>` above (a product name
+   * in the banner, say), and wrap the page's content in `<HeadingScope level={2}>` so its headings sit under this one.
    */
-  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+  headingLevel?: HeadingLevel | undefined
   /** Classes for the header, merged with Candor's. */
   className?: string | undefined
 }) {
@@ -69,10 +71,10 @@ function PageHeader({
               <li key={`${c.label}-${i}`} className="flex items-center gap-1">
                 {c.onClick ? (
                   <button type="button" onClick={c.onClick} className="relative after:absolute after:inset-x-0 after:-inset-y-1 rounded-sm outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/80">
-                    {c.label}
+                    <bdi>{neutralizeBidi(c.label)}</bdi>
                   </button>
                 ) : (
-                  <span>{c.label}</span>
+                  <span><bdi>{neutralizeBidi(c.label)}</bdi></span>
                 )}
                 <ChevronRight aria-hidden className="rtl:-scale-x-100 size-3 text-faint-foreground" />
               </li>
@@ -82,8 +84,8 @@ function PageHeader({
       )}
       <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
         <div className="min-w-0 flex-1">
-          <Heading className="truncate text-lg font-semibold tracking-tight">{title}</Heading>
-          {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
+          <Heading className="truncate text-lg font-semibold tracking-tight">{neutralizeBidi(title)}</Heading>
+          {description && <p className="mt-0.5 text-sm text-muted-foreground">{typeof description === "string" ? neutralizeBidi(description) : description}</p>}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </div>
@@ -97,7 +99,7 @@ function PageHeader({
               onClick={() => onTabChange?.(tab.id)}
               className="flex shrink-0 items-center gap-1.5 border-b-2 border-transparent pb-2.5 text-sm text-muted-foreground outline-none cd-tint hover:text-foreground focus-visible:text-foreground aria-[current=page]:border-primary aria-[current=page]:font-medium aria-[current=page]:text-foreground"
             >
-              {tab.label}
+              <bdi>{neutralizeBidi(tab.label)}</bdi>
               {tab.count !== undefined && <span className="rounded-full bg-muted px-1.5 text-2xs tabular-nums text-muted-foreground">{tab.count}</span>}
             </button>
           ))}

@@ -318,6 +318,18 @@ function useStrings<T extends StringTable>(name: string, defaults: T): Translate
   }, [overrides, defaults, format, locale, nouns])
 }
 
+/**
+ * Says whether the app set a key of a component's strings under `name` in LocaleProvider's `strings`, even to the same
+ * words as the default: `const overridden = useStringsOverridden("settingsLayout")`, then `overridden("settings")`. For an
+ * item that must tell the app's words from its own, which comparing `t(key)` with the default can't (an override equal
+ * to the default reads as none). `useStrings` and its `t` are unchanged.
+ */
+function useStringsOverridden(name: string): (key: string) => boolean {
+  const { strings } = React.useContext(LocaleContext)
+  const overrides = strings[name]
+  return React.useMemo(() => (key) => overrides !== undefined && Object.hasOwn(overrides, key) && overrides[key] !== undefined, [overrides])
+}
+
 /** Physical side for the reading direction: "left" in LTR, "right" in RTL. For the few places CSS can't say start. */
 function useStartSide(): "left" | "right" {
   return useLocale().dir === "rtl" ? "right" : "left"
@@ -326,4 +338,4 @@ function useStartSide(): "left" | "right" {
 // fill, pick, startOf and the noun types live in foundation/fill-strings, without "use client", so server code can use
 // them; exported from here too, so app code imports everything about words from one place.
 export type { Phrase, PluralPhrase, SelectPhrase, Noun, NounTable, Nouns }
-export { LocaleProvider, useLocale, useFormat, useHydrated, useStrings, useStartSide, useNouns, fill, pick, startOf, nounDefaults }
+export { LocaleProvider, useLocale, useFormat, useHydrated, useStrings, useStringsOverridden, useStartSide, useNouns, fill, pick, startOf, nounDefaults }

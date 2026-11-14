@@ -15,7 +15,7 @@ Use the `candor-ui` CLI; it wraps the shadcn CLI and keeps a lockfile so updates
 
 ```bash
 npx candor-ui@latest init --yes        # registry in components.json, the theme, its import; sets up shadcn if missing
-npx candor-ui add thread message composer
+npx candor-ui@3 add thread message composer
 ```
 
 - **Where files land:** in folders of their own: `ui` primitives in `@/components/candor/ui/…`, libraries and types

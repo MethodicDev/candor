@@ -675,6 +675,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/chat",
         "@candor/locale",
         "@candor/tokens",
@@ -726,6 +727,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/button",
         "@candor/chat",
         "@candor/locale",
@@ -953,6 +955,7 @@
       ],
       "registryDependencies": [
         "@candor/attachment-preview",
+        "@candor/bidi",
         "@candor/chat",
         "@candor/entity-chip",
         "@candor/locale",
@@ -1065,6 +1068,7 @@
       "type": "registry:component",
       "description": "What fills the model's context budget, as a ring in the composer that opens to a breakdown: system, instructions, Know, the thread, tools, files.",
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/know",
         "@candor/locale",
         "@candor/motion",
@@ -1170,6 +1174,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/collapsible",
         "@candor/locale",
         "@candor/motion",
@@ -1279,6 +1284,8 @@
         "@candor/citation",
         "@candor/degraded-panel",
         "@candor/entity-chip",
+        "@candor/heading-level",
+        "@candor/heading-scope",
         "@candor/locale",
         "@candor/payload",
         "@candor/safe-markdown",
@@ -1336,6 +1343,17 @@
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
             "codemod": null
+          },
+          {
+            "id": "heading-default-free",
+            "in": "6.0.0",
+            "change": "`HeadingScope` and `HeadingLevel` are free. PermissionPrompt, PageState (and ListStateView), AccordionTrigger and the headings in a model's message (MessageContent, and Message through it) draw one level below the nearest `HeadingScope`, as the Pro items have since 5.0; Candor's dialogs, sheets, drawers, settings sections and dashboard tiles set one. Outside a scope PermissionPrompt and PageState stay `<h2>` and a model's `#` stays `<h3>`; AccordionTrigger is `<h2>` (5.x: always `<h3>`). PageHeader is unchanged: its title stays `<h1>`, and the page's content sits under it.",
+            "breaks": "Inside a `HeadingScope` (or a dialog, a sheet, or a Pro item that sets one), these draw one level below it where 5.x drew `<h2>` (a model's `#`: `<h3>`), so a page test or a style that pins the old level fails. AccordionTrigger draws `<h2>` outside a scope where 5.x drew `<h3>`. The others draw as before outside one.",
+            "at": [
+              "render"
+            ],
+            "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
+            "codemod": "headings"
           }
         ]
       }
@@ -1427,6 +1445,17 @@
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
             "codemod": null
+          },
+          {
+            "id": "heading-default-free",
+            "in": "6.0.0",
+            "change": "`HeadingScope` and `HeadingLevel` are free. PermissionPrompt, PageState (and ListStateView), AccordionTrigger and the headings in a model's message (MessageContent, and Message through it) draw one level below the nearest `HeadingScope`, as the Pro items have since 5.0; Candor's dialogs, sheets, drawers, settings sections and dashboard tiles set one. Outside a scope PermissionPrompt and PageState stay `<h2>` and a model's `#` stays `<h3>`; AccordionTrigger is `<h2>` (5.x: always `<h3>`). PageHeader is unchanged: its title stays `<h1>`, and the page's content sits under it.",
+            "breaks": "Inside a `HeadingScope` (or a dialog, a sheet, or a Pro item that sets one), these draw one level below it where 5.x drew `<h2>` (a model's `#`: `<h3>`), so a page test or a style that pins the old level fails. AccordionTrigger draws `<h2>` outside a scope where 5.x drew `<h3>`. The others draw as before outside one.",
+            "at": [
+              "render"
+            ],
+            "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
+            "codemod": "headings"
           }
         ]
       }
@@ -1510,6 +1539,8 @@
       "registryDependencies": [
         "@candor/bidi",
         "@candor/button",
+        "@candor/heading-level",
+        "@candor/heading-scope",
         "@candor/locale",
         "@candor/locked",
         "@candor/motion",
@@ -1603,6 +1634,17 @@
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
             "codemod": null
+          },
+          {
+            "id": "heading-default-free",
+            "in": "6.0.0",
+            "change": "`HeadingScope` and `HeadingLevel` are free. PermissionPrompt, PageState (and ListStateView), AccordionTrigger and the headings in a model's message (MessageContent, and Message through it) draw one level below the nearest `HeadingScope`, as the Pro items have since 5.0; Candor's dialogs, sheets, drawers, settings sections and dashboard tiles set one. Outside a scope PermissionPrompt and PageState stay `<h2>` and a model's `#` stays `<h3>`; AccordionTrigger is `<h2>` (5.x: always `<h3>`). PageHeader is unchanged: its title stays `<h1>`, and the page's content sits under it.",
+            "breaks": "Inside a `HeadingScope` (or a dialog, a sheet, or a Pro item that sets one), these draw one level below it where 5.x drew `<h2>` (a model's `#`: `<h3>`), so a page test or a style that pins the old level fails. AccordionTrigger draws `<h2>` outside a scope where 5.x drew `<h3>`. The others draw as before outside one.",
+            "at": [
+              "render"
+            ],
+            "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
+            "codemod": "headings"
           }
         ]
       }
@@ -1776,6 +1818,7 @@
       "type": "registry:component",
       "description": "A rule across the thread with a label in the middle: a day (\"Today\", \"Yesterday\", \"5 Nov 2026\") or a chapter of the conversation (\"Drafting\", \"Review\").",
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/locale",
         "@candor/relative-time",
         "@candor/tokens",
@@ -1917,6 +1960,17 @@
               "behaviour"
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
+          },
+          {
+            "id": "thread-jump-safe-area",
+            "in": "6.0.0",
+            "change": "Thread's Jump to latest pill sits above the phone's safe area (`env(safe-area-inset-bottom)`), under `--cd-thread-jump-offset`, so it isn't under the home indicator.",
+            "breaks": "On a phone with a home indicator the pill sits higher than in 5.x; a screenshot test that pins its place differs. Elsewhere the inset is 0 and nothing moves.",
+            "at": [
+              "styling"
+            ],
+            "migration": "Nothing to do for the new place. To keep 5.x's, set `--cd-thread-jump-offset: calc(-1 * env(safe-area-inset-bottom, 0px))` where you style the thread.",
             "codemod": null
           }
         ]
@@ -2208,6 +2262,119 @@
       }
     },
     {
+      "name": "heading-level",
+      "type": "registry:lib",
+      "description": "A heading's level in the page's outline: `1` is `<h1>`, `6` is `<h6>`.",
+      "registryDependencies": [
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/foundation/heading-level.ts",
+          "type": "registry:lib",
+          "target": "@lib/candor/heading-level.ts"
+        }
+      ],
+      "categories": [
+        "foundation"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
+          },
+          {
+            "id": "heading-default-free",
+            "in": "6.0.0",
+            "change": "`HeadingScope` and `HeadingLevel` are free. PermissionPrompt, PageState (and ListStateView), AccordionTrigger and the headings in a model's message (MessageContent, and Message through it) draw one level below the nearest `HeadingScope`, as the Pro items have since 5.0; Candor's dialogs, sheets, drawers, settings sections and dashboard tiles set one. Outside a scope PermissionPrompt and PageState stay `<h2>` and a model's `#` stays `<h3>`; AccordionTrigger is `<h2>` (5.x: always `<h3>`). PageHeader is unchanged: its title stays `<h1>`, and the page's content sits under it.",
+            "breaks": "Inside a `HeadingScope` (or a dialog, a sheet, or a Pro item that sets one), these draw one level below it where 5.x drew `<h2>` (a model's `#`: `<h3>`), so a page test or a style that pins the old level fails. AccordionTrigger draws `<h2>` outside a scope where 5.x drew `<h3>`. The others draw as before outside one.",
+            "at": [
+              "render"
+            ],
+            "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
+            "codemod": "headings"
+          }
+        ]
+      }
+    },
+    {
+      "name": "heading-scope",
+      "type": "registry:lib",
+      "description": "Says the content inside sits under a heading of `level`, so each Candor item in it draws its heading one level below (`level + 1`) unless it is given `headingLevel`.",
+      "registryDependencies": [
+        "@candor/heading-level",
+        "@candor/tokens"
+      ],
+      "files": [
+        {
+          "path": "src/registry/foundation/heading-scope.tsx",
+          "type": "registry:lib",
+          "target": "@lib/candor/heading-scope.tsx"
+        }
+      ],
+      "categories": [
+        "foundation"
+      ],
+      "meta": {
+        "tier": "free",
+        "breaking": [
+          {
+            "id": "paths",
+            "in": "3.0.0",
+            "change": "Candor's files install in folders of their own, `components/candor/` and `lib/candor/`, instead of among the app's files in `components/`, `components/ui/` and `lib/`.",
+            "breaks": "Imports of an item at its 2.x path (`@/components/thread`, `@/lib/chat`) stop resolving once its file has moved.",
+            "at": [
+              "imports"
+            ],
+            "migration": "Nothing to do on 2.x: `add` and `update` still install Candor's files in the old places. From CLI 1.0, `npx candor-ui update --to 3.0.0` makes the moves: it moves the installed files into `components/candor/` and `lib/candor/` (Candor's ui primitives are copied to `components/candor/ui/`, and `components/ui/` stays the app's), rewrites the project's imports of the old paths, records the moves and then updates. `--dry-run` lists the moves first; `npx candor-ui migrate paths --for 3.0.0` makes them on their own. A monorepo needs CLI 1.0 or later. (`update --moved` is only for files someone moved by hand.)",
+            "codemod": "paths"
+          },
+          {
+            "id": "cli-3",
+            "in": "5.0.0",
+            "change": "CLI 3.0.0 (`npx candor-ui@3`) takes a project to 5.0, with `migrate 5.0.0`, and works with Candor 4.0 and later. It no longer takes a 3.x project, folds the layout CLI 2.0.0 nested (`update --fold`), or records items installed before the lockfile (`update --from`); `npx candor-ui@2` stays on npm for those.",
+            "breaks": "`npx candor-ui@2` doesn't have 5.0's codemods. `npx candor-ui@3` stops on a 3.x project, and on a lockfile that records CLI 2.0.0's nested layout, naming the `@2` command to run.",
+            "at": [
+              "behaviour"
+            ],
+            "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
+          },
+          {
+            "id": "heading-default-free",
+            "in": "6.0.0",
+            "change": "`HeadingScope` and `HeadingLevel` are free. PermissionPrompt, PageState (and ListStateView), AccordionTrigger and the headings in a model's message (MessageContent, and Message through it) draw one level below the nearest `HeadingScope`, as the Pro items have since 5.0; Candor's dialogs, sheets, drawers, settings sections and dashboard tiles set one. Outside a scope PermissionPrompt and PageState stay `<h2>` and a model's `#` stays `<h3>`; AccordionTrigger is `<h2>` (5.x: always `<h3>`). PageHeader is unchanged: its title stays `<h1>`, and the page's content sits under it.",
+            "breaks": "Inside a `HeadingScope` (or a dialog, a sheet, or a Pro item that sets one), these draw one level below it where 5.x drew `<h2>` (a model's `#`: `<h3>`), so a page test or a style that pins the old level fails. AccordionTrigger draws `<h2>` outside a scope where 5.x drew `<h3>`. The others draw as before outside one.",
+            "at": [
+              "render"
+            ],
+            "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
+            "codemod": "headings"
+          }
+        ]
+      }
+    },
+    {
       "name": "highlight",
       "type": "registry:lib",
       "description": "A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span.",
@@ -2294,6 +2461,17 @@
               "behaviour"
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
+          },
+          {
+            "id": "locked-null",
+            "in": "6.0.0",
+            "change": "5.1 to 5.3 widened these to accept `null` (`string | null`), which a minor shouldn't have done for code that reads them: the `locked` field of `PaletteItem`, `ScopeLevel`, `SettingsItem`, `DashboardTileView`, `PermissionModeOption` and `PlanAutonomyOption` (5.1), the `locked` prop of 28 components and Tree's `onSelect`'s second parameter, read through `ComponentProps` (5.1); RunEstimate's, PlanGate's, DataControls', SsoSetup's, AgentScreen's and Plan's `…Locked` props, AccountState's `actions[].locked`, the `locked` maps of ArtifactToolbar, RestoreDialog, ReviewLadder and NotificationPreferences, and Inbox's and ApprovalQueue's `defaultActiveId` (5.2); AppSidebar's, NavRail's and TabBar's `defaultActiveId` (5.3). 6.0 records them, and `know`'s `locked` map (`ToolSetting.locked`) accepts `null` too.",
+            "breaks": "Code that reads one of these into a `string | undefined` of its own fails the type check (`Type 'null' is not assignable`), and so does a wrapper that types Tree's `onSelect` as `(id: string) => void` through `ComponentProps`. Code that passes them is unchanged, and nothing changes at run time.",
+            "at": [
+              "type-check"
+            ],
+            "migration": "Where you read one into `string | undefined`, write `?? undefined`; `null` and left out both mean unlocked (for `defaultActiveId`, nothing active at first). Type a Tree `onSelect` wrapper `(id: string, node: TreeNode) => void`. The type check finds each.",
             "codemod": null
           }
         ]
@@ -2820,6 +2998,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/locale",
         "@candor/motion",
         "@candor/tokens",
@@ -2872,6 +3051,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/button",
         "@candor/locale",
         "@candor/locked",
@@ -3045,6 +3225,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/motion",
         "@candor/status",
         "@candor/tokens",
@@ -3196,6 +3377,7 @@
       ],
       "registryDependencies": [
         "@candor/bidi",
+        "@candor/heading-level",
         "@candor/locale",
         "@candor/tokens",
         "utils"
@@ -3246,10 +3428,14 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/button",
         "@candor/copy-field",
+        "@candor/heading-level",
+        "@candor/heading-scope",
         "@candor/locale",
         "@candor/skeleton",
+        "@candor/status",
         "@candor/tokens",
         "utils"
       ],
@@ -3287,6 +3473,17 @@
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
             "codemod": null
+          },
+          {
+            "id": "heading-default-free",
+            "in": "6.0.0",
+            "change": "`HeadingScope` and `HeadingLevel` are free. PermissionPrompt, PageState (and ListStateView), AccordionTrigger and the headings in a model's message (MessageContent, and Message through it) draw one level below the nearest `HeadingScope`, as the Pro items have since 5.0; Candor's dialogs, sheets, drawers, settings sections and dashboard tiles set one. Outside a scope PermissionPrompt and PageState stay `<h2>` and a model's `#` stays `<h3>`; AccordionTrigger is `<h2>` (5.x: always `<h3>`). PageHeader is unchanged: its title stays `<h1>`, and the page's content sits under it.",
+            "breaks": "Inside a `HeadingScope` (or a dialog, a sheet, or a Pro item that sets one), these draw one level below it where 5.x drew `<h2>` (a model's `#`: `<h3>`), so a page test or a style that pins the old level fails. AccordionTrigger draws `<h2>` outside a scope where 5.x drew `<h3>`. The others draw as before outside one.",
+            "at": [
+              "render"
+            ],
+            "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
+            "codemod": "headings"
           }
         ]
       }
@@ -3300,6 +3497,8 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/heading-level",
+        "@candor/heading-scope",
         "@candor/motion",
         "@candor/tokens",
         "utils"
@@ -3371,6 +3570,17 @@
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
             "codemod": null
+          },
+          {
+            "id": "heading-default-free",
+            "in": "6.0.0",
+            "change": "`HeadingScope` and `HeadingLevel` are free. PermissionPrompt, PageState (and ListStateView), AccordionTrigger and the headings in a model's message (MessageContent, and Message through it) draw one level below the nearest `HeadingScope`, as the Pro items have since 5.0; Candor's dialogs, sheets, drawers, settings sections and dashboard tiles set one. Outside a scope PermissionPrompt and PageState stay `<h2>` and a model's `#` stays `<h3>`; AccordionTrigger is `<h2>` (5.x: always `<h3>`). PageHeader is unchanged: its title stays `<h1>`, and the page's content sits under it.",
+            "breaks": "Inside a `HeadingScope` (or a dialog, a sheet, or a Pro item that sets one), these draw one level below it where 5.x drew `<h2>` (a model's `#`: `<h3>`), so a page test or a style that pins the old level fails. AccordionTrigger draws `<h2>` outside a scope where 5.x drew `<h3>`. The others draw as before outside one.",
+            "at": [
+              "render"
+            ],
+            "migration": "Pass `headingLevel` where a page or a test expects 5.x's level (`headingLevel={3}` on AccordionTrigger keeps its `<h3>`), or take the new outline. `npx candor-ui@3 migrate headings` lists each use of these items without `headingLevel` that draws at a new level, with the level it drew in 5.x; it changes nothing.",
+            "codemod": "headings"
           }
         ]
       }
@@ -3784,6 +3994,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/motion",
         "@candor/tokens",
         "@candor/tooltip",
@@ -3937,6 +4148,7 @@
         "@base-ui/react@^1.9.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/locale",
         "@candor/motion",
         "@candor/tokens",
@@ -4087,6 +4299,7 @@
         "lucide-react@^1.67.0"
       ],
       "registryDependencies": [
+        "@candor/bidi",
         "@candor/locale",
         "@candor/tokens",
         "utils"
@@ -4157,6 +4370,17 @@
               "behaviour"
             ],
             "migration": "Use `npx candor-ui@3` from 5.0. A 3.x project goes to 4.0 first with `npx candor-ui@2 update --to 4.0.0` and `npx candor-ui@2 migrate 4.0.0`; a lockfile with the nested layout is folded with `npx candor-ui@2 update --fold` first.",
+            "codemod": null
+          },
+          {
+            "id": "locked-null",
+            "in": "6.0.0",
+            "change": "5.1 to 5.3 widened these to accept `null` (`string | null`), which a minor shouldn't have done for code that reads them: the `locked` field of `PaletteItem`, `ScopeLevel`, `SettingsItem`, `DashboardTileView`, `PermissionModeOption` and `PlanAutonomyOption` (5.1), the `locked` prop of 28 components and Tree's `onSelect`'s second parameter, read through `ComponentProps` (5.1); RunEstimate's, PlanGate's, DataControls', SsoSetup's, AgentScreen's and Plan's `…Locked` props, AccountState's `actions[].locked`, the `locked` maps of ArtifactToolbar, RestoreDialog, ReviewLadder and NotificationPreferences, and Inbox's and ApprovalQueue's `defaultActiveId` (5.2); AppSidebar's, NavRail's and TabBar's `defaultActiveId` (5.3). 6.0 records them, and `know`'s `locked` map (`ToolSetting.locked`) accepts `null` too.",
+            "breaks": "Code that reads one of these into a `string | undefined` of its own fails the type check (`Type 'null' is not assignable`), and so does a wrapper that types Tree's `onSelect` as `(id: string) => void` through `ComponentProps`. Code that passes them is unchanged, and nothing changes at run time.",
+            "at": [
+              "type-check"
+            ],
+            "migration": "Where you read one into `string | undefined`, write `?? undefined`; `null` and left out both mean unlocked (for `defaultActiveId`, nothing active at first). Type a Tree `onSelect` wrapper `(id: string, node: TreeNode) => void`. The type check finds each.",
             "codemod": null
           }
         ]

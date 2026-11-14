@@ -6,6 +6,7 @@ import { Button } from "@/registry/ui/button"
 import { Locked } from "@/registry/ui/locked"
 import { useStrings } from "@/registry/foundation/locale"
 import { motion } from "@/registry/foundation/motion"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 
 /**
  * @motion live:busy While a retry is under way, the retry icon turns in place and the button says it is retrying. It
@@ -70,8 +71,8 @@ function DegradedPanel({
     >
       <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-warning-text" />
       <div className="min-w-0 flex-1">
-        <p className="text-foreground">{reason}</p>
-        {missing && <p className="mt-0.5 text-xs text-muted-foreground">{t("missing")} {missing}</p>}
+        <p className="text-foreground">{typeof reason === "string" ? neutralizeBidi(reason) : reason}</p>
+        {missing && <p className="mt-0.5 text-xs text-muted-foreground">{t("missing")} {typeof missing === "string" ? <bdi>{neutralizeBidi(missing)}</bdi> : missing}</p>}
       </div>
       {onRetry && (
         <Locked reason={busy ? t("retryingLocked") : null} className="shrink-0">

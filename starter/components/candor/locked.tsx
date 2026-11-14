@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, useTooltipProviderAbove } from "@/components/candor/ui/tooltip"
 import { motion } from "@/lib/candor/motion"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 
 /** The running animation's duration on `el`, in milliseconds (its longest, if there are several); undefined when it can't be read. */
 function animationMs(el: Element | null): number | undefined {
@@ -191,7 +192,7 @@ function Locked({
     <>
       <TooltipTrigger handle={tip} disabled={!reason} render={reason ? control : () => control} />
       <Tooltip handle={tip} open={reason ? shown || held : false} onOpenChange={setShown} describes={false} disabled={!reason}>
-        {reason ? <TooltipContent>{reason}</TooltipContent> : null}
+        {reason ? <TooltipContent>{neutralizeBidi(reason)}</TooltipContent> : null}
       </Tooltip>
     </>
   )
@@ -239,7 +240,7 @@ function Locked({
           )}
         >
           <LockKeyhole aria-hidden className="size-3" />
-          {reason}
+          {neutralizeBidi(reason)}
         </span>
       ) : null}
     </span>

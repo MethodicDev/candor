@@ -85,7 +85,7 @@ function AttachmentChip({
       {thumb ? <img src={thumb} alt="" className="size-4 shrink-0 rounded-xs object-cover" /> : <Paperclip aria-hidden className="size-3 shrink-0 text-muted-foreground" />}
       <bdi className="truncate">{name}</bdi>
       <span className={cn("shrink-0 tabular-nums", a.error ? "text-destructive-text" : "text-faint-foreground")}>
-        {a.error ? a.error : a.progress !== undefined ? fmt.number(Math.round(a.progress * 100) / 100, { style: "percent" }) : formatFileSize(a.size, fmt.number, t)}
+        {a.error ? neutralizeBidi(a.error) : a.progress !== undefined ? fmt.number(Math.round(a.progress * 100) / 100, { style: "percent" }) : formatFileSize(a.size, fmt.number, t)}
       </span>
       {onRemove && (
         <button type="button" aria-label={t("remove", { name })} onClick={() => onRemove(a.id)} className="relative after:absolute after:-inset-1 rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
@@ -129,7 +129,7 @@ function AttachmentPreview({
       )}
       <span className="min-w-0 flex-1">
         <bdi className="block truncate text-sm">{name}</bdi>
-        {(size || a.error) && <span className={cn("block text-xs tabular-nums", a.error ? "text-destructive-text" : "text-faint-foreground")}>{a.error ?? size}</span>}
+        {(size || a.error) && <span className={cn("block text-xs tabular-nums", a.error ? "text-destructive-text" : "text-faint-foreground")}>{a.error !== undefined ? neutralizeBidi(a.error) : size}</span>}
       </span>
     </>
   )

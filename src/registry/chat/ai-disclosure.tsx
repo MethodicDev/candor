@@ -3,7 +3,8 @@
 import { Bot } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AgentIdentity } from "@/registry/foundation/chat"
-import { useStrings } from "@/registry/foundation/locale"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
+import { place, useStrings } from "@/registry/foundation/locale"
 import { Button } from "@/registry/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
 
@@ -50,8 +51,10 @@ function AiDisclosure({
   className?: string | undefined
 }) {
   const t = useStrings("aiDisclosure", aiDisclosureStrings)
-  const name = typeof agent === "string" ? agent : agent?.name
-  const sentence = name ? t("line", { name }) : t("lineUnnamed")
+  // The app's name for the agent, marked for bidi controls and drawn in an isolate inside the kit's sentence (KIT-360).
+  const name = neutralizeBidi(typeof agent === "string" ? agent : agent?.name)
+  const named = name && <bdi>{name}</bdi>
+  const sentence = name ? place(t("line", { name: "{name}" }), { name: named }) : t("lineUnnamed")
   const learnMore = onLearnMore && (
     <Button type="button" variant="link" size="xs" className="h-(--cd-control-h-2xs,1.5rem) px-0 has-[>svg]:px-0" onClick={onLearnMore}>
       {t("learnMore")}
@@ -80,9 +83,9 @@ function AiDisclosure({
           {mark}
         </PopoverTrigger>
         <PopoverContent align="start" className="flex w-72 flex-col gap-1.5 p-3 text-xs">
-          <p className="text-sm font-medium">{name ? t("about", { name }) : t("aboutUnnamed")}</p>
+          <p className="text-sm font-medium">{name ? place(t("about", { name: "{name}" }), { name: named }) : t("aboutUnnamed")}</p>
           <p>{sentence}</p>
-          {details && <p className="text-muted-foreground">{details}</p>}
+          {details && <p className="text-muted-foreground">{neutralizeBidi(details)}</p>}
           {learnMore && <div>{learnMore}</div>}
         </PopoverContent>
       </Popover>
@@ -94,7 +97,7 @@ function AiDisclosure({
       <Bot aria-hidden className="mt-0.5 size-3 shrink-0" />
       <p className="flex flex-wrap items-center justify-center gap-x-1.5">
         <span>{sentence}</span>
-        {details && <span>{details}</span>}
+        {details && <span>{neutralizeBidi(details)}</span>}
         {learnMore}
       </p>
     </div>

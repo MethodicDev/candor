@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { useFormat, useLocale, useStrings } from "@/registry/foundation/locale"
 import { useNow } from "@/registry/parts/relative-time"
 
@@ -35,7 +36,7 @@ function ThreadDivider({
   const fmt = useFormat()
   const now = useNow()
   const { timeZone } = useLocale()
-  let text = label ?? ""
+  let text = neutralizeBidi(label) ?? ""
   if (!label && date !== undefined) {
     const d = typeof date === "string" ? new Date(date) : date
     if (now !== null) {

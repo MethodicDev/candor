@@ -5,6 +5,7 @@ import { CircleSlash, Hand, LoaderCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, useArrived, useSettled } from "@/lib/candor/motion"
 import { useStatusLabel, type RunStatus } from "@/lib/candor/status"
+import { neutralizeBidi } from "@/lib/candor/bidi"
 
 /**
  * @motion mark:mark A step's tick or cross is drawn along its path when the step settles while the list is on screen.
@@ -149,12 +150,12 @@ function StepRow({
               (step.status === "skipped" || step.status === "cancelled") && "text-faint-foreground line-through"
             )}
           >
-            {step.title}
+            {typeof step.title === "string" ? <bdi>{neutralizeBidi(step.title)}</bdi> : step.title}
             <span className="sr-only"> — {statusLabel(step.status)}</span>
           </p>
-          {step.meta && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{step.meta}</span>}
+          {step.meta && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{typeof step.meta === "string" ? neutralizeBidi(step.meta) : step.meta}</span>}
         </div>
-        {step.detail && <div className="mt-1 text-[0.8125rem] text-muted-foreground">{step.detail}</div>}
+        {step.detail && <div className="mt-1 text-[0.8125rem] text-muted-foreground">{typeof step.detail === "string" ? neutralizeBidi(step.detail) : step.detail}</div>}
       </div>
     </li>
   )

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { useStrings } from "@/registry/foundation/locale"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible"
 import { motion } from "@/registry/foundation/motion"
@@ -38,9 +39,13 @@ function FoldedTurns({
   count: number
   /** What happened in them, shown on the folded line: text or your own small summary. */
   summary?: React.ReactNode | undefined
-  /** Start open. */
+  /**
+   * Whether the turns start open, when FoldedTurns holds the state. With `open` set, the app holds it and this is
+   * ignored; with `defaultOpen` and no `open`, FoldedTurns holds it from this value; with neither, FoldedTurns holds it
+   * and starts folded, as in 5.x.
+   */
   defaultOpen?: boolean | undefined
-  /** Controlled open state. */
+  /** Whether the turns are open, when the app holds the state; pair it with `onOpenChange`. Leave it out to let FoldedTurns hold it. */
   open?: boolean | undefined
   /** Called when a person opens or closes it. */
   onOpenChange?: ((open: boolean) => void) | undefined
@@ -66,7 +71,7 @@ function FoldedTurns({
         data-slot="folded-turns-line"
         className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-sm", header ? "flex-col items-stretch" : "rounded-lg border border-dashed px-3 py-2")}
       >
-        {header ?? (summary && <div className="min-w-0 flex-1 text-muted-foreground">{summary}</div>)}
+        {header ?? (summary && <div className="min-w-0 flex-1 text-muted-foreground">{typeof summary === "string" ? neutralizeBidi(summary) : summary}</div>)}
         <CollapsibleTrigger className={cn("relative after:absolute after:inset-x-0 after:-inset-y-0.5 ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-accent-text outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/80", header && "self-end")}>
           <ChevronRight aria-hidden style={turnMotion} className="rtl:-scale-x-100 size-3.5 cd-reveal-turn group-data-open/folded:[transform:rotate(90deg)]" />
           {t(isOpen ? "hide" : "show", { count })}

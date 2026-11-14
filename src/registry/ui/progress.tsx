@@ -5,6 +5,7 @@ import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 import { useLocale } from "@/registry/foundation/locale"
 import { cn } from "@/lib/utils"
 import { motion } from "@/registry/foundation/motion"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 
 const valueMotion = motion("progress", "value", "fill")
 const indeterminateMotion = motion("progress", "indeterminate", "live")
@@ -56,7 +57,7 @@ function Progress(allProps: ProgressProps) {
       </ProgressPrimitive.Root>
       {!known && label ? (
         <span data-slot="progress-label" aria-hidden style={indeterminateMotion} className="shimmer-text mt-1.5 block text-xs">
-          {label}
+          {neutralizeBidi(label)}
         </span>
       ) : null}
     </>

@@ -14,7 +14,7 @@ import { blocksToText, MessageContent } from "@/registry/chat/message-content"
 import { MessageActions, type Rating } from "@/registry/chat/message-actions"
 import { Reasoning } from "@/registry/chat/reasoning"
 import { ThreadEvent } from "@/registry/chat/thread-event"
-import { useFormat, useStrings } from "@/registry/foundation/locale"
+import { place, useFormat, useStrings } from "@/registry/foundation/locale"
 import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { motion } from "@/registry/foundation/motion"
 
@@ -149,7 +149,7 @@ function Message({
           </div>
           {meta === undefined ? (
             <span data-slot="message-meta" className="px-1 text-2xs text-faint-foreground">
-              {author.name ?? t("you")}
+              {author.name != null ? <bdi>{neutralizeBidi(author.name)}</bdi> : t("you")}
               {message.createdAt && (
                 <>
                   {format.separator}
@@ -194,7 +194,7 @@ function Message({
       data-role="agent"
       data-status={message.status}
       aria-busy={streaming}
-      aria-label={t("agentLabel", { name: neutralizeBidi(agent.name), noun: roleOf(agent.role).noun })}
+      aria-label={t("agentLabel", { name: neutralizeBidi(agent.name), noun: neutralizeBidi(roleOf(agent.role).noun) })}
       style={arriveMotion}
       className={cn("group/message flex gap-3 data-[arrived]:cd-arrive", className)}
     >
@@ -254,7 +254,7 @@ function MessageHeader({
   if (nameShownAbove && !detail && !createdAt && (children === undefined || children === null || children === false)) {
     return (
       <span data-slot="message-header" data-name-shown-above="" className="sr-only">
-        {name}
+        {neutralizeBidi(name)}
       </span>
     )
   }
@@ -265,8 +265,8 @@ function MessageHeader({
       data-name-shown-above={nameShownAbove ? "" : undefined}
       className={cn("flex items-center gap-2", density === "compact" ? "h-6" : "h-7", className)}
     >
-      <span className={cn(nameShownAbove ? "sr-only" : "font-semibold", !nameShownAbove && (density === "compact" ? "text-xs" : "text-sm"))}>{name}</span>
-      {detail && <span className={cn("truncate text-muted-foreground", density === "compact" ? "text-2xs" : "text-xs")}>{detail}</span>}
+      <span className={cn(nameShownAbove ? "sr-only" : "font-semibold", !nameShownAbove && (density === "compact" ? "text-xs" : "text-sm"))}>{neutralizeBidi(name)}</span>
+      {detail && <span className={cn("truncate text-muted-foreground", density === "compact" ? "text-2xs" : "text-xs")}>{neutralizeBidi(detail)}</span>}
       {createdAt && (
         <span className={cn("text-faint-foreground", density === "compact" ? "text-2xs" : "text-xs")}>
           <RelativeTime date={createdAt} format={timeFormat} />
@@ -424,7 +424,7 @@ function MessageFooter({
       {reviewedBy && (
         <p data-slot="message-reviewed" className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <UserCheck aria-hidden className="size-3.5" />
-          {t(reviewedBy.edited ? "editedBy" : "checkedBy", { name: reviewedBy.name })}
+          {place(t(reviewedBy.edited ? "editedBy" : "checkedBy", { name: "{name}" }), { name: <bdi>{neutralizeBidi(reviewedBy.name)}</bdi> })}
           {reviewedBy.at && (
             <>
               {format.separator}

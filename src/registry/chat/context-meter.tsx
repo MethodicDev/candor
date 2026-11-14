@@ -4,6 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import type { ContextSegment } from "@/registry/foundation/know"
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover"
+import { neutralizeBidi } from "@/registry/foundation/bidi"
 import { useFormat, useStrings } from "@/registry/foundation/locale"
 import { motion, useSettled, type SettledTest } from "@/registry/foundation/motion"
 
@@ -123,7 +124,7 @@ function ContextMeter({
             .map((s) => (
               <li key={s.label} className="flex items-center gap-2 text-xs">
                 <span aria-hidden className="size-2 rounded-xs" style={{ background: kindColor[s.kind] }} />
-                <span className="flex-1">{s.label}</span>
+                <span className="flex-1">{neutralizeBidi(s.label)}</span>
                 <span className="text-muted-foreground tabular-nums">{tokens(s.tokens)}</span>
               </li>
             ))}

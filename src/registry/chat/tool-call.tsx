@@ -134,7 +134,7 @@ function ToolCall({
           </span>
         )}
         <code className="hidden shrink-0 font-mono text-2xs text-faint-foreground sm:inline"><bdi>{neutralizeBidi(call.tool)}</bdi></code>
-        {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{call.duration}</span>}
+        {call.duration && <span className="shrink-0 text-xs tabular-nums text-faint-foreground">{neutralizeBidi(call.duration)}</span>}
         {hasDetail && (
           <ChevronRight
             aria-hidden

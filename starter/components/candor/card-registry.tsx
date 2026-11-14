@@ -121,7 +121,7 @@ function RegistryCard({
   if (problem) {
     return (
       <div data-slot="card-registry" data-card={name} data-state="invalid" className="flex flex-col gap-1.5">
-        <DegradedPanel reason={t("invalid", { label: def.label.toLowerCase(), problem })} />
+        <DegradedPanel reason={t("invalid", { label: neutralizeBidi(def.label.toLowerCase()), problem: neutralizeBidi(problem) })} />
         <Summary text={summary} />
       </div>
     )
@@ -131,7 +131,7 @@ function RegistryCard({
       <CardBoundary
         fallback={
           <div className="flex flex-col gap-1.5">
-            <DegradedPanel reason={t("failed", { label: def.label.toLowerCase() })} />
+            <DegradedPanel reason={t("failed", { label: neutralizeBidi(def.label.toLowerCase()) })} />
             <Summary text={summary} />
           </div>
         }

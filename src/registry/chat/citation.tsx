@@ -49,7 +49,8 @@ const shown = (source: MessageSource): MessageSource => ({
 const kindOf = (kind: SourceKind, t: Translate<typeof citationStrings>) => {
   const info = sourceKinds[kind]
   if (!info) return { Icon: FileText, noun: t("source") }
-  return isBuiltIn(kind) ? { ...info, noun: t(kind) } : info
+  // An app's own kind keeps its noun, the app's words: marked for bidi controls like the source's own (KIT-360).
+  return isBuiltIn(kind) ? { ...info, noun: t(kind) } : { ...info, noun: neutralizeBidi(info.noun) }
 }
 
 /** The detail of one source behind a `Citation`: its title, where it is from and the passage used. */
