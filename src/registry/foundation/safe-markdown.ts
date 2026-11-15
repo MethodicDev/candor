@@ -75,11 +75,17 @@ const fenceTitle = (word: string, language: PayloadLanguage): string | undefined
  * An item deeper than the fourth level is read as one more item of it, so no text is lost. A tab counts as four columns.
  * Ordered and unordered items can nest in each other, and an item of the other kind at the same level starts a new
  * list there. An indented line that isn't an item continues the item it sits under; after a blank line it is a
- * paragraph inside that item. A blank line followed by an item at the list's own level starts a new list, as a line
- * at the list's own indent that isn't an item ends it. While a reply streams, a last line that is only a marker
- * (`-`, `1.`, or at a nested indent just its digits) is an empty item at the level it will have, so the item doesn't
- * move when its text arrives; at the top level a lone `1.` is still a paragraph until text follows it. New in 6.1.2.
- * With `breaks`, a lone newline in an item's text or a paragraph under it is a line break.
+ * paragraph inside that item. A fence indented two columns or more past an item's level is a code block inside that
+ * item, its lines with the fence's indent taken off; a fence at the list's own indent ends the list. Blank lines
+ * between items keep one list, numbered on; a line at the list's own indent that isn't an item ends it. A numbered
+ * list keeps its first number as `start`, so a list the text starts at `3.` is numbered from 3. While a reply streams,
+ * a last line that is only a marker (`-`, `1.`, or, at a nested indent or after a numbered item, just the digits of
+ * the number the next item at its level would have) is an empty item at the level it will have, so the item doesn't
+ * move when its text arrives. A last line of any other number is text, read as any other line, so a reply's closing
+ * number is never lost. A lone `1.` with no list before it is still a paragraph until text follows it, and an
+ * unclosed fence in an item runs to the end of the text.
+ * New in 6.1.2; code in an item, blank lines between items and `start` are new in 6.1.3. With `breaks`, a lone newline
+ * in an item's text or a paragraph under it is a line break.
  *
  * A lone newline inside a paragraph (or a quote's) is a space, as CommonMark reads it, unless `breaks` is set (as GFM's breaks option,
  * for writing apps whose agents break lines on purpose): then it stays in the paragraph's text as "\n", a line break,
@@ -108,7 +114,7 @@ export function markdownBlocks(
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
-    const fence = /^\s*```(\w*)\s*$/.exec(line)
+    const fence = fenceRe.exec(line)
     if (fence) {
       flushPara()
       const body: string[] = []
@@ -193,13 +199,18 @@ const itemRe = /^\s*(?:([-*+])|(\d+)[.)])\s+(.*)$/
 /** A line that is only a marker, as a stream writes an item before its text. */
 const bareMarker = /^\s*(?:[-*+]|\d+[.)])\s*$/
 
+type Item = { ordered: boolean; text: string; number: number }
+
 /** The list item at `lines[at]`, or the last line when it is only a marker (an empty item still streaming). */
-function itemAt(lines: string[], at: number): { ordered: boolean; text: string } | null {
+function itemAt(lines: string[], at: number): Item | null {
   const m = itemRe.exec(lines[at]!)
-  if (m) return { ordered: !m[1], text: m[3]! }
-  if (at === lines.length - 1 && bareMarker.test(lines[at]!)) return { ordered: /\d/.test(lines[at]!), text: "" }
+  if (m) return { ordered: !m[1], text: m[3]!, number: m[2] ? Number(m[2]) : 1 }
+  if (at === lines.length - 1 && bareMarker.test(lines[at]!)) return { ordered: /\d/.test(lines[at]!), text: "", number: numberIn(lines[at]!) }
   return null
 }
+
+/** The number a line's marker starts with, or 1 when it has none. */
+const numberIn = (line: string) => Number(/\d+/.exec(line)?.[0] ?? 1)
 
 /** How far a line is indented, in columns: a tab moves to the next multiple of four. */
 function indentOf(line: string): number {
@@ -215,19 +226,45 @@ function indentOf(line: string): number {
 /** How many levels a list nests to, the top one included. An item deeper than this is one more item of the last level. */
 const LIST_DEPTH = 4
 
-/** A line that starts a block a list can't hold, and so ends it: a fence, a quote or a heading. */
+/** A line that starts a block a list can't hold, and so ends it: a fence (unless indented into an item), a quote or a heading. */
 const endsList = (line: string) => /^\s*(?:```|>|#{1,6}\s)/.test(line)
 
-type RawItem = { lines: string[]; under: (RawList | { para: string[] })[] }
-type RawList = { ordered: boolean; indent: number; items: RawItem[] }
+/** A fence's opening line, with its language word. */
+const fenceRe = /^\s*```(\w*)\s*$/
+
+/** A line with up to `cols` columns of its indent taken off, a tab counting to the next multiple of four. */
+function dedent(line: string, cols: number): string {
+  let col = 0
+  let i = 0
+  for (; i < line.length && col < cols; i++) {
+    const ch = line[i]!
+    if (ch === "\t") col += 4 - (col % 4)
+    else if (/\s/.test(ch)) col++
+    else break
+  }
+  return line.slice(i)
+}
+
+type RawFence = { fence: string; body: string[] }
+type RawItem = { lines: string[]; under: (RawList | { para: string[] } | RawFence)[] }
+type RawList = { ordered: boolean; start: number; indent: number; items: RawItem[] }
 
 /**
  * The list starting at the item `lines[at]`, with what is nested in it, and the index of the first line after it.
  * Every level's indent is its first item's; a line is under the deepest item whose level it is two columns past.
  */
+/** The number a numbered item at indent `n` would take: the next of its level's list, or 1 where it would start one. */
+function nextNumber(stack: RawList[], n: number): number {
+  let depth = stack.length
+  while (depth > 1 && n < stack[depth - 1]!.indent) depth--
+  const level = stack[depth - 1]!
+  if (level.items.length && n >= level.indent + 2 && depth < LIST_DEPTH) return 1
+  return level.ordered ? level.start + level.items.length : 1
+}
+
 function readList(lines: string[], at: number, breaks: boolean): { block: ListBlock; end: number } {
   const first = itemAt(lines, at)!
-  const root: RawList = { ordered: first.ordered, indent: indentOf(lines[at]!), items: [] }
+  const root: RawList = { ordered: first.ordered, start: first.number, indent: indentOf(lines[at]!), items: [] }
   const stack: RawList[] = [root]
   // The lines a next unindented-enough line would continue: an item's text or a paragraph under one, and whose it is.
   let open = null as { item: RawItem; lines: string[] } | null
@@ -239,19 +276,32 @@ function readList(lines: string[], at: number, breaks: boolean): { block: ListBl
       blank = true
       continue
     }
-    if (endsList(line)) break
     const n = indentOf(line)
-    // A last line that is only digits, at a nested indent, is a number whose `.` hasn't arrived: an empty item, as `1.` is.
-    const item = itemAt(lines, end) ?? (end === lines.length - 1 && n >= root.indent + 2 && /^\s*\d+$/.test(line) ? { ordered: true, text: "" } : null)
+    const fence = fenceRe.exec(line)
+    if (fence && n >= root.indent + 2) {
+      // A fence indented into an item is a code block in it, to its closing fence or the end of the text, its lines
+      // with the fence's indent taken off. The list goes on after it.
+      while (stack.length > 1 && n < stack.at(-1)!.indent + 2) stack.pop()
+      const body: string[] = []
+      while (++end < lines.length && !/^\s*```\s*$/.test(lines[end]!)) body.push(dedent(lines[end]!, n))
+      stack.at(-1)!.items.at(-1)!.under.push({ fence: fence[1]!, body })
+      open = null
+      blank = false
+      continue
+    }
+    if (endsList(line)) break
+    // A last line that is only the number the next item at its level would have is that item with its `.` still to
+    // come: an empty item, as `1.` is. Any other number is text, read as any other line.
+    const digits = end === lines.length - 1 && /^\s*\d+$/.test(line) && (n >= root.indent + 2 || (root.ordered && n >= root.indent)) && numberIn(line) === nextNumber(stack, n)
+    const item = itemAt(lines, end) ?? (digits ? { ordered: true, text: "", number: numberIn(line) } : null)
     if (!item && n < root.indent + 2) break
     if (item) {
-      // At the list's own level after a blank line: a new list, as a blank line between items has always made one.
-      if (blank && end > at && n < root.indent + 2) break
+      // Blank lines between items keep one list, its numbering going on.
       while (stack.length > 1 && n < stack.at(-1)!.indent) stack.pop()
       let level = stack.at(-1)!
       const parent = level.items.at(-1)
       if (parent && n >= level.indent + 2 && stack.length < LIST_DEPTH) {
-        level = { ordered: item.ordered, indent: n, items: [] }
+        level = { ordered: item.ordered, start: item.number, indent: n, items: [] }
         parent.under.push(level)
         stack.push(level)
       } else if (level.ordered !== item.ordered) {
@@ -259,7 +309,7 @@ function readList(lines: string[], at: number, breaks: boolean): { block: ListBl
         if (level === root) break
         stack.pop()
         const owner = stack.at(-1)!.items.at(-1)!
-        level = { ordered: item.ordered, indent: level.indent, items: [] }
+        level = { ordered: item.ordered, start: item.number, indent: level.indent, items: [] }
         owner.under.push(level)
         stack.push(level)
       }
@@ -279,18 +329,27 @@ function readList(lines: string[], at: number, breaks: boolean): { block: ListBl
     }
     blank = false
   }
-  // Blank lines the list ended on belong to what follows.
+  // A code block left open runs to the end of the text. Blank lines the list ended on belong to what follows.
+  end = Math.min(end, lines.length)
   while (end > at + 1 && !lines[end - 1]!.trim()) end--
   return { block: listBlock(root, breaks), end }
 }
 
 function listBlock(list: RawList, breaks: boolean): ListBlock {
   const nested = list.items.map((it) =>
-    it.under.map((u): ListItemBlock => ("para" in u ? { kind: "paragraph", nodes: inline(u.para.join(breaks ? "\n" : " ")), ...(breaks && u.para.length > 1 ? { breaks: true as const } : {}) } : listBlock(u, breaks)))
+    it.under.map((u): ListItemBlock => {
+      if ("para" in u) return { kind: "paragraph", nodes: inline(u.para.join(breaks ? "\n" : " ")), ...(breaks && u.para.length > 1 ? { breaks: true as const } : {}) }
+      if ("fence" in u) {
+        const language = fenceLanguage(u.fence)
+        return { kind: "payload", language, text: u.body.join("\n"), title: fenceTitle(u.fence, language) }
+      }
+      return listBlock(u, breaks)
+    })
   )
   return {
     kind: "list",
     ordered: list.ordered,
+    ...(list.ordered && list.start !== 1 && Number.isSafeInteger(list.start) ? { start: list.start } : {}),
     items: list.items.map((it) => inline(it.lines.join(breaks ? "\n" : " "))),
     ...(nested.some((n) => n.length) ? { nested } : {}),
   }

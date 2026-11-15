@@ -539,7 +539,11 @@ const host = (url: string) => {
   }
 }
 
-/** The list with the markers at its deepest last place: the last item's last nested paragraph or list, else the item's text. */
+/**
+ * The list with the markers at its deepest last place: when the last thing under the last item is a paragraph or a
+ * list, at that paragraph's end or that list's own deepest last place; otherwise (nothing under it, or code) after the
+ * item's own text.
+ */
 function citeList(list: ListBlock, marks: InlineNode[]): ListBlock {
   const last = list.items.length - 1
   const under = list.nested?.[last]
@@ -553,7 +557,7 @@ function citeList(list: ListBlock, marks: InlineNode[]): ListBlock {
 
 /**
  * Puts a text block's [n] markers at its end: after the last paragraph's or heading's words, or the deepest last list
- * item's (the last nested paragraph or item under the last item). Code, a
+ * item's (the last nested paragraph or item under the last item; when that item ends in code, its own text). Code, a
  * table or a quote is passed over, so a marker never sits inside code, a table's cell or the quoted words.
  */
 function withCitations(blocks: MessageBlock[], cites: string[] | undefined): MessageBlock[] {

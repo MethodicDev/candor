@@ -177,15 +177,21 @@ function TableBlock({ block }: { block: Extract<MessageBlock, { kind: "table" }>
 /** How many levels of list are drawn nested; a list deeper than this, in blocks sent as JSON, is drawn as its items' text. */
 const LIST_DEPTH = 4
 
+/** A numbered list's first number: its `start` when that is a whole number, otherwise 1. */
+const startOf = (block: ListBlock) => (block.ordered && Number.isSafeInteger(block.start) ? block.start! : 1)
+
 /**
- * A list, with what sits under each item drawn inside it: paragraphs, and lists one level in. A nested unordered list
- * has hollow markers. Its indent is on the start side, so a right-to-left reply mirrors it.
+ * A list, with what sits under each item drawn inside it: paragraphs, code and lists one level in. A nested unordered
+ * list has hollow markers. A numbered list counts from its `start`. Its indent is on the start side, so a right-to-left
+ * reply mirrors it.
  */
 function ListView({ block, depth = 1 }: { block: ListBlock; depth?: number | undefined }) {
   const List = block.ordered ? "ol" : "ul"
   const nested = Array.isArray(block.nested) ? block.nested : undefined
+  const start = startOf(block)
   return (
     <List
+      start={start !== 1 ? start : undefined}
       className={cn(
         "flex flex-col gap-1 ps-5",
         block.ordered ? "list-decimal" : depth > 1 ? "list-[circle] marker:text-faint-foreground" : "list-disc marker:text-faint-foreground"
@@ -210,7 +216,7 @@ function ListView({ block, depth = 1 }: { block: ListBlock; depth?: number | und
   )
 }
 
-/** A block under a list item: a paragraph, or a list one level in (its items' text, past the deepest level drawn). */
+/** A block under a list item: a paragraph, code, or a list one level in (its items' text, past the deepest level drawn). */
 function ListItemPart({ block, depth }: { block: ListItemBlock; depth: number }) {
   if (block?.kind === "paragraph")
     return (
@@ -218,6 +224,7 @@ function ListItemPart({ block, depth }: { block: ListItemBlock; depth: number })
         <Inline nodes={block.nodes} />
       </p>
     )
+  if (block?.kind === "payload") return typeof block.text === "string" ? <ItemPayload block={block} /> : null
   if (block?.kind !== "list") return null
   if (depth < LIST_DEPTH) return <ListView block={block} depth={depth + 1} />
   return (
@@ -231,6 +238,12 @@ function ListItemPart({ block, depth }: { block: ListItemBlock; depth: number })
   )
 }
 
+/** Code under a list item, drawn as a reply's code is. */
+function ItemPayload({ block }: { block: Extract<ListItemBlock, { kind: "payload" }> }) {
+  const { bareCode } = React.useContext(ContentContext)
+  return <Payload language={block.language} text={block.text} title={block.title} bare={bareCode} />
+}
+
 /** Every item's text in a list and the lists under it, in reading order. Walks without recursing, so any depth is safe. */
 function flatItems(block: ListBlock): InlineNode[][] {
   const out: InlineNode[][] = []
@@ -240,6 +253,8 @@ function flatItems(block: ListBlock): InlineNode[][] {
     if (Array.isArray(top)) out.push(top)
     else if (top?.kind === "paragraph") {
       if (Array.isArray(top.nodes)) out.push(top.nodes)
+    } else if (top?.kind === "payload") {
+      if (typeof top.text === "string") out.push([{ kind: "text", text: top.text }])
     } else if (top?.kind === "list" && Array.isArray(top.items)) {
       const parts: (ListItemBlock | InlineNode[])[] = []
       top.items.forEach((item, i) => {
@@ -397,18 +412,21 @@ function rawText(blocks: MessageBlock[], sources: MessageSource[]): string {
         }
       })
       .join("")
-  // A list as `-` and `1.` lines, what is under an item indented by its marker's width (`- ` is 2, `1. ` is 3), which
-  // CommonMark reads back at the same levels; a paragraph under an item has a blank line before it. Past the depth
-  // drawn, the items' text stays as flat lines.
+  // A list as `-` and `1.` lines, numbered from its start, what is under an item indented by its marker's width (`- `
+  // is 2, `1. ` is 3). Items and paragraphs read back in CommonMark at the same levels; a paragraph or code under an
+  // item has a blank line before it. Code is copied as its bare lines, indented, as a reply's code is copied without
+  // its fence, so it reads back as a paragraph in the item, not as code. Past the depth drawn, the items' text stays as
+  // flat lines.
   const listText = (list: ListBlock, indent = "", depth = 1): string =>
     list.items
       .map((it, i) => {
-        const bullet = list.ordered ? `${i + 1}. ` : "- "
+        const bullet = list.ordered ? `${startOf(list) + i}. ` : "- "
         const inner = indent + " ".repeat(bullet.length)
         const nested = list.nested?.[i]
         const under = (Array.isArray(nested) ? nested : []).map((b) => {
           if (b?.kind === "list") return depth < LIST_DEPTH ? listText(b, inner, depth + 1) : flatItems(b).map((nodes) => `${inner}- ${inline(nodes)}`).join("\n")
           if (b?.kind === "paragraph") return `\n${inline(b.nodes).split("\n").map((line) => `${inner}${line}`).join("\n")}`
+          if (b?.kind === "payload") return typeof b.text === "string" ? `\n${b.text.split("\n").map((line) => (line ? `${inner}${line}` : "")).join("\n")}` : ""
           return ""
         })
         return [`${indent}${bullet}${inline(it)}`, ...under.filter(Boolean)].join("\n")

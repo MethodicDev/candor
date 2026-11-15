@@ -151,6 +151,12 @@ export type PayloadLanguage = string
 export type ListBlock = {
   kind: "list"
   ordered?: boolean | undefined
+  /**
+   * The first item's number in a numbered list, when it isn't 1: a list the text starts at `3.` is numbered from 3.
+   * Left out for a list numbered from 1, and when the number isn't a safe integer (the list is then numbered from 1).
+   * Ignored on an unordered list. New in 6.1.3.
+   */
+  start?: number | undefined
   /** Each item's own text: its first line, and the lines that continue it. */
   items: InlineNode[][]
   /**
@@ -160,8 +166,14 @@ export type ListBlock = {
   nested?: ListItemBlock[][] | undefined
 }
 
-/** A block under a list item: a paragraph that continues it, or a list nested in it. New in 6.1.2. */
-export type ListItemBlock = { kind: "paragraph"; nodes: InlineNode[]; breaks?: true | undefined } | ListBlock
+/**
+ * A block under a list item: a paragraph that continues it, a list nested in it, or (new in 6.1.3) a fenced code block
+ * indented into it. New in 6.1.2. A later version may add a kind, so a `switch` over `kind` needs a `default` branch.
+ */
+export type ListItemBlock =
+  | { kind: "paragraph"; nodes: InlineNode[]; breaks?: true | undefined }
+  | ListBlock
+  | Extract<MessageBlock, { kind: "payload" }>
 
 /**
  * One block of a message. A minor version may add a kind (6.1.0 added `table` and `quote`), so a `switch` over `kind`
