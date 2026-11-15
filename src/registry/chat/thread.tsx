@@ -9,8 +9,8 @@ import { motion, useMotionAllowed } from "@/registry/foundation/motion"
 
 /**
  * @motion move:scroll When the person presses Jump to latest, the thread glides down to the newest message. Under
- * reduced motion it jumps. Opening the thread and following new messages while the person is at the bottom are never
- * smooth scrolls.
+ * reduced motion it jumps. Opening the thread, following new messages while the person is at the bottom, and landing at
+ * the start of a tall new message are never smooth scrolls.
  */
 const scrollMotion = motion("thread", "scroll", "move")
 /** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
@@ -120,6 +120,9 @@ export const threadStrings = {
  * above it, and the button sits that much higher. To keep 5.x's place, set it to `calc(-1 * env(safe-area-inset-bottom, 0px))`.
  * Set it to that negative inset too when the thread's foot isn't at the screen's edge, a Composer below it for one:
  * the safe area is then below the Composer, and the button would otherwise sit that much higher than it needs to.
+ *
+ * The newest message (the last in the thread, of any role) carries `data-newest`, and no other message does, for your
+ * app's own styling or scrolling. With `virtualize` it carries it while it is rendered.
  */
 function Thread({
   children,
@@ -132,6 +135,7 @@ function Thread({
   scrollerRef,
   onDrop,
   fade = true,
+  landNew = "end",
 }: {
   children?: React.ReactNode | undefined
   /** Shown before the first message. */
@@ -155,6 +159,20 @@ function Thread({
   onDrop?: ((event: React.DragEvent<HTMLDivElement>) => void) | undefined
   /** The soft fade at the bottom of the column. Defaults to true. */
   fade?: boolean | undefined
+  /**
+   * Where the view comes to rest when a new message arrives while the thread follows. "end" follows it to its end.
+   * "start" follows it until its start would leave the top of the view, then holds the view there and stops
+   * following, so the opening of a long message stays in view while the rest of it arrives below and Jump to latest
+   * shows; a message that fits in the view is followed to its end, as with "end". This happens once per message, at
+   * the moment it grows taller than the view, whether it arrived whole or grows there while it streams, and the view
+   * jumps rather than scrolls smoothly. A message marked `data-role="user"` (Message marks the reader's own that way)
+   * is always followed to its end, and so is anything after a message the reader scrolled away from. Any other message
+   * can land, an app's own bubble for the reader's words among them: mark those `data-role="user"`, or use Message. A
+   * reply that takes the place of a placeholder, or of an earlier version of itself, lands as a new message does.
+   * Scrolling back to the bottom, or pressing Jump to latest, follows again to the end. Ignored with `virtualize`.
+   * Defaults to "end".
+   */
+  landNew?: "end" | "start" | undefined
 }) {
   const t = useStrings("thread", threadStrings)
   const scroller = React.useRef<HTMLDivElement>(null)
@@ -177,6 +195,13 @@ function Thread({
     [smooth]
   )
 
+  // With landNew="start": the newest message, if it arrived while the thread followed and isn't the reader's own, until
+  // it lands or the thread stops following. Following goes no further down than its start (less the column's top
+  // padding, where the first message sits at the top); when the bottom is at least AT_BOTTOM_PX past that, the view
+  // rests there and the thread stops following. Nearer than that, it follows to the end: resting short of the bottom by
+  // less than AT_BOTTOM_PX would read as being at it.
+  const landing = React.useRef<HTMLElement | null>(null)
+
   // Following turns the browser's scroll anchoring off on the scroller (overflow-anchor: none), and leaving turns it
   // back on, so an unpinned reader keeps their place as content above them changes. Set here as well as in the render,
   // so it holds from the moment the thread pins, not from its next commit.
@@ -184,6 +209,40 @@ function Thread({
     pinnedRef.current = on
     setPinned(on)
     scroller.current?.style.setProperty("overflow-anchor", on ? "none" : "")
+    if (!on) landing.current = null
+  }, [])
+
+  const landsAtStart = landNew === "start" && !virtualize
+  const landsAtStartRef = React.useRef(landsAtStart)
+  React.useLayoutEffect(() => {
+    landsAtStartRef.current = landsAtStart
+  }, [landsAtStart])
+  const followDown = React.useCallback(() => {
+    const el = scroller.current
+    const node = landing.current
+    if (el && node?.isConnected && landsAtStart) {
+      const column = content.current
+      const inset = column ? Number.parseFloat(getComputedStyle(column).paddingTop) || 0 : 0
+      // Never up: the message's start is in view while the thread follows, so resting where the view is keeps it there.
+      const from = el.scrollTop
+      const top = Math.max(from, Math.round(from + node.getBoundingClientRect().top - el.getBoundingClientRect().top - inset))
+      if (el.scrollHeight - el.clientHeight - top >= AT_BOTTOM_PX) {
+        follow(false)
+        // Instant, so a page's scroll-behavior: smooth doesn't glide it.
+        el.scrollTo({ top, behavior: "instant" })
+        return
+      }
+    }
+    toBottom()
+  }, [landsAtStart, follow, toBottom])
+
+  // Which message carries data-newest.
+  const newest = React.useRef<HTMLElement | null>(null)
+  const markNewest = React.useCallback((node: HTMLElement | null) => {
+    if (newest.current === node) return
+    newest.current?.removeAttribute("data-newest")
+    node?.setAttribute("data-newest", "")
+    newest.current = node
   }, [])
 
   // A new message while the reader is scrolled up: the Jump to latest control pulses once for each arrival, even when
@@ -224,27 +283,44 @@ function Thread({
   // direct child of it that holds none. It is an arrival only when there are more messages than before and an added one
   // comes after every message that was already there: unfolding earlier turns inserts in the middle, and swapping a
   // reply for another version (a keyed remount) doesn't change the count. Text streaming into a message adds neither.
+  // Whether the column holds messages, not `empty`: set in the commit, before the list's observer reads it.
+  const hasMessages = React.Children.count(children) > 0
+  const holdsMessages = React.useRef(hasMessages)
+  React.useLayoutEffect(() => {
+    holdsMessages.current = hasMessages
+  }, [hasMessages])
   React.useEffect(() => {
     const el = content.current
     if (virtualize || !el || typeof MutationObserver === "undefined") return
     const messages = () =>
       Array.from(el.querySelectorAll<HTMLElement>("*")).filter((node) => node.matches('[data-slot="message"]') || (node.parentElement === el && node.querySelector('[data-slot="message"]') === null))
     const seen = { messages: messages() }
+    const mark = () => markNewest(holdsMessages.current ? (seen.messages.at(-1) ?? null) : null)
+    mark()
+    // Whether a new last message lands at its start: with landNew="start", while the thread follows, and not the reader's own.
+    const lands = (node: HTMLElement) => landsAtStartRef.current && pinnedRef.current && node.getAttribute("data-role") !== "user"
     const observer = new MutationObserver(() => {
       const before = seen.messages
       const known = (seen.messages = messages())
-      if (known.length <= before.length) return
+      mark()
       const had = new Set(before)
+      const last = known.at(-1)
+      // A reply that took the place of the message landing (a placeholder, or a keyed remount) in the same render, which
+      // doesn't change the count: it lands in its place.
+      if (!landing.current?.isConnected && last && !had.has(last)) landing.current = lands(last) ? last : null
+      if (known.length <= before.length) return
       const survivors = before.filter((node) => node.isConnected)
       const added = known.filter((node) => !had.has(node))
       const arrivals = added.filter((node) => survivors.every((old) => old.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING))
       // A message that arrived after the thread first drew rises in (Message reads data-arrived); loaded history is still.
       for (const node of arrivals) node.setAttribute("data-arrived", "")
-      if (arrivals.length) arrive()
+      if (!arrivals.length) return
+      landing.current = last && arrivals.includes(last) && lands(last) ? last : null
+      arrive()
     })
     observer.observe(el, { childList: true, subtree: true })
     return () => observer.disconnect()
-  }, [virtualize, arrive])
+  }, [virtualize, arrive, markNewest])
   React.useEffect(() => {
     if (!arrived) return
     // The ring ends when its animation does (onAnimationEnd on the button). This timer is only the fallback for when
@@ -317,10 +393,10 @@ function Thread({
         return
       }
       // Layout left the view short: back to the bottom now, not at the next resize, which may not come.
-      toBottom()
+      followDown()
       seen.current = viewOf(el, content.current)
     },
-    [follow, toBottom]
+    [follow, followDown]
   )
 
   React.useEffect(() => {
@@ -331,7 +407,7 @@ function Thread({
     const observer = new ResizeObserver(() => {
       judge(false)
       if (pinnedRef.current && scroller.current) {
-        toBottom()
+        followDown()
         seen.current = viewOf(scroller.current, content.current)
       }
       settle()
@@ -339,7 +415,7 @@ function Thread({
     observer.observe(el)
     if (view) observer.observe(view)
     return () => observer.disconnect()
-  }, [toBottom, settle, judge])
+  }, [followDown, settle, judge])
 
   React.useEffect(() => {
     const el = scroller.current
@@ -415,7 +491,6 @@ function Thread({
     settle()
   }
 
-  const hasMessages = React.Children.count(children) > 0
   const items = virtualize ? React.Children.toArray(children) : []
   const keyOf = (i: number) => (React.isValidElement(items[i]) ? (items[i].key ?? i) : i)
   // The message holding focus stays rendered, so focus isn't lost when it scrolls out of view.
@@ -427,6 +502,15 @@ function Thread({
     scroller,
     pin: focused,
     gap: () => (content.current ? Number.parseFloat(getComputedStyle(content.current).rowGap) || 0 : 0),
+  })
+  // Virtualized, the newest message is marked while its row is rendered: the last element marked data-slot="message"
+  // in the last child's row, or the row itself.
+  const lastKey = items.length ? String(keyOf(items.length - 1)) : null
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- runs after every render on purpose: rows come and go as the reader scrolls
+  React.useLayoutEffect(() => {
+    if (!virtualize) return
+    const row = lastKey === null ? undefined : Array.from(content.current?.children ?? []).find((node) => node.getAttribute("data-virtual-key") === lastKey)
+    markNewest(row instanceof HTMLElement ? (Array.from(row.querySelectorAll<HTMLElement>('[data-slot="message"]')).at(-1) ?? row) : null)
   })
 
   return (

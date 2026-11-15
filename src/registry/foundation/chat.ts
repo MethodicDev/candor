@@ -145,6 +145,25 @@ export type ToolCallData = {
 export type PayloadLanguage = string
 
 /**
+ * A list in model text: each item's own text, and what sits under it. Nested lists are lists under an item, to four
+ * levels in all.
+ */
+export type ListBlock = {
+  kind: "list"
+  ordered?: boolean | undefined
+  /** Each item's own text: its first line, and the lines that continue it. */
+  items: InlineNode[][]
+  /**
+   * What sits under each item, by the item's index: paragraphs and lists, in order, drawn inside the item after its
+   * text. An item with nothing under it has an empty array. Left out when no item has anything under it. New in 6.1.2.
+   */
+  nested?: ListItemBlock[][] | undefined
+}
+
+/** A block under a list item: a paragraph that continues it, or a list nested in it. New in 6.1.2. */
+export type ListItemBlock = { kind: "paragraph"; nodes: InlineNode[]; breaks?: true | undefined } | ListBlock
+
+/**
  * One block of a message. A minor version may add a kind (6.1.0 added `table` and `quote`), so a `switch` over `kind`
  * needs a `default` branch: draw nothing, or the block's text, for a kind it doesn't know.
  */
@@ -165,12 +184,21 @@ export type MessageBlock =
   | { kind: "plain"; text: string }
   /** A heading inside a reply. Levels are relative to the message, 1 the largest; the page's own headings sit above. */
   | { kind: "heading"; level: 1 | 2 | 3; nodes: InlineNode[] }
-  | { kind: "list"; ordered?: boolean | undefined; items: InlineNode[][] }
+  | ListBlock
   | { kind: "payload"; language: PayloadLanguage; text: string; title?: string | undefined }
-  /** A quotation in model text (its `>` lines), as paragraphs of inline text. One level: nothing is nested in it. New in 6.1.0. */
+  /**
+   * A quotation in model text (its `>` lines), as paragraphs of inline text. A quote isn't nested in a quote; a list
+   * can be in one. New in 6.1.0.
+   */
   | {
       kind: "quote"
       paragraphs: InlineNode[][]
+      /**
+       * The lists in the quote, by the index of the paragraph each stands for: that paragraph holds the list's lines as
+       * text, and is drawn as the list wherever this has one. Null for a paragraph that isn't a list. Left out when the
+       * quote has no list. New in 6.1.2.
+       */
+      lists?: (ListBlock | null)[] | undefined
       /**
        * The "\n" in its paragraphs' text are line breaks, drawn as such: set by `markdownBlocks(text, { breaks: true })`
        * on a quote with a paragraph it joined from several lines. Left out, a "\n" is drawn as a space.

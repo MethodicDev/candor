@@ -1,4 +1,4 @@
-import type { InlineNode, MessageBlock, PayloadLanguage } from "@/registry/foundation/chat"
+import type { InlineNode, ListBlock, ListItemBlock, MessageBlock, PayloadLanguage } from "@/registry/foundation/chat"
 import { canHighlight } from "@/registry/foundation/highlight"
 
 /*
@@ -67,7 +67,19 @@ const fenceTitle = (word: string, language: PayloadLanguage): string | undefined
  * many cells as its header stays the paragraph it reads as without tables. New in 6.1.0.
  *
  * Consecutive `>` lines become a quote block, a blank `>` line starting a new paragraph in it; a `>` inside a quote is
- * read as text, not as a quote within it. A quote's lines follow `breaks` as a paragraph's do. New in 6.1.0.
+ * read as text, not as a quote within it. A quote's lines follow `breaks` as a paragraph's do. New in 6.1.0. A list in a
+ * quote is read as a list, as anywhere else; the quote's paragraph for it keeps its lines as text.
+ *
+ * A list item indented at least two columns past its level's indent (the first item's of that level) is nested in the
+ * last item of that level, to four levels: `"- a\n - b\n  - c"` makes a and b items of one list, with c nested in b.
+ * An item deeper than the fourth level is read as one more item of it, so no text is lost. A tab counts as four columns.
+ * Ordered and unordered items can nest in each other, and an item of the other kind at the same level starts a new
+ * list there. An indented line that isn't an item continues the item it sits under; after a blank line it is a
+ * paragraph inside that item. A blank line followed by an item at the list's own level starts a new list, as a line
+ * at the list's own indent that isn't an item ends it. While a reply streams, a last line that is only a marker
+ * (`-`, `1.`, or at a nested indent just its digits) is an empty item at the level it will have, so the item doesn't
+ * move when its text arrives; at the top level a lone `1.` is still a paragraph until text follows it. New in 6.1.2.
+ * With `breaks`, a lone newline in an item's text or a paragraph under it is a line break.
  *
  * A lone newline inside a paragraph (or a quote's) is a space, as CommonMark reads it, unless `breaks` is set (as GFM's breaks option,
  * for writing apps whose agents break lines on purpose): then it stays in the paragraph's text as "\n", a line break,
@@ -89,14 +101,9 @@ export function markdownBlocks(
   const blocks: MessageBlock[] = []
   const lines = text.replace(/\r\n/g, "\n").split("\n")
   let para: string[] = []
-  let list: { ordered: boolean; items: string[] } | null = null
   const flushPara = () => {
     if (para.length) blocks.push({ kind: "paragraph", nodes: inline(para.join(breaks ? "\n" : " ")), ...(breaks && para.length > 1 ? { breaks: true as const } : {}) })
     para = []
-  }
-  const flushList = () => {
-    if (list) blocks.push({ kind: "list", ordered: list.ordered, items: list.items.map(inline) })
-    list = null
   }
 
   for (let i = 0; i < lines.length; i++) {
@@ -104,7 +111,6 @@ export function markdownBlocks(
     const fence = /^\s*```(\w*)\s*$/.exec(line)
     if (fence) {
       flushPara()
-      flushList()
       const body: string[] = []
       while (++i < lines.length && !/^\s*```\s*$/.test(lines[i]!)) body.push(lines[i]!)
       const language = fenceLanguage(fence[1]!)
@@ -113,37 +119,51 @@ export function markdownBlocks(
     }
     if (/^\s*>/.test(line)) {
       flushPara()
-      flushList()
-      // Consecutive `>` lines; a blank one starts a new paragraph. A deeper `>` is read as text.
-      const paragraphs: string[][] = [[]]
-      for (; i < lines.length && /^\s*>/.test(lines[i]!); i++) {
-        const quoted = lines[i]!.replace(/^\s*>\s?/, "").trim()
-        if (quoted) paragraphs.at(-1)!.push(quoted)
-        else if (paragraphs.at(-1)!.length) paragraphs.push([])
-      }
+      // Consecutive `>` lines; a blank one starts a new paragraph. A deeper `>` is read as text, and a list as a list.
+      const quoted: string[] = []
+      for (; i < lines.length && /^\s*>/.test(lines[i]!); i++) quoted.push(lines[i]!.replace(/^\s*>\s?/, ""))
       i--
-      const kept = paragraphs.filter((p) => p.length)
+      const kept: string[][] = []
+      const lists: (ListBlock | null)[] = []
+      let open: string[] | null = null
+      for (let q = 0; q < quoted.length; q++) {
+        const said = quoted[q]!
+        if (!said.trim()) {
+          open = null
+          continue
+        }
+        if (itemRe.test(said)) {
+          const read = readList(quoted, q, breaks)
+          kept.push(quoted.slice(q, read.end).map((l) => l.trim()).filter(Boolean))
+          lists[kept.length - 1] = read.block
+          open = null
+          q = read.end - 1
+          continue
+        }
+        if (!open) kept.push((open = []))
+        open.push(said.trim())
+      }
       const read = kept.map((p) => inline(p.join(breaks ? "\n" : " ")))
-      if (read.length) blocks.push({ kind: "quote", paragraphs: read, ...(breaks && kept.some((p) => p.length > 1) ? { breaks: true as const } : {}) })
+      if (read.length)
+        blocks.push({
+          kind: "quote",
+          paragraphs: read,
+          ...(breaks && kept.some((p) => p.length > 1) ? { breaks: true as const } : {}),
+          ...(lists.length ? { lists: Array.from(kept, (_, k) => lists[k] ?? null) } : {}),
+        })
       continue
     }
-    const item = /^\s*(?:([-*+])|(\d+)[.)])\s+(.*)$/.exec(line)
-    if (item) {
+    if (itemRe.test(line)) {
       flushPara()
-      const ordered = !!item[2]
-      if (!list || list.ordered !== ordered) {
-        flushList()
-        list = { ordered, items: [] }
-      }
-      list.items.push(item[3]!)
+      const read = readList(lines, i, breaks)
+      blocks.push(read.block)
+      i = read.end - 1
       continue
     }
     if (!line.trim()) {
       flushPara()
-      flushList()
       continue
     }
-    flushList()
     const heading = /^\s*(#{1,6})\s+(.*)$/.exec(line)
     if (heading) {
       flushPara()
@@ -164,8 +184,116 @@ export function markdownBlocks(
     para.push(line.trim())
   }
   flushPara()
-  flushList()
   return blocks
+}
+
+/** A list item: its marker (`-`, `*`, `+`, or a number and `.` or `)`), a space and its text. */
+const itemRe = /^\s*(?:([-*+])|(\d+)[.)])\s+(.*)$/
+
+/** A line that is only a marker, as a stream writes an item before its text. */
+const bareMarker = /^\s*(?:[-*+]|\d+[.)])\s*$/
+
+/** The list item at `lines[at]`, or the last line when it is only a marker (an empty item still streaming). */
+function itemAt(lines: string[], at: number): { ordered: boolean; text: string } | null {
+  const m = itemRe.exec(lines[at]!)
+  if (m) return { ordered: !m[1], text: m[3]! }
+  if (at === lines.length - 1 && bareMarker.test(lines[at]!)) return { ordered: /\d/.test(lines[at]!), text: "" }
+  return null
+}
+
+/** How far a line is indented, in columns: a tab moves to the next multiple of four. */
+function indentOf(line: string): number {
+  let col = 0
+  for (const ch of line) {
+    if (ch === "\t") col += 4 - (col % 4)
+    else if (/\s/.test(ch)) col++
+    else break
+  }
+  return col
+}
+
+/** How many levels a list nests to, the top one included. An item deeper than this is one more item of the last level. */
+const LIST_DEPTH = 4
+
+/** A line that starts a block a list can't hold, and so ends it: a fence, a quote or a heading. */
+const endsList = (line: string) => /^\s*(?:```|>|#{1,6}\s)/.test(line)
+
+type RawItem = { lines: string[]; under: (RawList | { para: string[] })[] }
+type RawList = { ordered: boolean; indent: number; items: RawItem[] }
+
+/**
+ * The list starting at the item `lines[at]`, with what is nested in it, and the index of the first line after it.
+ * Every level's indent is its first item's; a line is under the deepest item whose level it is two columns past.
+ */
+function readList(lines: string[], at: number, breaks: boolean): { block: ListBlock; end: number } {
+  const first = itemAt(lines, at)!
+  const root: RawList = { ordered: first.ordered, indent: indentOf(lines[at]!), items: [] }
+  const stack: RawList[] = [root]
+  // The lines a next unindented-enough line would continue: an item's text or a paragraph under one, and whose it is.
+  let open = null as { item: RawItem; lines: string[] } | null
+  let blank = false
+  let end = at
+  for (; end < lines.length; end++) {
+    const line = lines[end]!
+    if (!line.trim()) {
+      blank = true
+      continue
+    }
+    if (endsList(line)) break
+    const n = indentOf(line)
+    // A last line that is only digits, at a nested indent, is a number whose `.` hasn't arrived: an empty item, as `1.` is.
+    const item = itemAt(lines, end) ?? (end === lines.length - 1 && n >= root.indent + 2 && /^\s*\d+$/.test(line) ? { ordered: true, text: "" } : null)
+    if (!item && n < root.indent + 2) break
+    if (item) {
+      // At the list's own level after a blank line: a new list, as a blank line between items has always made one.
+      if (blank && end > at && n < root.indent + 2) break
+      while (stack.length > 1 && n < stack.at(-1)!.indent) stack.pop()
+      let level = stack.at(-1)!
+      const parent = level.items.at(-1)
+      if (parent && n >= level.indent + 2 && stack.length < LIST_DEPTH) {
+        level = { ordered: item.ordered, indent: n, items: [] }
+        parent.under.push(level)
+        stack.push(level)
+      } else if (level.ordered !== item.ordered) {
+        // The other kind at the same level: a new list there, or, at the top, a new list block.
+        if (level === root) break
+        stack.pop()
+        const owner = stack.at(-1)!.items.at(-1)!
+        level = { ordered: item.ordered, indent: level.indent, items: [] }
+        owner.under.push(level)
+        stack.push(level)
+      }
+      const added: RawItem = { lines: [item.text], under: [] }
+      level.items.push(added)
+      open = { item: added, lines: added.lines }
+    } else {
+      // Under the deepest item whose level the line is two columns past.
+      while (stack.length > 1 && n < stack.at(-1)!.indent + 2) stack.pop()
+      const target = stack.at(-1)!.items.at(-1)!
+      if (!blank && open?.item === target) open.lines.push(line.trim())
+      else {
+        const para = { para: [line.trim()] }
+        target.under.push(para)
+        open = { item: target, lines: para.para }
+      }
+    }
+    blank = false
+  }
+  // Blank lines the list ended on belong to what follows.
+  while (end > at + 1 && !lines[end - 1]!.trim()) end--
+  return { block: listBlock(root, breaks), end }
+}
+
+function listBlock(list: RawList, breaks: boolean): ListBlock {
+  const nested = list.items.map((it) =>
+    it.under.map((u): ListItemBlock => ("para" in u ? { kind: "paragraph", nodes: inline(u.para.join(breaks ? "\n" : " ")), ...(breaks && u.para.length > 1 ? { breaks: true as const } : {}) } : listBlock(u, breaks)))
+  )
+  return {
+    kind: "list",
+    ordered: list.ordered,
+    items: list.items.map((it) => inline(it.lines.join(breaks ? "\n" : " "))),
+    ...(nested.some((n) => n.length) ? { nested } : {}),
+  }
 }
 
 type Align = "start" | "center" | "end" | null

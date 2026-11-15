@@ -26,7 +26,7 @@ for the key in chat or write it into a file. `npx candor-ui doctor` explains any
 
 `https://candor.themethodic.com/mcp` is a remote streamable HTTP server. It is read-only and keyless: it serves docs,
 patterns and component suggestions, never component source and never paid items. Its tools are
-<!-- facts:mcp-tools -->`search_docs`, `get_component_docs`, `suggest_components`, `list_components`, `get_pattern`, `list_screens`, `get_screen`, `get_started`, `get_brief`, `get_design`, `get_review_checklist`, `theme_check` and `item_changes`<!-- /facts:mcp-tools -->.
+<!-- facts:mcp-tools -->`search_docs`, `get_component_docs`, `suggest_components`, `list_components`, `get_pattern`, `list_screens`, `get_screen`, `get_started`, `get_brief`, `get_design`, `get_review_checklist` and `theme_check`<!-- /facts:mcp-tools -->.
 
 Claude Code:
 

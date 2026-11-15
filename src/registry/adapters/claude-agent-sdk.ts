@@ -1,5 +1,5 @@
 import type { PermissionResult, PermissionUpdate, SDKMessage } from "@anthropic-ai/claude-agent-sdk"
-import type { AgentIdentity, EntityRef, InlineNode, MessageData, MessageBlock, MessageSource, ReasoningEntry, ToolCallData, ToolSource } from "@/registry/foundation/chat"
+import type { AgentIdentity, EntityRef, InlineNode, ListBlock, ListItemBlock, MessageData, MessageBlock, MessageSource, ReasoningEntry, ToolCallData, ToolSource } from "@/registry/foundation/chat"
 import { markdownBlocks, plainBlocks } from "@/registry/foundation/safe-markdown"
 
 /*
@@ -539,8 +539,21 @@ const host = (url: string) => {
   }
 }
 
+/** The list with the markers at its deepest last place: the last item's last nested paragraph or list, else the item's text. */
+function citeList(list: ListBlock, marks: InlineNode[]): ListBlock {
+  const last = list.items.length - 1
+  const under = list.nested?.[last]
+  const tail = Array.isArray(under) ? under.at(-1) : undefined
+  let placed: ListItemBlock | undefined
+  if (tail?.kind === "list" && tail.items.length) placed = citeList(tail, marks)
+  else if (tail?.kind === "paragraph") placed = { ...tail, nodes: [...tail.nodes, ...marks] }
+  if (placed) return { ...list, nested: list.nested!.map((n, i) => (i === last ? [...n.slice(0, -1), placed] : n)) }
+  return { ...list, items: [...list.items.slice(0, -1), [...list.items.at(-1)!, ...marks]] }
+}
+
 /**
- * Puts a text block's [n] markers at its end: after the last paragraph's, heading's or list item's words. Code, a
+ * Puts a text block's [n] markers at its end: after the last paragraph's or heading's words, or the deepest last list
+ * item's (the last nested paragraph or item under the last item). Code, a
  * table or a quote is passed over, so a marker never sits inside code, a table's cell or the quoted words.
  */
 function withCitations(blocks: MessageBlock[], cites: string[] | undefined): MessageBlock[] {
@@ -554,7 +567,7 @@ function withCitations(blocks: MessageBlock[], cites: string[] | undefined): Mes
       return out
     }
     if (b.kind === "list" && b.items.length) {
-      out[i] = { ...b, items: [...b.items.slice(0, -1), [...b.items.at(-1)!, ...marks]] }
+      out[i] = citeList(b, marks)
       return out
     }
   }

@@ -13,8 +13,8 @@ and what an attacker could do with it. A short proof of concept is enough.
 
 - A first reply within 2 business days (Monday to Friday, US public holidays excepted).
 - A first assessment, saying whether we can reproduce it and how serious we think it is, within 7 days of that reply.
-- A fix in the next release, or a patch release if it can't wait. Every version stays installable, but fixes are made in
-  the newest one, so that is the version we test against and support.
+- A fix in the next release, or a patch release if it can't wait. The registry serves only the newest release, so that is
+  the version we test against, fix and support.
 - Credit in the changelog's entry for the fix if you want it, and not if you don't.
 
 This is a small company, not a security team, and these are targets we plan to keep. If we miss one we'll say so.

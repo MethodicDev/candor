@@ -8,7 +8,7 @@ The tokens Candor UI's components are drawn with, and how to build the screens a
 
 ## Colour roles
 
-Colour roles use shadcn's variable names where shadcn has one (`--primary`, `--background`, `--muted-foreground`), so shadcn components already in an app pick them up, and Candor's own roles take the `--cd-` prefix, so an app's own tokens can't collide with them (`--cd-sunken`, `--cd-chrome`, `--cd-success-weak`). Each is also a Tailwind colour: `bg-sunken`, `text-muted-foreground`, `border-border-strong`. Values are OKLCH, so a role keeps its lightness when its hue changes. Before 4.0 Candor's own roles had no prefix (`--sunken`, `--warning`) and the chart series were `--series-1` to `--series-6`; nothing reads those names now, so a brand file that sets them changes nothing. [Upgrading to 4.0](https://candor.themethodic.com/upgrading-to-4#tokens-cd-prefix) lists each rename, `npx candor-ui migrate tokens` makes them, and `npx candor-ui theme check` reports an old name as an error.
+Colour roles use shadcn's variable names where shadcn has one (`--primary`, `--background`, `--muted-foreground`), so shadcn components already in an app pick them up, and Candor's own roles take the `--cd-` prefix, so an app's own tokens can't collide with them (`--cd-sunken`, `--cd-chrome`, `--cd-success-weak`). Each is also a Tailwind colour: `bg-sunken`, `text-muted-foreground`, `border-border-strong`. Values are OKLCH, so a role keeps its lightness when its hue changes. Before 4.0 Candor's own roles had no prefix (`--sunken`, `--warning`) and the chart series were `--series-1` to `--series-6`; nothing reads those names now, so a brand file that sets them changes nothing. The [4.0.0 changelog](https://candor.themethodic.com/changelog#4-0-0) lists each rename; `npx candor-ui theme check` reports an old name as an error and names the new one.
 
 ### Grounds
 
@@ -189,7 +189,7 @@ Who decides, from the strongest: `data-motion="none"` on `<html>` or any contain
 
 Easings are written as CSS: standard `var(--cd-ease)`, inout `var(--cd-ease-inout)`, spring `var(--cd-ease-spring)`, linear `linear`. Spring overshoots, so only families that move things in space accept it. A variant is written as its keyframe's name (`--cd-motion-mark-variant: cd-pop`).
 
-The 2.2 `animate-<name>` utilities, the unprefixed keyframes they ran, and the 2.2 tokens for the pop scale and the shake were removed in 3.0 ([Upgrading to 3.0](https://candor.themethodic.com/upgrading-to-3) lists each with its replacement and the `npx candor-ui migrate motion-aliases` codemod); use the family utilities above. `shimmer-text` animates text that is still arriving (`StreamingText`, `ShimmerLabel`) and keeps the `shimmer` keyframes.
+The 2.2 `animate-<name>` utilities, the unprefixed keyframes they ran, and the 2.2 tokens for the pop scale and the shake were removed in 3.0 (the [3.0.0 changelog](https://candor.themethodic.com/changelog#3-0-0) lists each with its replacement); use the family utilities above. `shimmer-text` animates text that is still arriving (`StreamingText`, `ShimmerLabel`) and keeps the `shimmer` keyframes.
 
 ## Reduced motion
 

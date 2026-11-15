@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { DegradedPanel } from "@/components/candor/degraded-panel"
-import type { Attachment, EntityRef, InlineNode, MessageBlock, MessageSource } from "@/lib/candor/chat"
+import type { Attachment, EntityRef, InlineNode, ListBlock, ListItemBlock, MessageBlock, MessageSource } from "@/lib/candor/chat"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/candor/ui/tooltip"
 import { Citation } from "@/components/candor/citation"
 import { EntityChip } from "@/components/candor/entity-chip"
@@ -176,6 +176,85 @@ function TableBlock({ block }: { block: Extract<MessageBlock, { kind: "table" }>
   )
 }
 
+/** How many levels of list are drawn nested; a list deeper than this, in blocks sent as JSON, is drawn as its items' text. */
+const LIST_DEPTH = 4
+
+/**
+ * A list, with what sits under each item drawn inside it: paragraphs, and lists one level in. A nested unordered list
+ * has hollow markers. Its indent is on the start side, so a right-to-left reply mirrors it.
+ */
+function ListView({ block, depth = 1 }: { block: ListBlock; depth?: number | undefined }) {
+  const List = block.ordered ? "ol" : "ul"
+  const nested = Array.isArray(block.nested) ? block.nested : undefined
+  return (
+    <List
+      className={cn(
+        "flex flex-col gap-1 ps-5",
+        block.ordered ? "list-decimal" : depth > 1 ? "list-[circle] marker:text-faint-foreground" : "list-disc marker:text-faint-foreground"
+      )}
+    >
+      {block.items.map((item, i) => {
+        const under = nested?.[i]
+        return (
+          <li key={i} className="ps-0.5 whitespace-pre-line">
+            <Inline nodes={item} />
+            {Array.isArray(under) && under.length > 0 && (
+              <div className="mt-1 flex flex-col gap-1">
+                {under.map((b, j) => (
+                  <ListItemPart key={j} block={b} depth={depth} />
+                ))}
+              </div>
+            )}
+          </li>
+        )
+      })}
+    </List>
+  )
+}
+
+/** A block under a list item: a paragraph, or a list one level in (its items' text, past the deepest level drawn). */
+function ListItemPart({ block, depth }: { block: ListItemBlock; depth: number }) {
+  if (block?.kind === "paragraph")
+    return (
+      <p className={block.breaks ? "whitespace-pre-line" : undefined}>
+        <Inline nodes={block.nodes} />
+      </p>
+    )
+  if (block?.kind !== "list") return null
+  if (depth < LIST_DEPTH) return <ListView block={block} depth={depth + 1} />
+  return (
+    <>
+      {flatItems(block).map((nodes, i) => (
+        <p key={i}>
+          <Inline nodes={nodes} />
+        </p>
+      ))}
+    </>
+  )
+}
+
+/** Every item's text in a list and the lists under it, in reading order. Walks without recursing, so any depth is safe. */
+function flatItems(block: ListBlock): InlineNode[][] {
+  const out: InlineNode[][] = []
+  const stack: (ListItemBlock | InlineNode[])[] = [block]
+  while (stack.length) {
+    const top = stack.pop()
+    if (Array.isArray(top)) out.push(top)
+    else if (top?.kind === "paragraph") {
+      if (Array.isArray(top.nodes)) out.push(top.nodes)
+    } else if (top?.kind === "list" && Array.isArray(top.items)) {
+      const parts: (ListItemBlock | InlineNode[])[] = []
+      top.items.forEach((item, i) => {
+        parts.push(item)
+        const under = top.nested?.[i]
+        if (Array.isArray(under)) parts.push(...under)
+      })
+      for (let k = parts.length - 1; k >= 0; k--) stack.push(parts[k]!)
+    }
+  }
+  return out
+}
+
 function AttachmentBlock({ files }: { files: Attachment[] }) {
   const ctx = React.useContext(ContentContext)
   return <AttachmentList attachments={files} onOpen={ctx.onOpenAttachment} />
@@ -208,18 +287,8 @@ function Block({
         </H>
       )
     }
-    case "list": {
-      const List = block.ordered ? "ol" : "ul"
-      return (
-        <List className={cn("flex flex-col gap-1 ps-5", block.ordered ? "list-decimal" : "list-disc marker:text-faint-foreground")}>
-          {block.items.map((item, i) => (
-            <li key={i} className="ps-0.5">
-              <Inline nodes={item} />
-            </li>
-          ))}
-        </List>
-      )
-    }
+    case "list":
+      return <ListView block={block} />
     case "payload":
       return <Payload language={block.language} text={block.text} title={block.title} bare={bareCode} />
     case "table":
@@ -227,11 +296,16 @@ function Block({
     case "quote":
       return (
         <blockquote data-slot="message-quote" className="flex flex-col gap-2 border-s-2 ps-3 text-muted-foreground">
-          {block.paragraphs.map((nodes, i) => (
-            <p key={i} className={block.breaks ? "whitespace-pre-line" : undefined}>
-              <Inline nodes={nodes} />
-            </p>
-          ))}
+          {block.paragraphs.map((nodes, i) => {
+            const list = block.lists?.[i]
+            return list?.kind === "list" ? (
+              <ListView key={i} block={list} />
+            ) : (
+              <p key={i} className={block.breaks ? "whitespace-pre-line" : undefined}>
+                <Inline nodes={nodes} />
+              </p>
+            )
+          })}
         </blockquote>
       )
     case "tools":
@@ -325,6 +399,23 @@ function rawText(blocks: MessageBlock[], sources: MessageSource[]): string {
         }
       })
       .join("")
+  // A list as `-` and `1.` lines, what is under an item indented by its marker's width (`- ` is 2, `1. ` is 3), which
+  // CommonMark reads back at the same levels; a paragraph under an item has a blank line before it. Past the depth
+  // drawn, the items' text stays as flat lines.
+  const listText = (list: ListBlock, indent = "", depth = 1): string =>
+    list.items
+      .map((it, i) => {
+        const bullet = list.ordered ? `${i + 1}. ` : "- "
+        const inner = indent + " ".repeat(bullet.length)
+        const nested = list.nested?.[i]
+        const under = (Array.isArray(nested) ? nested : []).map((b) => {
+          if (b?.kind === "list") return depth < LIST_DEPTH ? listText(b, inner, depth + 1) : flatItems(b).map((nodes) => `${inner}- ${inline(nodes)}`).join("\n")
+          if (b?.kind === "paragraph") return `\n${inline(b.nodes).split("\n").map((line) => `${inner}${line}`).join("\n")}`
+          return ""
+        })
+        return [`${indent}${bullet}${inline(it)}`, ...under.filter(Boolean)].join("\n")
+      })
+      .join("\n")
   return blocks
     .map((b) => {
       switch (b.kind) {
@@ -334,12 +425,17 @@ function rawText(blocks: MessageBlock[], sources: MessageSource[]): string {
         case "plain":
           return b.text
         case "list":
-          return b.items.map((it, i) => `${b.ordered ? `${i + 1}.` : "-"} ${inline(it)}`).join("\n")
+          return listText(b)
         case "payload":
           return b.text
         case "quote":
           // Each line of a paragraph its own `>` line, so a quote with line breaks copies as one quote.
-          return b.paragraphs.map((p) => inline(p).split("\n").map((line) => `> ${line}`).join("\n")).join("\n>\n")
+          return b.paragraphs
+            .map((p, i) => {
+              const list = b.lists?.[i]
+              return (list?.kind === "list" ? listText(list) : inline(p)).split("\n").map((line) => `> ${line}`).join("\n")
+            })
+            .join("\n>\n")
         case "table": {
           // As a pipe table, which reads as one in plain text and reads back as one.
           const row = (cells: InlineNode[][]) => `| ${cells.map((c) => inline(c).replace(/\|/g, "\\|")).join(" | ")} |`
