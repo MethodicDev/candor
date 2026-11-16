@@ -450,7 +450,7 @@ The shadcn/ui primitives Candor's components are built on.
 Types and pure functions the components share.
 
 - **chart-focus** (Pro): Marks per row: a row is one series (bars, lines) or one row of cells (a heatmap). Exports `sameDatum`, `useChartFocus`, `useChartSelect`, `chartSelection`, `markRole`.
-- **scale** (Pro): Chart scales and tick helpers shared by Candor's charts. Exports `niceTicks`, `linear`, `compact`, `formatValue`, `seriesColor`.
+- **scale** (Pro): Chart scales and tick helpers shared by Candor's charts. Exports `niceTicks`, `linear`, `compact`, `formatValue`, `formatTicks`, `axisMargin`, `formatCount`, `seriesColor`.
 - **bidi** (free): Text from a model or a tool, safe to show: each bidi control character (U+202A to U+202E, U+2066 to U+2069) is replaced by a visible mark naming it, such as `[U+202E]`. Exports `neutralizeBidi`, `escapeBidiJson`, `hasBidiControls`.
 - **change-hash** (Pro): The sha256 of a change, in the same canonical form in the browser and on the server, so an approval made against a hash can be checked where the change runs. Exports `changeHash`, `canonicalJson`.
 - **chat** (free): The data a Candor thread renders.

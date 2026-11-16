@@ -83,6 +83,10 @@ function viewOf(el: HTMLElement, column: HTMLElement | null): View {
   const newest = column && last ? last.getBoundingClientRect().top - column.getBoundingClientRect().top : 0
   return { top: el.scrollTop, height: el.scrollHeight, client: el.clientHeight, newest }
 }
+/** A virtualized row's message: the last element marked data-slot="message" in it, or the row itself. */
+function newestIn(row: HTMLElement): HTMLElement {
+  return Array.from(row.querySelectorAll<HTMLElement>('[data-slot="message"]')).at(-1) ?? row
+}
 /** A field that takes the keys itself, so ArrowUp or Home there moves a caret, not the thread. */
 function editable(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false
@@ -106,7 +110,7 @@ export const threadStrings = {
  *
  * For long histories, `virtualize` renders only the messages in or near view
  * (each child is one item, keyed by its `key`). The column stays a `log`, the
- * message holding focus stays rendered, and Jump to latest works the same.
+ * message holding focus stays rendered, and Jump to latest and `landNew` work the same.
  *
  * It opens at the bottom, or at `anchor` (the `id` of something in it, such as
  * a chapter divider or the card that needs the reader), and then waits for the
@@ -169,8 +173,8 @@ function Thread({
    * is always followed to its end, and so is anything after a message the reader scrolled away from. Any other message
    * can land, an app's own bubble for the reader's words among them: mark those `data-role="user"`, or use Message. A
    * reply that takes the place of a placeholder, or of an earlier version of itself, lands as a new message does.
-   * Scrolling back to the bottom, or pressing Jump to latest, follows again to the end. Ignored with `virtualize`.
-   * Defaults to "end".
+   * Scrolling back to the bottom, or pressing Jump to latest, follows again to the end. It works the same with
+   * `virtualize`. Defaults to "end".
    */
   landNew?: "end" | "start" | undefined
 }) {
@@ -201,6 +205,26 @@ function Thread({
   // rests there and the thread stops following. Nearer than that, it follows to the end: resting short of the bottom by
   // less than AT_BOTTOM_PX would read as being at it.
   const landing = React.useRef<HTMLElement | null>(null)
+  // The same with `virtualize`, where rows come and go: the newest item's key. It is also kept rendered (the list's pin)
+  // until its row is drawn, so the view can come to rest at its start even when it arrived out of the rendered window;
+  // from then on the thread follows it, which keeps it in the window, and the pin goes, so the list doesn't look for it
+  // on every render while it streams.
+  const landingKey = React.useRef<string | null>(null)
+  const [landingPin, setLandingPin] = React.useState<string | null>(null)
+  const pinHeld = React.useRef<string | null>(null)
+  const pinLanding = React.useCallback((key: string | null) => {
+    if (pinHeld.current === key) return
+    pinHeld.current = key
+    setLandingPin(key)
+  }, [])
+  const landKey = React.useCallback(
+    (key: string | null) => {
+      if (landingKey.current === key) return
+      landingKey.current = key
+      pinLanding(key)
+    },
+    [pinLanding]
+  )
 
   // Following turns the browser's scroll anchoring off on the scroller (overflow-anchor: none), and leaving turns it
   // back on, so an unpinned reader keeps their place as content above them changes. Set here as well as in the render,
@@ -209,24 +233,46 @@ function Thread({
     pinnedRef.current = on
     setPinned(on)
     scroller.current?.style.setProperty("overflow-anchor", on ? "none" : "")
-    if (!on) landing.current = null
-  }, [])
+    if (!on) {
+      landing.current = null
+      landKey(null)
+    }
+  }, [landKey])
 
-  const landsAtStart = landNew === "start" && !virtualize
+  const landsAtStart = landNew === "start"
   const landsAtStartRef = React.useRef(landsAtStart)
   React.useLayoutEffect(() => {
     landsAtStartRef.current = landsAtStart
   }, [landsAtStart])
+  // Virtualized, the message landing is read from its row once the row is rendered, with real layout; until then the
+  // view follows to the end, and the next resize (the row arriving, or growing) tries again. The reader's own message
+  // (data-role="user") doesn't land.
+  const landingRow = React.useCallback((): HTMLElement | null => {
+    const key = landingKey.current
+    if (key === null) return null
+    const row = Array.from(content.current?.children ?? []).find((node) => node.getAttribute("data-virtual-key") === key)
+    if (!(row instanceof HTMLElement)) return null
+    const node = newestIn(row)
+    if ((node === row ? row.lastElementChild : node)?.getAttribute("data-role") === "user") {
+      landKey(null)
+      return null
+    }
+    pinLanding(null)
+    return node
+  }, [landKey, pinLanding])
   const followDown = React.useCallback(() => {
     const el = scroller.current
-    const node = landing.current
+    const node = landing.current ?? landingRow()
     if (el && node?.isConnected && landsAtStart) {
       const column = content.current
       const inset = column ? Number.parseFloat(getComputedStyle(column).paddingTop) || 0 : 0
-      // Never up: the message's start is in view while the thread follows, so resting where the view is keeps it there.
+      // Whether it lands is read from its start, wherever that is: a message that grows by less than AT_BOTTOM_PX at a
+      // time is followed until its start is just above the view, and lands then. Where it rests is never above the view:
+      // a start already above it rests where the view is, at most AT_BOTTOM_PX below it.
       const from = el.scrollTop
-      const top = Math.max(from, Math.round(from + node.getBoundingClientRect().top - el.getBoundingClientRect().top - inset))
-      if (el.scrollHeight - el.clientHeight - top >= AT_BOTTOM_PX) {
+      const start = Math.round(from + node.getBoundingClientRect().top - el.getBoundingClientRect().top - inset)
+      const top = Math.max(from, start)
+      if (el.scrollHeight - el.clientHeight - start >= AT_BOTTOM_PX) {
         follow(false)
         // Instant, so a page's scroll-behavior: smooth doesn't glide it.
         el.scrollTo({ top, behavior: "instant" })
@@ -234,7 +280,7 @@ function Thread({
       }
     }
     toBottom()
-  }, [landsAtStart, follow, toBottom])
+  }, [landsAtStart, follow, toBottom, landingRow])
 
   // Which message carries data-newest.
   const newest = React.useRef<HTMLElement | null>(null)
@@ -500,7 +546,7 @@ function Thread({
     count: items.length,
     keyOf,
     scroller,
-    pin: focused,
+    pin: focused ?? landingPin,
     gap: () => (content.current ? Number.parseFloat(getComputedStyle(content.current).rowGap) || 0 : 0),
   })
   // Virtualized, the newest message is marked while its row is rendered: the last element marked data-slot="message"
@@ -510,7 +556,29 @@ function Thread({
   React.useLayoutEffect(() => {
     if (!virtualize) return
     const row = lastKey === null ? undefined : Array.from(content.current?.children ?? []).find((node) => node.getAttribute("data-virtual-key") === lastKey)
-    markNewest(row instanceof HTMLElement ? (Array.from(row.querySelectorAll<HTMLElement>('[data-slot="message"]')).at(-1) ?? row) : null)
+    markNewest(row instanceof HTMLElement ? newestIn(row) : null)
+  })
+  // Virtualized, with landNew="start": a new last item that arrives while the thread follows is the one to land. As
+  // without virtualize, it arrives when there are more items than before and the last is one not seen before (adding
+  // older items above, or unfolding earlier turns, keeps the last); one that takes the place of the item landing (a
+  // placeholder, or a keyed remount), with the count unchanged, lands in its place.
+  const seenKeys = React.useRef<{ last: string | null; count: number; keys: Set<string> } | null>(null)
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- runs after every render on purpose: it compares the last item with the last render's, and returns at once when neither it nor the count changed
+  React.useLayoutEffect(() => {
+    if (!virtualize) {
+      seenKeys.current = null
+      return
+    }
+    const before = seenKeys.current
+    if (before && before.last === lastKey && before.count === items.length) return
+    const keys = new Set(items.map((_, i) => String(keyOf(i))))
+    seenKeys.current = { last: lastKey, count: items.length, keys }
+    // An emptied thread has nothing to land.
+    if (lastKey === null) landKey(null)
+    if (!before || lastKey === null || before.keys.has(lastKey)) return
+    const grew = items.length > before.count
+    if (!grew && landingKey.current !== null && keys.has(landingKey.current)) return
+    landKey(landsAtStartRef.current && pinnedRef.current ? lastKey : null)
   })
 
   return (
