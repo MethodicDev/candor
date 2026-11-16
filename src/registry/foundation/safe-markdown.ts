@@ -61,6 +61,11 @@ const fenceTitle = (word: string, language: PayloadLanguage): string | undefined
  * "typescript", `sh` "shell", `yml` "yaml"), so Payload highlights it when highlighting is on. A language Payload
  * doesn't highlight is "text", drawn plain, with the fence's word as the block's title. A recognised language is named
  * once, by Payload's label: the title is left out, but for a dialect the label doesn't name (`tsx`, `jsx`, `html`, `svg`).
+ * A fence is three or more backticks or tildes, and only a line of the same character, at least as many, closes it, so
+ * a ```` fence can hold a ``` one. The first word after the fence is its language (`c++`, `objective-c` and `c#`
+ * included) and the rest of that line is ignored (```` ```ts title=x ````). A line whose backticks are followed by more
+ * backticks is text, not a fence: "```x``` y" is a paragraph. A fence left open runs to the end of the text, as a
+ * streaming reply's does. Tildes, longer fences and the text after the language are new in 6.2.1.
  *
  * A GFM pipe table (a header row, a delimiter row such as `| --- | :-: |`, then body rows) becomes a table block of
  * inline text cells, with each column's alignment. `\|` is a pipe inside a cell. A table whose rows don't all have as
@@ -82,10 +87,19 @@ const fenceTitle = (word: string, language: PayloadLanguage): string | undefined
  * a last line that is only a marker (`-`, `1.`, or, at a nested indent or after a numbered item, just the digits of
  * the number the next item at its level would have) is an empty item at the level it will have, so the item doesn't
  * move when its text arrives. A last line of any other number is text, read as any other line, so a reply's closing
- * number is never lost. A lone `1.` with no list before it is still a paragraph until text follows it, and an
- * unclosed fence in an item runs to the end of the text.
- * New in 6.1.2; code in an item, blank lines between items and `start` are new in 6.1.3. With `breaks`, a lone newline
- * in an item's text or a paragraph under it is a line break.
+ * number is never lost. A lone `1.` with no list before it is still a paragraph until text follows it.
+ *
+ * A fence in an item runs to its closing fence, however indented that is, so code written flush left under an item
+ * stays code. A fence with no closing fence after it, as a reply's is until the fence's end arrives, ends at a line
+ * less indented than the fence that goes on the list: an item of a level already open, of its kind and, when
+ * numbered, with the number the next item there would have (`2.` after `1.`). Then the items after it are kept rather
+ * than drawn as code. Nothing else ends it: not text, a heading or a quote, which in code are more often a line of the
+ * code (`# a comment`) than the end of it. So while a reply streams, code written flush left whose lines read as the
+ * list's next item (a `- a` line of YAML under a `-` item) is drawn as items until its closing fence arrives, and then
+ * as code.
+ *
+ * New in 6.1.2; code in an item, blank lines between items and `start` are new in 6.1.3, and the end of a fence that
+ * isn't closed in 6.2.1. With `breaks`, a lone newline in an item's text or a paragraph under it is a line break.
  *
  * A lone newline inside a paragraph (or a quote's) is a space, as CommonMark reads it, unless `breaks` is set (as GFM's breaks option,
  * for writing apps whose agents break lines on purpose): then it stays in the paragraph's text as "\n", a line break,
@@ -112,15 +126,17 @@ export function markdownBlocks(
     para = []
   }
 
+  const closed = closedLater(lines)
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
-    const fence = fenceRe.exec(line)
+    const fence = fenceAt(line)
     if (fence) {
       flushPara()
       const body: string[] = []
-      while (++i < lines.length && !/^\s*```\s*$/.test(lines[i]!)) body.push(lines[i]!)
-      const language = fenceLanguage(fence[1]!)
-      blocks.push({ kind: "payload", language, text: body.join("\n"), title: fenceTitle(fence[1]!, language) })
+      while (++i < lines.length && !closes(lines[i]!, fence)) body.push(lines[i]!)
+      const language = fenceLanguage(fence.word)
+      blocks.push({ kind: "payload", language, text: body.join("\n"), title: fenceTitle(fence.word, language) })
       continue
     }
     if (/^\s*>/.test(line)) {
@@ -131,6 +147,7 @@ export function markdownBlocks(
       i--
       const kept: string[][] = []
       const lists: (ListBlock | null)[] = []
+      let quotedClosed: ReturnType<typeof closedLater> | undefined
       let open: string[] | null = null
       for (let q = 0; q < quoted.length; q++) {
         const said = quoted[q]!
@@ -139,7 +156,7 @@ export function markdownBlocks(
           continue
         }
         if (itemRe.test(said)) {
-          const read = readList(quoted, q, breaks)
+          const read = readList(quoted, q, breaks, (quotedClosed ??= closedLater(quoted)))
           kept.push(quoted.slice(q, read.end).map((l) => l.trim()).filter(Boolean))
           lists[kept.length - 1] = read.block
           open = null
@@ -161,7 +178,7 @@ export function markdownBlocks(
     }
     if (itemRe.test(line)) {
       flushPara()
-      const read = readList(lines, i, breaks)
+      const read = readList(lines, i, breaks, closed)
       blocks.push(read.block)
       i = read.end - 1
       continue
@@ -227,10 +244,51 @@ function indentOf(line: string): number {
 const LIST_DEPTH = 4
 
 /** A line that starts a block a list can't hold, and so ends it: a fence (unless indented into an item), a quote or a heading. */
-const endsList = (line: string) => /^\s*(?:```|>|#{1,6}\s)/.test(line)
+const endsList = (line: string) => fenceAt(line) !== null || /^\s*(?:>|#{1,6}\s)/.test(line)
 
-/** A fence's opening line, with its language word. */
-const fenceRe = /^\s*```(\w*)\s*$/
+type Fence = { mark: string; size: number; word: string }
+
+/**
+ * A fence's opening line: three or more backticks or tildes, then an info string whose first word is the language
+ * (the rest is ignored). A backtick fence's info string has no backtick, so a line such as "```x``` y" is text.
+ */
+function fenceAt(line: string): Fence | null {
+  const m = /^\s*(`{3,}|~{3,})(.*)$/.exec(line)
+  if (!m) return null
+  const info = m[2]!.trim()
+  if (m[1]![0] === "`" && info.includes("`")) return null
+  return { mark: m[1]![0]!, size: m[1]!.length, word: info.split(/\s/, 1)[0]! }
+}
+
+/** A line that closes `fence`: only its character, at least as many as opened it, at any indent. */
+function closes(line: string, fence: Fence): boolean {
+  const m = /^\s*(`{3,}|~{3,})\s*$/.exec(line)
+  return m !== null && m[1]![0] === fence.mark && m[1]!.length >= fence.size
+}
+
+/**
+ * Whether the fence opened at `lines[at]` has a line after it that closes it. Linear: worked out once for all the
+ * lines, on first use, as the longest closing fence of each kind after each line.
+ */
+function closedLater(lines: string[]): (at: number, fence: Fence) => boolean {
+  let after: Record<string, Int32Array> | null = null
+  return (at, fence) => {
+    if (!after) {
+      const runs = { "`": new Int32Array(lines.length), "~": new Int32Array(lines.length) }
+      let tick = 0
+      let tilde = 0
+      for (let i = lines.length - 1; i >= 0; i--) {
+        runs["`"][i] = tick
+        runs["~"][i] = tilde
+        const m = /^\s*(`{3,}|~{3,})\s*$/.exec(lines[i]!)
+        if (m && m[1]![0] === "`") tick = Math.max(tick, m[1]!.length)
+        else if (m) tilde = Math.max(tilde, m[1]!.length)
+      }
+      after = runs
+    }
+    return after[fence.mark]![at]! >= fence.size
+  }
+}
 
 /** A line with up to `cols` columns of its indent taken off, a tab counting to the next multiple of four. */
 function dedent(line: string, cols: number): string {
@@ -262,7 +320,34 @@ function nextNumber(stack: RawList[], n: number): number {
   return level.ordered ? level.start + level.items.length : 1
 }
 
-function readList(lines: string[], at: number, breaks: boolean): { block: ListBlock; end: number } {
+/**
+ * The list item at `lines[end]` inside the list `root` (whose open levels are `stack`), or null. A last line that is
+ * only the number the next item at its level would have is that item with its `.` still to come: an empty item, as `1.`
+ * is. Any other number is text, read as any other line.
+ */
+function itemOf(lines: string[], end: number, stack: RawList[], root: RawList): Item | null {
+  const line = lines[end]!
+  const n = indentOf(line)
+  const digits = end === lines.length - 1 && /^\s*\d+$/.test(line) && (n >= root.indent + 2 || (root.ordered && n >= root.indent)) && numberIn(line) === nextNumber(stack, n)
+  return itemAt(lines, end) ?? (digits ? { ordered: true, text: "", number: numberIn(line) } : null)
+}
+
+/**
+ * Whether the item at `lines[end]` goes on a level already open in `stack`: one of its kind, at its indent (not nested
+ * deeper), and, when numbered, the number the next item there would have.
+ */
+function goesOn(lines: string[], end: number, stack: RawList[], root: RawList): boolean {
+  const item = itemOf(lines, end, stack, root)
+  if (!item) return false
+  const m = indentOf(lines[end]!)
+  let depth = stack.length
+  while (depth > 1 && m < stack[depth - 1]!.indent) depth--
+  const level = stack[depth - 1]!
+  if (level.items.length && m >= level.indent + 2 && depth < LIST_DEPTH) return false
+  return level.ordered === item.ordered && (!item.ordered || item.number === level.start + level.items.length)
+}
+
+function readList(lines: string[], at: number, breaks: boolean, closed: (at: number, fence: Fence) => boolean): { block: ListBlock; end: number } {
   const first = itemAt(lines, at)!
   const root: RawList = { ordered: first.ordered, start: first.number, indent: indentOf(lines[at]!), items: [] }
   const stack: RawList[] = [root]
@@ -277,23 +362,34 @@ function readList(lines: string[], at: number, breaks: boolean): { block: ListBl
       continue
     }
     const n = indentOf(line)
-    const fence = fenceRe.exec(line)
+    const fence = fenceAt(line)
     if (fence && n >= root.indent + 2) {
-      // A fence indented into an item is a code block in it, to its closing fence or the end of the text, its lines
-      // with the fence's indent taken off. The list goes on after it.
+      // A fence indented into an item is a code block in it, its lines with the fence's indent taken off. It runs to
+      // its closing fence; without one, to a line less indented than it that goes on the list, or to the end of the
+      // text. The list goes on after it.
       while (stack.length > 1 && n < stack.at(-1)!.indent + 2) stack.pop()
+      const ends = closed(end, fence)
       const body: string[] = []
-      while (++end < lines.length && !/^\s*```\s*$/.test(lines[end]!)) body.push(dedent(lines[end]!, n))
-      stack.at(-1)!.items.at(-1)!.under.push({ fence: fence[1]!, body })
+      while (++end < lines.length && !closes(lines[end]!, fence)) {
+        const next = lines[end]!
+        if (!ends && next.trim() && indentOf(next) < n && goesOn(lines, end, stack, root)) break
+        body.push(dedent(next, n))
+      }
+      stack.at(-1)!.items.at(-1)!.under.push({ fence: fence.word, body })
       open = null
       blank = false
+      if (end < lines.length && !closes(lines[end]!, fence)) {
+        // Closed by a line of the list: blank lines before it are the list's, and the line is read as the list's.
+        while (body.length && !body.at(-1)!.trim()) {
+          body.pop()
+          blank = true
+        }
+        end--
+      }
       continue
     }
     if (endsList(line)) break
-    // A last line that is only the number the next item at its level would have is that item with its `.` still to
-    // come: an empty item, as `1.` is. Any other number is text, read as any other line.
-    const digits = end === lines.length - 1 && /^\s*\d+$/.test(line) && (n >= root.indent + 2 || (root.ordered && n >= root.indent)) && numberIn(line) === nextNumber(stack, n)
-    const item = itemAt(lines, end) ?? (digits ? { ordered: true, text: "", number: numberIn(line) } : null)
+    const item = itemOf(lines, end, stack, root)
     if (!item && n < root.indent + 2) break
     if (item) {
       // Blank lines between items keep one list, its numbering going on.
@@ -329,7 +425,8 @@ function readList(lines: string[], at: number, breaks: boolean): { block: ListBl
     }
     blank = false
   }
-  // A code block left open runs to the end of the text. Blank lines the list ended on belong to what follows.
+  // A code block left open in the last item runs to the end of the text. Blank lines the list ended on belong to what
+  // follows.
   end = Math.min(end, lines.length)
   while (end > at + 1 && !lines[end - 1]!.trim()) end--
   return { block: listBlock(root, breaks), end }
@@ -386,7 +483,7 @@ function delimiter(line: string): Align[] | null {
 }
 
 /** A line that starts another block, and so ends a table: a list item, a heading, a fence or a quote. */
-const startsBlock = (line: string) => /^\s*(?:[-*+]\s|\d+[.)]\s|#{1,6}\s|```|>)/.test(line)
+const startsBlock = (line: string) => fenceAt(line) !== null || /^\s*(?:[-*+]\s|\d+[.)]\s|#{1,6}\s|>)/.test(line)
 
 /**
  * A GFM pipe table starting at `lines[at]`: a header row, a delimiter row with as many cells, and the body rows up to

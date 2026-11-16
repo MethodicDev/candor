@@ -194,7 +194,7 @@ function Thread({
     (behavior: ScrollBehavior = "auto") => {
       const el = scroller.current
       if (!el) return
-      el.scrollTo({ top: el.scrollHeight, behavior: smooth() ? behavior : "auto" })
+      el.scrollTo({ top: el.scrollHeight, behavior: behavior === "smooth" && !smooth() ? "auto" : behavior })
     },
     [smooth]
   )
@@ -279,8 +279,10 @@ function Thread({
         return
       }
     }
-    toBottom()
-  }, [landsAtStart, follow, toBottom, landingRow])
+    // Virtualized, the end moves each time rows are measured, and each scroll after it restarts a glide under a page's
+    // scroll-behavior: smooth, so the view would crawl to the end: it goes there at once instead.
+    toBottom(virtualize ? "instant" : "auto")
+  }, [landsAtStart, virtualize, follow, toBottom, landingRow])
 
   // Which message carries data-newest.
   const newest = React.useRef<HTMLElement | null>(null)
@@ -557,6 +559,12 @@ function Thread({
     if (!virtualize) return
     const row = lastKey === null ? undefined : Array.from(content.current?.children ?? []).find((node) => node.getAttribute("data-virtual-key") === lastKey)
     markNewest(row instanceof HTMLElement ? newestIn(row) : null)
+    // Rows swapped for a spacer of their height, or a spacer for rows, as the view moved: the column's last element
+    // moved, but nothing in it changed size, so no resize looks at it, and the view stays put. The scroll rule's last
+    // look takes where it is now, or the next scroll up would read the move as layout and go back to the bottom.
+    const el = scroller.current
+    const last = seen.current
+    if (el && last && el.scrollHeight === last.height && el.clientHeight === last.client) seen.current = { ...last, newest: viewOf(el, content.current).newest }
   })
   // Virtualized, with landNew="start": a new last item that arrives while the thread follows is the one to land. As
   // without virtualize, it arrives when there are more items than before and the last is one not seen before (adding
