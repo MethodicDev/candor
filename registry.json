@@ -345,6 +345,7 @@
         "@candor/chat",
         "@candor/claude-agent-sdk",
         "@candor/composer",
+        "@candor/locale",
         "@candor/tokens"
       ],
       "files": [

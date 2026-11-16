@@ -1,7 +1,22 @@
 import * as React from "react"
 import type { ComposerState } from "@/registry/chat/composer"
 import type { EntityRef } from "@/registry/foundation/chat"
-import { fromClaudeAgentEvents, type AgentEvent, type ClaudeApprovalAnswer, type ClaudePermissionMode, type FromClaudeAgentOptions } from "@/registry/adapters/claude-agent-sdk"
+import { claudeCostCents, fromClaudeAgentEvents, type AgentEvent, type ClaudeApprovalAnswer, type ClaudePermissionMode, type FromClaudeAgentOptions } from "@/registry/adapters/claude-agent-sdk"
+import { useFormat, useStrings } from "@/registry/foundation/locale"
+
+/** useClaudeAgent's words for a reply's cost; override them under `claudeAgent` in LocaleProvider's `strings`. */
+export const claudeAgentStrings = {
+  /** A reply's cost, the SDK's estimate: `{amount}` is it rounded up to the cent, in US dollars in the locale ("$0.42"). */
+  cost: "{amount} (estimated)",
+  /** A reply's cost when the SDK's estimate is below a cent: `{amount}` is one cent in the locale ("$0.01"). */
+  costUnder: "under {amount} (estimated)",
+}
+
+/** A whole amount without decimals and a fraction to the cent, as the kit writes money; the amount is already in cents. */
+const dollars = (number: (n: number, options?: Intl.NumberFormatOptions) => string, n: number) => {
+  const decimals = Number.isInteger(n) ? 0 : 2
+  return number(n, { style: "currency", currency: "USD", minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+}
 
 export type UseClaudeAgentOptions = Omit<FromClaudeAgentOptions, "running"> & {
   /** Your route that runs the agent with streamClaudeAgent. It receives `{ prompt, promptId, references, sessionId, ...body }`. */
@@ -45,10 +60,12 @@ export type UseClaudeAgentOptions = Omit<FromClaudeAgentOptions, "running"> & {
  *   <Thread footer={<Composer {...composer} />}>{messages.map((m) => <Message key={m.id} message={m} />)}</Thread>
  *
  * Each message continues the same agent session (the SDK's `resume`). Mentions are
- * sent as structured `references`, not pasted into the text.
+ * sent as structured `references`, not pasted into the text. A reply's cost, the
+ * SDK's estimate, reads in LocaleProvider's locale, rounded up to the cent and
+ * marked as estimated ("$0.42 (estimated)"); `costText` writes it your own way.
  */
 export function useClaudeAgent(options: UseClaudeAgentOptions) {
-  const { api, approveApi, onRespond, body, headers, agent, toolTitle, sourcesFrom, fetch: fetcher, attachUrl, stopApi, modeApi } = options
+  const { api, approveApi, onRespond, body, headers, agent, toolTitle, sourcesFrom, eventText, fetch: fetcher, attachUrl, stopApi, modeApi } = options
   const [events, setEvents] = React.useState<AgentEvent[]>(() => options.initialEvents ?? [])
   const [runId, setRunId] = React.useState<string | undefined>(options.runId)
   const [running, setRunning] = React.useState(false)
@@ -57,7 +74,21 @@ export function useClaudeAgent(options: UseClaudeAgentOptions) {
   const [references, setReferences] = React.useState<EntityRef[]>([])
   const run = React.useRef<AbortController | null>(null)
 
-  const state = React.useMemo(() => fromClaudeAgentEvents(events, { agent, toolTitle, sourcesFrom, running }), [events, agent, toolTitle, sourcesFrom, running])
+  const t = useStrings("claudeAgent", claudeAgentStrings)
+  const { number } = useFormat()
+  const costText = React.useMemo(
+    () =>
+      options.costText ??
+      ((usd: number) => {
+        const cents = claudeCostCents(usd)
+        return cents === null ? t("costUnder", { amount: dollars(number, 0.01) }) : t("cost", { amount: dollars(number, cents) })
+      }),
+    [options.costText, t, number]
+  )
+  const state = React.useMemo(
+    () => fromClaudeAgentEvents(events, { agent, toolTitle, sourcesFrom, running, eventText, costText }),
+    [events, agent, toolTitle, sourcesFrom, running, eventText, costText]
+  )
   const session = React.useRef<string | undefined>(undefined)
   React.useEffect(() => {
     session.current = state.sessionId

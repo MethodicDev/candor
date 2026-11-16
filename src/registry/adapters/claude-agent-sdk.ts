@@ -147,6 +147,13 @@ export type FromClaudeAgentOptions = {
    * Defaults are in English; pass your own for other languages.
    */
   eventText?: { compacted?: ((trigger: "manual" | "auto") => string) | undefined; cleared?: string | undefined } | undefined
+  /**
+   * How a reply's cost is written under it (`attribution.cost`), given the SDK's estimate for the reply in US dollars,
+   * above zero. Without it the estimate is rounded up to the cent and written plainly, the same in every locale, with
+   * the currency's code: "0.42 USD (estimated)", or "under 0.01 USD (estimated)" below a cent. useClaudeAgent passes
+   * one that writes it in the locale.
+   */
+  costText?: ((usd: number) => string | undefined) | undefined
 }
 
 /** A memory the SDK recalled for a reply: the file (or URL) it came from, and whose memory it is. */
@@ -172,6 +179,22 @@ const compactedText = (trigger: "manual" | "auto") =>
     ? "Earlier messages were summarised to make room. The agent works from that summary now; the messages above are unchanged."
     : "Earlier messages were summarised, as asked. The agent works from that summary now; the messages above are unchanged."
 const clearedText = "The conversation was cleared. The agent doesn’t see the messages above."
+
+/**
+ * The SDK's cost estimate in US dollars as an estimate is written: rounded up to the cent, so it never claims more
+ * precision than an estimate has nor reads as less than it was. Null below a cent, which reads as under one. A sum's
+ * binary noise is dropped first, so 0.05 − 0.02 is 0.03, not 0.04.
+ */
+export function claudeCostCents(usd: number): number | null {
+  if (usd < 0.01) return null
+  return Math.ceil(Number((usd * 100).toFixed(6))) / 100
+}
+
+/** The default cost text: plain, the same in every locale, in US dollars by their code, as the SDK reports it. */
+const costText = (usd: number) => {
+  const cents = claudeCostCents(usd)
+  return cents === null ? "under 0.01 USD (estimated)" : `${cents.toFixed(2)} USD (estimated)`
+}
 
 type Part = { kind: "text"; text: string; cites?: string[] | undefined; from?: object | undefined } | { kind: "tool"; id: string } | { kind: "card"; card: string; props: unknown; summary: string }
 
@@ -500,7 +523,7 @@ function render(r: Reply, o: FromClaudeAgentOptions & { model?: string | undefin
     blocks,
     reasoning: reasoning.length ? reasoning : undefined,
     sources: r.sources.size ? [...r.sources.values()] : undefined,
-    attribution: r.result ? { model: o.model, cost: r.result.cost ? `$${r.result.cost.toFixed(r.result.cost < 0.01 ? 4 : 2)} (estimated)` : undefined } : undefined,
+    attribution: r.result ? { model: o.model, cost: r.result.cost ? (o.costText ?? costText)(r.result.cost) : undefined } : undefined,
   }
 }
 

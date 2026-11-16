@@ -10,7 +10,7 @@ import { motion, useMotionAllowed } from "@/lib/candor/motion"
 /**
  * @motion move:scroll When the person presses Jump to latest, the thread glides down to the newest message. Under
  * reduced motion it jumps. Opening the thread, following new messages while the person is at the bottom, and landing at
- * the start of a tall new message are never smooth scrolls.
+ * the start of a tall new message are never smooth scrolls, whatever scroll-behavior the page sets.
  */
 const scrollMotion = motion("thread", "scroll", "move")
 /** How long the animations running on `el` take in all, in milliseconds (the longest of duration × iteration count, capped at 6 s); undefined when it can't be read. */
@@ -190,8 +190,10 @@ function Thread({
   // A smooth jump only when nothing asks for stillness: the OS setting (the calm level), data-motion="calm" or "none"
   // around the thread, or a brand that turned the scroll off.
   const smooth = useMotionAllowed(scroller, scrollMotion)
+  // Every scroll but the jump's is "instant": "auto" would take the scroller's own scroll-behavior, so a page's
+  // scroll-behavior: smooth (even an !important one, which beats the stylesheet's reduced-motion rule) would glide it.
   const toBottom = React.useCallback(
-    (behavior: ScrollBehavior = "auto") => {
+    (behavior: "instant" | "smooth") => {
       const el = scroller.current
       if (!el) return
       el.scrollTo({ top: el.scrollHeight, behavior: behavior === "smooth" && !smooth() ? "instant" : behavior })
@@ -279,10 +281,10 @@ function Thread({
         return
       }
     }
-    // Virtualized, the end moves each time rows are measured, and each scroll after it restarts a glide under a page's
-    // scroll-behavior: smooth, so the view would crawl to the end: it goes there at once instead.
-    toBottom(virtualize ? "instant" : "auto")
-  }, [landsAtStart, virtualize, follow, toBottom, landingRow])
+    // Following is never a glide: at once, so a page's scroll-behavior: smooth doesn't trail the stream (and, virtualized,
+    // where the end moves each time rows are measured and each scroll restarts a glide, doesn't crawl to the end).
+    toBottom("instant")
+  }, [landsAtStart, follow, toBottom, landingRow])
 
   // Which message carries data-newest.
   const newest = React.useRef<HTMLElement | null>(null)
@@ -386,12 +388,12 @@ function Thread({
     anchored.current = true
     const target = content.current.querySelector<HTMLElement>(`#${CSS.escape(anchor!)}`)
     if (target) {
-      target.scrollIntoView?.({ block: "start" })
+      target.scrollIntoView?.({ block: "start", behavior: "instant" })
       return
     }
     // The anchor isn't in the thread: open at the bottom and follow, as without one.
     follow(true)
-    toBottom()
+    toBottom("instant")
   })
 
   // Whether the view is short of the bottom, decided only after a resize or a scroll has been handled (so after a
