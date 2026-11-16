@@ -194,7 +194,7 @@ function Thread({
     (behavior: ScrollBehavior = "auto") => {
       const el = scroller.current
       if (!el) return
-      el.scrollTo({ top: el.scrollHeight, behavior: behavior === "smooth" && !smooth() ? "auto" : behavior })
+      el.scrollTo({ top: el.scrollHeight, behavior: behavior === "smooth" && !smooth() ? "instant" : behavior })
     },
     [smooth]
   )
