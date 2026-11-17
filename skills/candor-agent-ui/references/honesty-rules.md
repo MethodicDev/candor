@@ -59,15 +59,21 @@ nowhere.
 ## 4. Nothing is pre-selected in a decision
 
 **Why.** A default in an approval nudges people to agree without reading. When an agent asks to change something real,
-the person should choose, not confirm.
+the person should choose, not confirm. Where an answer spends money or can't be undone, even a stronger button is a
+nudge.
 
-**Do.** Approve and deny (allow and deny, keep and discard, accept and send back) start with neither chosen. Put the
-destructive or committing answer where Enter and Space won't reach it first. If the agent recommends an answer, mark it
-("the agent's pick") without selecting it. A deny may take an optional reason; an approve never needs a reason to be
-withheld from the person.
+**Do.** Approve and deny (allow and deny, keep and discard, accept and send back) start with neither chosen, in the
+app's order and with the same weight. Nothing that commits or spends is focused: Enter and Space reach no answer until
+the person moves to one. If the agent recommends an answer, mark it ("the agent's pick") where it is, without selecting
+or focusing it. One exception, only where the app asks for it: a recommended answer that spends no money and can be
+undone may lead, first and as the primary button. A committing, spending or irreversible answer is never first or
+primary by default, and one that spends or can't be undone never leads; it keeps its place, and every answer has the
+same weight. Agreeing to spend, with nothing to choose between, is a single primary button that names the amount, with
+Cancel focused first. A deny may take an optional reason; an approve never needs a reason to be withheld from the
+person.
 
-**Don't.** A checked radio, a focused primary Approve, a one-key shortcut for Approve or Delete, a countdown that
-approves by itself.
+**Don't.** A checked radio, a focused primary Approve, a recommended answer that spends money or can't be undone drawn
+first or as the primary button, a one-key shortcut for Approve or Delete, a countdown that approves by itself.
 
 **Example.** A two-answer decision: raise the spending limit, or finish with what's done.
 

@@ -28,6 +28,7 @@ and is named in your report.
 - [ ] No approve/deny, allow/deny or keep/discard answer is selected, checked or focused by default (nothing pre-selected)
 - [ ] Enter, Space or a single key never approves or performs a destructive choice (nothing pre-selected)
 - [ ] The agent's recommendation, where shown, is marked as its pick and not selected (nothing pre-selected)
+- [ ] A recommended answer drawn first or as the primary button spends no money, can be undone, and leads only because the app asked for it (nothing pre-selected)
 - [ ] "Always allow" is never ticked for the person, and says what it skips and how to turn it off (nothing pre-selected)
 
 ## The exact change

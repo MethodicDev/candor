@@ -132,7 +132,9 @@ Candor screens are built so a person can trust what an agent did. Keep these whe
 - **Reasoning is believed, not verified.** Show model reasoning as the model's own account.
 - **A control that can't be used says why.** Use `locked` with a reason instead of a disabled button with no
   explanation.
-- **Nothing is pre-selected** in a decision a person has to make (approve or deny, a destructive choice).
+- **Nothing is pre-selected** in a decision a person has to make (approve or deny, a destructive choice). The agent's
+  recommended answer is marked where it is; only where the app asks for it, a pick that spends no money and can be
+  undone leads, first and as the primary button. One that spends or can't be undone has the same weight as the others.
 - **The agent is always named,** from your app's data, never from model output. System lines are your app's own
   strings.
 - **Destructive actions confirm by typing,** and say what can and can't be undone.

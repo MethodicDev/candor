@@ -16,7 +16,7 @@ Interface components for agent apps: a thread, messages, a composer, tool calls,
 building blocks under them, a light, dark and high-contrast theme, and adapters for the Vercel AI SDK, the Claude
 Agent SDK and AG-UI. For shadcn/ui projects, installed with the `candor-ui` CLI or shadcn's own, MIT licensed.
 
-This repo is the source of Candor UI's 76 free items (version 6.3.0), the skill and plugins for coding
+This repo is the source of Candor UI's 76 free items (version 6.4.0), the skill and plugins for coding
 agents and 3 starter apps. Docs and live examples: **https://candor.themethodic.com**.
 
 The same free items are on npm as [`@candor-ui/react`](https://www.npmjs.com/package/@candor-ui/react), for people who
@@ -53,7 +53,7 @@ Typical and Honest switch; the others go to [Principles](https://candor.themetho
 - **[Model output is text, never markup](https://candor.themethodic.com/honest-vs-typical#link-the-model-wrote)**: Adapters read what a model writes as a small safe subset of markdown; a link becomes plain text with its address beside it.
 - **[Unknown stays unknown](https://candor.themethodic.com/honest-vs-typical#run-that-went-quiet)**: A cost or duration the service didn't report reads “not measured”, not zero, and an estimate says it is one.
 - **[A control that can't be used says why](https://candor.themethodic.com/honest-vs-typical#button-that-was-dead)**: A control that can't be used carries its reason, on hover and focus and to screen readers.
-- **[Nothing is pre-selected in a decision](https://candor.themethodic.com/honest-vs-typical#approve-already-chosen)**: Approve and reject, allow and deny start with neither chosen.
+- **[Nothing is pre-selected in a decision](https://candor.themethodic.com/honest-vs-typical#approve-already-chosen)**: Approve and reject, allow and deny start with neither chosen; a recommended answer leads as the primary button only where the app asks and it spends no money and can be undone.
 - **[Approve the exact change](https://candor.themethodic.com/honest-vs-typical#approval-that-moved)**: A decision is tied to a hash of the change that was asked about; a change that moved since is refused.
 - **[Reasoning is believed, not verified](https://candor.themethodic.com/principles#reasoning-is-believed)**: Reasoning is shown as the model's own account and marked as unchecked; evidence is shown as evidence.
 - **[The agent is always named, by the app](https://candor.themethodic.com/principles#agents-are-named)**: Every agent message names its agent from the app's data, never from model output.
@@ -187,7 +187,7 @@ ask for a full refund within 30 days of buying. The free tier here is MIT.
 | Tier | Price | What's in it | Support |
 |---|---|---|---|
 | Free (this repo) | $0, MIT | 76 items: the chat core, building blocks, themes, adapters; 3 starters; the skill and plugins | public issues here |
-| Pro | $149, one person | All 382 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
+| Pro | $149, one person | All 390 items, the free ones included: the app shell, plans, approvals, diffs, runs, evals and admin | none; the docs and examples |
 | Premium | $249, one person | Pro, plus 11 full-stack blocks and 4 templates, each for the Vercel AI SDK and the Claude Agent SDK | email, best effort |
 | Team | $999, up to 10 people in one company | Premium | email, a first reply within 2 business days |
 

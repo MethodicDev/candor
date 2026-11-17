@@ -340,8 +340,8 @@ From the honesty rules every Candor component keeps (https://candor.themethodic.
 
 **Nothing is pre-selected in a decision.**
 
-- Do: Approve and reject, allow and deny start with neither chosen. Destructive choices never sit under a one-key shortcut, and the agent's own permission prompts can open on Deny.
-- Don't: Pre-select Approve, mark a default choice as checked, or put a destructive answer under Enter.
+- Do: Approve and reject, allow and deny start with neither chosen, and no answer that commits or spends is focused for the person. The answers keep the app's order and the same weight, and the agent's recommended answer is marked as its pick. Only where the app asks for it does the pick lead, first and as the primary button, and only when taking it spends no money and can be undone; an answer that spends or can't be undone keeps its place, and every answer has the same weight. Destructive choices never sit under a one-key shortcut, and the agent's own permission prompts can open on Deny. Agreeing to spend, with nothing to choose between, is a single primary button that names the amount, with Cancel focused first.
+- Don't: Pre-select Approve, mark a default choice as checked, put a destructive answer under Enter, or let a recommended answer that spends money or can't be undone lead, first or as the primary button.
 
 **Approve the exact change.**
 

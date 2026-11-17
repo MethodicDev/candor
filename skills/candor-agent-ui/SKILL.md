@@ -37,7 +37,8 @@ Each is expanded with examples in `references/honesty-rules.md`.
 3. **A control that can't be used says why.** Lock it with a reason a keyboard and screen-reader user can reach; don't
    `disable` it and leave people guessing.
 4. **Nothing is pre-selected in a decision.** Approve and deny, keep and discard start with neither chosen. Enter never
-   approves. The agent's recommendation is marked, not selected.
+   approves. The agent's recommendation is marked, not selected. Only where the app asks for it, a pick that spends no
+   money and can be undone leads, first and as the primary button; one that spends or can't be undone never does.
 5. **Approve the exact change.** The decision is bound to the change the person saw (a hash or version). If the change
    moves, ask again. Self-approval is refused where policy says so; production can need a second person.
 6. **Reasoning is believed, not verified.** The model's account of why is a claim. Label it as such and keep it apart

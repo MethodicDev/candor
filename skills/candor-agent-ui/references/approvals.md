@@ -28,14 +28,18 @@ change only if they still match.
   and the agent's reasoning behind a disclosure that is open by default for anything irreversible.
 - Never fold the decision below the fold. On a phone the buttons are reachable without scrolling past the change, or
   the change is summarised above them with the full view one tap away.
-- Show the agent's recommendation only when it has one, marked as its pick and never selected.
+- Show the agent's recommendation only when it has one, marked as its pick and never selected. It keeps its place
+  among the answers unless it may lead (below).
 - Don't pad with the model's confidence or a progress bar; show the evidence (a test run, a dry run) if there is one.
 
 ## The buttons
 
 - Neither answer focused or selected on open. Enter and Space do nothing until the person moves focus to an answer.
-- The committing answer (Approve, Allow, Apply, Send) is not under a single key, not the leftmost in a row people
-  click through, and not the primary colour if that colour is used for a default elsewhere on the screen.
+- The answers keep the app's order and the same weight. The committing answer (Approve, Allow, Apply, Send) is not
+  under a single key, not first in a row people click through, and not the primary colour.
+- One exception, only where the app asks for it: a recommended answer that spends no money and can be undone may lead,
+  first and as the primary button, still unfocused and unselected. An answer that spends or can't be undone never
+  leads; it keeps its place with the same weight as the others, marked if it is the agent's pick.
 - Deny takes an optional reason; the agent sees it. Approve may let the person edit the change first; editing re-hashes.
 - "Always allow" exists only if the app wants it, is never ticked for the person, and says what it will skip from now
   on and how to turn it off.
