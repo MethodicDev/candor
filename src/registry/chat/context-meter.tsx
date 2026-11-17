@@ -93,7 +93,7 @@ function ContextMeter({
             cy="9"
             r={r}
             fill="none"
-            stroke={warn ? "var(--cd-warning)" : "var(--primary)"}
+            stroke={warn ? "var(--cd-warning)" : "var(--cd-primary-mark, var(--primary))"}
             strokeWidth="2.5"
             strokeDasharray={`${pct * c} ${c}`}
             strokeLinecap="round"

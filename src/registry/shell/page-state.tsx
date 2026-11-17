@@ -32,6 +32,9 @@ const kindIcon: Record<PageStateKind, LucideIcon> = { empty: Inbox, "no-match": 
  * product's. An error carries the request id to quote; "unavailable" is for
  * both "doesn't exist" and "not yours", so it never reveals which.
  *
+ * Children go under the actions as a wider block, for a first-time home: an inline Composer and an ordered list of the
+ * steps, say. Nothing in it takes focus on its own; a page with one task can move focus there itself.
+ *
  * @keywords 404
  * @job 404
  * @job not found
@@ -47,13 +50,14 @@ function PageState({
   requestId,
   Icon,
   headingLevel,
+  children,
   className,
 }: {
   /** empty, no-match, error, unavailable or offline; sets the icon, and an error or offline is announced. */
   kind: PageStateKind
   /** What's going on, in the product's words. */
   title: string
-  /** More on why, or what to do, under the title. */
+  /** More on why, or what to do, under the title. Text is a paragraph; anything else (a list, a link) sits in a block of its own. */
   detail?: React.ReactNode | undefined
   /** The one thing to do next. */
   action?: { label: string; onClick: () => void } | undefined
@@ -69,6 +73,8 @@ function PageState({
    * `<h2>` with no scope round it. The size stays the same at any level.
    */
   headingLevel?: HeadingLevel | undefined
+  /** A wider block under the actions, read from the start edge: a composer, the steps of how it works. */
+  children?: React.ReactNode | undefined
   /** Classes for the state, merged with Candor's. */
   className?: string | undefined
 }) {
@@ -81,7 +87,12 @@ function PageState({
         <Glyph aria-hidden className="size-5" />
       </span>
       <Heading className="text-base font-semibold">{neutralizeBidi(title)}</Heading>
-      {detail && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{typeof detail === "string" ? neutralizeBidi(detail) : detail}</p>}
+      {detail &&
+        (typeof detail === "string" || typeof detail === "number" ? (
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">{typeof detail === "string" ? neutralizeBidi(detail) : detail}</p>
+        ) : (
+          <div className="mt-1 max-w-sm text-sm text-muted-foreground">{detail}</div>
+        ))}
       {requestId && (
         <div className="mt-4 w-full max-w-xs text-start">
           <CopyField label={t("requestId")} value={requestId} />
@@ -99,6 +110,11 @@ function PageState({
               <bdi>{neutralizeBidi(secondary.label)}</bdi>
             </Button>
           )}
+        </div>
+      )}
+      {children !== undefined && children !== null && children !== false && (
+        <div data-slot="page-state-body" className="mt-8 w-full max-w-xl text-start">
+          {children}
         </div>
       )}
     </div>

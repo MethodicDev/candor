@@ -20,7 +20,7 @@ const settleMotion = motion("status-dot", "settle", "pop")
 const dotColor: Record<RunStatus, string> = {
   idle: "bg-faint-foreground/60",
   queued: "bg-faint-foreground",
-  running: "bg-primary text-accent-text",
+  running: "bg-[var(--cd-primary-mark,var(--primary))] text-accent-text",
   waiting: "bg-warning text-warning-text",
   blocked: "bg-transparent ring-[1.5px] ring-inset ring-faint-foreground",
   succeeded: "bg-success",

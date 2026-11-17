@@ -289,6 +289,7 @@
   --color-chrome: var(--cd-chrome);
   --color-border-strong: var(--cd-border-strong);
   --color-primary-hover: var(--cd-primary-hover);
+  --color-primary-mark: var(--cd-primary-mark, var(--primary));
   --color-accent-weak: var(--cd-accent-weak);
   --color-accent-text: var(--cd-accent-text);
   --color-destructive-weak: var(--cd-destructive-weak);
@@ -970,5 +971,17 @@
     background-color: Canvas;
     background-image: linear-gradient(90deg, Canvas 0%, Highlight 50%, Canvas 100%);
     opacity: 1;
+  }
+
+  /*
+   * Keyboard focus (KIT-420): the focus ring is a shadow, which forced colours drop, so the control with keyboard focus
+   * is outlined in Highlight and nothing else is. Controls take `outline-none`, never `outline-hidden`, whose
+   * transparent outline would turn visible on every control, focused or not. A card whose stretched link draws no
+   * outline of its own is outlined as a whole, so its links are left out here, and so are inputs whose thumb or cell is
+   * outlined instead (`data-focus-outline="own"`).
+   */
+  :focus-visible:not([data-focus-outline="own"], :is([data-slot="stat-card"], [data-slot="portfolio-card"]) a) {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
   }
 }

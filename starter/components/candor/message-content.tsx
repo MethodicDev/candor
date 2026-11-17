@@ -149,7 +149,7 @@ function TableBlock({ block }: { block: Extract<MessageBlock, { kind: "table" }>
   const t = useStrings("messageContent", messageContentStrings)
   return (
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-    <div data-slot="message-table" role="group" aria-label={t("table")} tabIndex={0} className="max-w-full overflow-x-auto rounded-md border outline-hidden focus-visible:ring-[3px] focus-visible:ring-ring/80">
+    <div data-slot="message-table" role="group" aria-label={t("table")} tabIndex={0} className="max-w-full overflow-x-auto rounded-md border outline-none focus-visible:ring-[3px] focus-visible:ring-ring/80">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b bg-muted/50">

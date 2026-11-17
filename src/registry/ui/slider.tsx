@@ -44,6 +44,8 @@ function Slider(allProps: SliderProps) {
   // The thumb's focusable part is Base UI's range input inside it: that is where a lock is announced.
   const markInput = (input: HTMLInputElement | null) => {
     if (!input) return
+    // Forced colours outline the thumb that holds this input, not the input.
+    input.setAttribute("data-focus-outline", "own")
     if (isLocked) input.setAttribute("aria-disabled", "true")
     else input.removeAttribute("aria-disabled")
   }
@@ -56,7 +58,7 @@ function Slider(allProps: SliderProps) {
         data-slot="slider-track"
         className="relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5"
       >
-        <SliderPrimitive.Indicator data-slot="slider-range" className="bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full" />
+        <SliderPrimitive.Indicator data-slot="slider-range" className="bg-[var(--cd-primary-mark,var(--primary))] data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full" />
       </SliderPrimitive.Track>
       {Array.from({ length: count }, (_, i) => (
         <SliderPrimitive.Thumb
@@ -68,7 +70,7 @@ function Slider(allProps: SliderProps) {
           aria-labelledby={thumbLabels?.[i] ? undefined : ariaLabelledby}
           aria-describedby={isLocked ? reasonId : undefined}
           inputRef={markInput}
-          className="relative after:absolute after:-inset-2 block size-4 shrink-0 rounded-full border border-primary bg-card shadow-sm ring-ring/40 cd-tint outline-none hover:ring-[3px] has-focus-visible:ring-[3px] has-focus-visible:ring-ring/80 data-[locked]:cursor-not-allowed data-[locked]:hover:ring-0"
+          className="relative after:absolute after:-inset-2 block size-4 shrink-0 rounded-full border border-[var(--cd-primary-mark,var(--primary))] bg-card shadow-sm ring-ring/40 cd-tint outline-none hover:ring-[3px] has-focus-visible:ring-[3px] has-focus-visible:ring-ring/80 forced-colors:has-focus-visible:outline-2 forced-colors:has-focus-visible:outline-solid forced-colors:has-focus-visible:outline-[Highlight] data-[locked]:cursor-not-allowed data-[locked]:hover:ring-0"
         />
       ))}
     </SliderPrimitive.Control>

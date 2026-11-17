@@ -92,7 +92,7 @@ function AttachmentChip({
           <X className="size-3" />
         </button>
       )}
-      {a.progress !== undefined && !a.error && <span aria-hidden className="absolute bottom-0 start-0 h-0.5 bg-primary cd-fill" style={{ ...progressMotion, width: `${a.progress * 100}%` }} />}
+      {a.progress !== undefined && !a.error && <span aria-hidden className="absolute bottom-0 start-0 h-0.5 bg-[var(--cd-primary-mark,var(--primary))] cd-fill" style={{ ...progressMotion, width: `${a.progress * 100}%` }} />}
     </span>
   )
 }

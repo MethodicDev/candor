@@ -8,14 +8,14 @@
  *   @import "./candor.css";
  *   @import "./candor-theme-paper.css";
  *
- * Checked: the 44 text and edge pairings in each of light, dark and high contrast (132
+ * Checked: the 45 text and edge pairings in each of light, dark and high contrast (135
  * pairings), and the focus ring at 80% opacity on 6 surfaces in each: the checks
  * npm run theme runs on Candor's own colours (WCAG 2 ratios; text 4.5:1, 7:1 in high
  * contrast; edges 3:1).
- * Result: all 150 checks pass.
- *   Light: 44 of 44 pairings pass; the focus ring passes on 6 of 6 surfaces.
- *   Dark: 44 of 44 pairings pass; the focus ring passes on 6 of 6 surfaces.
- *   High contrast: 44 of 44 pairings pass; the focus ring passes on 6 of 6 surfaces.
+ * Result: all 153 checks pass.
+ *   Light: 45 of 45 pairings pass; the focus ring passes on 6 of 6 surfaces.
+ *   Dark: 45 of 45 pairings pass; the focus ring passes on 6 of 6 surfaces.
+ *   High contrast: 45 of 45 pairings pass; the focus ring passes on 6 of 6 surfaces.
  *
  * Every colour role is written in every theme. The chart series keep Candor's values.
  */

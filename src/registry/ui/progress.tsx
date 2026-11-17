@@ -31,7 +31,7 @@ function Progress(allProps: ProgressProps) {
       <div
         key="value"
         data-slot="progress-indicator"
-        className="h-full w-[calc(100%+var(--cd-progress))] rounded-full bg-primary cd-fill"
+        className="h-full w-[calc(100%+var(--cd-progress))] rounded-full bg-[var(--cd-primary-mark,var(--primary))] cd-fill"
         style={{ ...valueMotion, "--cd-progress": `-${100 - percent}%` } as React.CSSProperties}
       />
     ) : (
@@ -39,7 +39,7 @@ function Progress(allProps: ProgressProps) {
         key="unknown"
         data-slot="progress-indicator"
         style={indeterminateMotion}
-        className="size-full cd-live-pulse bg-[linear-gradient(90deg,var(--muted)_0%,var(--primary)_50%,var(--muted)_100%)] opacity-60"
+        className="size-full cd-live-pulse bg-[linear-gradient(90deg,var(--muted)_0%,var(--cd-primary-mark,var(--primary))_50%,var(--muted)_100%)] opacity-60"
       />
     ))
   return (

@@ -15,7 +15,11 @@
  *
  * To restyle, override the roles after this file: colours by their shadcn names
  * (--primary, --background…), everything else by its --cd-* name. A brand theme
- * is just such a file.
+ * is just such a file. --primary fills buttons and badges, where the text on it
+ * names them; --cd-primary-mark, unset unless a brand sets it, colours the marks
+ * that show a control's state on their own (a checked box, a radio's dot, a switch
+ * that's on, a slider's range, a progress bar's fill) and follows --primary until
+ * then. It is held to 3:1 on the card.
  *
  * Font: Inter when the font-inter item is installed (styles/candor-font-inter.css),
  * else the system's sans-serif. Point --cd-font at your own font to use it instead.

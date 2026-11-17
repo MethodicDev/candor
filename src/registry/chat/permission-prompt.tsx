@@ -446,7 +446,7 @@ function PromptBody({
                 </legend>
                 {q.options.map((o) => (
                   <label key={o.id} className="flex min-h-(--cd-control-h-2xs,1.5rem) items-start gap-(--cd-control-gap,0.5rem)">
-                    <input type={q.multiple ? "checkbox" : "radio"} name={`${id}-${q.id}`} checked={a?.choice.includes(o.id) ?? false} onChange={() => choose(q, o.id)} className="mt-0.5 size-4 accent-[var(--primary)]" />
+                    <input type={q.multiple ? "checkbox" : "radio"} name={`${id}-${q.id}`} checked={a?.choice.includes(o.id) ?? false} onChange={() => choose(q, o.id)} className="mt-0.5 size-4 accent-[var(--cd-primary-mark,var(--primary))]" />
                     <span>
                       <bdi>{o.label}</bdi>
                       {o.detail && <span className="block text-xs text-muted-foreground">{o.detail}</span>}
@@ -456,7 +456,7 @@ function PromptBody({
                 {q.other && (
                   <>
                     <label className="flex min-h-(--cd-control-h-2xs,1.5rem) items-start gap-(--cd-control-gap,0.5rem)">
-                      <input type={q.multiple ? "checkbox" : "radio"} name={`${id}-${q.id}`} checked={a?.other ?? false} onChange={() => toggleOther(q)} className="mt-0.5 size-4 accent-[var(--primary)]" />
+                      <input type={q.multiple ? "checkbox" : "radio"} name={`${id}-${q.id}`} checked={a?.other ?? false} onChange={() => toggleOther(q)} className="mt-0.5 size-4 accent-[var(--cd-primary-mark,var(--primary))]" />
                       <span>{t("otherOption")}</span>
                     </label>
                     {a?.other && (
@@ -550,7 +550,7 @@ function PromptBody({
                       type="checkbox"
                       checked={ticked.includes(i)}
                       onChange={(e) => setTicked((prev) => (e.target.checked ? [...prev, i] : prev.filter((x) => x !== i)))}
-                      className="mt-0.5 size-4 accent-[var(--primary)]"
+                      className="mt-0.5 size-4 accent-[var(--cd-primary-mark,var(--primary))]"
                     />
                     <span>
                       <span className="font-mono text-xs">{w.text}</span>

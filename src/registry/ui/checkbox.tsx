@@ -54,7 +54,7 @@ function Checkbox({
         onCheckedChange?.(next, details)
       }}
       className={cn(
-        "peer relative after:absolute after:-inset-1 grid size-4 shrink-0 place-content-center rounded-xs border border-input bg-card text-primary-foreground shadow-xs cd-tint outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/80 data-disabled:cursor-not-allowed data-disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-checked:border-primary data-checked:bg-primary data-indeterminate:border-primary data-indeterminate:bg-primary aria-invalid:border-destructive aria-invalid:ring-destructive/25 dark:bg-input/30",
+        "peer relative after:absolute after:-inset-1 grid size-4 shrink-0 place-content-center rounded-xs border border-input bg-card text-primary-foreground shadow-xs cd-tint outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/80 data-disabled:cursor-not-allowed data-disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-checked:border-[var(--cd-primary-mark,var(--primary))] data-checked:bg-[var(--cd-primary-mark,var(--primary))] data-indeterminate:border-[var(--cd-primary-mark,var(--primary))] data-indeterminate:bg-[var(--cd-primary-mark,var(--primary))] aria-invalid:border-destructive aria-invalid:ring-destructive/25 dark:bg-input/30",
         className
       )}
       {...props}

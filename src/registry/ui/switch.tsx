@@ -44,7 +44,7 @@ function Switch({
         onCheckedChange?.(next, details)
       }}
       className={cn(
-        "peer relative after:absolute after:-inset-1 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent bg-input shadow-xs cd-tint outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/80 data-disabled:cursor-not-allowed data-disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-checked:bg-primary aria-invalid:ring-destructive/25",
+        "peer relative after:absolute after:-inset-1 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent bg-input shadow-xs cd-tint outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/80 data-disabled:cursor-not-allowed data-disabled:opacity-45 data-[locked]:cursor-not-allowed data-[locked]:opacity-45 data-checked:bg-[var(--cd-primary-mark,var(--primary))] aria-invalid:ring-destructive/25",
         className
       )}
       {...props}

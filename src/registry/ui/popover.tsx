@@ -78,7 +78,7 @@ function PopoverContent({
           data-slot="popover-content"
           style={{ ...openMotion, ...style }}
           className={cn(
-            "z-50 w-72 origin-(--transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-open:cd-overlay data-closed:cd-overlay-out",
+            "z-50 w-72 origin-(--transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-open:cd-overlay data-closed:cd-overlay-out",
             layerClass,
             className
           )}

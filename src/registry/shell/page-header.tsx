@@ -97,7 +97,7 @@ function PageHeader({
               type="button"
               aria-current={activeTab === tab.id ? "page" : undefined}
               onClick={() => onTabChange?.(tab.id)}
-              className="flex shrink-0 items-center gap-1.5 border-b-2 border-transparent pb-2.5 text-sm text-muted-foreground outline-none cd-tint hover:text-foreground focus-visible:text-foreground aria-[current=page]:border-primary aria-[current=page]:font-medium aria-[current=page]:text-foreground"
+              className="flex shrink-0 items-center gap-1.5 border-b-2 border-transparent pb-2.5 text-sm text-muted-foreground outline-none cd-tint hover:text-foreground focus-visible:text-foreground aria-[current=page]:border-[var(--cd-primary-mark,var(--primary))] aria-[current=page]:font-medium aria-[current=page]:text-foreground"
             >
               <bdi>{neutralizeBidi(tab.label)}</bdi>
               {tab.count !== undefined && <span className="rounded-full bg-muted px-1.5 text-2xs tabular-nums text-muted-foreground">{tab.count}</span>}
