@@ -153,6 +153,10 @@ function LeavingChip({ onDone, children }: { onDone: () => void; children: React
  * Mentioned records and attached files sit above the box in a group named
  * "Attached to this message"; removing one moves focus to the chip after it,
  * the one before when it was the last, or the box when none is left.
+ *
+ * `layout="inline"` draws one line that grows as the person writes, up to
+ * `maxRows`, with Send at its inline end; `note` adds a quiet line under the
+ * box, such as the app's cost hint.
  */
 function Composer({
   value,
@@ -176,6 +180,10 @@ function Composer({
   textareaRef,
   sendShape = "square",
   hints = true,
+  layout = "stacked",
+  maxRows = 6,
+  sendLabel,
+  note,
   className,
 }: {
   /** The text in the box. */
@@ -229,6 +237,22 @@ function Composer({
   textareaRef?: React.Ref<HTMLTextAreaElement> | undefined
   /** The send button's shape: "square" (the default, rounded corners) or "round". */
   sendShape?: "square" | "round" | undefined
+  /**
+   * `stacked` (the default): the box over a toolbar of attach, `tools`, the scope pill, the keyboard hints and Send.
+   * `inline`: one line that grows as the person writes, up to `maxRows`, with attach before it and `tools` and Send
+   * after it. Inline has no keyboard hints, and the scope pill sits under the box. Enter sends and Shift+Enter breaks a
+   * line in both.
+   */
+  layout?: "stacked" | "inline" | undefined
+  /** With `layout="inline"`, how many lines the box grows to before it scrolls. Defaults to 6. */
+  maxRows?: number | undefined
+  /** The send button's accessible name, such as "Start"; "Send" by default. */
+  sendLabel?: string | undefined
+  /**
+   * A quiet line under the box, in the app's words: a cost hint such as "About 8¢ a reply, estimated". Screen readers
+   * read it with the box and Send. Say so when an amount is an estimate; the kit doesn't work it out.
+   */
+  note?: React.ReactNode | undefined
   /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
@@ -408,8 +432,137 @@ function Composer({
   }
 
   const production = !!scope?.production
+  const inline = layout === "inline"
+  const rows = Number.isFinite(maxRows) ? Math.max(1, Math.floor(maxRows)) : 6
+  const noteId = `${id}-note`
+  // The box's own reason first, then the app's note: both describe the box and Send.
+  const reasonId = locked ? `${id}-locked` : held ? `${id}-held` : undefined
+  const describedBy = note ? (reasonId ? `${reasonId} ${noteId}` : noteId) : reasonId
   const listId = `${id}-menu`
   const optionId = (i: number) => `${id}-opt-${i}`
+
+  const textBox = (
+    <textarea
+      ref={setTextarea}
+      id={id}
+      rows={1}
+      value={value}
+      // Read-only, not disabled: a locked box keeps focus and its text can be read and copied; the reason below describes it.
+      readOnly={Boolean(locked)}
+      aria-disabled={locked ? true : undefined}
+      placeholder={locked ? undefined : placeholder}
+      onChange={(e) => {
+        onValueChange(e.target.value)
+        requestAnimationFrame(syncTrigger)
+      }}
+      onKeyDown={onKeyDown}
+      onKeyUp={(e) => {
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") syncTrigger()
+      }}
+      onClick={syncTrigger}
+      onBlur={() => setTrigger(null)}
+      onPaste={(e) => {
+        // Pasted files (a screenshot, files copied in Finder) attach; pasted text is typed as usual.
+        const files = Array.from(e.clipboardData?.files ?? [])
+        if (!files.length || !canAttach) return
+        onAttach!(files)
+        if (!e.clipboardData.getData("text/plain")) e.preventDefault()
+      }}
+      aria-controls={menuOpen ? listId : undefined}
+      aria-activedescendant={menuOpen ? optionId(active) : undefined}
+      aria-autocomplete="list"
+      aria-describedby={describedBy}
+      style={inline ? ({ "--cd-composer-rows": rows } as React.CSSProperties) : undefined}
+      className={cn(
+        inline
+          ? "block max-h-[calc(var(--cd-composer-rows,6)*1lh+0.625rem)] min-h-0 min-w-0 flex-1 resize-none bg-transparent px-2 py-1.25 text-prose outline-hidden [field-sizing:content] placeholder:text-faint-foreground aria-disabled:cursor-not-allowed"
+          : "block max-h-60 min-h-12 w-full resize-none bg-transparent px-(--cd-row-px,1rem) pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground aria-disabled:cursor-not-allowed",
+        // Locked and empty, the box folds to a strip above the reason; still focusable, it draws its own focus ring
+        // (KIT-247), since the root's border alone barely changes.
+        !inline && locked && !value && "min-h-0 h-3 pt-3 pb-0 rounded-t-2xl focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/80"
+      )}
+    />
+  )
+
+  const attachControl = onAttach && (
+    <>
+      <input
+        ref={fileInput}
+        type="file"
+        multiple
+        accept={accept}
+        tabIndex={-1}
+        aria-label={t("attachFiles")}
+        className="hidden"
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? [])
+          if (files.length) onAttach(files)
+          e.target.value = ""
+        }}
+      />
+      {/* Disabled, not closed by `open`: the tooltip stays uncontrolled when the composer locks. Locked says why. */}
+      <Tooltip disabled={Boolean(locked)}>
+        <Locked reason={locked ? sendReason : undefined}>
+          <TooltipTrigger aria-describedby={locked ? `${id}-locked` : undefined} render={
+            <button
+              type="button"
+              aria-label={t("attachFiles")}
+              onClick={() => fileInput.current?.click()}
+              className="flex size-(--cd-control-h-sm,2rem) items-center justify-center rounded-lg text-muted-foreground cd-tint hover:bg-accent hover:text-foreground data-[locked]:cursor-not-allowed data-[locked]:opacity-40 data-[locked]:hover:bg-transparent data-[locked]:hover:text-muted-foreground"
+            >
+              <Paperclip className="size-4" />
+            </button>
+          } />
+        </Locked>
+        <TooltipContent>{t("attachFiles")}</TooltipContent>
+      </Tooltip>
+    </>
+  )
+
+  const scopePill = scope && (
+    // With nothing to open it is a label, not a button that does nothing.
+    <ScopeChip
+      onClick={onScopeClick}
+      className={cn(
+        "inline-flex min-w-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs cd-tint",
+        onScopeClick && "hover:bg-accent",
+        production ? "bg-warning-weak text-warning-text hover:bg-warning-weak" : "text-muted-foreground"
+      )}
+    >
+      {production ? <TriangleAlert aria-hidden className="size-3 shrink-0" /> : <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-success" />}
+      <span className="truncate">
+        <bdi>{neutralizeBidi(scope.environment)}</bdi>
+        {separator}
+        {production ? t("production") : <bdi>{neutralizeBidi(scope.detail) ?? t("nonProduction")}</bdi>}
+      </span>
+    </ScopeChip>
+  )
+
+  const sendControl = state === "streaming" && onStop ? (
+    <button
+      type="button"
+      aria-label={t("stop")}
+      onClick={onStop}
+      style={sendMotion}
+      className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-foreground text-background cd-press", hints && !inline && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+    >
+      <Square className="size-3 fill-current" />
+    </button>
+  ) : (
+    <Locked reason={sendReason} className={cn("ms-auto", hints && !inline && "@lg:ms-1")}>
+      <button
+        type="button"
+        aria-label={sendLabel ?? t("send")}
+        aria-describedby={describedBy}
+        onClick={submit}
+        aria-busy={state === "sending"}
+        style={sendMotion}
+        className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-primary text-primary-foreground cd-press hover:bg-primary-hover data-[locked]:cursor-not-allowed data-[locked]:opacity-30 data-[locked]:hover:bg-primary data-[locked]:active:scale-100", hints && !inline && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
+      >
+        {state === "sending" ? <LoaderCircle style={sendingMotion} className="size-4 cd-live-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
+      </button>
+    </Locked>
+  )
 
   return (
     <div
@@ -566,43 +719,16 @@ function Composer({
         <label htmlFor={id} className="sr-only">
           {label}
         </label>
-        <textarea
-          ref={setTextarea}
-          id={id}
-          rows={1}
-          value={value}
-          // Read-only, not disabled: a locked box keeps focus and its text can be read and copied; the reason below describes it.
-          readOnly={Boolean(locked)}
-          aria-disabled={locked ? true : undefined}
-          placeholder={locked ? undefined : placeholder}
-          onChange={(e) => {
-            onValueChange(e.target.value)
-            requestAnimationFrame(syncTrigger)
-          }}
-          onKeyDown={onKeyDown}
-          onKeyUp={(e) => {
-            if (e.key === "ArrowLeft" || e.key === "ArrowRight") syncTrigger()
-          }}
-          onClick={syncTrigger}
-          onBlur={() => setTrigger(null)}
-          onPaste={(e) => {
-            // Pasted files (a screenshot, files copied in Finder) attach; pasted text is typed as usual.
-            const files = Array.from(e.clipboardData?.files ?? [])
-            if (!files.length || !canAttach) return
-            onAttach!(files)
-            if (!e.clipboardData.getData("text/plain")) e.preventDefault()
-          }}
-          aria-controls={menuOpen ? listId : undefined}
-          aria-activedescendant={menuOpen ? optionId(active) : undefined}
-          aria-autocomplete="list"
-          aria-describedby={locked ? `${id}-locked` : held ? `${id}-held` : undefined}
-          className={cn(
-            "block max-h-60 min-h-12 w-full resize-none bg-transparent px-(--cd-row-px,1rem) pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground aria-disabled:cursor-not-allowed",
-            // Locked and empty, the box folds to a strip above the reason; still focusable, it draws its own focus ring
-            // (KIT-247), since the root's border alone barely changes.
-            locked && !value && "min-h-0 h-3 pt-3 pb-0 rounded-t-2xl focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/80"
-          )}
-        />
+        {inline ? (
+          <div data-slot="composer-row" className="flex items-end gap-1.5 p-1.5">
+            {attachControl}
+            {textBox}
+            {tools}
+            {sendControl}
+          </div>
+        ) : (
+          textBox
+        )}
         {locked && (
           <p id={`${id}-locked`} className="flex items-center gap-1.5 px-4 pb-1 text-sm text-muted-foreground">
             {locked.kind === "offline" ? neutralizeBidi(locked.reason) ?? t("offline") : neutralizeBidi(locked.reason)}
@@ -614,111 +740,46 @@ function Composer({
           </p>
         )}
 
-        <div className="flex items-center gap-1.5 px-2 pt-1 pb-2">
-          {onAttach && (
-            <>
-              <input
-                ref={fileInput}
-                type="file"
-                multiple
-                accept={accept}
-                tabIndex={-1}
-                aria-label={t("attachFiles")}
-                className="hidden"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files ?? [])
-                  if (files.length) onAttach(files)
-                  e.target.value = ""
-                }}
-              />
-              {/* Disabled, not closed by `open`: the tooltip stays uncontrolled when the composer locks. Locked says why. */}
-              <Tooltip disabled={Boolean(locked)}>
-                <Locked reason={locked ? sendReason : undefined}>
-                  <TooltipTrigger aria-describedby={locked ? `${id}-locked` : undefined} render={
-                    <button
-                      type="button"
-                      aria-label={t("attachFiles")}
-                      onClick={() => fileInput.current?.click()}
-                      className="flex size-(--cd-control-h-sm,2rem) items-center justify-center rounded-lg text-muted-foreground cd-tint hover:bg-accent hover:text-foreground data-[locked]:cursor-not-allowed data-[locked]:opacity-40 data-[locked]:hover:bg-transparent data-[locked]:hover:text-muted-foreground"
-                    >
-                      <Paperclip className="size-4" />
-                    </button>
-                  } />
-                </Locked>
-                <TooltipContent>{t("attachFiles")}</TooltipContent>
-              </Tooltip>
-            </>
-          )}
+        {!inline && (
+          <div className="flex items-center gap-1.5 px-2 pt-1 pb-2">
+            {attachControl}
 
-          {tools}
+            {tools}
 
-          {scope && (
-            // With nothing to open it is a label, not a button that does nothing.
-            <ScopeChip
-              onClick={onScopeClick}
-              className={cn(
-                "inline-flex min-w-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs cd-tint",
-                onScopeClick && "hover:bg-accent",
-                production ? "bg-warning-weak text-warning-text hover:bg-warning-weak" : "text-muted-foreground"
-              )}
-            >
-              {production ? <TriangleAlert aria-hidden className="size-3 shrink-0" /> : <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-success" />}
-              <span className="truncate">
-                <bdi>{neutralizeBidi(scope.environment)}</bdi>
+            {scopePill}
+
+            {hints && (
+              // Only what this composer can do: @ and / are named only when there's something for them to offer.
+              <span className="ms-auto hidden text-2xs text-faint-foreground @lg:inline">
+                {place(t("hintItem"), { keys: <kbd className="font-sans">↵</kbd>, action: t("hintSend") })}
                 {separator}
-                {production ? t("production") : <bdi>{neutralizeBidi(scope.detail) ?? t("nonProduction")}</bdi>}
+                {place(t("hintItem"), { keys: <kbd className="font-sans">⇧↵</kbd>, action: t("hintNewLine") })}
+                {mentions.length > 0 && (
+                  <>
+                    {separator}
+                    {place(t("hintItem"), { keys: <kbd className="font-sans">@</kbd>, action: t("hintMention") })}
+                  </>
+                )}
+                {commands.length > 0 && (
+                  <>
+                    {separator}
+                    {place(t("hintItem"), { keys: <kbd className="font-sans">/</kbd>, action: t("hintCommand") })}
+                  </>
+                )}
               </span>
-            </ScopeChip>
-          )}
+            )}
 
-          {hints && (
-            // Only what this composer can do: @ and / are named only when there's something for them to offer.
-            <span className="ms-auto hidden text-2xs text-faint-foreground @lg:inline">
-              {place(t("hintItem"), { keys: <kbd className="font-sans">↵</kbd>, action: t("hintSend") })}
-              {separator}
-              {place(t("hintItem"), { keys: <kbd className="font-sans">⇧↵</kbd>, action: t("hintNewLine") })}
-              {mentions.length > 0 && (
-                <>
-                  {separator}
-                  {place(t("hintItem"), { keys: <kbd className="font-sans">@</kbd>, action: t("hintMention") })}
-                </>
-              )}
-              {commands.length > 0 && (
-                <>
-                  {separator}
-                  {place(t("hintItem"), { keys: <kbd className="font-sans">/</kbd>, action: t("hintCommand") })}
-                </>
-              )}
-            </span>
-          )}
-
-          {state === "streaming" && onStop ? (
-            <button
-              type="button"
-              aria-label={t("stop")}
-              onClick={onStop}
-              style={sendMotion}
-              className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-foreground text-background cd-press", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
-            >
-              <Square className="size-3 fill-current" />
-            </button>
-          ) : (
-            <Locked reason={sendReason} className={cn("ms-auto", hints && "@lg:ms-1")}>
-              <button
-                type="button"
-                aria-label={t("send")}
-                aria-describedby={locked ? `${id}-locked` : held ? `${id}-held` : undefined}
-                onClick={submit}
-                aria-busy={state === "sending"}
-                style={sendMotion}
-                className={cn("ms-auto flex size-(--cd-control-h-sm,2rem) items-center justify-center bg-primary text-primary-foreground cd-press hover:bg-primary-hover data-[locked]:cursor-not-allowed data-[locked]:opacity-30 data-[locked]:hover:bg-primary data-[locked]:active:scale-100", hints && "@lg:ms-1", sendShape === "round" ? "rounded-full" : "rounded-lg")}
-              >
-                {state === "sending" ? <LoaderCircle style={sendingMotion} className="size-4 cd-live-spin" /> : <ArrowUp className="size-4" strokeWidth={2.5} />}
-              </button>
-            </Locked>
-          )}
-        </div>
+            {sendControl}
+          </div>
+        )}
       </div>
+      {(note || (inline && scope)) && (
+        <div data-slot="composer-note" className="flex flex-wrap items-center gap-x-3 gap-y-1 px-(--cd-row-px,1rem) pt-1.5 text-xs text-muted-foreground">
+          {inline && scopePill}
+          {/* A div, not a <p>: the note can hold block content. */}
+          {note && <div id={noteId}>{note}</div>}
+        </div>
+      )}
     </div>
   )
 }

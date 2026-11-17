@@ -106,21 +106,22 @@ The brand hue. One primary action per view; everything else is quieter.
 | `--cd-font-mono` | ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace | Code, queries, logs, keys. |
 | `--cd-font-name` | Unset | Names of things drawn beside code: a changed file's name and path, an entity chip. Unset, they draw as Tailwind's `font-mono` does: your theme's `--font-mono`, else `--cd-font-mono`. |
 
-The scale is a dense app scale: `--cd-text-sm` is the body default and `--cd-text-md` the comfortable one. Each step is also Tailwind's `text-<step>` with the line height below (`--cd-text-md` is `text-base`).
+The scale is a dense app scale: `--cd-text-sm` is the body default and `--cd-text-md` the comfortable one. Each step is also Tailwind's `text-<step>` with the line height below (`--cd-text-md` is `text-base`). Each line height is a token of its own, `--cd-leading-<step>`, which a brand sets as a length or as a number times the size; `theme check` warns when it's under 1 times the size.
 
 | Token | Size | Line height | For |
 | --- | --- | --- | --- |
-| `--cd-text-2xs` | 0.6875rem | 1rem | Fine print: a keyboard key, a count in a badge. |
-| `--cd-text-xs` | 0.75rem | 1rem | Metadata: timestamps, status words, captions, table headers. |
-| `--cd-text-sm` | 0.8125rem | 1.25rem | Body text in the app: lists, tables, forms, buttons. The `body` default. |
-| `--cd-text-md` | 0.875rem | 1.375rem | Comfortable body: descriptions, dialogs, the base for conversation text. |
-| `--cd-text-lg` | 1rem | 1.5rem | A section title or a lead sentence. |
-| `--cd-text-xl` | 1.25rem | 1.75rem | A page title. |
-| `--cd-text-2xl` | 1.5rem | 1.2 | A large figure or a page's main heading. |
-| `--cd-text-3xl` | 1.75rem | 1.15 | A headline figure (a stat card's total), a report's title. |
-| `--cd-text-4xl` | 2rem | 1.1 | A report's title on a wide screen. |
-| `--cd-text-5xl` | 2.5rem | 1.05 | The largest step, for your own display text; no component uses it. |
-| `--cd-text-prose` | var(--cd-text-md) | 1.375rem | Conversation text: messages and the composer. |
+| `--cd-text-3xs` | 0.625rem | 0.8125rem (`--cd-leading-3xs`) | Footnotes and captions in your own screens; no component uses it. Not for text a person needs to act on. |
+| `--cd-text-2xs` | 0.6875rem | 1rem (`--cd-leading-2xs`) | Fine print: a keyboard key, a count in a badge. |
+| `--cd-text-xs` | 0.75rem | 1rem (`--cd-leading-xs`) | Metadata: timestamps, status words, captions, table headers. |
+| `--cd-text-sm` | 0.8125rem | 1.25rem (`--cd-leading-sm`) | Body text in the app: lists, tables, forms, buttons. The `body` default. |
+| `--cd-text-md` | 0.875rem | 1.375rem (`--cd-leading-md`) | Comfortable body: descriptions, dialogs, the base for conversation text. |
+| `--cd-text-lg` | 1rem | 1.5rem (`--cd-leading-lg`) | A section title or a lead sentence. |
+| `--cd-text-xl` | 1.25rem | 1.75rem (`--cd-leading-xl`) | A page title. |
+| `--cd-text-2xl` | 1.5rem | 1.2 (`--cd-leading-2xl`) | A large figure or a page's main heading. |
+| `--cd-text-3xl` | 1.75rem | 1.15 (`--cd-leading-3xl`) | A headline figure (a stat card's total), a report's title. |
+| `--cd-text-4xl` | 2rem | 1.1 (`--cd-leading-4xl`) | A report's title on a wide screen. |
+| `--cd-text-5xl` | 2.5rem | 1.05 (`--cd-leading-5xl`) | The largest step, for your own display text; no component uses it. |
+| `--cd-text-prose` | var(--cd-text-md) | 1.375rem (`--cd-leading-prose`) | Conversation text: messages and the composer. |
 
 Body text is tracked at `-0.011em` (`--cd-tracking-body`); headings weigh 620 (`--cd-weight-heading`).
 
@@ -277,7 +278,7 @@ The size of controls and rows. Heights run on one ladder (`2xs`, `xs`, `sm`, non
 
 ## Naming, and making it your own
 
-`--cd-*` is Candor's own namespace: 59 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets, widths, and the sizes of controls and rows. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
+`--cd-*` is Candor's own namespace: 72 tokens for fonts, the type scale, tracking, radius, shadows, easings, durations, motion presets, widths, and the sizes of controls and rows. Colours use the shadcn names above. Tailwind sees all of them through `@theme inline`, so utilities such as `bg-sunken`, `text-prose`, `rounded-button`, `shadow-float` and `ease-standard` resolve to the tokens, and an override reaches every component.
 
 The quickest way is the free theme builder at https://candor.themethodic.com/theme-builder: it takes the brand's colours, sets type, shape, motion and sound, checks every pairing in every theme, and downloads `candor-brand.css` (the overrides, imported straight after `candor.css`) and `candor-theme.json` (the same values as design tokens, with each check's ratio). It runs in the browser and the theme is never sent anywhere; if you give it a font's address and press to load it, your browser fetches the font from that host, which sees the request, and an exported file with a font `@import` does the same in your app. Check the result with `npx candor-ui theme check` from the project root (it reads the CSS file named in components.json and the files that file imports). Writing the overrides by hand works the same way:
 

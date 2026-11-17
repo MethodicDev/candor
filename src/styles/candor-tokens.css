@@ -19,7 +19,8 @@
   --cd-font-display: "Inter Variable", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --cd-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
-  /* A dense app scale: body is 13px, comfortable body 14px. */
+  /* A dense app scale: body is 13px, comfortable body 14px. 3xs is for the app's own footnotes and captions; no component uses it. */
+  --cd-text-3xs: 0.625rem;
   --cd-text-2xs: 0.6875rem;
   --cd-text-xs: 0.75rem;
   --cd-text-sm: 0.8125rem;
@@ -34,6 +35,20 @@
   --cd-text-prose: var(--cd-text-md);
   --cd-tracking-body: -0.011em;
   --cd-weight-heading: 620;
+
+  /* The line height of each type step (text-2xs's is --cd-leading-2xs, text-base's --cd-leading-md): a length, or a number times the size. theme check warns under 1 times the size. */
+  --cd-leading-3xs: 0.8125rem;
+  --cd-leading-2xs: 1rem;
+  --cd-leading-xs: 1rem;
+  --cd-leading-sm: 1.25rem;
+  --cd-leading-md: 1.375rem;
+  --cd-leading-prose: 1.375rem;
+  --cd-leading-lg: 1.5rem;
+  --cd-leading-xl: 1.75rem;
+  --cd-leading-2xl: 1.2;
+  --cd-leading-3xl: 1.15;
+  --cd-leading-4xl: 1.1;
+  --cd-leading-5xl: 1.05;
 
   --cd-radius-xs: 4px;
   --cd-radius-sm: 5px;
@@ -262,10 +277,12 @@
 @theme inline {
   --font-display: var(--cd-font-display);
 
+  --text-3xs: var(--cd-text-3xs);
+  --text-3xs--line-height: var(--cd-leading-3xs);
   --text-2xs: var(--cd-text-2xs);
-  --text-2xs--line-height: 1rem;
+  --text-2xs--line-height: var(--cd-leading-2xs);
   --text-prose: var(--cd-text-prose);
-  --text-prose--line-height: 1.375rem;
+  --text-prose--line-height: var(--cd-leading-prose);
 
   --color-faint-foreground: var(--cd-faint-foreground);
   --color-sunken: var(--cd-sunken);
@@ -290,6 +307,14 @@
   --color-surface-agent: var(--cd-surface-agent);
   --color-surface-user: var(--cd-surface-user);
   --color-provisional: var(--cd-text-provisional);
+  --color-diff-added: var(--cd-diff-added, var(--cd-success-text));
+  --color-diff-added-bg: var(--cd-diff-added-bg, var(--cd-success-weak));
+  --color-diff-added-mark: var(--cd-diff-added-mark, var(--cd-success));
+  --color-diff-added-chip: var(--cd-diff-added-chip, var(--chart-1));
+  --color-diff-removed: var(--cd-diff-removed, var(--cd-destructive-text));
+  --color-diff-removed-bg: var(--cd-diff-removed-bg, var(--cd-destructive-weak));
+  --color-diff-removed-mark: var(--cd-diff-removed-mark, var(--destructive));
+  --color-diff-removed-chip: var(--cd-diff-removed-chip, var(--chart-2));
 
   --radius-button: var(--cd-radius-button);
   --radius-tile: var(--cd-radius-tile);
