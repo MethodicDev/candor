@@ -324,7 +324,7 @@ function MessageBody({
       {message.blocks.length > 0 && (
         <div className="relative">
           <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />
-          {streaming && <span aria-hidden style={caretMotion} className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-primary cd-live-caret" />}
+          {streaming && <span aria-hidden style={caretMotion} className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-[var(--cd-primary-mark,var(--primary))] cd-live-caret" />}
         </div>
       )}
     </div>

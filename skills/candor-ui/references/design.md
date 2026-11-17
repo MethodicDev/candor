@@ -50,7 +50,7 @@ The brand hue. One primary action per view; everything else is quieter.
 
 | Role | For | Light | Dark | High contrast |
 | --- | --- | --- | --- | --- |
-| `--primary` | Fills the one primary action in a view, and colours links. Only the text on it is held to contrast (4.5:1). The marks that show a control's state (a checked box, a radio's dot, a switch that's on, a slider's range, a progress bar's fill) read `--cd-primary-mark`, which is this colour unless a brand sets it, and is held to 3:1 on the card. Some Pro items still mark state in this colour, so `theme check` warns while it is under 3:1 on the card. | oklch(0.53 0.19 262) | oklch(0.68 0.15 262) | oklch(0.4 0.2 262) |
+| `--primary` | Fills the one primary action in a view, and colours links. Only the text on it is held to contrast (4.5:1). Every mark that shows state (selection, the current item or tab, a checked box, a switch that's on, progress, a drop target, live status) reads `--cd-primary-mark`, which is this colour unless a brand sets it, and is held to 3:1 on the card. | oklch(0.53 0.19 262) | oklch(0.68 0.15 262) | oklch(0.4 0.2 262) |
 | `--primary-foreground` | Text on primary. | oklch(1 0 0) | oklch(0.16 0.02 262) | oklch(1 0 0) |
 | `--cd-primary-hover` | Primary while hovered. | oklch(0.48 0.19 262) | oklch(0.74 0.13 262) | oklch(0.33 0.18 262) |
 | `--cd-accent-weak` | A tinted ground for emphasis without alarm: the selected item, an accent `Surface`, an agent's badge. | oklch(0.95 0.03 262) | oklch(0.29 0.06 262) | oklch(0.93 0.035 262) |

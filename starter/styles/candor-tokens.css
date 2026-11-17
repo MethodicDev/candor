@@ -869,8 +869,8 @@
  * each selectable thing a mark that survives, in the system's own Highlight colour:
  *
  *   a selected row, option, tree item or command item, a chosen tab or segment (the small radio groups drawn as
- *   buttons), the current page or item, and a pressed toggle or chip (filters, ratings, view switches): an inset
- *   outline;
+ *   buttons), the current page or item, a pressed toggle or chip (filters, ratings, view switches), and a checked chip
+ *   drawn as a button with the checkbox role: an inset outline;
  *   a checked checkbox, radio and switch: drawn the way the system draws its own, in Highlight;
  *   a progress bar whose total isn't known (4.5): a Highlight band on a Canvas track edged in CanvasText, so it still
  *   says that work is going on, and never a full bar, which would read as done;
@@ -888,6 +888,7 @@
   [role="tab"][aria-selected="true"],
   [data-slot="tabs-trigger"][data-active],
   [role="radio"][aria-checked="true"]:not([data-slot="radio-group-item"]),
+  [role="checkbox"][aria-checked="true"]:not([data-slot="checkbox"]),
   [role="menuitemradio"][aria-checked="true"],
   [aria-current]:not([aria-current="false"], [data-slot="breadcrumb-page"]),
   [aria-pressed="true"],

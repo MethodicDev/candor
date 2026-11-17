@@ -589,7 +589,7 @@ function Composer({
       }}
     >
       {dragDepth > 0 && (
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-2xl border-2 border-dashed border-primary bg-card/90 text-sm font-medium text-accent-text">
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-2xl border-2 border-dashed border-[var(--cd-primary-mark,var(--primary))] bg-card/90 text-sm font-medium text-accent-text">
           {t("dropFiles")}
         </div>
       )}
