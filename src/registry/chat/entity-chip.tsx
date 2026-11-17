@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { EntityRef } from "@/registry/foundation/chat"
-import { useStrings } from "@/registry/foundation/locale"
+import { pick, useLocale, useStrings, useStringsOverridden, type PluralPhrase } from "@/registry/foundation/locale"
 import { neutralizeBidi } from "@/registry/foundation/bidi"
 
 /** EntityChip's fixed words; override them under `entityChip` in LocaleProvider's `strings`. */
@@ -35,6 +35,24 @@ export const entityChipStrings = {
   dashboard: "Dashboard",
   /** An unregistered kind. */
   item: "Item",
+  /** The built-in kinds' nouns by count, for a group's heading ("Records") and a count ("1 Record", "3 Records"). */
+  records: { one: "Record", other: "Records" },
+  documents: { one: "Document", other: "Documents" },
+  files: { one: "File", other: "Files" },
+  tables: { one: "Table", other: "Tables" },
+  fields: { one: "Field", other: "Fields" },
+  persons: { one: "Person", other: "People" },
+  links: { one: "Link", other: "Links" },
+  codes: "Code",
+  workflows: { one: "Workflow", other: "Workflows" },
+  reports: { one: "Report", other: "Reports" },
+  dashboards: { one: "Dashboard", other: "Dashboards" },
+  items: { one: "Item", other: "Items" },
+  /**
+   * An app's kind that gives no `plural` of its own, by count: `{noun}` is its noun. Where adding a letter doesn't
+   * make a plural in the language, set it to "{noun}", or give each kind its `plural`.
+   */
+  plural: { one: "{noun}", other: "{noun}s" },
   title: "{noun}: {name}",
   titleIn: "{noun}: {name} in {location}",
   remove: "Remove {name}",
@@ -46,7 +64,27 @@ const baseKindNames = {
 } as const
 const isBaseKind = (kind: string): kind is BaseKind => Object.hasOwn(baseKindNames, kind)
 
-export type EntityKindInfo = { Icon: LucideIcon; noun: string }
+/** A plural key in the strings table for each built-in kind, and for an unregistered one ("Items"). */
+const pluralKeys = {
+  record: "records", document: "documents", file: "files", table: "tables", field: "fields", person: "persons",
+  link: "links", code: "codes", workflow: "workflows", report: "reports", dashboard: "dashboards",
+} as const satisfies Record<BaseKind, keyof typeof entityChipStrings>
+
+/** How a kind of thing is drawn and named. */
+export type EntityKindInfo = {
+  /** The kind's icon. */
+  Icon: LucideIcon
+  /** What one of these is called: "Ticket", "Case". */
+  noun: string
+  /**
+   * What more than one is called: "Policies" for "Policy". Or its forms by count, in the language's plural categories:
+   * `{ one: "Richtlinie", other: "Richtlinien" }`, with `few` and `many` where the language has them. Candor's items
+   * pass the count, so each form is used for its own numbers; a heading drawn with no count uses `other`, so make
+   * `other` a form that reads as a plural on its own. Left out, the noun follows `entityChip.plural` in
+   * LocaleProvider's strings: "{noun}s" in English.
+   */
+  plural?: string | PluralPhrase | undefined
+}
 
 /** Kinds most apps have. Add your own (or a preset) with EntityKindsProvider. */
 export const baseKinds: Record<string, EntityKindInfo> = {
@@ -97,6 +135,39 @@ function useEntityKinds() {
       return isBaseKind(kind) && info === baseKinds[kind] ? { ...info, noun: t(kind) } : info
     },
     [kinds, t]
+  )
+}
+
+/**
+ * A kind's noun for a count of them: `pluralOf("flow", 3)` is "Flows" and `pluralOf("flow", 1)` "Flow", in the
+ * language's plural forms. With no count it is the `other` form; pass the count wherever there is one, since in
+ * Polish or Arabic `other` isn't the plural for every number. Takes the kind's `plural` when it has one, the built-in
+ * kinds' from the strings table, and `entityChip.plural` otherwise. A built-in kind whose noun the app renamed
+ * (`entityChip.record`) without its plural (`entityChip.records`) is made plural from the new noun by `entityChip.plural`.
+ *
+ * @keywords plural
+ */
+function useKindPlural() {
+  const kinds = React.useContext(KindsContext)
+  const t = useStrings("entityChip", entityChipStrings)
+  const overridden = useStringsOverridden("entityChip")
+  const { locale } = useLocale()
+  const rules = React.useMemo(() => new Intl.PluralRules(locale ?? "en-US"), [locale])
+  return React.useCallback(
+    (kind: string, count?: number | undefined): string => {
+      const vars = count === undefined ? undefined : { count }
+      const info = Object.hasOwn(kinds, kind) ? kinds[kind] : undefined
+      // A built-in noun the app renamed, with no plural of its own, is made plural from the app's word, not Candor's.
+      const builtIn = (singular: keyof typeof entityChipStrings, plural: keyof typeof entityChipStrings) =>
+        overridden(singular) && !overridden(plural) ? t("plural", { noun: t(singular), ...vars }) : t(plural, vars)
+      if (!info) return builtIn("item", "items")
+      if (isBaseKind(kind) && info === baseKinds[kind]) return builtIn(kind, pluralKeys[kind])
+      const { noun } = info
+      if (info.plural === undefined) return t("plural", { noun, ...vars })
+      const forms: PluralPhrase = typeof info.plural === "string" ? { one: noun, other: info.plural } : { one: noun, ...info.plural }
+      return pick(forms, count, rules)
+    },
+    [kinds, t, overridden, rules]
   )
 }
 
@@ -172,4 +243,4 @@ function EntityChip({
   )
 }
 
-export { EntityChip, EntityKindsProvider, useEntityKinds }
+export { EntityChip, EntityKindsProvider, useEntityKinds, useKindPlural }
