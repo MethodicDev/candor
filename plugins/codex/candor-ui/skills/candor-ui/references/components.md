@@ -89,7 +89,7 @@ What an agent proposes and does: plans, approvals, diffs, runs, receipts.
 - **log-stream** (Pro): A run's live log. Exports `LogStream`, `ansiRuns`.
 - **plan** (Pro): An agent's plan as steps the person shapes before it runs and follows while it does. Exports `Plan`.
 - **proposal** (Pro): One action an agent proposes, with the alternatives it weighed beside it. Exports `Proposal`.
-- **question-card** (Pro): One question from the agent, in the thread: "Question 3 · 2 answered" (no total), the question, and an answer field. Exports `QuestionCard`.
+- **question-card** (Pro): One question from the agent, in the thread: "Question 3 · 2 answered", the question, and an answer field. Exports `QuestionCard`.
 - **restore-dialog** (Pro): Restores a checkpoint's code, conversation or both, says what a restore doesn't undo, and shows what the app checked afterwards, never "Restored" without a check. Exports `RestoreDialog`, `RestoreResult`.
 - **result-card** (Pro): A finished piece of work, handed over: the answer first, in a few lines, then the receipt (what it cost, how long it took, what checked it) and the files to open or download, then your actions (Accept, Ask for changes). Exports `ResultCard`.
 - **result-table** (Pro): Query rows as a typed, sortable table. Exports `ResultTable`.
