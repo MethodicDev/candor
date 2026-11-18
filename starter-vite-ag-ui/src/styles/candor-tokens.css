@@ -50,6 +50,11 @@
   --cd-leading-4xl: 1.1;
   --cd-leading-5xl: 1.05;
 
+  /* PageHeader's large title (size="large"): its size, line height and weight. A brand sets them for its own step. */
+  --cd-page-title-lg: var(--cd-text-3xl);
+  --cd-page-title-lg-leading: var(--cd-leading-3xl);
+  --cd-page-title-lg-weight: 700;
+
   --cd-radius-xs: 4px;
   --cd-radius-sm: 5px;
   --cd-radius-md: 7px;

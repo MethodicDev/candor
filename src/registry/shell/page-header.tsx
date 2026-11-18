@@ -24,6 +24,8 @@ export type PageTab = { id: string; label: string; count?: number | undefined }
  *
  * @motion tint:tint A tab's text colour changes when the pointer is over it or it has focus, and its underline
  * changes for the current tab. The tab that is current when the header first appears is drawn current at once.
+ *
+ * @keywords title large
  */
 function PageHeader({
   title,
@@ -34,9 +36,10 @@ function PageHeader({
   activeTab,
   onTabChange,
   headingLevel = 1,
+  size = "default",
   className,
 }: {
-  /** What the page is, as its heading. */
+  /** What the page is, as its heading, isolated in its own direction. */
   title: string
   /** A line under the title saying what the page is for. */
   description?: React.ReactNode | undefined
@@ -57,6 +60,13 @@ function PageHeader({
    * in the banner, say), and wrap the page's content in `<HeadingScope level={2}>` so its headings sit under this one.
    */
   headingLevel?: HeadingLevel | undefined
+  /**
+   * The title's size. `default` is the `lg` step, semibold, on one line. `large` is a page's title as a large step:
+   * `--cd-page-title-lg` (the 3xl step unless a brand sets it) at `--cd-page-title-lg-weight` (700) and
+   * `--cd-page-title-lg-leading`, and it wraps to two lines before it is cut, so it still reads on a phone. The
+   * heading's level is the same at either size.
+   */
+  size?: "default" | "large" | undefined
   /** Classes for the header, merged with Candor's. */
   className?: string | undefined
 }) {
@@ -84,7 +94,20 @@ function PageHeader({
       )}
       <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
         <div className="min-w-0 flex-1">
-          <Heading className="truncate text-lg font-semibold tracking-tight">{neutralizeBidi(title)}</Heading>
+          <Heading
+            className={
+              size === "large"
+                ? "text-[length:var(--cd-page-title-lg,var(--cd-text-3xl))] leading-[var(--cd-page-title-lg-leading,var(--cd-leading-3xl))] font-[number:var(--cd-page-title-lg-weight,700)] tracking-tight break-words"
+                : "text-lg font-semibold tracking-tight"
+            }
+          >
+            {/*
+              The title in its own direction: on a page of the other direction its full stop and its ellipsis stay at its
+              end. As wide as its words (w-fit), it sits at the heading's start edge, the page's, whatever its own
+              direction; at most the heading's width (max-w-full), it is cut or clamped there.
+            */}
+            <bdi className={size === "large" ? "line-clamp-2 w-fit max-w-full" : "block w-fit max-w-full truncate"}>{neutralizeBidi(title)}</bdi>
+          </Heading>
           {description && <p className="mt-0.5 text-sm text-muted-foreground">{typeof description === "string" ? neutralizeBidi(description) : description}</p>}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
