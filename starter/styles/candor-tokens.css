@@ -987,6 +987,15 @@
   }
 
   /*
+   * AppLayout's divider between the page and the panel, the resize separator or the plain line, is a 1px background,
+   * which the system would drop, so it is drawn as a border instead. The divider keeps its markup; it is found as the
+   * element just before the panel.
+   */
+  [data-slot="app-layout"] :is([role="separator"], [aria-hidden="true"]):has(+ [data-slot="app-layout-panel"]) {
+    border-inline-start: 1px solid CanvasText;
+  }
+
+  /*
    * Keyboard focus (KIT-420): the focus ring is a shadow, which forced colours drop, so the control with keyboard focus
    * is outlined in Highlight and nothing else is. Controls take `outline-none`, never `outline-hidden`, whose
    * transparent outline would turn visible on every control, focused or not. A card whose stretched link draws no

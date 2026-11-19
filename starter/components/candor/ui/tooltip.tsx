@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
+import { useDirection } from "@base-ui/react/direction-provider"
 import { LayerPortal, LayerRoot, layerClass, useLayerRoot } from "@/lib/candor/layer"
 import { motion } from "@/lib/candor/motion"
 
@@ -153,6 +154,7 @@ function TooltipContent({
     style?: React.CSSProperties | undefined
   }) {
   const describes = React.useContext(Describes)
+  const rtl = useDirection() === "rtl"
   return (
     <LayerPortal portal={TooltipPrimitive.Portal}>
       <TooltipPrimitive.Positioner
@@ -176,7 +178,16 @@ function TooltipContent({
           {...props}
         >
           {children}
-          <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground data-[side=bottom]:top-1 data-[side=bottom]:translate-y-[calc(-50%_+_2px)] data-[side=top]:-bottom-2.5" />
+          {/* Base UI places the arrow along the edge; this puts its centre 2px inside the edge facing the trigger, on
+              every side. A logical side is placed by the direction Base UI positioned with, not the portal's. */}
+          <TooltipPrimitive.Arrow
+            className={cn(
+              "z-50 size-2.5 rotate-45 rounded-[2px] bg-foreground fill-foreground data-[side=bottom]:-top-0.75 data-[side=left]:-right-0.75 data-[side=right]:-left-0.75 data-[side=top]:-bottom-0.75",
+              rtl
+                ? "data-[side=inline-end]:-right-0.75 data-[side=inline-start]:-left-0.75"
+                : "data-[side=inline-end]:-left-0.75 data-[side=inline-start]:-right-0.75"
+            )}
+          />
         </TooltipPrimitive.Popup>
       </TooltipPrimitive.Positioner>
     </LayerPortal>
