@@ -881,7 +881,8 @@
  *   a checked checkbox, radio and switch: drawn the way the system draws its own, in Highlight;
  *   a progress bar whose total isn't known (4.5): a Highlight band on a Canvas track edged in CanvasText, so it still
  *   says that work is going on, and never a full bar, which would read as done;
- *   a measured progress bar (4.5): its filled part in Highlight on the same track, as the system would draw its own.
+ *   a measured progress bar (4.5): its filled part in Highlight on the same track, as the system would draw its own;
+ *   any control with keyboard focus: an outline outside it, doubled on a chosen, selected or pressed one.
  *
  * Only system colour keywords are used, so they follow whichever contrast theme the person picked.
  */
@@ -1005,5 +1006,32 @@
   :focus-visible:not([data-focus-outline="own"], :is([data-slot="stat-card"], [data-slot="portfolio-card"]) a) {
     outline: 2px solid Highlight;
     outline-offset: 2px;
+  }
+
+  /*
+   * A chosen, selected or pressed control with keyboard focus: the mark that says it is chosen and the outline that
+   * says it has focus are both outlines, so it gets a double one. Its inner line sits where the chosen mark does, inset,
+   * and its outer line where focus is drawn, so the focus and the choice both show. Written after the focus rule and
+   * more specific than the chosen marks above, so it wins over both.
+   */
+  :is(
+      [data-slot="table-row"][data-state="selected"],
+      tr[aria-selected="true"],
+      [role="row"][aria-selected="true"],
+      [role="option"][aria-selected="true"],
+      [role="gridcell"][aria-selected="true"],
+      [role="treeitem"][aria-selected="true"],
+      [role="tab"][aria-selected="true"],
+      [data-slot="tabs-trigger"][data-active],
+      [role="radio"][aria-checked="true"]:not([data-slot="radio-group-item"]),
+      [role="checkbox"][aria-checked="true"]:not([data-slot="checkbox"]),
+      [role="menuitemradio"][aria-checked="true"],
+      [aria-current]:not([aria-current="false"], [data-slot="breadcrumb-page"]),
+      [aria-pressed="true"],
+      [data-slot="toggle"][data-pressed],
+      [data-slot="toggle-group-item"][data-pressed]
+    ):focus-visible:not([data-focus-outline="own"], :is([data-slot="stat-card"], [data-slot="portfolio-card"]) a) {
+    outline: 6px double Highlight;
+    outline-offset: -2px;
   }
 }
