@@ -411,8 +411,8 @@ function Thread({
   // with the last one seen. While the thread follows, anchoring is off, so layout can lower scrollTop only by
   // clamping it: the content getting shorter or the view taller, never by more than the sizes changed. So a fall is
   // layout only up to what the content's own change since the last look explains (how much the content's height, the
-  // view's height and where the newest element sits in the column moved, in either direction; A-61's trace, recorded
-  // with anchoring on, falls 25 px as the content grows 32). A larger fall is a scroll, whatever made it: a wheel, a
+  // view's height and where the newest element sits in the column moved, in either direction; a recorded trace with
+  // anchoring on falls 25 px as the content grows 32). A larger fall is a scroll, whatever made it: a wheel, a
   // key with focus anywhere, find in page, a screen reader, autoscroll, or the app through scrollerRef, during
   // streaming or not. It unpins. A fall that is layout keeps the thread pinned and takes it back down, in whichever
   // order the scroll event and the resize come. The reader's own input (a wheel or a touch moving up, a key that
@@ -635,8 +635,8 @@ function Thread({
         </div>
         {(!pinned || short) && hasMessages && (
           // The entrance is the wrapper's, so the pulse on the button never replays it.
-          // The bottom margin raises the pill above the phone's safe area (KIT-349, 6.0) and by --cd-thread-jump-offset
-          // (KIT-348); with neither, both are 0px and the pill sits at bottom-3, 5.3's class, on the theme's spacing keys.
+          // The bottom margin raises the pill above the phone's safe area and by --cd-thread-jump-offset; with neither,
+          // both are 0px and the pill sits at bottom-3, on the theme's spacing keys.
           <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive mb-[calc(env(safe-area-inset-bottom,0px)+var(--cd-thread-jump-offset,0px))]">
             <button
               type="button"

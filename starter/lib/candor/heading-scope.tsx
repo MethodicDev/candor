@@ -4,7 +4,7 @@ import * as React from "react"
 import type { HeadingLevel } from "@/lib/candor/heading-level"
 
 /*
- * One rule for where a Candor heading sits in the page's outline (5.0.0, KIT-226). An item's heading is:
+ * One rule for where a Candor heading sits in the page's outline. An item's heading is:
  *
  *   1. its `headingLevel` prop, when the app passes one;
  *   2. else one below the nearest `HeadingScope` round it;

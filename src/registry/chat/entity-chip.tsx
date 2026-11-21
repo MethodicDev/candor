@@ -204,7 +204,7 @@ function EntityChip({
   const name = neutralizeBidi(entity.name)
   const location = neutralizeBidi(entity.location)
   const shown = neutralizeBidi(entity.label) ?? name
-  // An app's own kind keeps its noun, the app's words: marked too (KIT-360).
+  // An app's own kind keeps its noun, the app's words: marked too.
   const kindNoun = neutralizeBidi(noun)
   const title = location ? t("titleIn", { noun: kindNoun, name, location }) : t("title", { noun: kindNoun, name })
   const body = (

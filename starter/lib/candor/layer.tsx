@@ -6,7 +6,7 @@ import * as React from "react"
  * How Candor's portalled layers (dialogs, sheets, popovers, menus, selects, tooltips) stay usable inside an app built
  * on another primitive library. Candor's primitives are on Base UI; a Radix app (shadcn's Radix styles) keeps its own
  * `components/ui/` beside `components/candor/ui/`, so a Candor popover often opens inside the app's own Radix dialog.
- * Three things go wrong there unless a layer does what this file does (internal/release-4.0/SPIKE.md measured each):
+ * Three things go wrong there unless a layer does what this file does:
  *
  *   pointer      Radix's modal dialog sets `pointer-events: none` on `<body>` and turns it back on for its own layers.
  *                A layer portalled to `<body>` inherits `none` and every click falls through. Each portalled part takes
@@ -27,7 +27,7 @@ import * as React from "react"
  *                layers raised before it back above it.
  *   Tab          Base UI's modal popups keep Tab inside with focus guards placed just outside the popup, which move
  *                focus back in on the next animation frame, so for that frame focus sits on a guard outside the dialog
- *                (KIT-83, Base UI 1.9.0's FloatingFocusManager). `wrapTab` on a modal popup's keydown moves focus from
+ *                (Base UI 1.9.0's FloatingFocusManager). `wrapTab` on a modal popup's keydown moves focus from
  *                its last stop to its first (and back with Shift) in the same task, so a guard is never reached.
  *   Escape       Radix dismisses its top layer from a document capture listener and calls `preventDefault()`; Base UI
  *                closes its own top layer too, so one Escape closed both. `useLayerRoot` ignores an Escape another
@@ -162,7 +162,7 @@ export function LayerRoot({
 /**
  * Whether the dialog whose parts call this is a modal one opened inside another dialog, sheet, drawer or alert dialog.
  * Base UI draws no backdrop for a nested dialog, so a click outside it lands on the outer one's backdrop and closes
- * neither (KIT-45); the nested one draws a transparent backdrop of its own (`nestedBackdrop`), which takes the click and
+ * neither; the nested one draws a transparent backdrop of its own (`nestedBackdrop`), which takes the click and
  * closes it alone, as Radix and the APG dialog pattern do. A nested dialog with `modal={false}` or `"trap-focus"`
  * leaves the page outside it usable, so it is false there: a backdrop would catch the clicks meant for the outer one.
  */

@@ -476,7 +476,7 @@ function Composer({
           ? "block max-h-[calc(var(--cd-composer-rows,6)*1lh+0.625rem)] min-h-0 min-w-0 flex-1 resize-none bg-transparent px-2 py-1.25 text-prose outline-none [field-sizing:content] placeholder:text-faint-foreground aria-disabled:cursor-not-allowed"
           : "block max-h-60 min-h-12 w-full resize-none bg-transparent px-(--cd-row-px,1rem) pt-3 pb-1 text-prose leading-relaxed outline-none [field-sizing:content] placeholder:text-faint-foreground aria-disabled:cursor-not-allowed",
         // Locked and empty, the box folds to a strip above the reason; still focusable, it draws its own focus ring
-        // (KIT-247), since the root's border alone barely changes.
+        // since the root's border alone barely changes.
         !inline && locked && !value && "min-h-0 h-3 pt-3 pb-0 rounded-t-2xl focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/80"
       )}
     />

@@ -51,7 +51,7 @@ function AiDisclosure({
   className?: string | undefined
 }) {
   const t = useStrings("aiDisclosure", aiDisclosureStrings)
-  // The app's name for the agent, marked for bidi controls and drawn in an isolate inside the kit's sentence (KIT-360).
+  // The app's name for the agent, marked for bidi controls and drawn in an isolate inside the kit's sentence.
   const name = neutralizeBidi(typeof agent === "string" ? agent : agent?.name)
   const named = name && <bdi>{name}</bdi>
   const sentence = name ? place(t("line", { name: "{name}" }), { name: named }) : t("lineUnnamed")

@@ -682,7 +682,7 @@
   }
 }
 /*
- * The nudge of a dialog, sheet, drawer or responsive dialog (MOT-51) is an empty span laid over the window, drawn only
+ * The nudge of a dialog, sheet, drawer or responsive dialog is an empty span laid over the window, drawn only
  * by its ring (an outline). An attention drawing that moves or swells what it is on (the Pro cd-jolt, cd-beat), set
  * family-wide or for the moment, would play on the span and show nothing, so the nudge keeps the ring.
  */
@@ -974,7 +974,7 @@
   }
 
   /*
-   * An indicator the app gives Progress as children (MOT-63) is drawn on the same adjusted track, so it is forced the
+   * An indicator the app gives Progress as children is drawn on the same adjusted track, so it is forced the
    * same way, whatever its own classes: Highlight for a measured fill, the fading band while the total is unknown.
    */
   [data-slot="progress"]:not([data-indeterminate]) > :not([data-slot="progress-indicator"]) {
@@ -997,7 +997,7 @@
   }
 
   /*
-   * Keyboard focus (KIT-420): the focus ring is a shadow, which forced colours drop, so the control with keyboard focus
+   * Keyboard focus: the focus ring is a shadow, which forced colours drop, so the control with keyboard focus
    * is outlined in Highlight and nothing else is. Controls take `outline-none`, never `outline-hidden`, whose
    * transparent outline would turn visible on every control, focused or not. A card whose stretched link draws no
    * outline of its own is outlined as a whole, so its links are left out here, and so are inputs whose thumb or cell is

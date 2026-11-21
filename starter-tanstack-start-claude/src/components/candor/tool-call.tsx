@@ -75,7 +75,7 @@ function LineCounts({ lines }: { lines: { added: number; removed: number } }) {
 
 /**
  * A count a tool could have given: finite and not negative. A negative or missing number isn't a count of lines, so the
- * row draws no counts rather than "+0" (unknown stays unknown, KIT-159).
+ * row draws no counts rather than "+0": unknown stays unknown.
  */
 function isCount(n: number): boolean {
   return Number.isFinite(n) && n >= 0
@@ -105,10 +105,10 @@ function ToolCall({
   // The title, the tool's name and the error come from the agent or the tool: no control character reorders them.
   const title = neutralizeBidi(call.title)
   const hasDetail = Boolean(call.input || call.output || call.error || call.approval?.note || call.approval?.originalInput)
-  // A call that has finished gains nothing more to show; one still going may (KIT-231's Locked says it waits).
+  // A call that has finished gains nothing more to show; one still going may (its locked button says it waits).
   const finished = call.status === "succeeded" || call.status === "failed" || call.status === "cancelled" || call.status === "skipped"
   // Whether focus is on the row's button. A row that finishes with nothing to show while focus is on it keeps its
-  // (locked) button until focus leaves, so focus never falls to the page (KIT-245).
+  // (locked) button until focus leaves, so focus never falls to the page.
   const [focused, setFocused] = React.useState(false)
 
   const row = (
