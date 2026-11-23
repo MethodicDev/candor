@@ -125,6 +125,14 @@ export const threadStrings = {
  * Set it to that negative inset too when the thread's foot isn't at the screen's edge, a Composer below it for one:
  * the safe area is then below the Composer, and the button would otherwise sit that much higher than it needs to.
  *
+ * With a Composer as `footer`, `jumpAt="edge"` docks Jump to latest on the footer's top edge instead: it sits in a band
+ * the footer keeps for it above the Composer, so it never covers a message or the Composer, and nothing moves when it
+ * shows or goes. The band costs the pill's height while the reader is at the bottom.
+ *
+ * ```tsx
+ * <Thread footer={<Composer … />} jumpAt="edge">{messages}</Thread>
+ * ```
+ *
  * The newest message (the last in the thread, of any role) carries `data-newest`, and no other message does, for your
  * app's own styling or scrolling. With `virtualize` it carries it while it is rendered.
  */
@@ -140,6 +148,7 @@ function Thread({
   onDrop,
   fade = true,
   landNew = "end",
+  jumpAt = "over",
 }: {
   children?: React.ReactNode | undefined
   /** Shown before the first message. */
@@ -177,6 +186,14 @@ function Thread({
    * `virtualize`. Defaults to "end".
    */
   landNew?: "end" | "start" | undefined
+  /**
+   * Where Jump to latest shows. "over" floats it over the foot of the messages, centred. "edge" docks it on the top edge
+   * of `footer`, in a band the footer keeps for it, so it never covers a message and nothing moves when it shows; there
+   * `--cd-thread-jump-offset` adds that much room below it (a negative length adds none), and the phone's safe area,
+   * which is below the footer, doesn't raise it. With no `footer`, "edge" is "over". When it shows, what it says, its
+   * pulse and its scroll are the same either way. Defaults to "over".
+   */
+  jumpAt?: "over" | "edge" | undefined
 }) {
   const t = useStrings("thread", threadStrings)
   const scroller = React.useRef<HTMLDivElement>(null)
@@ -591,6 +608,34 @@ function Thread({
     landKey(landsAtStartRef.current && pinnedRef.current ? lastKey : null)
   })
 
+  // With a footer to dock on, "edge" puts the pill in a band above it; without one, it floats over the messages.
+  const docked = jumpAt === "edge" && Boolean(footer)
+  const showJump = (!pinned || short) && hasMessages
+  const jumpButton = (
+    <button
+      type="button"
+      ref={jump}
+      data-slot="thread-jump"
+      onAnimationEnd={(e) => {
+        if (e.target === e.currentTarget && e.animationName.startsWith("cd-")) setArrived(false)
+      }}
+      data-arrived={arrived ? "" : undefined}
+      onClick={() => {
+        follow(true)
+        gliding.current = true
+        setShort(false)
+        toBottom("smooth")
+      }}
+      style={arrivalMotion}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border bg-popover px-(--cd-control-px,0.75rem) py-(--cd-item-py,0.375rem) text-xs font-medium shadow-float [--cd-attention-color:var(--primary)]",
+        arrived && "cd-attention"
+      )}
+    >
+      <ArrowDown aria-hidden className="size-3" /> {t("jumpToLatest")}
+    </button>
+  )
+
   return (
     <div data-slot="thread" className={cn("flex min-h-0 flex-col", className)}>
       <div className="relative min-h-0 flex-1">
@@ -608,7 +653,9 @@ function Thread({
           }
           onBlur={virtualize ? (e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && setFocused(null) : undefined}
           style={pinned ? { overflowAnchor: "none" } : undefined}
-          className="h-full scroll-pb-14 overflow-y-auto overscroll-contain"
+          // The scroll padding keeps a message scrolled into view (by focus or find in page) clear of the floating pill;
+          // docked, the pill covers nothing, so it clears only the fade.
+          className={docked ? "h-full scroll-pb-6 overflow-y-auto overscroll-contain" : "h-full scroll-pb-14 overflow-y-auto overscroll-contain"}
         >
           <div
             ref={content}
@@ -635,38 +682,36 @@ function Thread({
             )}
           </div>
         </div>
-        {(!pinned || short) && hasMessages && (
+        {showJump && !docked && (
           // The entrance is the wrapper's, so the pulse on the button never replays it.
           // The bottom margin raises the pill above the phone's safe area and by --cd-thread-jump-offset; with neither,
           // both are 0px and the pill sits at bottom-3, on the theme's spacing keys.
           <span style={jumpMotion} className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 cd-arrive mb-[calc(env(safe-area-inset-bottom,0px)+var(--cd-thread-jump-offset,0px))]">
-            <button
-              type="button"
-              ref={jump}
-              data-slot="thread-jump"
-              onAnimationEnd={(e) => {
-                if (e.target === e.currentTarget && e.animationName.startsWith("cd-")) setArrived(false)
-              }}
-              data-arrived={arrived ? "" : undefined}
-              onClick={() => {
-                follow(true)
-                gliding.current = true
-                setShort(false)
-                toBottom("smooth")
-              }}
-              style={arrivalMotion}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border bg-popover px-(--cd-control-px,0.75rem) py-(--cd-item-py,0.375rem) text-xs font-medium shadow-float [--cd-attention-color:var(--primary)]",
-                arrived && "cd-attention"
-              )}
-            >
-              <ArrowDown aria-hidden className="size-3" /> {t("jumpToLatest")}
-            </button>
+            {jumpButton}
           </span>
         )}
         {fade && <div aria-hidden data-slot="thread-fade" className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent" />}
       </div>
-      {footer && <div className="mx-auto w-full max-w-(--cd-thread-width) px-4 pb-4">{footer}</div>}
+      {footer && (
+        <div className="mx-auto w-full max-w-(--cd-thread-width) px-4 pb-4">
+          {docked && (
+            // The band is always there, as tall as the pill (a line of text-xs, the item padding and the border) and the
+            // gap and offset below it, so the pill showing or going moves nothing. It sets text-xs itself, so 1lh is the
+            // pill's line, whether a theme's --cd-leading-xs is a number or a length.
+            <div
+              data-slot="thread-jump-dock"
+              className="box-content flex min-h-[calc(1lh+2*var(--cd-item-py,0.375rem)+2px)] items-end justify-center pb-[calc(0.5rem+max(0px,var(--cd-thread-jump-offset,0px)))] text-xs"
+            >
+              {showJump && (
+                <span style={jumpMotion} className="flex cd-arrive whitespace-nowrap">
+                  {jumpButton}
+                </span>
+              )}
+            </div>
+          )}
+          {footer}
+        </div>
+      )}
     </div>
   )
 }
