@@ -114,6 +114,9 @@
   --cd-canvas: var(--background);
   --cd-canvas-border: var(--border);
   --cd-canvas-radius: var(--cd-radius-xl);
+
+  /* A track's edge: the 1px inset ring SegmentGroup's track and UsageMeter's bar tracks draw. Transparent, so no edge, unless a brand sets it (to var(--border), say) for a track whose ground is too close to its own. */
+  --cd-track-edge: transparent;
 }
 [data-theme="dark"] {
   --cd-shadow: oklch(0 0 0 / 0.35);

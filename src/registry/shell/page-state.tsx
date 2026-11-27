@@ -121,10 +121,23 @@ function PageState({
   )
 }
 
+/** A count of outlines to sketch: a whole number from 0 to `max`; anything else is the default. */
+const outlines = (n: number | undefined, fallback: number, max: number) => (n !== undefined && Number.isFinite(n) ? Math.min(max, Math.max(0, Math.floor(n))) : fallback)
+/** The most tile and card outlines a dashboard skeleton draws: enough for the shape, never a page of them. */
+const MAX_TILES = 12
+const MAX_CARDS = 6
+
 /** A page that's loading: the shape of what's coming, announced once. */
-function PageSkeleton({ variant = "list", label, className }: {
-  /** The shape to sketch: rows of a list (the default) or one item's detail. */
-  variant?: "list" | "detail" | undefined
+function PageSkeleton({ variant = "list", tiles, cards, label, className }: {
+  /**
+   * The shape to sketch: rows of a list (the default), one item's detail, or a dashboard: a row of figure tiles
+   * (two to a row on a phone) over cards.
+   */
+  variant?: "list" | "detail" | "dashboard" | undefined
+  /** With "dashboard": how many tile outlines in the first row, up to 12. Default 4. Other variants ignore it. */
+  tiles?: number | undefined
+  /** With "dashboard": how many card outlines under the tiles, up to 6. Default 2. Other variants ignore it. */
+  cards?: number | undefined
   /** What's loading, announced to screen readers. Defaults to "Loading". */
   label?: string | undefined
   /** Classes for the skeleton, merged with Candor's. */
@@ -143,6 +156,33 @@ function PageSkeleton({ variant = "list", label, className }: {
             </div>
           </div>
         ))
+      ) : variant === "dashboard" ? (
+        <>
+          {outlines(tiles, 4, MAX_TILES) > 0 && (
+            <div
+              data-part="tiles"
+              className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(var(--cd-skeleton-tiles),minmax(0,1fr))]"
+              style={{ "--cd-skeleton-tiles": outlines(tiles, 4, MAX_TILES) } as React.CSSProperties}
+            >
+              {Array.from({ length: outlines(tiles, 4, MAX_TILES) }, (_, i) => (
+                <div key={i} className="flex flex-col gap-2 rounded-lg border p-3">
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-6 w-2/3" />
+                </div>
+              ))}
+            </div>
+          )}
+          {outlines(cards, 2, MAX_CARDS) > 0 && (
+            <div data-part="cards" className={cn("grid gap-3", outlines(cards, 2, MAX_CARDS) > 1 && "sm:grid-cols-2")}>
+              {Array.from({ length: outlines(cards, 2, MAX_CARDS) }, (_, i) => (
+                <div key={i} className="flex flex-col gap-3 rounded-xl border p-4">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-32 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       ) : (
         <>
           <Skeleton className="h-6 w-1/2" />

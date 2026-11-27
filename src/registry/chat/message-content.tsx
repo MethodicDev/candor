@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { DegradedPanel } from "@/registry/parts/degraded-panel"
-import type { Attachment, EntityRef, InlineNode, ListBlock, ListItemBlock, MessageBlock, MessageSource } from "@/registry/foundation/chat"
+import type { Attachment, EntityRef, InlineNode, ListBlock, ListItemBlock, MessageBlock, MessageSource, ToolCallData } from "@/registry/foundation/chat"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip"
 import { Citation } from "@/registry/chat/citation"
 import { EntityChip } from "@/registry/chat/entity-chip"
@@ -32,6 +32,7 @@ type Ctx = {
   onNavigate?: ((to: string) => void) | undefined
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
   bareCode?: boolean | undefined
+  waiting?: ((call: ToolCallData) => React.ReactNode) | undefined
   /** The level a model's top heading (`#`) is drawn at; deeper ones go one level down each, to 6. */
   headingLevel: HeadingLevel
 }
@@ -270,6 +271,30 @@ function flatItems(block: ListBlock): InlineNode[][] {
   return out
 }
 
+/** Whether a node draws anything: null, undefined, a boolean and "" draw nothing. */
+const draws = (node: React.ReactNode) => node !== null && node !== undefined && typeof node !== "boolean" && node !== ""
+
+/**
+ * A run of tool calls, and under it what the app draws for each call in it that waits on a person (`waiting`), in the
+ * calls' order. Under the run, not inside it, so a run long enough to fold never hides the prompt. With nothing to draw
+ * for any call, the run alone, as without `waiting`.
+ */
+function ToolsBlock({ calls }: { calls: ToolCallData[] }) {
+  const { waiting } = React.useContext(ContentContext)
+  const asks = waiting ? calls.flatMap((call) => (call.status === "waiting" ? [{ call, node: waiting(call) }] : [])).filter((a) => draws(a.node)) : []
+  if (asks.length === 0) return <ToolCallGroup calls={calls} />
+  return (
+    <>
+      <ToolCallGroup calls={calls} />
+      {asks.map(({ call, node }) => (
+        <div key={call.id} data-slot="message-waiting" data-tool-call={call.id}>
+          {node}
+        </div>
+      ))}
+    </>
+  )
+}
+
 function AttachmentBlock({ files }: { files: Attachment[] }) {
   const ctx = React.useContext(ContentContext)
   return <AttachmentList attachments={files} onOpen={ctx.onOpenAttachment} />
@@ -324,7 +349,7 @@ function Block({
         </blockquote>
       )
     case "tools":
-      return <ToolCallGroup calls={block.calls} />
+      return <ToolsBlock calls={block.calls} />
     case "degraded":
       return <DegradedPanel reason={neutralizeBidi(block.reason)} missing={neutralizeBidi(block.missing)} />
     case "card":
@@ -350,6 +375,7 @@ function MessageContent({
   onOpenAttachment,
   bareCode,
   headingLevel,
+  waiting,
   className,
 }: {
   /** The reply as typed blocks: paragraphs, lists, tables, quotes, payloads, tool calls, cards, attachments. */
@@ -370,13 +396,21 @@ function MessageContent({
    * `<h1>` and `<h2>`.
    */
   headingLevel?: HeadingLevel | undefined
+  /**
+   * What to draw for a tool call that waits on a person (status "waiting"), in the reply where the call is: your
+   * `PermissionPrompt` for it, matched by the call's `id` (the adapters' approvals carry it as `toolCallId` or
+   * `toolUseId`). It shows under the run of tool calls that holds the call, so the ask sits with what it is about and
+   * scrolls with the conversation. Called with the call; return nothing for a call you draw elsewhere. Left out, a
+   * waiting call shows only its "Waiting" row.
+   */
+  waiting?: ((call: ToolCallData) => React.ReactNode) | undefined
   className?: string | undefined
 }) {
   const scope = useHeadingScope()
   const level = headingLevel !== undefined ? belowLevel(headingLevel, 0) : scope !== undefined ? belowLevel(scope) : 3
   const ctx = React.useMemo(
-    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment, bareCode, headingLevel: level }),
-    [sources, onOpenEntity, onNavigate, onOpenAttachment, bareCode, level]
+    () => ({ sources: new Map(sources.map((s) => [s.id, s])), onOpenEntity, onNavigate, onOpenAttachment, bareCode, waiting, headingLevel: level }),
+    [sources, onOpenEntity, onNavigate, onOpenAttachment, bareCode, waiting, level]
   )
   return (
     <ContentContext.Provider value={ctx}>

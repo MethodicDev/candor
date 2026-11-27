@@ -7,6 +7,7 @@ import { useFormat, useStrings, type Formatter, type Translate } from "@/compone
 import type { Attachment } from "@/lib/candor/chat"
 import { neutralizeBidi } from "@/lib/candor/bidi"
 import { motion } from "@/lib/candor/motion"
+import { Locked } from "@/components/candor/locked"
 
 /** The upload bar moving between measured byte counts: 2.2's 300 ms. */
 const progressMotion = motion("attachment-preview", "progress", "fill", { dur: 300 })
@@ -62,6 +63,7 @@ const thumbnail = (a: Attachment) => (a.previewUrl && (a.mediaType ?? "").starts
 function AttachmentChip({
   attachment: a,
   onRemove,
+  removeLocked,
   className,
   style,
 }: {
@@ -69,6 +71,12 @@ function AttachmentChip({
   attachment: Attachment
   /** Shows a remove button. */
   onRemove?: ((id: string) => void) | undefined
+  /**
+   * Why the remove button can't be used now ("Sending your answer"): it stays in place and focusable, and says why.
+   * Pass it from the chip's first draw, as `null` while the button can be used, so focus stays on the button as it
+   * locks and unlocks. Left out, the button is drawn as before.
+   */
+  removeLocked?: string | null | undefined
   className?: string | undefined
   /** Inline style for the chip's outer element, such as a motion chain from `motion()`. */
   style?: React.CSSProperties | undefined
@@ -89,11 +97,18 @@ function AttachmentChip({
       <span className={cn("shrink-0 tabular-nums", a.error ? "text-destructive-text" : "text-faint-foreground")}>
         {a.error ? neutralizeBidi(a.error) : a.progress !== undefined ? fmt.number(Math.round(a.progress * 100) / 100, { style: "percent" }) : formatFileSize(a.size, fmt.number, t)}
       </span>
-      {onRemove && (
-        <button type="button" aria-label={t("remove", { name })} onClick={() => onRemove(a.id)} className="relative after:absolute after:-inset-1 rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
-          <X className="size-3" />
-        </button>
-      )}
+      {onRemove &&
+        (removeLocked !== undefined ? (
+          <Locked reason={removeLocked}>
+            <button type="button" aria-label={t("remove", { name })} onClick={() => onRemove(a.id)} className="relative after:absolute after:-inset-1 rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
+              <X className="size-3" />
+            </button>
+          </Locked>
+        ) : (
+          <button type="button" aria-label={t("remove", { name })} onClick={() => onRemove(a.id)} className="relative after:absolute after:-inset-1 rounded-sm p-0.5 text-faint-foreground hover:bg-accent hover:text-foreground">
+            <X className="size-3" />
+          </button>
+        ))}
       {a.progress !== undefined && !a.error && <span aria-hidden className="absolute bottom-0 start-0 h-0.5 bg-[var(--cd-primary-mark,var(--primary))] cd-fill" style={{ ...progressMotion, width: `${a.progress * 100}%` }} />}
     </span>
   )

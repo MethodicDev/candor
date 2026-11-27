@@ -135,6 +135,9 @@ export const threadStrings = {
  *
  * The newest message (the last in the thread, of any role) carries `data-newest`, and no other message does, for your
  * app's own styling or scrolling. With `virtualize` it carries it while it is rendered.
+ *
+ * Where an agent's cards and asks sit in the thread, and how they fold once answered: the "Cards in the thread"
+ * pattern (/patterns/cards-in-the-thread).
  */
 function Thread({
   children,

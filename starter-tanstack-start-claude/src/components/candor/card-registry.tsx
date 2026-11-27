@@ -89,6 +89,9 @@ function Summary({
  * Renders one card from the registry. Three honest fallbacks, each with the
  * service's text summary: the app doesn't know this card; its data doesn't
  * fit (and how); or it failed while drawing.
+ *
+ * Where a card sits in a reply, and how it folds once answered: the "Cards in the thread" pattern
+ * (/patterns/cards-in-the-thread).
  */
 function RegistryCard({
   name,

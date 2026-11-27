@@ -40,6 +40,18 @@ const dotColor: Record<RunStatus, string> = {
  * run has been heard from within `staleAfter`, and is still (with its word)
  * once it hasn't, or before the page has a clock. Without it the app isn't
  * tracking freshness, and running pulses as before.
+ *
+ * To make a status a way in (to the question that waits, the run that
+ * failed), put it inside your own button or link: it has no role and no live
+ * region of its own, so it reads as part of the control. The control's name
+ * must say where it goes, not only the state, in words after the dot or in
+ * its `aria-label`, which starts with the status's word:
+ *
+ * ```tsx
+ * <Button variant="ghost" size="sm" onClick={openQuestion} aria-label="Needs you: open the question">
+ *   <StatusDot status="waiting" showLabel />
+ * </Button>
+ * ```
  */
 function StatusDot({
   status,
@@ -62,6 +74,7 @@ function StatusDot({
   lastHeardAt?: Date | string | undefined
   /** How long a running run may be silent, in milliseconds, before the dot stops pulsing. Two minutes by default. */
   staleAfter?: number | undefined
+  /** Classes for the dot and its word, merged with Candor's. */
   className?: string | undefined
 }) {
   const statusLabel = useStatusLabel()

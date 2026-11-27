@@ -431,6 +431,7 @@
         "@candor/bidi",
         "@candor/chat",
         "@candor/locale",
+        "@candor/locked",
         "@candor/motion",
         "@candor/tokens",
         "utils"

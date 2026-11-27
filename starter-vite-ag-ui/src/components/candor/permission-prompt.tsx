@@ -206,6 +206,12 @@ function parseObject(text: string): Record<string, unknown> | null {
  * space outside it (the gesture that would dismiss a dialog) nudges it instead, so the person sees it is still
  * waiting. Both stop once the answer is being sent.
  *
+ * Draw it in the reply, under the tool call it answers, with Message's `waiting` (match the approval's `toolCallId` or
+ * `toolUseId` to the call's `id`): the ask then sits with what it is about and scrolls with the conversation, and the
+ * call's own row still says "Waiting". To dock every ask by the Composer instead, put it in Thread's `footer`; keep one
+ * there too for an approval whose call isn't in the thread. The "Cards in the thread" pattern
+ * (/patterns/cards-in-the-thread) shows both.
+ *
  * Its heading is one level below the nearest `HeadingScope` (an `<h3>` in Candor's dialogs and sheets), else an `<h2>`,
  * unless `headingLevel` says otherwise.
  *

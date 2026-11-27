@@ -55,7 +55,7 @@ A conversation with an agent: messages, the composer, tool calls, reasoning, cit
 
 What an agent proposes and does: plans, approvals, diffs, runs, receipts.
 
-- **acceptance-list** (Pro): What the work said it would do, and how each was checked: a list of criteria, each met, not met, not delivered or not checked yet (AcceptanceItem). Exports `AcceptanceList`, `AcceptanceItem`, `shownStatus`.
+- **acceptance-list** (Pro): What the work said it would do, and how each was checked: a list of criteria, each met, not met, not delivered, not checked yet, or in progress: planned, being built, or just in progress when the app doesn't say how far (AcceptanceItem). Exports `AcceptanceList`, `AcceptanceItem`, `shownStatus`.
 - **access-ask** (Pro): An access request in the app's environment: a website permission, or an account to reconnect or sign in to. Exports `AccessAsk`.
 - **agent-activity** (Pro): Who is working right now: each agent, what it is doing in plain words, and its state in words beside the dot, so state is never colour alone. Exports `AgentActivity`.
 - **agent-screen** (Pro): A live view of a computer-use or browser agent's screen, from frames or a stream the app passes. Exports `AgentScreen`, `numberedMarkers`.
@@ -182,7 +182,7 @@ The app around the agent: layout, sidebar, command menu, sessions, notices.
 - **scope-breadcrumb** (Pro): Where the person is, level by level (client, then workspace, then project), each level a menu to move to another place at that level. Exports `ScopeBreadcrumb`.
 - **scope-switcher** (Pro): Where the person is working, in one control for a top bar: a button with the primary level's name (a client, a workspace) over a line of facts (the environment, with production a warning in words, colour and an icon; the agent's mode as it last reported it, and "Changing to …" while another is asked for; the connection's state, a dot always with its word), and a menu with a choice of one per level. Exports `ScopeSwitcher`.
 - **section-nav** (Pro): The page's sections as a list of links ("On this page"), the one being read marked `aria-current="location"` as the page scrolls (nothing is announced: scrolling isn't news). Exports `SectionNav`.
-- **service-notice** (Pro): A notice about the service itself, above the composer: a usage limit, a model that's down, a trial running out. Exports `ServiceNotice`.
+- **service-notice** (Pro): A notice about the service itself, above the composer: a usage limit, a model that's down, a trial running out, a page older than the service behind it. Exports `ServiceNotice`.
 - **session-expired** (Pro): The sign-in ran out while the app was open. Exports `SessionExpiredDialog`.
 - **session-list** (Pro): Threads, newest first, grouped by day, with pinned threads on top. Exports `SessionList`.
 - **settings-layout** (Pro): Settings: grouped sections down the side and the open one beside them. Exports `SettingsLayout`, `SettingsSection`.
@@ -202,7 +202,7 @@ What the agent knows: documents, diagrams, freshness.
 - **confidence-mark** (Pro): How sure the system is, with what it rests on. Exports `ConfidenceMark`.
 - **diagram** (Pro): A diagram an agent wrote as Mermaid (a data model, a flow, a sequence), rendered in strict mode in the theme's colours, or boxes and arrows given as data and laid out by Candor. Exports `Diagram`.
 - **freshness-stamp** (Pro): How old a piece of knowledge is. Exports `FreshnessStamp`.
-- **knowledge-entry** (Pro): One thing the agent knows, as a row: a kind badge from the app's `kinds` (a draft or confirmed requirement, an attachment, a convention, a lesson), the summary, a source line (who gave it or which agent inferred it, the app's words for where it came from, and when), the things it mentions as EntityChips, and a link to its evidence. Exports `KnowledgeEntry`.
+- **knowledge-entry** (Pro): One thing the agent knows, as a row: a kind badge from the app's `kinds` (a draft or confirmed requirement, an attachment, a convention, a lesson), the summary, a source line (who gave it or which agent inferred it, the app's words for where it came from, when, and how sure, with what that rests on), the things it mentions as EntityChips, and a link to its evidence. Exports `KnowledgeEntry`.
 - **knowledge-sources** (Pro): Where the agents' knowledge comes from, grouped by door: the environment itself, sampled data, files and links people shared, answers they gave. Exports `KnowledgeSources`.
 - **memory-manager** (Pro): What agents remember about this account, one line each, with who taught it and when. Exports `MemoryManager`.
 - **memory-mode** (Pro): Whether agents use memory: on, paused or off, with what each does to the memories already kept. Exports `MemoryMode`.
@@ -347,7 +347,7 @@ App scaffolding. The screens every app has, in Candor's theme. Not agent surface
 - **invite-chooser** (Pro): Shown at sign-in when more than one account has invited you. Exports `InviteChooser`.
 - **invite-members** (Pro): Invite people by pasting any list of emails. Exports `InviteMembers`.
 - **members-table** (Pro): Members, their role on each environment, and invites still pending. Exports `MembersTable`.
-- **profile-settings** (Pro): Who you are in the app: your name, your email (shown, but changed through your sign-in provider, which the field says), your time zone for schedules and timestamps, and your theme. Exports `ProfileSettings`.
+- **profile-settings** (Pro): Who you are in the app: your name, your email (shown, but changed through your sign-in provider, which the field says), your time zone for schedules and timestamps, and your theme (and, with `accents`, your accent, among the app's brands, saved with the rest). Exports `ProfileSettings`.
 - **setup-checklist** (Pro): What's left before the first useful answer: connect an environment, let the agents read it, invite the team. Exports `SetupChecklist`.
 - **sign-in** (Pro): Sign in without a password: your company's SSO, the sign-in providers the app offers (`providers`), a passkey (`onPasskey`), or a one-time code sent to your email. Exports `SignIn`.
 - **step-up-dialog** (Pro): A verification step before a sensitive action: the person proves it's them again, by a passkey, a fresh SSO sign-in, or a code, whichever the app provides (each shows only when its callback is given). Exports `StepUpDialog`.
@@ -398,7 +398,7 @@ The shadcn/ui primitives Candor's components are built on.
 - **alert** (free): A message about the page or the work that stays where it is until it no longer applies: a warning before a change, a note that something failed, a fact the person should know. Exports `Alert`, `AlertTitle`, `AlertDescription`.
 - **avatar** (Pro): shadcn's avatar in Candor's theme. Exports `Avatar`, `AvatarImage`, `AvatarFallback`, `AvatarBadge`, `AvatarGroup`, `AvatarGroupCount`.
 - **badge** (Pro): shadcn's badge in Candor's theme. Exports `Badge`, `badgeVariants`.
-- **breadcrumb** (Pro): The path to the current page, in Candor's theme: each parent is a link, the current page is plain text marked `aria-current="page"`, and the whole is a labelled navigation landmark. Exports `Breadcrumb`, `BreadcrumbEllipsis`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbList`, `BreadcrumbPage`, `BreadcrumbSeparator`.
+- **breadcrumb** (Pro): The path to the current page, in Candor's theme: each parent is a link, the current page is plain text marked `aria-current="page"`, and the whole is a labelled navigation landmark. Exports `Breadcrumb`, `BreadcrumbBack`, `BreadcrumbEllipsis`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbList`, `BreadcrumbPage`, `BreadcrumbSeparator`.
 - **button-group** (Pro): Buttons joined into one control: shared edges, inner corners squared, one border between each pair. Exports `ButtonGroup`, `ButtonGroupSeparator`, `ButtonGroupText`.
 - **button** (free): shadcn's button in Candor's theme, with a locked state for <Locked> (dimmed, and says why). Exports `Button`, `buttonVariants`.
 - **calendar** (Pro): A month of days to pick one from. Exports `Calendar`, `useDayFormat`.
@@ -479,7 +479,7 @@ Types and pure functions the components share.
 - **diff** (Pro): A token-level diff (longest common subsequence). Exports `tokenizeWords`, `diffTokens`.
 - **fill-strings** (free): A message's forms chosen by a word: `vars[select]` when it names a case, else the `gender` of the noun called `select`, else `other`. Exports `startOf`, `fill`, `pick`, `singularNouns`, `englishStrings`, `withNouns`.
 - **format-elapsed** (free): A measured span of time in the locale: "4.2s" under ten seconds, "42s" under a minute, then "2m 5s". Exports `formatElapsed`.
-- **graph-layout** (Pro): Lays out a directed graph in layers, from the edges the data already has: each node names the nodes it comes after, and the layout works out where everything goes. Exports `layoutGraph`.
+- **graph-layout** (Pro): An edge drawn on its own, from one node to another. Exports `layoutGraph`, `graphSchema`, `routeData`, `pointsAlong`, `overlaps`, `crossesBox`, `routeCrosses`, `spreadEnds`, `placeLabels`.
 - **heading-level** (free): A heading's level in the page's outline: `1` is `<h1>`, `6` is `<h6>`.
 - **heading-scope** (free): Says the content inside sits under a heading of `level`, so each Candor item in it draws its heading one level below (`level + 1`) unless it is given `headingLevel`. Exports `HeadingScope`, `useHeadingLevel`, `useHeadingScope`, `belowLevel`.
 - **highlight** (free): A small syntax highlighter for code an agent shows: it splits text into typed tokens (keyword, string, comment…), and Payload renders each as a span. Exports `canHighlight`, `tokenize`.

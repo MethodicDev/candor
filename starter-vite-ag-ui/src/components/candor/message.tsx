@@ -5,7 +5,7 @@ import { DegradedPanel } from "@/components/candor/degraded-panel"
 import { RelativeTime } from "@/components/candor/relative-time"
 import { ShimmerLabel } from "@/components/candor/streaming-text"
 import type { DateStyle } from "@/components/candor/locale"
-import type { Attachment, EntityRef, MessageData } from "@/lib/candor/chat"
+import type { Attachment, EntityRef, MessageData, ToolCallData } from "@/lib/candor/chat"
 import { AgentAvatar, useAgentRoles } from "@/components/candor/agent-avatar"
 import { SourceList } from "@/components/candor/citation"
 import { blocksToText, MessageContent } from "@/components/candor/message-content"
@@ -60,6 +60,9 @@ export const messageStrings = {
  *
  * Build `blocks` with `plainBlocks(text)` for a person's words and
  * `markdownBlocks(text)` for an agent's, from `safe-markdown`.
+ *
+ * Where cards and asks sit in a reply, and how they fold once answered: the
+ * "Cards in the thread" pattern (/patterns/cards-in-the-thread).
  */
 function Message({
   message,
@@ -78,6 +81,7 @@ function Message({
   density = "default",
   bareCode,
   nameShownAbove,
+  waiting,
   className,
 }: {
   /** The message: author, status, blocks, and optional reasoning, sources and attribution. */
@@ -122,6 +126,27 @@ function Message({
    * where the name is how a reader tells who wrote each message.
    */
   nameShownAbove?: boolean | undefined
+  /**
+   * What to draw under a tool call in this reply that waits on a person (status "waiting"): your `PermissionPrompt`
+   * for it, matched by the call's `id` (the adapters' approvals carry it as `toolCallId` or `toolUseId`). The ask then
+   * sits in the thread with the call it is about, inside the reply, and scrolls with the conversation, instead of
+   * docked in Thread's `footer` (still a fit when you want every ask by the Composer). Called with the call; return
+   * nothing for a call you draw elsewhere. Left out, a waiting call shows only its "Waiting" row.
+   *
+   * In a Thread, the ask is part of the conversation in two more ways. Thread's messages are a log that screen readers
+   * read as it grows, so an ask drawn into a reply is read out when it arrives, whole, with its input, where one in the
+   * `footer` isn't. And with Thread's `virtualize`, a message far out of view isn't rendered, so a prompt in it loses
+   * what the person changed (an edited input, a ticked box) when it is scrolled away: keep that state in your app, or
+   * keep the asks in the `footer`.
+   *
+   * ```tsx
+   * <Message message={m} waiting={(call) => {
+   *   const a = approvals.find((ap) => ap.toolCallId === call.id)
+   *   return a && <PermissionPrompt request={…} onAllow={…} onDeny={…} />
+   * }} />
+   * ```
+   */
+  waiting?: ((call: ToolCallData) => React.ReactNode) | undefined
   /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
@@ -177,7 +202,7 @@ function Message({
         </span>
         <div className="min-w-0 flex-1">
           <MessageHeader name={author.name} detail={author.team} createdAt={message.createdAt} timeFormat={timeFormat} density={density} nameShownAbove={nameShownAbove} />
-          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} className="mt-1" />
+          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} waiting={waiting} className="mt-1" />
         </div>
       </article>
     )
@@ -200,7 +225,7 @@ function Message({
       <div className="min-w-0 flex-1">
         <MessageHeader name={agent.name} detail={agent.specialty} createdAt={message.createdAt} timeFormat={timeFormat} density={density} nameShownAbove={nameShownAbove} />
         <div className="mt-1 flex flex-col gap-3">
-          <MessageBody message={message} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />
+          <MessageBody message={message} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} waiting={waiting} />
           <MessageFooter
             message={message}
             onRetry={onRetry}
@@ -287,6 +312,7 @@ function MessageBody({
   onNavigate,
   onOpenAttachment,
   bareCode,
+  waiting,
   className,
 }: {
   /** The message whose reasoning and blocks to show. */
@@ -299,6 +325,8 @@ function MessageBody({
   onOpenAttachment?: ((attachment: Attachment) => void) | undefined
   /** Code and other payload blocks without their frame. */
   bareCode?: boolean | undefined
+  /** What to draw under a tool call that waits on a person: your `PermissionPrompt` for it (Message's `waiting`). */
+  waiting?: ((call: ToolCallData) => React.ReactNode) | undefined
   /** Classes, merged with Candor's. */
   className?: string | undefined
 }) {
@@ -321,7 +349,7 @@ function MessageBody({
       {message.reasoning && hasReasoning && <Reasoning entries={message.reasoning} thinking={thinking} thoughtFor={message.thoughtFor} startedAt={startedAt} />}
       {message.blocks.length > 0 && (
         <div className="relative">
-          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} />
+          <MessageContent blocks={message.blocks} sources={message.sources} onOpenEntity={onOpenEntity} onNavigate={onNavigate} onOpenAttachment={onOpenAttachment} bareCode={bareCode} waiting={waiting} />
           {streaming && <span aria-hidden style={caretMotion} className="ms-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.18em] rounded-full bg-[var(--cd-primary-mark,var(--primary))] cd-live-caret" />}
         </div>
       )}

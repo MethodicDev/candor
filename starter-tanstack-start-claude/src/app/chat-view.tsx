@@ -1,5 +1,5 @@
 import * as React from "react"
-import type { AgentIdentity } from "@/lib/candor/chat"
+import type { AgentIdentity, ToolCallData } from "@/lib/candor/chat"
 import { Composer } from "@/components/candor/composer"
 import { Message } from "@/components/candor/message"
 import { PermissionPrompt } from "@/components/candor/permission-prompt"
@@ -19,8 +19,8 @@ const suggestions = [
 /**
  * The chat, from Candor's free items: Thread, Message (with its reasoning and tool calls), Composer, PromptSuggestions
  * and PermissionPrompt. useClaudeAgent talks to the routes in src/routes/api/agent: one runs the agent, the other
- * takes your answer to its permission requests. A tool call that needs a person's OK shows above the composer until
- * they answer.
+ * takes your answer to its permission requests. A tool call that needs a person's OK shows its prompt in the reply,
+ * under the call, until they answer.
  */
 export function ChatView() {
   const { messages, composer, approvals, respond, error } = useClaudeAgent({ api: "/api/agent", approveApi: "/api/agent/approve", agent, toolTitle })
@@ -45,6 +45,26 @@ export function ChatView() {
   }
   const alertText = error ?? (unsent ? "Your answer wasn’t sent, so the request is still waiting. Answer it again." : undefined)
 
+  // An approval sits in the reply, under the tool call it is about (Message's `waiting`), and scrolls with the
+  // conversation; one whose call isn't in the thread waits above the composer.
+  const ask = (a: (typeof approvals)[number]) => (
+    <PermissionPrompt
+      key={a.id}
+      request={{ ...a, title: toolTitle(a.tool, a.input) ?? a.title }}
+      mode={a.mode}
+      onAllow={() => answer(a.id, true)}
+      onDeny={() => answer(a.id, false, "Not now")}
+      busy={answering.has(a.id)}
+      headingLevel={2}
+    />
+  )
+  const inThread = new Set(messages.flatMap((m) => m.blocks.flatMap((b) => (b.kind === "tools" ? b.calls.filter((c) => c.status === "waiting").map((c) => c.id) : []))))
+  const waiting = (call: ToolCallData) => {
+    const a = approvals.find((ap) => ap.toolUseId === call.id)
+    return a ? ask(a) : null
+  }
+  const docked = approvals.filter((a) => !inThread.has(a.toolUseId))
+
   return (
     <Thread
       className="min-h-0 flex-1"
@@ -58,17 +78,7 @@ export function ChatView() {
       }
       footer={
         <div className="flex flex-col gap-2">
-          {approvals.map((a) => (
-            <PermissionPrompt
-              key={a.id}
-              request={{ ...a, title: toolTitle(a.tool, a.input) ?? a.title }}
-              mode={a.mode}
-              onAllow={() => answer(a.id, true)}
-              onDeny={() => answer(a.id, false, "Not now")}
-              busy={answering.has(a.id)}
-              headingLevel={2}
-            />
-          ))}
+          {docked.map(ask)}
           {alertText && (
             <p role="alert" className="text-sm text-destructive-text">
               {alertText}
@@ -78,7 +88,7 @@ export function ChatView() {
         </div>
       }
     >
-      {messages.length ? messages.map((m) => <Message key={m.id} message={m} />) : null}
+      {messages.length ? messages.map((m) => <Message key={m.id} message={m} waiting={waiting} />) : null}
     </Thread>
   )
 }

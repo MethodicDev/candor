@@ -4,7 +4,7 @@ import { Message } from "@/components/candor/message"
 import { PermissionPrompt } from "@/components/candor/permission-prompt"
 import { PromptSuggestions } from "@/components/candor/prompt-suggestions"
 import { Thread } from "@/components/candor/thread"
-import type { AgentIdentity } from "@/lib/candor/chat"
+import type { AgentIdentity, ToolCallData } from "@/lib/candor/chat"
 import { useAgUi } from "@/components/candor/use-ag-ui"
 import { toolTitle } from "./tool-title"
 
@@ -17,7 +17,7 @@ const suggestions = [
 /**
  * The chat, from Candor's free items: Thread, Message (with its reasoning and tool calls), Composer, PromptSuggestions
  * and PermissionPrompt. useAgUi turns the agent's AG-UI events into them. A tool call that needs a person's OK shows
- * above the composer until they answer; the run resumes with the answer.
+ * its prompt in the reply, under the call, until they answer; the run resumes with the answer.
  */
 export function ChatView({ url, agent, fetch }: { url: string; agent: AgentIdentity; fetch?: typeof globalThis.fetch | undefined }) {
   const { messages, composer, approvals, respond, notice, error } = useAgUi({ url, agent, fetch, toolTitle })
@@ -42,6 +42,28 @@ export function ChatView({ url, agent, fetch }: { url: string; agent: AgentIdent
   }
   const alertText = error ?? (unsent ? "Your answer wasn’t sent, so the request is still waiting. Answer it again." : undefined)
 
+  // An approval sits in the reply, under the tool call it is about (Message's `waiting`), and scrolls with the
+  // conversation; one whose call isn't in the thread waits above the composer.
+  const ask = (a: (typeof approvals)[number]) => (
+    <PermissionPrompt
+      key={a.id}
+      request={{ id: a.id, tool: a.tool ?? "tool", input: a.input ?? {}, title: a.tool ? (toolTitle(a.tool, a.input) ?? a.title) : a.title }}
+      onAllow={() => answer(a.id, true)}
+      onDeny={() => answer(a.id, false, "Not now")}
+      busy={answering.has(a.id)}
+      headingLevel={2}
+    />
+  )
+  const inThread = new Set(messages.flatMap((m) => m.blocks.flatMap((b) => (b.kind === "tools" ? b.calls.filter((c) => c.status === "waiting").map((c) => c.id) : []))))
+  const waiting = (call: ToolCallData) => {
+    const a = approvals.find((ap) => ap.toolCallId === call.id)
+    return a ? ask(a) : null
+  }
+  const docked = approvals.filter((a) => {
+    const id = a.toolCallId
+    return id === undefined || !inThread.has(id)
+  })
+
   return (
     <Thread
       className="min-h-0 flex-1"
@@ -55,16 +77,7 @@ export function ChatView({ url, agent, fetch }: { url: string; agent: AgentIdent
       }
       footer={
         <div className="flex flex-col gap-2">
-          {approvals.map((a) => (
-            <PermissionPrompt
-              key={a.id}
-              request={{ id: a.id, tool: a.tool ?? "tool", input: a.input ?? {}, title: a.tool ? (toolTitle(a.tool, a.input) ?? a.title) : a.title }}
-              onAllow={() => answer(a.id, true)}
-              onDeny={() => answer(a.id, false, "Not now")}
-              busy={answering.has(a.id)}
-              headingLevel={2}
-            />
-          ))}
+          {docked.map(ask)}
           {notice && <p className="text-sm text-muted-foreground">{notice}</p>}
           {alertText && (
             <p role="alert" className="text-sm text-destructive-text">
@@ -75,7 +88,7 @@ export function ChatView({ url, agent, fetch }: { url: string; agent: AgentIdent
         </div>
       }
     >
-      {messages.length ? messages.map((m) => <Message key={m.id} message={m} />) : null}
+      {messages.length ? messages.map((m) => <Message key={m.id} message={m} waiting={waiting} />) : null}
     </Thread>
   )
 }
